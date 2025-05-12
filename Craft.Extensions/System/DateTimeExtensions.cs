@@ -4,35 +4,44 @@ namespace System;
 
 public static class DateTimeExtensions
 {
-    public static DateTime ClearTime(this DateTime dateTime)
+    extension(DateTime dateTime)
     {
-        return dateTime.Subtract(new TimeSpan(0,
-            dateTime.Hour,
-            dateTime.Minute,
-            dateTime.Second,
-            dateTime.Millisecond));
+        public DateTime ClearTime()
+        {
+            return dateTime.Subtract(new TimeSpan(0,
+                dateTime.Hour,
+                dateTime.Minute,
+                dateTime.Second,
+                dateTime.Millisecond));
+        }
+
+        public DateTime SetKindUtc()
+        {
+            if (dateTime.Kind == DateTimeKind.Utc)
+                return dateTime;
+
+            return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+        }
     }
 
-    public static bool IsWeekday(this DayOfWeek dayOfWeek)
+    extension (DateTime? dateTime)
     {
-        return dayOfWeek.IsIn(DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday);
+        public DateTime? SetKindUtc()
+        {
+            return dateTime.HasValue ? dateTime.Value.SetKindUtc() : null;
+        }
     }
 
-    public static bool IsWeekend(this DayOfWeek dayOfWeek)
+    extension (DayOfWeek dayOfWeek)
     {
-        return dayOfWeek.IsIn(DayOfWeek.Saturday, DayOfWeek.Sunday);
-    }
+        public bool IsWeekday()
+        {
+            return dayOfWeek.IsIn(DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday);
+        }
 
-    public static DateTime? SetKindUtc(this DateTime? dateTime)
-    {
-        return dateTime.HasValue ? dateTime.Value.SetKindUtc() : null;
-    }
-
-    public static DateTime SetKindUtc(this DateTime dateTime)
-    {
-        if (dateTime.Kind == DateTimeKind.Utc)
-            return dateTime;
-
-        return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+        public bool IsWeekend()
+        {
+            return dayOfWeek.IsIn(DayOfWeek.Saturday, DayOfWeek.Sunday);
+        }
     }
 }
