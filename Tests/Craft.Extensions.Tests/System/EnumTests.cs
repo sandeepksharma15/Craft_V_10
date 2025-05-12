@@ -160,7 +160,7 @@ public class EnumTests
     public void GetName_ReturnsCorrectName(TestEnum value, string expectedName, string _)
     {
         // Act
-        string actualName = EnumValues<TestEnum>.GetName(value);
+        string actualName = value.GetName();
 
         // Assert
         Assert.Equal(expectedName, actualName);
@@ -172,7 +172,7 @@ public class EnumTests
     public void GetDescription_ReturnsCorrectDescription(TestEnum value, string _, string expectedDescription)
     {
         // Act
-        string actualDescription = EnumValues<TestEnum>.GetDescription(value);
+        string actualDescription = value.GetDescription();
 
         // Assert
         Assert.Equal(expectedDescription, actualDescription);
@@ -190,7 +190,7 @@ public class EnumTests
         };
 
         // Act
-        var actualNames = EnumValues<TestEnum>.GetNames();
+        var actualNames = EnumExtensions.GetNames<TestEnum>();
 
         // Assert
         Assert.Equal(expectedNames, actualNames);
@@ -208,7 +208,7 @@ public class EnumTests
         };
 
         // Act
-        var actualDescriptions = EnumValues<TestEnum>.GetDescriptions();
+        var actualDescriptions = EnumExtensions.GetDescriptions<TestEnum>(); ;
 
         // Assert
         Assert.Equal(expectedDescriptions, actualDescriptions);
@@ -221,7 +221,7 @@ public class EnumTests
         var expectedValues = new[] { TestEnum.First, TestEnum.Second, TestEnum.Third };
 
         // Act
-        var actualValues = EnumValues<TestEnum>.GetValues();
+        var actualValues = TestEnum.GetValues<TestEnum>();
 
         // Assert
         Assert.Equal(expectedValues, actualValues);
@@ -233,7 +233,7 @@ public class EnumTests
     public void TryGetSingleName_ReturnsTrueAndCorrectName(TestEnum value, string expectedName, string _)
     {
         // Act
-        bool result = EnumValues<TestEnum>.TryGetSingleName(value, out string? actualName);
+        bool result = value.TryGetSingleName(out string? actualName);
 
         // Assert
         Assert.True(result);
@@ -246,7 +246,7 @@ public class EnumTests
     public void TryGetSingleDescription_ReturnsTrueAndCorrectDescription(TestEnum value, string _, string expectedDescription)
     {
         // Act
-        bool result = EnumValues<TestEnum>.TryGetSingleDescription(value, out string? actualDescription);
+        bool result = value.TryGetSingleDescription(out string ? actualDescription);
 
         // Assert
         Assert.True(result);
