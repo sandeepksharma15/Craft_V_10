@@ -40,7 +40,7 @@ public static class DateTimeExtensions
         }
     }
 
-    extension (DateTime? dateTime)
+    extension(DateTime? dateTime)
     {
         /// <summary>
         /// Converts the value of the nullable <see cref="DateTime"/> to UTC if it has a value.
@@ -53,7 +53,7 @@ public static class DateTimeExtensions
         }
     }
 
-    extension (DayOfWeek dayOfWeek)
+    extension(DayOfWeek dayOfWeek)
     {
         /// <summary>
         /// Determines whether the current day is a weekday.

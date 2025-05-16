@@ -276,6 +276,14 @@ public static class EnumExtensions
             return Enum.Parse<T>(value, ignoreCase);
         }
 
+        /// <summary>
+        /// Determines whether the specified flag or any of the flags in the specified enumeration value  are contained
+        /// within the current value.
+        /// </summary>
+        /// <typeparam name="T">The type of the enumeration. Must be a struct and an enumeration type.</typeparam>
+        /// <param name="flags">The enumeration value to check. This can be a single flag or a combination of flags.</param>
+        /// <returns><see langword="true"/> if the specified flag or any of the flags in the specified enumeration  value are
+        /// contained within the current value; otherwise, <see langword="false"/>.</returns>
         public bool Contains<T>(T flags) where T : struct, Enum
         {
             return flags.TryGetSingleName(out var flagValue) && flagValue != null
