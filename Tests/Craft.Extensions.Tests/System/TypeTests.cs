@@ -1,49 +1,6 @@
 ﻿using System.Reflection;
 
-
 namespace Craft.Extensions.Tests.System;
-
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public class TestAttribute : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public class AnotherAttribute : Attribute;
-
-public class BaseClass;
-
-[Test]
-public class DerivedClass : BaseClass, IInterface, IGenericInterface<string>;
-
-[Test]
-public class ClassA : BaseClass;
-
-[Another]
-public class ClassB : BaseClass;
-
-public interface IInterface;
-
-public interface IGenericInterface<T>;
-
-public interface INonGenericInterface;
-
-#pragma warning disable IDE0051, RCS1213, CS0169, CS0067
-
-public class MyTestClass
-{
-    private readonly int _myField;
-
-    public string? MyProperty { get; set; }
-
-    public event EventHandler? MyEvent;
-}
-
-public class MyClass
-{
-    public int AnotherProperty { get; set; }
-    public string? PropertyName { get; set; }
-}
-
-#pragma warning restore CS0169, RCS1213, IDE0051, CS0067
 
 public class TypeTests
 {
@@ -129,7 +86,7 @@ public class TypeTests
     public void HasImplementedInterface_ShouldReturnExpectedResult(Type? derivedType, Type? baseType, bool expectedResult)
     {
         // Act
-        bool? result = derivedType?.HasImplementedInterface(baseType);
+        bool? result = derivedType!.HasImplementedInterface(baseType);
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -169,7 +126,7 @@ public class TypeTests
         Type? type = null;
 
         // Act
-        var result = type?.GetClassesWithAttribute<TestAttribute>();
+        var result = type!.GetClassesWithAttribute<TestAttribute>();
 
         // Assert
         Assert.NotNull(result);
@@ -211,7 +168,7 @@ public class TypeTests
         Type? type = null;
 
         // Act
-        var result = type?.GetClassesWithoutAttribute<TestAttribute>();
+        var result = type!.GetClassesWithoutAttribute<TestAttribute>();
 
         // Assert
         Assert.NotNull(result);
@@ -242,7 +199,7 @@ public class TypeTests
         var result = type.GetClassesWithoutAttribute<AnotherAttribute>();
 
         // Assert
-        var expected = new[] { "DerivedClass", "ClassA" };
+        var expected = new[] { "BaseClass", "DerivedClass", "ClassA" };
         Assert.Equal(expected, result);
     }
 
@@ -306,5 +263,43 @@ public class TypeTests
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() => invalidMemberInfo.GetMemberUnderlyingType());
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    private class TestAttribute : Attribute;
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    private class AnotherAttribute : Attribute;
+
+    private class BaseClass;
+
+    [Test]
+    private class DerivedClass : BaseClass, IInterface, IGenericInterface<string>;
+
+    [Test]
+    private class ClassA : BaseClass;
+
+    [Another]
+    private class ClassB : BaseClass;
+
+    private interface IInterface;
+
+    private interface IGenericInterface<T>;
+
+    private interface INonGenericInterface;
+
+    private class MyTestClass
+    {
+        private readonly int _myField;
+
+        public string? MyProperty { get; set; }
+
+        public event EventHandler? MyEvent;
+    }
+
+    private class MyClass
+    {
+        public int AnotherProperty { get; set; }
+        public string? PropertyName { get; set; }
     }
 }
