@@ -106,7 +106,7 @@ public class ObjectTests
         const bool condition = false;
 
         // Act
-        var result = text.If(condition, null);
+        var result = text.If(condition, null!);
 
         // Assert
         Assert.Equal(text, result);
@@ -120,7 +120,7 @@ public class ObjectTests
         const bool condition = true;
 
         // Act
-        var result = text.If(condition, null);
+        var result = text.If(condition, null!);
 
         // Assert
         Assert.Equal(text, result);

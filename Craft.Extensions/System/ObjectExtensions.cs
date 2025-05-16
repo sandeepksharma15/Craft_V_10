@@ -6,67 +6,71 @@ namespace System;
 
 public static class ObjectExtensions
 {
-    public static T AsType<T>(this object obj) where T : class => (T)obj;
-
-    /// <summary>
-    /// Can be used to conditionally perform a function
-    /// on an object and return the modified or the original object.
-    /// It is useful for chained calls.
-    /// </summary>
-    /// <param name="obj">An object</param>
-    /// <param name="condition">A condition</param>
-    /// <param name="func">A function that is executed only if the condition is <c>true</c></param>
-    /// <typeparam name="T">Type of the object</typeparam>
-    /// <returns>
-    /// Returns the modified object (by the <paramref name="func"/> if the <paramref name="condition"/> is <c>true</c>)
-    /// or the original object if the <paramref name="condition"/> is <c>false</c>
-    /// </returns>
-    public static T If<T>(this T obj, bool condition, Func<T, T> func)
+    extension (object obj) 
     {
-        if (condition && func is not null)
-            return func(obj);
+        /// <summary>
+        /// Casts the current object to the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type to which the object will be cast.</typeparam>
+        /// <returns>The current object cast to the specified type <typeparamref name="T"/>.</returns>
+        public T AsType<T>()
+            => (T)obj;
 
-        return obj;
+        /// <summary>
+        /// Converts the current object to the specified value type.
+        /// </summary>
+        /// <remarks>If the object is <see langword="null"/>, the method returns the default value of 
+        /// <typeparamref name="T"/>. If <typeparamref name="T"/> is <see cref="System.Guid"/>,  the method attempts to
+        /// parse the object as a GUID. For other types, the method uses  <see cref="System.Convert.ChangeType(object,
+        /// Type, IFormatProvider)"/> to perform the conversion.</remarks>
+        /// <typeparam name="T">The target value type to convert to. Must be a non-nullable value type.</typeparam>
+        /// <returns>The converted value of type <typeparamref name="T"/> if the conversion is successful;  otherwise, the
+        /// default value of <typeparamref name="T"/>.</returns>
+        public T ToValue<T>() where T : struct
+        {
+            if (obj is null)
+                return default;
+
+            if (typeof(T) == typeof(Guid) && Guid.TryParse(obj.ToString(), out Guid guid))
+                return (T)(ValueType)guid;
+
+            return obj is IConvertible convertible
+                ? (T)Convert.ChangeType(convertible, typeof(T), CultureInfo.CurrentCulture)
+                : default;
+        }
     }
 
-    /// <summary>
-    /// Can be used to conditionally perform an action
-    /// on an object and return the original object.
-    /// It is useful for chained calls on the object.
-    /// </summary>
-    /// <param name="obj">An object</param>
-    /// <param name="condition">A condition</param>
-    /// <param name="action">An action that is executed only if the condition is <c>true</c></param>
-    /// <typeparam name="T">Type of the object</typeparam>
-    /// <returns>
-    /// Returns the original object.
-    /// </returns>
-    public static T If<T>(this T obj, bool condition, Action<T> action)
+    extension <T> (T obj)
     {
-        if (condition && action is not null)
-            action(obj);
+        /// <summary>
+        /// Applies the specified function to the current object if the given condition is true.
+        /// </summary>
+        /// <param name="condition">A boolean value that determines whether the function should be applied.</param>
+        /// <param name="func">A function to apply to the current object if <paramref name="condition"/> is true. Must not be null.</param>
+        /// <returns>The result of applying <paramref name="func"/> to the current object if <paramref name="condition"/> is
+        /// true; otherwise, the current object unchanged.</returns>
+        public T If(bool condition, Func<T, T> func)
+        {
+            if (condition && func is not null)
+                return func(obj);
 
-        return obj;
-    }
+            return obj;
+        }
 
-    /// <summary>
-    /// Converts an object to a value of the specified type <typeparamref name="T"/>.
-    /// Handles special cases like converting to GUID. Returns the default value if the object is null.
-    /// Uses culture-specific conversion for non-GUID types.
-    /// </summary>
-    /// <typeparam name="T">The target value type.</typeparam>
-    /// <param name="obj">The object to be converted.</param>
-    /// <returns>The converted value of type <typeparamref name="T"/>.</returns>
-    public static T ToValue<T>(this object obj) where T : struct
-    {
-        if (obj is null)
-            return default;
+        /// <summary>
+        /// Executes the specified action on the object if the given condition is true.
+        /// </summary>
+        /// <param name="condition">A boolean value that determines whether the action should be executed. If <see langword="true"/>, the action
+        /// is invoked; otherwise, it is ignored.</param>
+        /// <param name="action">The action to perform on the object. Must not be <see langword="null"/> if the condition is <see
+        /// langword="true"/>.</param>
+        /// <returns>The current object, allowing for method chaining.</returns>
+        public T If(bool condition, Action<T> action)
+        {
+            if (condition && action is not null)
+                action(obj);
 
-        if (typeof(T) == typeof(Guid) && Guid.TryParse(obj.ToString(), out Guid guid))
-            return (T)(ValueType)guid;
-
-        return obj is IConvertible convertible
-            ? (T)Convert.ChangeType(convertible, typeof(T), CultureInfo.CurrentCulture)
-            : default;
+            return obj;
+        }
     }
 }
