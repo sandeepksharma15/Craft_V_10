@@ -10,13 +10,14 @@ public static class EnumExtensions
     extension<T>(T) where T : struct, Enum
     {
         /// <summary>
-        /// Retrieves a list of all values of the specified enum type, ordered by their underlying integer values.
+        /// Retrieves a list of all values in the specified enumeration type, ordered by their underlying integer
+        /// values.
         /// </summary>
-        /// <remarks>This method uses the underlying integer values of the enum to determine the order of the
-        /// returned list.</remarks>
-        /// <typeparam name="T">The enum type whose values are to be retrieved. Must be a non-nullable enum.</typeparam>
-        /// <returns>A list of enum values of type <typeparamref name="T"/>, sorted in ascending order by their underlying integer
-        /// values.</returns>
+        /// <remarks>This method uses the underlying integer values of the enumeration to determine the
+        /// order. Ensure that <typeparamref name="T"/> is a valid enum type; otherwise, an exception will be
+        /// thrown.</remarks>
+        /// <returns>A list of enumeration values of type <typeparamref name="T"/>, sorted in ascending order by their underlying
+        /// integer values.</returns>
         public static List<T> GetOrderedEnumValues()
         {
             return [.. Enum.GetValues<T>()
@@ -28,13 +29,12 @@ public static class EnumExtensions
         /// Retrieves the extreme value of an enumeration, either the highest or the lowest, based on the specified
         /// condition.
         /// </summary>
-        /// <remarks>This method uses the underlying integer values of the enumeration to determine the extreme
-        /// value.</remarks>
-        /// <typeparam name="T">The enumeration type from which to retrieve the value. Must be a struct and an enumeration.</typeparam>
+        /// <remarks>This method uses the underlying integer values of the enumeration to determine the
+        /// extreme value.</remarks>
         /// <param name="highest">A boolean value indicating whether to retrieve the highest value.  <see langword="true"/> to retrieve the
         /// highest value; <see langword="false"/> to retrieve the lowest value.</param>
-        /// <returns>The extreme value of the specified enumeration type <typeparamref name="T"/>.  Returns the highest value if
-        /// <paramref name="highest"/> is <see langword="true"/>; otherwise, the lowest value.</returns>
+        /// <returns>The extreme value of the enumeration <typeparamref name="T"/>.  Returns the highest value if <paramref
+        /// name="highest"/> is <see langword="true"/>; otherwise, the lowest value.</returns>
         public static T GetExtremeEnumValue(bool highest = true)
         {
             return Enum.GetValues<T>()
@@ -52,14 +52,11 @@ public static class EnumExtensions
             => GetExtremeEnumValue<T>(highest: true);
 
         /// <summary>
-        /// Retrieves the lowest defined value of the specified enumeration type.
+        /// Retrieves the lowest value of the specified enumeration type.
         /// </summary>
-        /// <remarks>This method is generic and constrained to enumeration types. It is useful for scenarios where
-        /// the smallest value of an enumeration is required, such as initializing variables or performing range
-        /// checks.</remarks>
-        /// <typeparam name="T">The enumeration type for which the lowest value is to be retrieved. Must be a struct and an <see
-        /// cref="System.Enum"/>.</typeparam>
-        /// <returns>The lowest value defined in the enumeration of type <typeparamref name="T"/>.</returns>
+        /// <remarks>This method determines the lowest value of the enumeration by comparing the
+        /// underlying numeric values of the enum members.</remarks>
+        /// <returns>The lowest value of the enumeration type <typeparamref name="T"/>.</returns>
         public static T GetLowestEnumValue()
             => GetExtremeEnumValue<T>(highest: false);
 
