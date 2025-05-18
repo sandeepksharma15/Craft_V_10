@@ -10,7 +10,7 @@ public class OtherExtensionsTests
     public void BytesToHex_ReturnsExpectedResult(byte[]? inputBytes, string? expectedResult)
     {
         // Act
-        var result = inputBytes.BytesToHex();
+        var result = inputBytes!.BytesToHex();
 
         // Assert
         Assert.Equal(expectedResult, result);
