@@ -69,6 +69,21 @@ public class ConcurrencyTests
         Assert.NotNull(entity.ConcurrencyStamp);
     }
 
+    [Fact]
+    public void ClearConcurrencyStamp_Should_Set_ConcurrencyStamp_To_Null()
+    {
+        // Arrange
+        IHasConcurrency entity = new TestEntity();
+        entity.SetConcurrencyStamp("test-stamp");
+        Assert.NotNull(entity.ConcurrencyStamp); // Ensure it's set
+
+        // Act
+        entity.ClearConcurrencyStamp();
+
+        // Assert
+        Assert.Null(entity.ConcurrencyStamp);
+    }
+
     private class TestEntity : IHasConcurrency
     {
         public string? ConcurrencyStamp { get; set; }
