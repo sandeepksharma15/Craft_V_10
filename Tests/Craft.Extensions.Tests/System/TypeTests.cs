@@ -265,6 +265,25 @@ public class TypeTests
         Assert.Throws<ArgumentException>(() => invalidMemberInfo.GetMemberUnderlyingType());
     }
 
+    [Theory]
+    [InlineData(typeof(BaseClass), "TypeTests+BaseClass")]
+    [InlineData(typeof(DerivedClass), "TypeTests+DerivedClass")]
+    [InlineData(typeof(ClassA), "TypeTests+ClassA")]
+    [InlineData(typeof(ClassB), "TypeTests+ClassB")]
+    [InlineData(typeof(MyTestClass), "TypeTests+MyTestClass")]
+    [InlineData(typeof(MyClass), "TypeTests+MyClass")]
+    [InlineData(typeof(int), "Int32")]
+    [InlineData(typeof(string), "String")]
+    [InlineData(null, null)]
+    public void GetClassName_ShouldReturnExpectedClassName(Type? type, string? expected)
+    {
+        // Act
+        var result = type?.GetClassName();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     private class TestAttribute : Attribute;
 

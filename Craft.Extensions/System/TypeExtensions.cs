@@ -187,6 +187,20 @@ public static class TypeExtensions
 
             return false;
         }
+
+        /// <summary>
+        /// Retrieves the name of the class represented by the current instance.
+        /// </summary>
+        /// <remarks>The returned class name is extracted from the <c>type</c> field and processed to
+        /// remove any preceding namespace or delimiter information.</remarks>
+        /// <returns>A string containing the class name if the <c>type</c> field is not <see langword="null"/>; otherwise, <see
+        /// langword="null"/>.</returns>
+        public string? GetClassName()
+        {
+            if (type is null) return null;
+
+            return type.ToString().GetStringAfterLastDelimiter();
+        }
     }
 
 
