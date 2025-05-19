@@ -26,6 +26,5 @@ public static class DomainExtensions
                 return default;
             }
         }
-
     }
 }
