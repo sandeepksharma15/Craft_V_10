@@ -53,7 +53,7 @@ public class OtherStringExtensionTests
     public void RemoveAll_ShouldRemoveStringsCorrectly(string? source, string[]? stringsToRemove, string? expectedResult)
     {
         // Act
-        var result = source.RemoveAll(stringsToRemove);
+        var result = source!.RemoveAll(stringsToRemove);
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -98,7 +98,7 @@ public class OtherStringExtensionTests
     public void RemovePostFix_II_ShouldRemovePostFixes(string? input, string? expected, params string[]? postfixes)
     {
         // Act
-        var result = input.RemovePostFix(postfixes);
+        var result = input!.RemovePostFix(postfixes);
 
         // Assert
         Assert.Equal(expected, result);
@@ -114,7 +114,7 @@ public class OtherStringExtensionTests
     public void RemovePostFix_ShouldRemovePostFixes(string? input, string? expected, StringComparison comparisonType, params string[]? postfixes)
     {
         // Act
-        var result = input.RemovePostFix(comparisonType, postfixes);
+        var result = input!.RemovePostFix(comparisonType, postfixes);
 
         // Assert
         Assert.Equal(expected, result);
@@ -146,7 +146,7 @@ public class OtherStringExtensionTests
     public void RemovePreFix_ShouldRemovePreFixes(string? input, string? expected, StringComparison comparisonType, params string[]? prefixes)
     {
         // Act
-        var result = input.RemovePreFix(comparisonType, prefixes);
+        var result = input!.RemovePreFix(comparisonType, prefixes);
 
         // Assert
         Assert.Equal(expected, result);
@@ -164,7 +164,7 @@ public class OtherStringExtensionTests
         StringComparison comparisonType, string? expected)
     {
         // Act
-        var result = input.ReplaceFirst(search, replace, comparisonType);
+        var result = input!.ReplaceFirst(search, replace, comparisonType);
 
         // Assert
         Assert.Equal(expected, result);

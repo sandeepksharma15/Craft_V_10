@@ -288,14 +288,16 @@ public class TypeTests
 
     private interface INonGenericInterface;
 
+#pragma warning disable IDE0051, RCS1213, CS0169, CS0067
     private class MyTestClass
     {
-        private readonly int _myField;
+        private readonly int _myField;      // We need this field to test GetMemberUnderlyingType
 
         public string? MyProperty { get; set; }
 
-        public event EventHandler? MyEvent;
+        public event EventHandler? MyEvent; // We need this event to test GetMemberUnderlyingType
     }
+#pragma warning restore CS0169, RCS1213, IDE0051, CS0067
 
     private class MyClass
     {

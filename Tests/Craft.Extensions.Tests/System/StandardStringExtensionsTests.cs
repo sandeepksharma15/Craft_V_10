@@ -12,7 +12,7 @@ public class StandardStringExtensionsTests
         StringComparison comparisonType, string? expected)
     {
         // Act
-        var result = source?.EnsureEndsWith(character, comparisonType);
+        var result = source!.EnsureEndsWith(character, comparisonType);
 
         // Assert
         Assert.Equal(expected, result);
@@ -28,7 +28,7 @@ public class StandardStringExtensionsTests
         StringComparison comparisonType, string? expected)
     {
         // Act
-        var result = source?.EnsureStartsWith(character, comparisonType);
+        var result = source!.EnsureStartsWith(character, comparisonType);
 
         // Assert
         Assert.Equal(expected, result);
@@ -43,7 +43,7 @@ public class StandardStringExtensionsTests
     public void FirstCharToUpper_ShouldConvertFirstCharToUppercase(string? input, string? expected)
     {
         // Act
-        var result = input?.FirstCharToUpper();
+        var result = input!.FirstCharToUpper();
 
         // Assert
         Assert.Equal(expected, result);
@@ -58,7 +58,7 @@ public class StandardStringExtensionsTests
     public void GetStringAfterLastDelimiter_WithVariousInputs_ReturnsExpectedResult(string? input, char delimiter, string? expected)
     {
         // Act
-        string? result = input?.GetStringAfterLastDelimiter(delimiter);
+        string? result = input!.GetStringAfterLastDelimiter(delimiter);
 
         // Assert
         Assert.Equal(expected, result); 
@@ -74,7 +74,7 @@ public class StandardStringExtensionsTests
     public void IsEmpty_ShouldReturnCorrectResult(string? input, bool expectedResult)
     {
         // Act
-        var result = input?.IsEmpty();
+        var result = input!.IsEmpty();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -90,7 +90,7 @@ public class StandardStringExtensionsTests
     public void IsNonEmpty_ShouldReturnCorrectResult(string? input, bool expectedResult)
     {
         // Act
-        var result = input?.IsNonEmpty();
+        var result = input!.IsNonEmpty();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -105,7 +105,7 @@ public class StandardStringExtensionsTests
     public void IsNullOrEmpty_ShouldReturnCorrectResult(string? input, bool expectedResult)
     {
         // Act
-        var result = input?.IsNullOrEmpty();
+        var result = input!.IsNullOrEmpty();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -120,7 +120,7 @@ public class StandardStringExtensionsTests
     public void IsNullOrWhiteSpace_ShouldReturnCorrectResult(string? input, bool expectedResult)
     {
         // Act
-        var result = input?.IsNullOrWhiteSpace();
+        var result = input!.IsNullOrWhiteSpace();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -135,7 +135,7 @@ public class StandardStringExtensionsTests
     public void Left_ShouldReturnExpectedResult(string? source, int len, string? expectedResult)
     {
         // Act
-        var result = source?.Left(len);
+        var result = source!.Left(len);
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -150,7 +150,7 @@ public class StandardStringExtensionsTests
     public void Parse_PositiveTestCases_ReturnsExpectedResult(string? input, float expectedResult)
     {
         // Act
-        var result = input?.Parse<float>();
+        var result = input!.Parse<float>();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -162,7 +162,7 @@ public class StandardStringExtensionsTests
     public void Parse_ShouldReturnExpectedValue(string? input, object? expected)
     {
         // Act
-        var result = input?.Parse<object>();
+        var result = input!.Parse<object>();
 
         // Assert
         Assert.Equal(expected, result);
@@ -176,7 +176,7 @@ public class StandardStringExtensionsTests
     public void Parse_ValidString_ReturnsExpectedResult(string? input, int expectedResult)
     {
         // Act
-        var result = input?.Parse<int>();
+        var result = input!.Parse<int>();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -191,7 +191,7 @@ public class StandardStringExtensionsTests
     public void Right_ShouldReturnExpectedResult(string? source, int len, string? expectedResult)
     {
         // Act
-        var result = source?.Right(len);
+        var result = source!.Right(len);
 
         // Assert
         Assert.Equal(expectedResult, result);
