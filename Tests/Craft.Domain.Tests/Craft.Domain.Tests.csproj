@@ -7,6 +7,7 @@
 		<IsPackable>false</IsPackable>
 		<Authors>Sandeep SHARMA</Authors>
 		<LangVersion>preview</LangVersion>
+		<AssemblyVersion>1.0.2.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,5 +24,10 @@
 	<ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Base\" />
+	  <Folder Include="Contracts\" />
+	</ItemGroup>
 
 </Project>

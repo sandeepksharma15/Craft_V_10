@@ -124,30 +124,4 @@ public static class StandardStringExtensions
             return source[^len..];
         }
     }
-
-
-
-    /// <summary>
-    /// Parses the input string to the specified generic type.
-    /// </summary>
-    /// <typeparam name="TKey">The target type to parse the string into.</typeparam>
-    /// <param name="value">The string value to parse.</param>
-    /// <returns>
-    /// The parsed value of type <typeparamref name="TKey"/> if successful;
-    /// otherwise, the default value of <typeparamref name="TKey"/>.
-    /// </returns>
-    public static TKey? Parse<TKey>(this string? value)
-    {
-        try
-        {
-            return value != null
-                ? (TKey)Convert.ChangeType(value, typeof(TKey))
-                : default;
-        }
-        catch (Exception)
-        {
-            return default;
-        }
-    }
-
 }
