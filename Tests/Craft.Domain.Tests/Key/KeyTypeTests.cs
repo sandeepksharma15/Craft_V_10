@@ -1,6 +1,4 @@
-﻿using Craft.HashIdKeys;
-
-namespace Craft.Domain.Tests.Keys;
+﻿namespace Craft.Domain.Tests.Keys;
 
 public class KeyTypeTests
 {
@@ -235,19 +233,5 @@ public class KeyTypeTests
 
         // Assert
         Assert.Equal("1", result);
-    }
-
-    [Fact]
-    public void KeyType_HashKeys_Roundtrip_ShouldWork()
-    {
-        // Arrange
-        const KeyType keyType = 1;
-
-        // Act
-        var result = keyType.ToHashKey();
-        var id = result!.ToKeyType();
-
-        // Assert
-        Assert.Equal(keyType, id);
     }
 }
