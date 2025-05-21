@@ -30,4 +30,13 @@ public static class EnumerableExtensions
 
         return listItems!;
     }
+
+    /// <summary>
+    /// Check if an item is in a collection.
+    /// </summary>
+    /// <param name="item">Item to check</param>
+    /// <param name="collection">Collection of items</param>
+    /// <typeparam name="T">Type of the items</typeparam>
+    public static bool IsIn<T>(this T item, IEnumerable<T> collection)
+        => collection.Contains(item);
 }

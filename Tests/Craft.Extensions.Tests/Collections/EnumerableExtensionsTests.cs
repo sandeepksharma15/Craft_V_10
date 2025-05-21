@@ -1,70 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using Xunit;
-
-namespace Craft.Extensions.Tests.Collections;
+﻿namespace Craft.Extensions.Tests.Collections;
 
 public class EnumerableExtensionsTests
 {
+    // --- GetListDataForSelect Tests ---
+
     [Fact]
-    public void GetListDataForSelect_Should_Return_Dictionary_With_Correct_Values_When_ValueField_And_DisplayField_Are_Null()
+    public void GetListDataForSelect_ReturnsDictionary_WhenValueAndDisplayFieldsAreProvided()
     {
         // Arrange
-        var items = new List<string> { "Item 1", "Item 2" };
+        var items = new List<TestItem>
+        {
+            new() { Id = 1, Name = "Alpha" },
+            new() { Id = 2, Name = "Beta" }
+        };
+
+        // Act
+        var result = items.GetListDataForSelect("Id", "Name");
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Equal("Alpha", result["1"]);
+        Assert.Equal("Beta", result["2"]);
+    }
+
+    [Fact]
+    public void GetListDataForSelect_ReturnsDictionary_WhenValueAndDisplayFieldsAreNull()
+    {
+        // Arrange
+        var items = new List<string> { "A", "B" };
 
         // Act
         var result = items.GetListDataForSelect(null!, null!);
 
         // Assert
-        var expected = new Dictionary<string, string>
-        {
-            { "Item 1", "Item 1" },
-            { "Item 2", "Item 2" }
-        };
-
-        Assert.Equal(expected.Count, result.Count);
-
-        foreach (var kvp in expected)
-        {
-            Assert.True(result.ContainsKey(kvp.Key));
-            Assert.Equal(kvp.Value, result[kvp.Key]);
-        }
+        Assert.Equal(2, result.Count);
+        Assert.Equal("A", result["A"]);
+        Assert.Equal("B", result["B"]);
     }
 
     [Fact]
-    public void GetListDataForSelect_Should_Return_Dictionary_With_Correct_Values_When_ValueField_And_DisplayField_Are_Provided()
+    public void GetListDataForSelect_ReturnsEmptyDictionary_WhenItemsIsNull()
     {
         // Arrange
-        var items = new List<ListItem>
-        {
-            new() { Id = 1, Name = "Item 1" },
-            new() { Id = 2, Name = "Item 2" }
-        };
-
-        // Act
-        var result = items.GetListDataForSelect("Id", "Name");
-
-        // Assert
-        var expected = new Dictionary<string, string>
-        {
-            { "1", "Item 1" },
-            { "2", "Item 2" }
-        };
-
-        Assert.Equal(expected.Count, result.Count);
-
-        foreach (var kvp in expected)
-        {
-            Assert.True(result.ContainsKey(kvp.Key));
-            Assert.Equal(kvp.Value, result[kvp.Key]);
-        }
-    }
-
-    [Fact]
-    public void GetListDataForSelect_Should_Return_Empty_Dictionary_When_Items_Collection_Is_Empty()
-    {
-        // Arrange
-        var items = new List<ListItem>();
+        List<TestItem>? items = null;
 
         // Act
         var result = items.GetListDataForSelect("Id", "Name");
@@ -74,10 +52,10 @@ public class EnumerableExtensionsTests
     }
 
     [Fact]
-    public void GetListDataForSelect_Should_Return_Empty_Dictionary_When_Items_Is_Null()
+    public void GetListDataForSelect_ReturnsEmptyDictionary_WhenItemsIsEmpty()
     {
         // Arrange
-        List<ListItem>? items = null;
+        var items = new List<TestItem>();
 
         // Act
         var result = items.GetListDataForSelect("Id", "Name");
@@ -87,13 +65,10 @@ public class EnumerableExtensionsTests
     }
 
     [Fact]
-    public void GetListDataForSelect_Should_Handle_Nonexistent_Properties_Gracefully()
+    public void GetListDataForSelect_HandlesNonexistentProperties_Gracefully()
     {
         // Arrange
-        var items = new List<ListItem>
-        {
-            new() { Id = 1, Name = "Item 1" }
-        };
+        var items = new List<TestItem> { new() { Id = 1, Name = "Alpha" } };
 
         // Act
         var result = items.GetListDataForSelect("NonExistent", "AlsoMissing");
@@ -105,13 +80,13 @@ public class EnumerableExtensionsTests
     }
 
     [Fact]
-    public void GetListDataForSelect_Should_Throw_When_Duplicate_Keys_Are_Produced()
+    public void GetListDataForSelect_ThrowsOnDuplicateKeys()
     {
         // Arrange
-        var items = new List<ListItem>
+        var items = new List<TestItem>
         {
-            new() { Id = 1, Name = "A" },
-            new() { Id = 1, Name = "B" }
+            new() { Id = 1, Name = "Alpha" },
+            new() { Id = 1, Name = "Beta" }
         };
 
         // Act & Assert
@@ -120,7 +95,7 @@ public class EnumerableExtensionsTests
     }
 
     [Fact]
-    public void GetListDataForSelect_Should_Handle_Null_Item_In_Collection()
+    public void GetListDataForSelect_HandlesNullItemInCollection()
     {
         // Arrange
         var items = new List<string?> { "A", null };
@@ -130,20 +105,15 @@ public class EnumerableExtensionsTests
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.True(result.ContainsKey("A"));
         Assert.Equal("A", result["A"]);
-        Assert.True(result.ContainsKey(string.Empty));
         Assert.Equal(string.Empty, result[string.Empty]);
     }
 
     [Fact]
-    public void GetListDataForSelect_Should_Handle_Empty_ValueField_Or_DisplayField()
+    public void GetListDataForSelect_HandlesEmptyValueFieldOrDisplayField()
     {
         // Arrange
-        var items = new List<ListItem>
-        {
-            new() { Id = 1, Name = "A" }
-        };
+        var items = new List<TestItem> { new() { Id = 1, Name = "Alpha" } };
 
         // Act
         var result1 = items.GetListDataForSelect("", "Name");
@@ -151,17 +121,102 @@ public class EnumerableExtensionsTests
 
         // Assert
         Assert.Single(result1);
-        Assert.True(result1.ContainsKey(string.Empty));
-        Assert.Equal("A", result1[string.Empty]);
-
+        Assert.Equal("Alpha", result1[string.Empty]);
         Assert.Single(result2);
-        Assert.True(result2.ContainsKey("1"));
         Assert.Equal(string.Empty, result2["1"]);
+    }
+
+    // --- IsIn Tests ---
+
+    [Fact]
+    public void IsIn_ReturnsTrue_WhenItemIsInCollection()
+    {
+        // Arrange
+        int item = 2;
+        var collection = new List<int> { 1, 2, 3 };
+
+        // Act
+        var result = item.IsIn(collection);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void IsIn_ReturnsFalse_WhenItemIsNotInCollection()
+    {
+        // Arrange
+        string item = "zebra";
+        var collection = new List<string> { "cat", "dog", "elephant" };
+
+        // Act
+        var result = item.IsIn(collection);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void IsIn_ReturnsFalse_WhenCollectionIsEmpty()
+    {
+        // Arrange
+        int item = 1;
+        var collection = new List<int>();
+
+        // Act
+        var result = item.IsIn(collection);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void IsIn_ReturnsFalse_WhenCollectionIsNull()
+    {
+        // Arrange
+        string item = "test";
+        List<string>? collection = null;
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => item.IsIn(collection!));
+    }
+
+    [Fact]
+    public void IsIn_WorksWithReferenceTypes()
+    {
+        // Arrange
+        var obj = new TestItem { Id = 1, Name = "Alpha" };
+        var collection = new List<TestItem>
+        {
+            new() { Id = 2, Name = "Beta" },
+            obj
+        };
+
+        // Act
+        var result = obj.IsIn(collection);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void IsIn_WorksWithValueTypes()
+    {
+        // Arrange
+        var item = DayOfWeek.Monday;
+        var collection = new List<DayOfWeek> { DayOfWeek.Sunday, DayOfWeek.Monday };
+
+        // Act
+        var result = item.IsIn(collection);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    private class TestItem
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 }
 
-public class ListItem
-{
-    public int Id { get; set; }
-    public string? Name { get; set; }
-}
