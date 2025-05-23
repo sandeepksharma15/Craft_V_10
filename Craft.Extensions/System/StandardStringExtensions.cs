@@ -6,87 +6,73 @@ namespace System;
 
 public static class StandardStringExtensions
 {
-    extension(string? source)
-    {
-        /// <summary>
-        /// Ensures that the specified character is at the start of the string.
-        /// </summary>
-        public string? EnsureStartsWith(char c, StringComparison comparisonType = StringComparison.Ordinal)
-            => source is null
-                ? null
-                : source.StartsWith(c.ToString(), comparisonType) ? source : c + source;
+    /// <summary>
+    /// Ensures that the specified character is at the start of the string.
+    /// </summary>
+    public static string? EnsureStartsWith(this string? source, char c, StringComparison comparisonType = StringComparison.Ordinal)
+        => source is null
+            ? null
+            : source.StartsWith(c.ToString(), comparisonType) ? source : c + source;
 
-        /// <summary>
-        /// Ensures that the specified character is at the end of the string.
-        /// </summary>
-        public string? EnsureEndsWith(char c, StringComparison comparisonType = StringComparison.Ordinal)
-            => source is null
-                ? null
-                : source.EndsWith(c.ToString(), comparisonType) ? source : source + c;
+    /// <summary>
+    /// Ensures that the specified character is at the end of the string.
+    /// </summary>
+    public static string? EnsureEndsWith(this string? source, char c, StringComparison comparisonType = StringComparison.Ordinal)
+        => source is null
+            ? null
+            : source.EndsWith(c.ToString(), comparisonType) ? source : source + c;
 
-        /// <summary>
-        /// Converts the first character of the string to uppercase, while leaving the rest of the string unchanged.
-        /// </summary>
-        public string? FirstCharToUpper()
-        {
-            if (string.IsNullOrEmpty(source)) return source;
+    /// <summary>
+    /// Converts the first character of the string to uppercase, while leaving the rest of the string unchanged.
+    /// </summary>
+    public static string? FirstCharToUpper(this string? source)
+        => string.IsNullOrEmpty(source)
+            ? source
+            : string.Concat(source[0].ToString(CultureInfo.InvariantCulture).ToUpperInvariant(), source.AsSpan(1));
 
-            return string.Concat(source[0].ToString(CultureInfo.InvariantCulture).ToUpperInvariant(),
-                source.AsSpan(1));
-        }
+    /// <summary>
+    /// Retrieves the substring that appears after the last occurrence of the specified delimiter.
+    /// </summary>
+    public static string? GetStringAfterLastDelimiter(this string? source, char delimiter = '.')
+        => string.IsNullOrEmpty(source)
+            ? source
+            : source.LastIndexOf(delimiter) is int idx && idx >= 0
+                ? source[(idx + 1)..]
+                : source;
 
-        /// <summary>
-        /// Retrieves the substring that appears after the last occurrence of the specified delimiter.
-        /// </summary>
-        public string? GetStringAfterLastDelimiter(char delimiter = '.')
-        {
-            if (string.IsNullOrEmpty(source)) return source;
+    /// <summary>
+    /// Determines whether the source string is null, empty, or consists only of white-space characters.
+    /// </summary>
+    public static bool IsEmpty(this string? source) => string.IsNullOrWhiteSpace(source);
 
-            int lastDelimiterIndex = source.LastIndexOf(delimiter);
+    /// <summary>
+    /// Determines whether the source string is not null, empty, or consists only of white-space characters.
+    /// </summary>
+    public static bool IsNonEmpty(this string? source) => !string.IsNullOrWhiteSpace(source);
 
-            return lastDelimiterIndex >= 0 ? source[(lastDelimiterIndex + 1)..] : source;
-        }
+    /// <summary>
+    /// Determines whether the source string is null or an empty string.
+    /// </summary>
+    public static bool IsNullOrEmpty(this string? source) => string.IsNullOrEmpty(source);
 
-        /// <summary>
-        /// Determines whether the source string is null, empty, or consists only of white-space characters.
-        /// </summary>
-        public bool IsEmpty() => string.IsNullOrWhiteSpace(source);
+    /// <summary>
+    /// Determines whether the source string is null, empty, or consists only of white-space characters.
+    /// </summary>
+    public static bool IsNullOrWhiteSpace(this string? source) => string.IsNullOrWhiteSpace(source);
 
-        /// <summary>
-        /// Determines whether the source string is not null, empty, or consists only of white-space characters.
-        /// </summary>
-        public bool IsNonEmpty() => !string.IsNullOrWhiteSpace(source);
+    /// <summary>
+    /// Returns a substring containing the leftmost characters of the source string, up to the specified length.
+    /// </summary>
+    public static string? Left(this string? source, int len) =>
+        string.IsNullOrEmpty(source) || len >= source.Length
+            ? source
+            : source[..len];
 
-        /// <summary>
-        /// Determines whether the source string is null or an empty string.
-        /// </summary>
-        public bool IsNullOrEmpty() => string.IsNullOrEmpty(source);
-
-        /// <summary>
-        /// Determines whether the source string is null, empty, or consists only of white-space characters.
-        /// </summary>
-        public bool IsNullOrWhiteSpace() => string.IsNullOrWhiteSpace(source);
-
-        /// <summary>
-        /// Returns a substring containing the leftmost characters of the source string, up to the specified length.
-        /// </summary>
-        public string? Left(int len)
-        {
-            if (string.IsNullOrEmpty(source) || len >= source.Length)
-                return source;
-
-            return source[..len];
-        }
-
-        /// <summary>
-        /// Returns the specified number of characters from the end of the string.
-        /// </summary>
-        public string? Right(int len)
-        {
-            if (string.IsNullOrEmpty(source) || len >= source.Length)
-                return source;
-
-            return source[^len..];
-        }
-    }
+    /// <summary>
+    /// Returns the specified number of characters from the end of the string.
+    /// </summary>
+    public static string? Right(this string? source, int len) =>
+        string.IsNullOrEmpty(source) || len >= source.Length
+            ? source
+            : source[^len..];
 }

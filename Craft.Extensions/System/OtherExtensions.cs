@@ -27,7 +27,7 @@ public static class OtherExtensions
     public static byte[] HexToBytes(this string? hex)
     {
         if (string.IsNullOrWhiteSpace(hex))
-            return Array.Empty<byte>();
+            return [];
 
         hex = hex.Trim();
 

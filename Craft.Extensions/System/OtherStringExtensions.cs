@@ -70,7 +70,7 @@ public static class OtherStringExtensions
 
         foreach (string postFix in postFixes)
             if (str.EndsWith(postFix, comparisonType))
-                return str.Substring(0, str.Length - postFix.Length);
+                return str[..^postFix.Length];
 
         return str;
     }
@@ -91,7 +91,7 @@ public static class OtherStringExtensions
 
         foreach (string preFix in preFixes)
             if (str.StartsWith(preFix, comparisonType))
-                return str.Substring(preFix.Length);
+                return str[preFix.Length..];
 
         return str;
     }

@@ -146,7 +146,7 @@ public class ObjectTests
         string? obj = null;
 
         // Act
-        var result = obj.If(true, s => s == null ? "default" : s);
+        var result = obj.If(true, s => s ?? "default");
 
         // Assert
         Assert.Equal("default", result);
