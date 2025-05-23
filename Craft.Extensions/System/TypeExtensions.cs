@@ -178,12 +178,35 @@ public static class TypeExtensions
         }
     }
 
+    /// <summary>
+    /// Determines whether the specified types are compatible for assignment.
+    /// </summary>
+    /// <remarks>This method checks if one type can be assigned to the other, considering inheritance and
+    /// interface implementation.</remarks>
+    /// <param name="type1">The first <see cref="Type"/> to compare.</param>
+    /// <param name="type2">The second <see cref="Type"/> to compare.</param>
+    /// <returns><see langword="true"/> if either <paramref name="type1"/> is assignable from <paramref name="type2"/>  or
+    /// <paramref name="type2"/> is assignable from <paramref name="type1"/>; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompatibleWith(this Type type1, Type type2)
         => type1.IsAssignableFrom(type2) || type2.IsAssignableFrom(type1);
 
+    /// <summary>
+    /// Determines whether the specified types are not compatible with each other.
+    /// </summary>
+    /// <remarks>Compatibility is determined based on the logic defined in the <see cref="IsCompatibleWith"/>
+    /// method. This method is a negation of <see cref="IsCompatibleWith"/>.</remarks>
+    /// <param name="type1">The first <see cref="Type"/> to compare.</param>
+    /// <param name="type2">The second <see cref="Type"/> to compare.</param>
+    /// <returns><see langword="true"/> if the types are not compatible; otherwise, <see langword="false"/>.</returns>
     public static bool IsNotCompatibleWith(this Type type1, Type type2)
         => !type1.IsCompatibleWith(type2);
 
+    /// <summary>
+    /// Retrieves the name of the class represented by the specified <see cref="Type"/> object.
+    /// </summary>
+    /// <param name="type">The <see cref="Type"/> instance for which to retrieve the class name. Cannot be <see langword="null"/>.</param>
+    /// <returns>A <see cref="string"/> containing the class name, or <see langword="null"/> if the class name cannot be
+    /// determined.</returns>
     public static string? GetClassName(this Type type)
         => type.ToString().GetStringAfterLastDelimiter();
 }

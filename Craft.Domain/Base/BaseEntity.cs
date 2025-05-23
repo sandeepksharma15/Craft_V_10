@@ -37,12 +37,11 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
 
     public override bool Equals(object? obj)
     {
-        if (obj is not BaseEntity<TKey>)
-            return false;
-        if (ReferenceEquals(this, obj))
-            return true;
-        if (GetType() != obj.GetType())
-            return false;
+        if (obj is not BaseEntity<TKey>) return false;
+
+        if (ReferenceEquals(this, obj)) return true;
+
+        if (GetType() != obj.GetType()) return false;
 
         // Different tenants may have an entity with same Id.
         if (this is IHasTenant self && obj is IHasTenant other && self.TenantId != other.TenantId)
