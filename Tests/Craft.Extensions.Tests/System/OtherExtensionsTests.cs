@@ -131,7 +131,10 @@ public class OtherExtensionsTests
     [InlineData(0.995, "99.5%")]
     public void ToPercentage_RoundingEdgeCases(decimal input, string expected)
     {
+        // Act
         var result = input.ToPercentage();
+
+        // Assert
         Assert.Equal(expected, result);
     }
 }

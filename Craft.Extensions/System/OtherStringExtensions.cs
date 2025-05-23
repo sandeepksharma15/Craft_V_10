@@ -5,135 +5,128 @@ namespace Craft.Extensions.System;
 
 public static class OtherStringExtensions
 {
-    extension(string? str)
+    /// <summary>
+    /// Normalizes the line endings in the current string to the platform-specific line ending.
+    /// </summary>
+    public static string? NormalizeLineEndings(this string? str) =>
+        str?
+            .Replace("\r\n", "\n")
+            .Replace("\r", "\n")
+            .Replace("\n", Environment.NewLine);
+
+    /// <summary>
+    /// Finds the zero-based index of the nth occurrence of a specified character in the string.
+    /// </summary>
+    public static int NthIndexOf(this string? str, char c, int n)
     {
-        /// <summary>
-        /// Normalizes the line endings in the current string to the platform-specific line ending.
-        /// </summary>
-        public string? NormalizeLineEndings() =>
-            str?
-                .Replace("\r\n", "\n")
-                .Replace("\r", "\n")
-                .Replace("\n", Environment.NewLine);
+        if (str is null || n <= 0) return -1;
 
-        /// <summary>
-        /// Finds the zero-based index of the nth occurrence of a specified character in the string.
-        /// </summary>
-        public int NthIndexOf(char c, int n)
-        {
-            if (str is null || n <= 0) return -1;
+        int count = 0;
 
-            int count = 0;
+        for (int i = 0; i < str.Length; i++)
+            if (str[i] == c && ++count == n)
+                return i;
 
-            for (int i = 0; i < str.Length; i++)
-                if (str[i] == c && ++count == n)
-                    return i;
+        return -1;
+    }
 
-            return -1;
-        }
-
-        /// <summary>
-        /// Removes all occurrences of the specified strings from the current string.
-        /// </summary>
-        public string? RemoveAll(params string[]? strings)
-        {
-            if (str is null || strings is null || strings.Length == 0)
-                return str;
-
-            var result = str;
-
-            foreach (var s in strings)
-                result = result.Replace(s, string.Empty);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Removes extra spaces from the current string, leaving only single spaces between words.
-        /// </summary>
-        public string? RemoveExtraSpaces()
-        {
-            if (string.IsNullOrEmpty(str)) return str;
-
-            var words = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            return string.Join(" ", words);
-        }
-
-        /// <summary>
-        /// Removes the specified postfixes from the current string, if any are present.
-        /// </summary>
-        public string? RemovePostFix(params string[]? postFixes) =>
-            str?.RemovePostFix(StringComparison.Ordinal, postFixes);
-
-        /// <summary>
-        /// Removes the specified postfix from the current string if it ends with any of the provided postfixes.
-        /// </summary>
-        public string? RemovePostFix(StringComparison comparisonType, params string[]? postFixes)
-        {
-            if (string.IsNullOrEmpty(str) || postFixes is null || postFixes.Length == 0)
-                return str;
-
-            foreach (string postFix in postFixes)
-                if (str.EndsWith(postFix, comparisonType))
-                    return str.Substring(0, str.Length - postFix.Length);
-
+    /// <summary>
+    /// Removes all occurrences of the specified strings from the current string.
+    /// </summary>
+    public static string? RemoveAll(this string? str, params string[]? strings)
+    {
+        if (str is null || strings is null || strings.Length == 0)
             return str;
-        }
 
-        /// <summary>
-        /// Removes the specified prefixes from the current string, if any are present.
-        /// </summary>
-        public string? RemovePreFix(params string[]? preFixes) =>
-            str?.RemovePreFix(StringComparison.Ordinal, preFixes);
+        var result = str;
 
-        /// <summary>
-        /// Removes the first matching prefix from the current string, if any of the specified prefixes are found.
-        /// </summary>
-        public string? RemovePreFix(StringComparison comparisonType, params string[]? preFixes)
-        {
-            if (string.IsNullOrEmpty(str) || preFixes is null || preFixes.Length == 0)
-                return str;
+        foreach (var s in strings)
+            result = result.Replace(s, string.Empty);
 
-            foreach (string preFix in preFixes)
-                if (str.StartsWith(preFix, comparisonType))
-                    return str.Substring(preFix.Length);
+        return result;
+    }
 
+    /// <summary>
+    /// Removes extra spaces from the current string, leaving only single spaces between words.
+    /// </summary>
+    public static string? RemoveExtraSpaces(this string? str) =>
+        string.IsNullOrEmpty(str)
+            ? str
+            : string.Join(" ", str.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+    /// <summary>
+    /// Removes the specified postfixes from the current string, if any are present.
+    /// </summary>
+    public static string? RemovePostFix(this string? str, params string[]? postFixes) =>
+        str.RemovePostFix(StringComparison.Ordinal, postFixes);
+
+    /// <summary>
+    /// Removes the specified postfix from the current string if it ends with any of the provided postfixes.
+    /// </summary>
+    public static string? RemovePostFix(this string? str, StringComparison comparisonType, params string[]? postFixes)
+    {
+        if (string.IsNullOrEmpty(str) || postFixes is null || postFixes.Length == 0)
             return str;
-        }
 
-        /// <summary>
-        /// Replaces the first occurrence of a specified substring in the current string with another specified substring.
-        /// </summary>
-        public string? ReplaceFirst(string? search, string? replace, StringComparison comparisonType = StringComparison.Ordinal)
-        {
-            if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(search) || replace is null)
-                return str;
+        foreach (string postFix in postFixes)
+            if (str.EndsWith(postFix, comparisonType))
+                return str.Substring(0, str.Length - postFix.Length);
 
-            int index = str.IndexOf(search, comparisonType);
+        return str;
+    }
 
-            if (index < 0)
-                return str;
+    /// <summary>
+    /// Removes the specified prefixes from the current string, if any are present.
+    /// </summary>
+    public static string? RemovePreFix(this string? str, params string[]? preFixes) =>
+        str.RemovePreFix(StringComparison.Ordinal, preFixes);
 
-            return string.Concat(str.AsSpan(0, index), replace, str.AsSpan(index + search.Length));
-        }
+    /// <summary>
+    /// Removes the first matching prefix from the current string, if any of the specified prefixes are found.
+    /// </summary>
+    public static string? RemovePreFix(this string? str, StringComparison comparisonType, params string[]? preFixes)
+    {
+        if (string.IsNullOrEmpty(str) || preFixes is null || preFixes.Length == 0)
+            return str;
 
-        /// <summary>
-        /// Computes the MD5 hash of the current string and returns it as a hexadecimal string.
-        /// </summary>
-        public string ToMd5()
-        {
-            ArgumentNullException.ThrowIfNull(str);
+        foreach (string preFix in preFixes)
+            if (str.StartsWith(preFix, comparisonType))
+                return str.Substring(preFix.Length);
 
-            byte[] inputBytes = Encoding.UTF8.GetBytes(str);
-            byte[] hashBytes = MD5.HashData(inputBytes);
+        return str;
+    }
 
-            StringBuilder sb = new(hashBytes.Length * 2);
+    /// <summary>
+    /// Replaces the first occurrence of a specified substring in the current string with another specified substring.
+    /// </summary>
+    public static string? ReplaceFirst(this string? str, string? search, string? replace, StringComparison comparisonType = StringComparison.Ordinal)
+    {
+        if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(search) || replace is null)
+            return str;
 
-            foreach (byte hashByte in hashBytes)
-                sb.Append(hashByte.ToString("X2"));
+        int index = str.IndexOf(search, comparisonType);
 
-            return sb.ToString();
-        }
+        if (index < 0)
+            return str;
+
+        return string.Concat(str.AsSpan(0, index), replace, str.AsSpan(index + search.Length));
+    }
+
+    /// <summary>
+    /// Computes the MD5 hash of the current string and returns it as a hexadecimal string.
+    /// </summary>
+    public static string ToMd5(this string str)
+    {
+        ArgumentNullException.ThrowIfNull(str);
+
+        byte[] inputBytes = Encoding.UTF8.GetBytes(str);
+        byte[] hashBytes = MD5.HashData(inputBytes);
+
+        StringBuilder sb = new(hashBytes.Length * 2);
+
+        foreach (byte hashByte in hashBytes)
+            sb.Append(hashByte.ToString("X2"));
+
+        return sb.ToString();
     }
 }
