@@ -12,20 +12,20 @@ public static class OtherExtensions
         /// <summary>
         /// Converts a byte array to its hexadecimal representation.
         /// </summary>
-        /// <param name="bytes">The byte array to convert.</param>
-        /// <returns>The hexadecimal string representation of the byte array.</returns>
+        /// <returns>The hexadecimal string representation of the byte array, or null if input is null.</returns>
         public string? BytesToHex()
         {
             if (bytes is null) return null;
 
+            if (bytes.Length == 0) return string.Empty;
+
             var hex = new StringBuilder(bytes.Length * 2);
 
             foreach (byte b in bytes)
-                hex.AppendFormat("{0:X2}", b);
+                hex.Append(b.ToString("X2", CultureInfo.InvariantCulture));
 
             return hex.ToString();
         }
-
     }
 
     extension(string? hex)
@@ -33,70 +33,63 @@ public static class OtherExtensions
         /// <summary>
         /// Converts a hexadecimal string to a byte array.
         /// </summary>
-        /// <param name="hex">The hexadecimal string to convert.</param>
         /// <returns>
         /// A byte array representing the converted values.
-        /// Returns null if the input string is null or empty.
+        /// Returns an empty array if the input string is null or empty.
         /// </returns>
         /// <exception cref="FormatException">
-        /// Thrown if parsing fails for any hex code within the string, or string is not in proper format
+        /// Thrown if parsing fails for any hex code within the string, or string is not in proper format.
         /// </exception>
         public byte[] HexToBytes()
         {
-            if (hex is null) return [];
+            if (string.IsNullOrWhiteSpace(hex)) return Array.Empty<byte>();
 
-            hex = hex.Trim();
+            var trimmed = hex.Trim();
 
-            if (hex.Length % 2 != 0)
+            if (trimmed.Length == 0) return Array.Empty<byte>();
+
+            if (trimmed.Length % 2 != 0)
                 throw new FormatException("Hex string must have an even number of characters.");
 
-            byte[] bytes = new byte[hex.Length / 2];
+            var bytes = new byte[trimmed.Length / 2];
 
-            for (int i = 0; i < hex.Length / 2; i++)
+            ReadOnlySpan<char> span = trimmed.AsSpan();
+
+            for (int i = 0; i < bytes.Length; i++)
             {
-                string code = hex.Substring(i * 2, 2);
+                if (!byte.TryParse(span.Slice(i * 2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte b))
+                    throw new FormatException($"Failed to parse hex string at position {i * 2}: '{span.Slice(i * 2, 2).ToString()}'");
 
-                if (byte.TryParse(code, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte result))
-                    bytes[i] = result;
-                else
-                    throw new FormatException($"Failed to parse hex string at position {i * 2}: '{code}'");
+                bytes[i] = b;
             }
-
             return bytes;
         }
     }
 
-
     extension(decimal value)
     {
         /// <summary>
-        /// Converts a decimal value to its percentage representation with two decimal places.
+        /// Converts a decimal value to its percentage representation with up to two decimal places.
         /// </summary>
-        /// <param name="value">The decimal value to be converted.</param>
-        /// <returns>The percentage representation of the decimal value.</returns>
-        public string ToPercentage()
-            => (value * 100).ToString("0.##") + "%";
+        public string ToPercentage() 
+            => (value * 100).ToString("0.##", CultureInfo.CurrentCulture) + "%";
     }
 
     extension(double value)
     {
         /// <summary>
-        /// Converts a double value to its percentage representation with two decimal places.
+        /// Converts a double value to its percentage representation with up to two decimal places.
         /// </summary>
-        /// <param name="value">The double value to be converted.</param>
-        /// <returns>The percentage representation of the double value.</returns>
-        public string ToPercentage()
-            => (value * 100).ToString("0.##") + "%";
+        public string ToPercentage() 
+            => (value * 100).ToString("0.##", CultureInfo.CurrentCulture) + "%";
     }
 
     extension(float value)
     {
         /// <summary>
-        /// Converts a float value to its percentage representation with two decimal places.
+        /// Converts a float value to its percentage representation with up to two decimal places.
         /// </summary>
-        /// <param name="value">The float value to be converted.</param>
-        /// <returns>The percentage representation of the float value.</returns>
-        public string ToPercentage()
-            => (value * 100).ToString("0.##") + "%";
+        public string ToPercentage() 
+            => (value * 100).ToString("0.##", CultureInfo.CurrentCulture) + "%";
     }
 }
