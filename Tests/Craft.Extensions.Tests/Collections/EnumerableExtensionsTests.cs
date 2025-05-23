@@ -1,222 +1,234 @@
-﻿namespace Craft.Extensions.Tests.Collections;
+﻿using System.ComponentModel;
 
-public class EnumerableExtensionsTests
+namespace Craft.Extensions.Tests.System;
+
+public class EnumExtensionsTests
 {
-    // --- GetListDataForSelect Tests ---
-
+    // --- GetOrderedEnumValues ---
     [Fact]
-    public void GetListDataForSelect_ReturnsDictionary_WhenValueAndDisplayFieldsAreProvided()
+    public void GetOrderedEnumValues_ReturnsOrderedList()
     {
         // Arrange
-        var items = new List<TestItem>
-        {
-            new() { Id = 1, Name = "Alpha" },
-            new() { Id = 2, Name = "Beta" }
-        };
-
-        // Act
-        var result = items.GetListDataForSelect("Id", "Name");
-
-        // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Equal("Alpha", result["1"]);
-        Assert.Equal("Beta", result["2"]);
-    }
-
-    [Fact]
-    public void GetListDataForSelect_ReturnsDictionary_WhenValueAndDisplayFieldsAreNull()
-    {
-        // Arrange
-        var items = new List<string> { "A", "B" };
-
-        // Act
-        var result = items.GetListDataForSelect(null!, null!);
-
-        // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Equal("A", result["A"]);
-        Assert.Equal("B", result["B"]);
-    }
-
-    [Fact]
-    public void GetListDataForSelect_ReturnsEmptyDictionary_WhenItemsIsNull()
-    {
-        // Arrange
-        List<TestItem>? items = null;
-
-        // Act
-        var result = items.GetListDataForSelect("Id", "Name");
-
-        // Assert
-        Assert.Empty(result);
-    }
-
-    [Fact]
-    public void GetListDataForSelect_ReturnsEmptyDictionary_WhenItemsIsEmpty()
-    {
-        // Arrange
-        var items = new List<TestItem>();
-
-        // Act
-        var result = items.GetListDataForSelect("Id", "Name");
-
-        // Assert
-        Assert.Empty(result);
-    }
-
-    [Fact]
-    public void GetListDataForSelect_HandlesNonexistentProperties_Gracefully()
-    {
-        // Arrange
-        var items = new List<TestItem> { new() { Id = 1, Name = "Alpha" } };
-
-        // Act
-        var result = items.GetListDataForSelect("NonExistent", "AlsoMissing");
-
-        // Assert
-        Assert.Single(result);
-        Assert.True(result.ContainsKey(string.Empty));
-        Assert.Equal(string.Empty, result[string.Empty]);
-    }
-
-    [Fact]
-    public void GetListDataForSelect_ThrowsOnDuplicateKeys()
-    {
-        // Arrange
-        var items = new List<TestItem>
-        {
-            new() { Id = 1, Name = "Alpha" },
-            new() { Id = 1, Name = "Beta" }
-        };
+        var result = EnumExtensions.GetOrderedEnumValues<SimpleEnum>();
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => items.GetListDataForSelect("Id", "Name"));
-        Assert.Contains("key", ex.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal([SimpleEnum.Zero, SimpleEnum.One, SimpleEnum.Two], result);
+    }
+
+    // --- GetExtremeEnumValue, GetHighestEnumValue, GetLowestEnumValue ---
+    [Fact]
+    public void GetExtremeEnumValue_ReturnsHighestAndLowest()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.Two, EnumExtensions.GetExtremeEnumValue<SimpleEnum>(true));
+        Assert.Equal(SimpleEnum.Zero, EnumExtensions.GetExtremeEnumValue<SimpleEnum>(false));
     }
 
     [Fact]
-    public void GetListDataForSelect_HandlesNullItemInCollection()
+    public void GetHighestEnumValue_ReturnsHighest()
     {
-        // Arrange
-        var items = new List<string?> { "A", null };
-
-        // Act
-        var result = items.GetListDataForSelect(null!, null!);
-
-        // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Equal("A", result["A"]);
-        Assert.Equal(string.Empty, result[string.Empty]);
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.Two, EnumExtensions.GetHighestEnumValue<SimpleEnum>());
     }
 
     [Fact]
-    public void GetListDataForSelect_HandlesEmptyValueFieldOrDisplayField()
+    public void GetLowestEnumValue_ReturnsLowest()
     {
-        // Arrange
-        var items = new List<TestItem> { new() { Id = 1, Name = "Alpha" } };
-
-        // Act
-        var result1 = items.GetListDataForSelect("", "Name");
-        var result2 = items.GetListDataForSelect("Id", "");
-
-        // Assert
-        Assert.Single(result1);
-        Assert.Equal("Alpha", result1[string.Empty]);
-        Assert.Single(result2);
-        Assert.Equal(string.Empty, result2["1"]);
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.Zero, EnumExtensions.GetLowestEnumValue<SimpleEnum>());
     }
 
-    // --- IsIn Tests ---
-
+    // --- GetDescriptions, GetNames, GetValues ---
     [Fact]
-    public void IsIn_ReturnsTrue_WhenItemIsInCollection()
+    public void GetDescriptions_ReturnsDescriptions()
     {
         // Arrange
-        int item = 2;
-        var collection = new List<int> { 1, 2, 3 };
-
-        // Act
-        var result = item.IsIn(collection);
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void IsIn_ReturnsFalse_WhenItemIsNotInCollection()
-    {
-        // Arrange
-        string item = "zebra";
-        var collection = new List<string> { "cat", "dog", "elephant" };
-
-        // Act
-        var result = item.IsIn(collection);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsIn_ReturnsFalse_WhenCollectionIsEmpty()
-    {
-        // Arrange
-        int item = 1;
-        var collection = new List<int>();
-
-        // Act
-        var result = item.IsIn(collection);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void IsIn_ReturnsFalse_WhenCollectionIsNull()
-    {
-        // Arrange
-        string item = "test";
-        List<string>? collection = null;
+        var dict = EnumExtensions.GetDescriptions<DescriptionEnum>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => item.IsIn(collection!));
+        Assert.Equal("Alpha Desc", dict[DescriptionEnum.Alpha]);
+        Assert.Equal("Beta Desc", dict[DescriptionEnum.Beta]);
+        Assert.Equal("Gamma", dict[DescriptionEnum.Gamma]);
     }
 
     [Fact]
-    public void IsIn_WorksWithReferenceTypes()
+    public void GetNames_ReturnsNames()
     {
         // Arrange
-        var obj = new TestItem { Id = 1, Name = "Alpha" };
-        var collection = new List<TestItem>
-        {
-            new() { Id = 2, Name = "Beta" },
-            obj
-        };
+        var dict = EnumExtensions.GetNames<SimpleEnum>();
 
-        // Act
-        var result = obj.IsIn(collection);
-
-        // Assert
-        Assert.True(result);
+        // Act & Assert
+        Assert.Equal("Zero", dict[SimpleEnum.Zero]);
+        Assert.Equal("One", dict[SimpleEnum.One]);
+        Assert.Equal("Two", dict[SimpleEnum.Two]);
     }
 
     [Fact]
-    public void IsIn_WorksWithValueTypes()
+    public void GetValues_ReturnsAllValues()
     {
-        // Arrange
-        var item = DayOfWeek.Monday;
-        var collection = new List<DayOfWeek> { DayOfWeek.Sunday, DayOfWeek.Monday };
-
-        // Act
-        var result = item.IsIn(collection);
+        // Arrange & Act
+        var values = EnumExtensions.GetValues<SimpleEnum>();
 
         // Assert
-        Assert.True(result);
+        Assert.Contains(SimpleEnum.One, values);
+        Assert.Equal(3, values.Length);
     }
 
-    private class TestItem
+    // --- GetNextEnumValue, GetPrevEnumValue ---
+    [Fact]
+    public void GetNextEnumValue_ReturnsNextOrFirst()
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.One, SimpleEnum.Zero.GetNextEnumValue());
+        Assert.Equal(SimpleEnum.Zero, SimpleEnum.Two.GetNextEnumValue());
+    }
+
+    [Fact]
+    public void GetPrevEnumValue_ReturnsPreviousOrLast()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.Zero, SimpleEnum.One.GetPrevEnumValue());
+        Assert.Equal(SimpleEnum.Two, SimpleEnum.Zero.GetPrevEnumValue());
+    }
+
+    // --- GetDescription ---
+    [Fact]
+    public void GetDescription_ReturnsDescriptionOrName()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal("Alpha Desc", DescriptionEnum.Alpha.GetDescription());
+        Assert.Equal("Gamma", DescriptionEnum.Gamma.GetDescription());
+    }
+
+    // --- GetFlags ---
+    [Fact]
+    public void GetFlags_ReturnsSetFlags()
+    {
+        // Arrange & Act
+        var flags = FlagsEnum.All.GetFlags();
+
+        // Assert
+        Assert.Contains(FlagsEnum.First, flags);
+        Assert.Contains(FlagsEnum.Second, flags);
+        Assert.Contains(FlagsEnum.Third, flags);
+    }
+
+    // --- IsSet ---
+    [Fact]
+    public void IsSet_ReturnsTrueIfFlagIsSet()
+    {
+        // Arrange & Act & Assert
+        Assert.True((FlagsEnum.All).IsSet(FlagsEnum.First));
+        Assert.False((FlagsEnum.First).IsSet(FlagsEnum.Second));
+    }
+
+    // --- GetName ---
+    [Fact]
+    public void GetName_ReturnsNameOrFlags()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal("First", FlagsEnum.First.GetName());
+        Assert.Equal("None,First,Second", (FlagsEnum.First | FlagsEnum.Second).GetName());
+    }
+
+    // --- TryGetSingleDescription, TryGetSingleName ---
+    [Fact]
+    public void TryGetSingleDescription_ReturnsTrueAndDescription()
+    {
+        // Arrange & Act & Assert
+        Assert.True(DescriptionEnum.Alpha.TryGetSingleDescription(out var desc));
+        Assert.Equal("Alpha Desc", desc);
+    }
+
+    [Fact]
+    public void TryGetSingleName_ReturnsTrueAndName()
+    {
+        // Arrange & Act & Assert
+        Assert.True(DescriptionEnum.Beta.TryGetSingleName(out var name));
+        Assert.Equal("Beta", name);
+    }
+
+    // --- ToStringInvariant ---
+    [Fact]
+    public void ToStringInvariant_ReturnsName()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal("Alpha", DescriptionEnum.Alpha.ToStringInvariant());
+    }
+
+    // --- ValidateEnumType ---
+    [Fact]
+    public void ValidateEnumType_ThrowsIfNotEnum()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<Exception>(() => EnumExtensions.ValidateEnumType<int>());
+    }
+
+    // --- ToEnum (int) ---
+    [Fact]
+    public void ToEnum_IntToEnum_ReturnsEnumValue()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.One, 1.ToEnum<SimpleEnum>());
+    }
+
+    // --- ToEnum (string) ---
+    [Fact]
+    public void ToEnum_StringToEnum_ReturnsEnumValue()
+    {
+        // Arrange & Act & Assert
+        Assert.Equal(SimpleEnum.Two, "Two".ToEnum<SimpleEnum>());
+        Assert.Equal(SimpleEnum.One, "1".ToEnum<SimpleEnum>());
+    }
+
+    [Fact]
+    public void ToEnum_StringToEnum_ThrowsOnNullOrEmpty()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentNullException>(() => ((string)null!).ToEnum<SimpleEnum>());
+        Assert.Throws<ArgumentNullException>(() => "".ToEnum<SimpleEnum>());
+    }
+
+    // --- Contains ---
+    [Fact]
+    public void Contains_ReturnsTrueIfStringContainsFlagName()
+    {
+        // Arrange & Act & Assert
+        Assert.True("First,Second".Contains(FlagsEnum.First));
+        Assert.False("Third".Contains(FlagsEnum.First));
+    }
+
+    [Fact]
+    public void Contains_ReturnsTrueIfStringContainsAnyFlag()
+    {
+        // Arrange & Act & Assert
+        Assert.False("First,Second".Contains(FlagsEnum.All));
+        Assert.True("First".Contains(FlagsEnum.First));
+    }
+
+    private enum SimpleEnum
+    {
+        Zero = 0,
+        One = 1,
+        Two = 2
+    }
+
+    [Flags]
+    private enum FlagsEnum
+    {
+        None = 0,
+        First = 1,
+        Second = 2,
+        Third = 4,
+        All = First | Second | Third
+    }
+
+    private enum DescriptionEnum
+    {
+        [Description("Alpha Desc")]
+        Alpha = 1,
+        [Description("Beta Desc")]
+        Beta = 2,
+        Gamma = 3
     }
 }
-
