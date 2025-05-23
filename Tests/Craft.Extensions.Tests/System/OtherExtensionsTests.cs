@@ -40,6 +40,38 @@ public class OtherExtensionsTests
         Assert.Equal(expected, result);
     }
 
+    [Fact]
+    public void HexToBytes_WhitespaceOnly_ReturnsEmptyArray()
+    {
+        // Act
+        var result = "   ".HexToBytes();
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void HexToBytes_ParsesUpperAndLowerCase()
+    {
+        // Act
+        var upper = "aBcDeF".HexToBytes();
+        var lower = "abcdef".HexToBytes();
+
+        // Assert
+        Assert.Equal(new byte[] { 0xAB, 0xCD, 0xEF }, upper);
+        Assert.Equal(new byte[] { 0xAB, 0xCD, 0xEF }, lower);
+    }
+
+    [Fact]
+    public void HexToBytes_TrimsWhitespace()
+    {
+        // Act
+        var result = "  01ABFF  ".HexToBytes();
+
+        // Assert
+        Assert.Equal(new byte[] { 0x01, 0xAB, 0xFF }, result);
+    }
+
     [Theory]
     [InlineData(0, "0%")]
     [InlineData(0.1234, "12.34%")]
@@ -91,6 +123,15 @@ public class OtherExtensionsTests
         var result = input.ToPercentage();
 
         // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(0.9999, "99.99%")]
+    [InlineData(0.995, "99.5%")]
+    public void ToPercentage_RoundingEdgeCases(decimal input, string expected)
+    {
+        var result = input.ToPercentage();
         Assert.Equal(expected, result);
     }
 }
