@@ -7,19 +7,11 @@ public static class DateTimeExtensions
     extension(DateTime dateTime)
     {
         /// <summary>
-        /// Removes the time component from the current <see cref="DateTime"/> instance, returning a new <see
-        /// cref="DateTime"/> with the time set to 00:00:00.000.
+        /// Removes the time component from the current <see cref="DateTime"/> instance, returning a new <see cref="DateTime"/> with the time set to 00:00:00.000.
         /// </summary>
-        /// <returns>A <see cref="DateTime"/> representing the same date as the current instance, but with the time component
-        /// cleared.</returns>
-        public DateTime ClearTime()
-        {
-            return dateTime.Subtract(new TimeSpan(0,
-                dateTime.Hour,
-                dateTime.Minute,
-                dateTime.Second,
-                dateTime.Millisecond));
-        }
+        /// <returns>A <see cref="DateTime"/> representing the same date as the current instance, but with the time component cleared.</returns>
+        public DateTime ClearTime() =>
+            new(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0, 0, dateTime.Kind);
 
         /// <summary>
         /// Converts the current <see cref="DateTime"/> instance to have a <see cref="DateTimeKind"/> of <see
@@ -58,20 +50,15 @@ public static class DateTimeExtensions
         /// <summary>
         /// Determines whether the current day is a weekday.
         /// </summary>
-        /// <returns><see langword="true"/> if the current day is Monday, Tuesday, Wednesday, Thursday, or Friday;  otherwise,
-        /// <see langword="false"/>.</returns>
-        public bool IsWeekday()
-        {
-            return dayOfWeek.IsIn(DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday);
-        }
+        /// <returns><see langword="true"/> if the current day is Monday, Tuesday, Wednesday, Thursday, or Friday; otherwise, <see langword="false"/>.</returns>
+        public bool IsWeekday() =>
+            dayOfWeek is DayOfWeek.Monday or DayOfWeek.Tuesday or DayOfWeek.Wednesday or DayOfWeek.Thursday or DayOfWeek.Friday;
 
         /// <summary>
         /// Determines whether the current day is a weekend.
         /// </summary>
         /// <returns><see langword="true"/> if the current day is either Saturday or Sunday; otherwise, <see langword="false"/>.</returns>
-        public bool IsWeekend()
-        {
-            return dayOfWeek.IsIn(DayOfWeek.Saturday, DayOfWeek.Sunday);
-        }
+        public bool IsWeekend() =>
+            dayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
     }
 }
