@@ -26,7 +26,7 @@ public class ConcurrencyTests
         bool hasStamp = entity.HasConcurrencyStamp();
 
         // Assert
-        Assert.True(!hasStamp);
+        Assert.False(hasStamp);
     }
 
     [Fact]

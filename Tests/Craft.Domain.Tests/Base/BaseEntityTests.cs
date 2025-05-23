@@ -10,7 +10,7 @@ public class BaseEntityTests
 
         // Act
         // Assert
-        Assert.True(entity.ConcurrencyStamp != null);
+        Assert.NotNull(entity.ConcurrencyStamp);
         Assert.True(Guid.TryParse(entity.ConcurrencyStamp, out _));
     }
 
@@ -21,7 +21,7 @@ public class BaseEntityTests
         var entity = new MockEntity { Id = 1, ConcurrencyStamp = "test" };
 
         // Assert
-        Assert.True(entity.ConcurrencyStamp != null);
+        Assert.NotNull(entity.ConcurrencyStamp);
         Assert.Equal("test", entity.ConcurrencyStamp);
     }
 

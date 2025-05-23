@@ -189,7 +189,7 @@ public class KeyTypeTests
         int result = id1.CompareTo(id2);
 
         // Assert
-        Assert.True(result == 0);
+        Assert.Equal(0, result);
     }
 
     [Fact]
