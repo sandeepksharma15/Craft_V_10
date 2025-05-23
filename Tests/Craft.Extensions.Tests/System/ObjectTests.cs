@@ -27,6 +27,19 @@ public class ObjectTests
     }
 
     [Fact]
+    public void AsType_Should_Return_Null_When_Object_Is_Null()
+    {
+        // Arrange
+        object obj = null!;
+
+        // Act
+        var result = obj.AsType<string>();
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
     public void If_Should_Apply_Function_When_Condition_Is_True()
     {
         // Arrange
@@ -127,6 +140,34 @@ public class ObjectTests
     }
 
     [Fact]
+    public void If_WithFunc_Should_Handle_Null_Object()
+    {
+        // Arrange
+        string? obj = null;
+
+        // Act
+        var result = obj.If(true, s => s == null ? "default" : s);
+
+        // Assert
+        Assert.Equal("default", result);
+    }
+
+    [Fact]
+    public void If_WithAction_Should_Handle_Null_Object()
+    {
+        // Arrange
+        string? obj = null;
+        bool called = false;
+
+        // Act
+        var result = obj.If(true, s => { if (s == null) called = true; });
+
+        // Assert
+        Assert.True(called);
+        Assert.Null(result);
+    }
+
+    [Fact]
     public void ToValue_Should_Convert_Guid_Correctly()
     {
         // Arrange
@@ -163,5 +204,57 @@ public class ObjectTests
 
         // Act & Assert
         Assert.Throws<FormatException>(() => obj.ToValue<int>());
+    }
+
+    [Fact]
+    public void ToValue_Should_Return_Default_For_Null()
+    {
+        // Arrange
+        object obj = null!;
+
+        // Act
+        var result = obj.ToValue<int>();
+
+        // Assert
+        Assert.Equal(default, result);
+    }
+
+    [Fact]
+    public void ToValue_Should_Return_Default_For_Failed_Guid_Parse()
+    {
+        // Arrange
+        object obj = "not-a-guid";
+
+        // Act
+        var result = obj.ToValue<Guid>();
+
+        // Assert
+        Assert.Equal(default, result);
+    }
+
+    [Fact]
+    public void ToValue_Should_Return_Default_For_NonConvertible_Type()
+    {
+        // Arrange
+        object obj = new ObjectTests();
+
+        // Act
+        var result = obj.ToValue<int>();
+
+        // Assert
+        Assert.Equal(default, result);
+    }
+
+    [Fact]
+    public void ToValue_Should_Convert_Boxed_Value_Type()
+    {
+        // Arrange
+        object obj = (object)42;
+
+        // Act
+        var result = obj.ToValue<int>();
+
+        // Assert
+        Assert.Equal(42, result);
     }
 }
