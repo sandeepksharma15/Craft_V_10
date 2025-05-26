@@ -25,6 +25,7 @@ public static class DomainExtensions
                 return (TKey?)(object?)value;
 
             var converter = TypeDescriptor.GetConverter(typeof(TKey));
+
             if (converter.CanConvertFrom(typeof(string)))
             {
                 var result = converter.ConvertFromInvariantString(value);
