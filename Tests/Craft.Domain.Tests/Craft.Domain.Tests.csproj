@@ -7,8 +7,8 @@
 		<IsPackable>false</IsPackable>
 		<Authors>Sandeep SHARMA</Authors>
 		<LangVersion>preview</LangVersion>
-		<AssemblyVersion>1.0.35.1</AssemblyVersion>
-		<FileVersion>1.0.0.1</FileVersion>
+		<AssemblyVersion>1.0.35.2</AssemblyVersion>
+		<FileVersion>1.0.0.2</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
