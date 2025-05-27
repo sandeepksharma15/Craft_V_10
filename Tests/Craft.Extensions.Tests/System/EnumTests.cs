@@ -67,7 +67,7 @@ public class EnumExtensionsTests
         var arr = EnumExtensions.GetValues<SimpleEnum>();
 
         // Assert
-        Assert.Equal(new[] { SimpleEnum.Zero, SimpleEnum.One, SimpleEnum.Two }, arr);
+        Assert.Equal([SimpleEnum.Zero, SimpleEnum.One, SimpleEnum.Two], arr);
     }
 
     [Fact]

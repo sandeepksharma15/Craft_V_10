@@ -6,8 +6,8 @@
 		<Nullable>enable</Nullable>
 		<Authors>Sandeep SHARMA</Authors>
 		<LangVersion>preview</LangVersion>
-		<AssemblyVersion>1.0.26.3</AssemblyVersion>
-		<FileVersion>1.0.0.3</FileVersion>
+		<AssemblyVersion>1.0.26.5</AssemblyVersion>
+		<FileVersion>1.0.0.5</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

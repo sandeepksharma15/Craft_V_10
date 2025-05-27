@@ -284,6 +284,52 @@ public class TypeTests
         Assert.Equal(expected, result);
     }
 
+    [Theory]
+    [InlineData(typeof(BaseClass), typeof(DerivedClass), true)] // DerivedClass : BaseClass
+    [InlineData(typeof(DerivedClass), typeof(BaseClass), true)] // BaseClass is assignable from DerivedClass, and vice versa (object)
+    [InlineData(typeof(BaseClass), typeof(BaseClass), true)]    // Same type
+    [InlineData(typeof(DerivedClass), typeof(DerivedClass), true)] // Same type
+    [InlineData(typeof(IInterface), typeof(DerivedClass), true)] // DerivedClass implements IInterface
+    [InlineData(typeof(DerivedClass), typeof(IInterface), true)] // IInterface is assignable from DerivedClass
+    [InlineData(typeof(IGenericInterface<string>), typeof(DerivedClass), true)] // DerivedClass implements IGenericInterface<string>
+    [InlineData(typeof(DerivedClass), typeof(IGenericInterface<string>), true)] // IGenericInterface<string> is assignable from DerivedClass
+    [InlineData(typeof(INonGenericInterface), typeof(DerivedClass), false)] // DerivedClass does not implement INonGenericInterface
+    [InlineData(typeof(DerivedClass), typeof(INonGenericInterface), false)] // DerivedClass does not implement INonGenericInterface
+    [InlineData(typeof(string), typeof(int), false)] // Unrelated types
+    [InlineData(typeof(object), typeof(string), true)] // object is assignable from string
+    [InlineData(typeof(string), typeof(object), true)] // string is assignable from object (false), but object is assignable from string (true)
+    public void IsCompatibleWith_ShouldReturnExpectedResult(Type type1, Type type2, bool expected)
+    {
+        // Act
+        var result = type1.IsCompatibleWith(type2);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(typeof(BaseClass), typeof(DerivedClass), false)]
+    [InlineData(typeof(DerivedClass), typeof(BaseClass), false)]
+    [InlineData(typeof(BaseClass), typeof(BaseClass), false)]
+    [InlineData(typeof(DerivedClass), typeof(DerivedClass), false)]
+    [InlineData(typeof(IInterface), typeof(DerivedClass), false)]
+    [InlineData(typeof(DerivedClass), typeof(IInterface), false)]
+    [InlineData(typeof(IGenericInterface<string>), typeof(DerivedClass), false)]
+    [InlineData(typeof(DerivedClass), typeof(IGenericInterface<string>), false)]
+    [InlineData(typeof(INonGenericInterface), typeof(DerivedClass), true)]
+    [InlineData(typeof(DerivedClass), typeof(INonGenericInterface), true)]
+    [InlineData(typeof(string), typeof(int), true)]
+    [InlineData(typeof(object), typeof(string), false)]
+    [InlineData(typeof(string), typeof(object), false)]
+    public void IsNotCompatibleWith_ShouldReturnExpectedResult(Type type1, Type type2, bool expected)
+    {
+        // Act
+        var result = type1.IsNotCompatibleWith(type2);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     private class TestAttribute : Attribute;
 

@@ -32,9 +32,9 @@ public static class DomainExtensions
                 return (TKey?)result;
             }
         }
-        catch
+        catch (Exception)
         {
-            // Ignore parsing exceptions and return default
+            return default;
         }
 
         return default;

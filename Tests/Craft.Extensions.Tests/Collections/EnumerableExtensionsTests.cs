@@ -54,7 +54,7 @@ public class EnumerableExtensionsTests
     [Fact]
     public void GetListDataForSelect_HandlesNullItem_WhenFieldsAreNull()
     {
-        TestItem?[] items = { null };
+        TestItem?[] items = [null];
         var result = items.GetListDataForSelect(null!, null!);
         Assert.Single(result);
         Assert.Equal(string.Empty, result.Keys.First());
@@ -64,7 +64,7 @@ public class EnumerableExtensionsTests
     [Fact]
     public void GetListDataForSelect_HandlesNullItem_WhenFieldsAreNotNull()
     {
-        TestItem?[] items = { null };
+        TestItem?[] items = [null];
 
         var result = items.GetListDataForSelect("Id", "Name");
 
