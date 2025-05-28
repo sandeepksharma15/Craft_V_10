@@ -5,16 +5,6 @@ namespace Craft.Extensions.Tests.Expressions;
 
 public class ExpressionExtensionsTests
 {
-    private class MyClass
-    {
-        public int AnotherProperty { get; set; }
-        public string? PropertyName { get; set; }
-        public static int StaticField;
-        private int _privateField;
-        public int GetPrivateField() => _privateField;
-        public void SetPrivateField(int value) => _privateField = value;
-    }
-
     [Fact]
     public void CreateMemberExpression_NonexistentProperty_ShouldThrowArgumentException()
     {
@@ -27,7 +17,10 @@ public class ExpressionExtensionsTests
     [InlineData(null)]
     public void CreateMemberExpression_NullOrEmptyPropertyName_ShouldThrowArgumentException(string? propertyName)
     {
-        Assert.Throws<ArgumentException>(() => propertyName!.CreateMemberExpression<MyClass>());
+        if (propertyName is null)
+            Assert.Throws<ArgumentNullException>(() => propertyName!.CreateMemberExpression<MyClass>());
+        else
+            Assert.Throws<ArgumentException>(() => propertyName!.CreateMemberExpression<MyClass>());
     }
 
     [Fact]
@@ -46,16 +39,19 @@ public class ExpressionExtensionsTests
     [Fact]
     public void CreateMemberExpression_ValidField_ReturnsExpression()
     {
+        // Arrange
         var type = typeof(MyClass);
         var fieldName = nameof(MyClass.StaticField);
-        var expr = type.CreateMemberExpression(fieldName);
-        Assert.NotNull(expr);
-
-        // Set static field and test
         MyClass.StaticField = 123;
+
+        // Act
+        var expr = type.CreateMemberExpression(fieldName);
         var compiled = expr.Compile();
-        var value = compiled.DynamicInvoke(new MyClass());
-        Assert.Equal(123, value);
+        var result = compiled.DynamicInvoke(); // No arguments for static
+
+        // Assert
+        Assert.NotNull(expr);
+        Assert.Equal(123, result);
     }
 
     [Fact]
@@ -84,6 +80,7 @@ public class ExpressionExtensionsTests
     public void CreateMemberExpression_WithNullType_ShouldThrowArgumentNullException()
     {
         Type type = null!;
+
         Assert.Throws<ArgumentNullException>(() => type.CreateMemberExpression("PropertyName"));
     }
 
@@ -109,21 +106,107 @@ public class ExpressionExtensionsTests
     }
 
     [Fact]
-    public void CreateMemberExpression_StronglyTypedField_ReturnsExpression()
+    public void CreateMemberExpression_NullOrWhitespace_ThrowsArgumentException()
     {
-        MyClass.StaticField = 456;
-        var expr = "StaticField".CreateMemberExpression<MyClass, int>();
-        Assert.NotNull(expr);
+        Assert.Throws<ArgumentNullException>(() => ((string?)null)!.CreateMemberExpression<MyClass, string>());
+        Assert.Throws<ArgumentException>(() => "".CreateMemberExpression<MyClass, string>());
+        Assert.Throws<ArgumentException>(() => "   ".CreateMemberExpression<MyClass, string>());
+    }
 
-        var compiled = expr.Compile();
-        var value = compiled(new MyClass());
-        Assert.Equal(456, value);
+    [Fact]
+    public void CreateStaticMemberExpression_ValidStaticField_ReturnsCorrectExpression()
+    {
+        // Arrange
+        MyClass.StaticField = 42;
+
+        // Act
+        var expr = typeof(MyClass).CreateStaticMemberExpression<int>("StaticField");
+        var func = expr.Compile();
+        var result = func();
+
+        // Assert
+        Assert.Equal(42, result);
+    }
+
+    [Fact]
+    public void CreateStaticMemberExpression_InvalidMemberName_ThrowsArgumentException()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            typeof(MyClass).CreateStaticMemberExpression<int>("NonExistentField"));
+
+        Assert.Contains("not found", ex.Message);
+    }
+
+    [Fact]
+    public void CreateStaticMemberExpression_NullMemberName_ThrowsArgumentException()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentNullException>(() =>
+            typeof(MyClass).CreateStaticMemberExpression<int>(null!));
+    }
+
+    [Fact]
+    public void CreateStaticMemberExpression_InstanceField_ThrowsArgumentException()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            typeof(MyClass).CreateStaticMemberExpression<int>("AnotherProperty"));
+    }
+
+    [Fact]
+    public void CreateStaticMemberExpression_WrongResultType_ThrowsInvalidOperationException()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            typeof(MyClass).CreateStaticMemberExpression<string>("StaticField"));
+        Assert.Contains("cannot be assigned", ex.Message);
+    }
+
+    [Fact]
+    public void CreateMemberExpression_NonExistentMember_ThrowsArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            "NonExistent".CreateMemberExpression<MyClass, string>());
+
+        Assert.Contains("not found", ex.Message);
     }
 
     [Fact]
     public void CreateMemberExpression_StronglyTyped_InvalidProperty_Throws()
     {
         Assert.Throws<ArgumentException>(() => "NotExist".CreateMemberExpression<MyClass, int>());
+    }
+
+    [Fact]
+    public void CreateMemberExpression_PrivateField_ReturnsCorrectExpression()
+    {
+        var expr = "_privateField".CreateMemberExpression<MyClass, int>();
+        Assert.NotNull(expr);
+
+        var func = expr.Compile();
+        var instance = new MyClass();
+        instance.SetPrivateField(55);
+
+        Assert.Equal(55, func(instance));
+    }
+
+    [Fact]
+    public void CreateMemberExpression_StaticField_ThrowsArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            "StaticField".CreateMemberExpression<MyClass, int>());
+
+        Assert.Contains("not found", ex.Message); // because static members are excluded
+    }
+
+    [Fact]
+    public void CreateMemberExpression_TypeMismatch_ThrowsInvalidOperationException()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            "AnotherProperty".CreateMemberExpression<MyClass, string>());
+
+        Assert.Contains("cannot be assigned", ex.Message);
     }
 
     [Fact]
@@ -160,5 +243,15 @@ public class ExpressionExtensionsTests
         Assert.True(compiled(obj1));
         Assert.True(compiled(obj2));
         Assert.False(compiled(obj3));
+    }
+
+    private class MyClass
+    {
+        public int AnotherProperty { get; set; }
+        public string? PropertyName { get; set; }
+        public static int StaticField;
+        private int _privateField;
+        public int GetPrivateField() => _privateField;
+        public void SetPrivateField(int value) => _privateField = value;
     }
 }

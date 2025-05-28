@@ -12,42 +12,179 @@ public sealed class ExpressionSemanticEqualityComparer : IEqualityComparer<Expre
     {
         if (ReferenceEquals(x, y)) return true;
         if (x is null || y is null) return false;
-        if (x.NodeType != y.NodeType) return false;
 
-        var normX = Normalize(x);
-        var normY = Normalize(y);
+        x = Normalize(x);
+        y = Normalize(y);
 
-        return normX.ToString() == normY.ToString();
+        return ExpressionComparer.AreEqual(x, y);
     }
 
     public int GetHashCode(Expression obj)
-        => Normalize(obj).ToString().GetHashCode();
+    {
+        var normalized = Normalize(obj);
+        return normalized.ToString().GetHashCode(); // Improve if needed
+    }
 
     private static Expression Normalize(Expression expr)
-        => new ExpressionNormalizer().Visit(expr);
+        => new ExpressionNormalizer().Visit(expr)!;
 
     /// <summary>
-    /// Normalizes expressions for semantic comparison, especially for commutative binary expressions.
+    /// Normalizes expressions to canonical forms (e.g., x == true => x)
     /// </summary>
     private sealed class ExpressionNormalizer : ExpressionVisitor
     {
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            var operand = Visit(node.Operand);
+            return Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method);
+        }
+
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            // Normalize both sides
             var left = Visit(node.Left);
             var right = Visit(node.Right);
 
-            // For commutative binary expressions, order operands to ensure a canonical form
-            if (node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual)
+            // Simplify `x == true` => x
+            if (node.NodeType == ExpressionType.Equal)
             {
-                // If both sides are constants or both are member accesses, order by string for consistency
+                if (IsBooleanConstant(right, true)) return left;
+                if (IsBooleanConstant(left, true)) return right;
+            }
+
+            // Simplify `x == false` => !x
+            if (node.NodeType == ExpressionType.Equal)
+            {
+                if (IsBooleanConstant(right, false)) return Expression.Not(left);
+                if (IsBooleanConstant(left, false)) return Expression.Not(right);
+            }
+
+            // Simplify `x != false` => x
+            if (node.NodeType == ExpressionType.NotEqual)
+            {
+                if (IsBooleanConstant(right, false)) return left;
+                if (IsBooleanConstant(left, false)) return right;
+            }
+
+            // Simplify `x != true` => !x
+            if (node.NodeType == ExpressionType.NotEqual)
+            {
+                if (IsBooleanConstant(right, true)) return Expression.Not(left);
+                if (IsBooleanConstant(left, true)) return Expression.Not(right);
+            }
+
+            // Reorder for commutative binary expressions
+            if (IsCommutative(node.NodeType))
+            {
                 if (string.Compare(left.ToString(), right.ToString(), StringComparison.Ordinal) > 0)
                     (left, right) = (right, left);
-
-                return Expression.MakeBinary(node.NodeType, left, right);
             }
 
             return Expression.MakeBinary(node.NodeType, left, right, node.IsLiftedToNull, node.Method, node.Conversion);
+        }
+
+        private static bool IsBooleanConstant(Expression expr, bool value)
+            => expr is ConstantExpression ce && ce.Type == typeof(bool) && (bool)ce.Value! == value;
+
+        private static bool IsCommutative(ExpressionType nodeType)
+            => nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual
+               || nodeType == ExpressionType.And || nodeType == ExpressionType.Or
+               || nodeType == ExpressionType.Add || nodeType == ExpressionType.Multiply;
+    }
+}
+
+internal static class ExpressionComparer
+{
+    public static bool AreEqual(Expression x, Expression y)
+    {
+        return new Impl().Equals(x, y);
+    }
+
+    private class Impl : ExpressionVisitor
+    {
+        private Expression? _y;
+
+        public bool Equals(Expression? x, Expression? y)
+        {
+            _y = y;
+            return Visit(x) != null;
+        }
+
+        public override Expression? Visit(Expression? node)
+        {
+            if (node == null || _y == null)
+                return node == _y ? node : null;
+
+            if (node.NodeType != _y.NodeType || node.Type != _y.Type)
+                return null;
+
+            return base.Visit(node);
+        }
+
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            var other = (BinaryExpression)_y!;
+
+            if (node.Method != other.Method || node.IsLifted != other.IsLifted || node.IsLiftedToNull != other.IsLiftedToNull)
+                return null!;
+
+            // Handle commutative
+            if (IsCommutative(node.NodeType))
+            {
+                var leftRight = Equals(node.Left, other.Left) && Equals(node.Right, other.Right);
+                var rightLeft = Equals(node.Left, other.Right) && Equals(node.Right, other.Left);
+                return leftRight || rightLeft ? node : null!;
+            }
+
+            return Equals(node.Left, other.Left) && Equals(node.Right, other.Right) ? node : null!;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            var other = (MemberExpression)_y!;
+            return node.Member == other.Member && Equals(node.Expression, other.Expression) ? node : null!;
+        }
+
+        protected override Expression VisitConstant(ConstantExpression node)
+        {
+            var other = (ConstantExpression)_y!;
+            return Equals(node.Value, other.Value) ? node : null!;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            var other = (ParameterExpression)_y!;
+            return node.Name == other.Name && node.Type == other.Type ? node : null!;
+        }
+
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            var other = (UnaryExpression)_y!;
+            return node.Method == other.Method && Equals(node.Operand, other.Operand) ? node : null!;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            var other = (LambdaExpression)_y!;
+            if (node.Parameters.Count != other.Parameters.Count)
+                return null!;
+
+            for (int i = 0; i < node.Parameters.Count; i++)
+            {
+                if (!Equals(node.Parameters[i], other.Parameters[i]))
+                    return null!;
+            }
+
+            return Equals(node.Body, other.Body) ? node : null!;
+        }
+
+        private static bool IsCommutative(ExpressionType nodeType)
+        {
+            return nodeType == ExpressionType.Equal ||
+                   nodeType == ExpressionType.NotEqual ||
+                   nodeType == ExpressionType.Add ||
+                   nodeType == ExpressionType.Multiply ||
+                   nodeType == ExpressionType.And ||
+                   nodeType == ExpressionType.Or;
         }
     }
 }

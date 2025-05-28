@@ -151,4 +151,80 @@ public class ConditionRemoverTests
         Assert.NotNull(result);
         Assert.Equal(original.ToString(), result.ToString());
     }
+
+    [Fact]
+    public void SameExpression_ShouldBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr = e => e.IsActive;
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr, expr));
+    }
+
+    [Fact]
+    public void EquivalentBooleanCheck_ShouldBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => e.IsActive;
+        Expression<Func<Entity, bool>> expr2 = e => e.IsActive == true;
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+    }
+
+    [Fact]
+    public void NegatedBooleanCheck_ShouldBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => !e.IsActive;
+        Expression<Func<Entity, bool>> expr2 = e => e.IsActive == false;
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+    }
+
+    [Fact]
+    public void DifferentExpressions_ShouldNotBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => e.IsActive;
+        Expression<Func<Entity, bool>> expr2 = e => e.IsDeleted;
+        Assert.False(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+    }
+
+    [Fact]
+    public void CommutativeEquality_ShouldBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => e.Id == 5;
+        Expression<Func<Entity, bool>> expr2 = e => 5 == e.Id;
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+    }
+
+    [Fact]
+    public void NonCommutativeInequality_ShouldNotBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => e.Id > 5;
+        Expression<Func<Entity, bool>> expr2 = e => 5 < e.Id;
+        Assert.False(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+    }
+
+    [Fact]
+    public void StringComparison_ShouldNotBeEquivalent()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => e.Name == "Alice";
+        Expression<Func<Entity, bool>> expr2 = e => e.Name == "Bob";
+        Assert.False(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+    }
+
+    [Fact]
+    public void IsEquivalentCondition_Should_Recognize_Semantic_Equality()
+    {
+        Expression<Func<Entity, bool>> expr1 = e => e.IsActive;
+        Expression<Func<Entity, bool>> expr2 = e => e.IsActive == true;
+        Expression<Func<Entity, bool>> expr3 = e => true == e.IsActive;
+        Expression<Func<Entity, bool>> expr4 = e => e.IsActive != false;
+
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr1, expr2));
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr1, expr3));
+        Assert.True(ConditionRemover.IsEquivalentCondition(expr1, expr4));
+    }
+
+    private class Entity
+    {
+        public int Id { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsDeleted { get; set; }
+        public string? Name { get; set; }
+    }
 }

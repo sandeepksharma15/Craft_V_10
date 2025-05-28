@@ -8,7 +8,10 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetMemberByName_ReturnsDescriptor_ForSimpleProperty()
     {
+        // Arrange & Act
         var desc = typeof(Simple).GetMemberByName("IntProp");
+
+        // Assert
         Assert.NotNull(desc);
         Assert.Equal("IntProp", desc!.Name);
     }
@@ -16,7 +19,10 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetMemberByName_ReturnsDescriptor_ForNestedProperty()
     {
+        // Arrange & Act
         var desc = typeof(Simple).GetMemberByName("Nested.DoubleProp");
+
+        // Assert
         Assert.NotNull(desc);
         Assert.Equal("DoubleProp", desc!.Name);
     }
@@ -24,54 +30,75 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetMemberByName_ReturnsNull_IfNotFound()
     {
+        // Arrange & Act
         var desc = typeof(Simple).GetMemberByName("NotExist");
+
+        // Assert
         Assert.Null(desc);
     }
 
     [Fact]
     public void GetMemberByName_ThrowsOnNullType()
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => ReflectionExtensions.GetMemberByName(null!, "IntProp"));
     }
 
     [Fact]
     public void GetMemberByName_ThrowsOnNullOrEmptyName()
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => typeof(Simple).GetMemberByName(null!));
-        Assert.Throws<ArgumentNullException>(() => typeof(Simple).GetMemberByName(""));
-        Assert.Throws<ArgumentNullException>(() => typeof(Simple).GetMemberByName("   "));
+        Assert.Throws<ArgumentException>(() => typeof(Simple).GetMemberByName(""));
+        Assert.Throws<ArgumentException>(() => typeof(Simple).GetMemberByName("   "));
     }
 
     [Fact]
     public void GetMemberName_ReturnsPropertyName()
     {
+        // Arrange
         Expression<Func<Simple, int>> expr = s => s.IntProp;
+
+        // Act
         var name = expr.GetMemberName();
+
+        // Assert
         Assert.Equal("IntProp", name);
     }
 
     [Fact]
     public void GetMemberType_ReturnsUnderlyingType()
     {
+        // Arrange
         Expression<Func<Simple, int>> expr = s => s.IntProp;
+
+        // Act
         var type = expr.GetMemberType();
+
+        // Assert
         Assert.Equal(typeof(int), type);
     }
 
     [Fact]
     public void GetMemberType_ReturnsNonNullableType()
     {
+        // Arrange
         Expression<Func<NullableHolder, int?>> expr = s => s.NullableInt;
+
+        // Act
         var type = expr.GetMemberType();
+
+        // Assert
         Assert.Equal(typeof(int), type);
     }
-
-    private class NullableHolder { public int? NullableInt { get; set; } }
 
     [Fact]
     public void GetPropertyInfo_ByTypeAndName_ReturnsPropertyInfo()
     {
+        // Arrange & Act
         var prop = typeof(Simple).GetPropertyInfo("IntProp");
+
+        // Assert
         Assert.NotNull(prop);
         Assert.Equal("IntProp", prop.Name);
     }
@@ -79,23 +106,30 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetPropertyInfo_ByTypeAndName_ThrowsIfNotFound()
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentException>(() => typeof(Simple).GetPropertyInfo("NotExist"));
     }
 
     [Fact]
     public void GetPropertyInfo_ByTypeAndName_ThrowsOnNulls()
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => ReflectionExtensions.GetPropertyInfo(null!, "IntProp"));
         Assert.Throws<ArgumentNullException>(() => typeof(Simple).GetPropertyInfo(null!));
-        Assert.Throws<ArgumentNullException>(() => typeof(Simple).GetPropertyInfo(""));
-        Assert.Throws<ArgumentNullException>(() => typeof(Simple).GetPropertyInfo("   "));
+        Assert.Throws<ArgumentException>(() => typeof(Simple).GetPropertyInfo(""));
+        Assert.Throws<ArgumentException>(() => typeof(Simple).GetPropertyInfo("   "));
     }
 
     [Fact]
     public void GetPropertyInfo_FromExpression_ReturnsPropertyInfo()
     {
+        // Arrange
         Expression<Func<Simple, int>> expr = s => s.IntProp;
+
+        // Act
         var prop = expr.GetPropertyInfo();
+
+        // Assert
         Assert.NotNull(prop);
         Assert.Equal("IntProp", prop.Name);
     }
@@ -220,5 +254,10 @@ public class ReflectionExtensionsTests
     {
         public string? Name { get; set; }
         public CustomClone? Child { get; set; }
+    }
+
+    private class NullableHolder 
+    { 
+        public int? NullableInt { get; set; } 
     }
 }

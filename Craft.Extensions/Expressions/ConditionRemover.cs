@@ -69,7 +69,7 @@ public static class ConditionRemover
     /// <summary>
     /// Checks if two expressions are semantically equivalent.
     /// </summary>
-    private static bool IsEquivalentCondition(Expression expr1, Expression expr2)
+    public static bool IsEquivalentCondition(Expression expr1, Expression expr2)
     {
         if (expr1.CanReduce) expr1 = expr1.Reduce();
         if (expr2.CanReduce) expr2 = expr2.Reduce();

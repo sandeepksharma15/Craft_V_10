@@ -14,7 +14,7 @@ public static class ReflectionExtensions
     public static PropertyDescriptor? GetMemberByName(this Type type, string memberName)
     {
         ArgumentNullException.ThrowIfNull(type);
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(memberName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(memberName);
 
         var members = TypeDescriptor.GetProperties(type);
 
@@ -50,7 +50,7 @@ public static class ReflectionExtensions
     public static PropertyInfo GetPropertyInfo(this Type objType, string name)
     {
         ArgumentNullException.ThrowIfNull(objType);
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
         var property = objType.GetProperty(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
@@ -91,24 +91,29 @@ public static class ReflectionExtensions
     }
 
     /// <summary>
-    /// Retrieves all properties, including inherited properties, from the specified type.
+    /// Retrieves all properties declared on the specified type and its base types.
     /// </summary>
-    /// <remarks>This method iterates through the inheritance hierarchy of the specified type, retrieving
-    /// properties declared at each level. Properties are returned in the order they are encountered, starting with the
-    /// specified type and moving up the hierarchy.</remarks>
-    /// <param name="type">The <see cref="Type"/> from which to retrieve properties. Cannot be <see langword="null"/>.</param>
-    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="PropertyInfo"/> objects representing all public and non-public
-    /// instance properties  declared on the specified type and its base types.</returns>
-    public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
+    /// <remarks>This method retrieves both public and non-public instance properties, including those
+    /// declared only on the specified type and its base types. Properties are returned in the order they are
+    /// encountered while traversing the type hierarchy.</remarks>
+    /// <param name="type">The type whose properties are to be retrieved. This parameter cannot be <see langword="null"/>.</param>
+    /// <returns>A list of <see cref="PropertyInfo"/> objects representing all properties declared on the specified type and its
+    /// base types.</returns>
+    public static List<PropertyInfo> GetAllProperties(this Type? type)
     {
+        ArgumentNullException.ThrowIfNull(type);
+
+        var properties = new List<PropertyInfo>();
         while (type != null)
         {
-            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly))
-                yield return prop;
+            properties.AddRange(
+                type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            );
 
-            if (type.BaseType is not null)
-                type = type.BaseType;
+            type = type.BaseType;
         }
+
+        return properties;
     }
 
     /// <summary>

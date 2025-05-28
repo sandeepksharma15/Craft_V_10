@@ -22,23 +22,30 @@ public static class ExpressionExtensions
     /// <param name="memberName">The name of the property or field.</param>
     /// <returns>A LambdaExpression representing access to the specified member.</returns>
     /// <exception cref="ArgumentException">Thrown if the member name is null, empty, or not found.</exception>
-    public static LambdaExpression CreateMemberExpression(this Type type, string memberName)
+    public static LambdaExpression CreateMemberExpression(this Type? type, string? memberName)
     {
+        //if (type == null || string.IsNullOrWhiteSpace(memberName))
+        //    throw new ArgumentNullException(nameof(type));
         ArgumentNullException.ThrowIfNull(type);
         ArgumentException.ThrowIfNullOrWhiteSpace(memberName);
 
-        // Check for property or field existence
-        var member = (type.GetProperty(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                  ?? (MemberInfo?)type.GetField(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) 
-                  ?? throw new ArgumentException($"Property or field '{memberName}' not found on type '{type}'", nameof(memberName));
+        // Try to get property or field (static or instance)
+        var member = (MemberInfo?)type.GetProperty(memberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                  ?? type.GetField(memberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                  ?? throw new ArgumentException($"Property or field '{memberName}' not found on type '{type.FullName}'.", nameof(memberName));
 
-        var parameter = Expression.Parameter(type, "x");
+        bool isStatic = member is PropertyInfo pi ? (pi.GetMethod?.IsStatic ?? pi.SetMethod?.IsStatic ?? false)
+                      : member is FieldInfo fi && fi.IsStatic;
 
-        Expression memberAccess = member is PropertyInfo info
-            ? Expression.Property(parameter, info)
-            : Expression.Field(parameter, (FieldInfo)member);
+        ParameterExpression? parameter = isStatic ? null : Expression.Parameter(type, "x");
+        Expression memberAccess = member switch
+        {
+            PropertyInfo prop => Expression.Property(isStatic ? null : parameter, prop),
+            FieldInfo field => Expression.Field(isStatic ? null : parameter, field),
+            _ => throw new InvalidOperationException("Member must be a property or field.")
+        };
 
-        return Expression.Lambda(memberAccess, parameter);
+        return Expression.Lambda(memberAccess, parameter != null ? new[] { parameter } : Array.Empty<ParameterExpression>());
     }
 
     /// <summary>
@@ -51,19 +58,86 @@ public static class ExpressionExtensions
     /// <exception cref="ArgumentException">Thrown if the property or field name is null, empty, or not found.</exception>
     public static Expression<Func<T, TResult>> CreateMemberExpression<T, TResult>(this string propertyOrFieldName)
     {
-        var type = typeof(T);
         ArgumentException.ThrowIfNullOrWhiteSpace(propertyOrFieldName);
 
-        var member = (type.GetProperty(propertyOrFieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                  ?? (MemberInfo?)type.GetField(propertyOrFieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) 
-                  ?? throw new ArgumentException($"Property or field '{propertyOrFieldName}' not found on type '{type}'", nameof(propertyOrFieldName));
+        var type = typeof(T);
+
+        // Only instance members are supported here (no static members)
+        var bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        var member = type.GetProperty(propertyOrFieldName, bindingFlags) as MemberInfo
+                  ?? type.GetField(propertyOrFieldName, bindingFlags) as MemberInfo
+                  ?? throw new ArgumentException($"Property or field '{propertyOrFieldName}' not found on type '{type.FullName}'.", nameof(propertyOrFieldName));
 
         var parameter = Expression.Parameter(type, "x");
-        Expression memberAccess = member is PropertyInfo info
-            ? Expression.Property(parameter, info)
-            : Expression.Field(parameter, (FieldInfo)member);
+
+        Expression memberAccess = member switch
+        {
+            PropertyInfo prop => Expression.Property(parameter, prop),
+            FieldInfo field => Expression.Field(parameter, field),
+            _ => throw new InvalidOperationException("Only properties and fields are supported.")
+        };
+
+        // Ensure the member type is assignable to TResult
+        var memberType = member switch
+        {
+            PropertyInfo prop => prop.PropertyType,
+            FieldInfo field => field.FieldType,
+            _ => throw new InvalidOperationException()
+        };
+
+        if (!typeof(TResult).IsAssignableFrom(memberType))
+        {
+            throw new InvalidOperationException(
+                $"Member '{propertyOrFieldName}' type '{memberType}' cannot be assigned to '{typeof(TResult)}'.");
+        }
 
         return Expression.Lambda<Func<T, TResult>>(memberAccess, parameter);
+    }
+
+    /// <summary>
+    /// Creates a strongly-typed LambdaExpression for accessing a static property or field.
+    /// </summary>
+    /// <typeparam name="TResult">The return type of the static member.</typeparam>
+    /// <param name="type">The type that declares the static member.</param>
+    /// <param name="memberName">The name of the static property or field.</param>
+    /// <returns>An Expression&lt;Func&lt;TResult&gt;&gt; representing access to the static member.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if type or memberName is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if the member is not found or not static.</exception>
+    public static Expression<Func<TResult>> CreateStaticMemberExpression<TResult>(this Type type, string memberName)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentException.ThrowIfNullOrWhiteSpace(memberName);
+
+        const BindingFlags bindingFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+
+        var member = (MemberInfo?)type.GetProperty(memberName, bindingFlags)
+                  ?? type.GetField(memberName, bindingFlags)
+                  ?? throw new ArgumentException($"Static property or field '{memberName}' not found on type '{type.FullName}'.", nameof(memberName));
+
+        Expression memberAccess = member switch
+        {
+            PropertyInfo prop when prop.GetMethod?.IsStatic == true =>
+                Expression.Property(null, prop),
+            FieldInfo field when field.IsStatic =>
+                Expression.Field(null, field),
+            _ => throw new ArgumentException($"Member '{memberName}' on type '{type.FullName}' is not static.", nameof(memberName))
+        };
+
+        var memberType = member switch
+        {
+            PropertyInfo prop => prop.PropertyType,
+            FieldInfo field => field.FieldType,
+            _ => throw new InvalidOperationException()
+        };
+
+        if (!typeof(TResult).IsAssignableFrom(memberType))
+        {
+            throw new InvalidOperationException(
+                $"Member '{memberName}' type '{memberType}' cannot be assigned to '{typeof(TResult)}'.");
+        }
+
+        return Expression.Lambda<Func<TResult>>(memberAccess);
     }
 
     public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,

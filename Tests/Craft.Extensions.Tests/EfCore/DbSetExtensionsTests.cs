@@ -5,42 +5,6 @@ namespace Craft.Extensions.Tests.EfCore;
 
 public class DbSetExtensionsTests
 {
-    private class Entity
-    {
-        public int Id { get; set; }
-        public bool IsActive { get; set; }
-        public bool IsDeleted { get; set; }
-        public string? Name { get; set; }
-    }
-
-    private class MyDbContext : DbContext
-    {
-        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
-        public DbSet<Entity>? Entities { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Entity>().HasQueryFilter(e => e.IsActive);
-            base.OnModelCreating(modelBuilder);
-        }
-    }
-
-    private class MyAnotherDbContext : DbContext
-    {
-        public MyAnotherDbContext(DbContextOptions<MyAnotherDbContext> options) : base(options) { }
-        public DbSet<Entity>? Entities { get; set; }
-    }
-
-    private class MyYetAnotherDbContext : DbContext
-    {
-        public MyYetAnotherDbContext(DbContextOptions<MyYetAnotherDbContext> options) : base(options) { }
-        public DbSet<Entity>? Entities { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Entity>().HasQueryFilter(e => e.IsActive && !e.IsDeleted);
-            base.OnModelCreating(modelBuilder);
-        }
-    }
-
     [Fact]
     public void GetQueryFilter_ReturnsNull_WhenNoQueryFilterExists()
     {
@@ -50,6 +14,7 @@ public class DbSetExtensionsTests
 
         using var context = new MyAnotherDbContext(options);
         var result = context?.Entities?.GetQueryFilter();
+
         Assert.Null(result);
     }
 
@@ -62,10 +27,10 @@ public class DbSetExtensionsTests
 
         using var context = new MyDbContext(options);
         var result = context?.Entities?.GetQueryFilter();
+
         Assert.NotNull(result);
         Assert.Single(result.Parameters);
         Assert.Equal("e", result.Parameters[0].Name);
-        // The body should be a MemberExpression for e.IsActive
         Assert.Equal(ExpressionType.MemberAccess, result.Body.NodeType);
     }
 
@@ -73,6 +38,7 @@ public class DbSetExtensionsTests
     public void GetQueryFilter_ThrowsOnNullDbSet()
     {
         DbSet<Entity> dbSet = null!;
+
         Assert.Throws<ArgumentNullException>(() => dbSet.GetQueryFilter());
     }
 
@@ -90,6 +56,7 @@ public class DbSetExtensionsTests
 
         var result = context?.Entities?.RemoveFromQueryFilter(e => e.IsActive);
         var list = result?.ToList();
+
         Assert.Equal(2, list?.Count);
     }
 
@@ -101,12 +68,15 @@ public class DbSetExtensionsTests
             .Options;
 
         using var context = new MyDbContext(options);
+
         context?.Entities?.Add(new Entity { Id = 1, IsActive = true });
         context?.Entities?.Add(new Entity { Id = 2, IsActive = false });
         context?.SaveChanges();
 
         var result = context?.Entities?.RemoveFromQueryFilter(e => e.IsActive == true);
+
         var list = result?.ToList();
+
         Assert.Equal(2, list?.Count);
     }
 
@@ -125,6 +95,7 @@ public class DbSetExtensionsTests
 
         var result = context?.Entities?.RemoveFromQueryFilter(e => e.IsActive == true);
         var list = result?.ToList();
+
         Assert.Equal(2, list?.Count);
         Assert.Contains(list!, e => e.Id == 1);
         Assert.Contains(list!, e => e.Id == 2);
@@ -256,5 +227,41 @@ public class DbSetExtensionsTests
         var query = context?.Entities?.AsQueryable();
         var result = query?.IgnoreQueryFiltersIf(false);
         Assert.NotNull(result);
+    }
+
+    private class Entity
+    {
+        public int Id { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsDeleted { get; set; }
+        public string? Name { get; set; }
+    }
+
+    private class MyDbContext : DbContext
+    {
+        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
+        public DbSet<Entity>? Entities { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Entity>().HasQueryFilter(e => e.IsActive);
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+
+    private class MyAnotherDbContext : DbContext
+    {
+        public MyAnotherDbContext(DbContextOptions<MyAnotherDbContext> options) : base(options) { }
+        public DbSet<Entity>? Entities { get; set; }
+    }
+
+    private class MyYetAnotherDbContext : DbContext
+    {
+        public MyYetAnotherDbContext(DbContextOptions<MyYetAnotherDbContext> options) : base(options) { }
+        public DbSet<Entity>? Entities { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Entity>().HasQueryFilter(e => e.IsActive && !e.IsDeleted);
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
