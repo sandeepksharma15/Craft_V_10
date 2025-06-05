@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Sandeep SHARMA</Authors>
+		<LangVersion>preview</LangVersion>
+		<RootNamespace>Craft.Auditing</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
+	  <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
+	</ItemGroup>
+
+</Project>
