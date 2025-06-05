@@ -137,8 +137,13 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetPropertyInfo_FromObjectExpression_ReturnsPropertyInfo()
     {
+        // Arrange
         Expression<Func<Simple, object>> expr = s => s.StringProp!;
+
+        // Act
         var prop = expr.GetPropertyInfo();
+
+        // Assert
         Assert.NotNull(prop);
         Assert.Equal("StringProp", prop.Name);
     }
@@ -146,8 +151,13 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetPropertyInfo_FromLambdaExpression_ReturnsPropertyInfo()
     {
+        // Arrange
         LambdaExpression expr = (Expression<Func<Simple, int>>)(s => s.IntProp);
+
+        // Act
         var prop = expr.GetPropertyInfo();
+
+        // Assert
         Assert.NotNull(prop);
         Assert.Equal("IntProp", prop.Name);
     }
@@ -155,40 +165,50 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetPropertyInfo_ThrowsOnInvalidExpression()
     {
+        // Arrange
         Expression<Func<Simple, int>> expr = s => s.IntProp + 1;
+
+        // Act & Assert
         Assert.Throws<ArgumentException>(() => expr.GetPropertyInfo());
     }
 
     [Fact]
     public void GetAllProperties_ReturnsAllIncludingBase()
     {
+        // Arrange & Act
         var props = typeof(Derived).GetAllProperties().ToList();
+
+        // Assert
         Assert.Contains(props, p => p.Name == "BaseProp");
         Assert.Contains(props, p => p.Name == "DerivedProp");
     }
 
-    private class Base { public int BaseProp { get; set; } }
-    private class Derived : Base { public int DerivedProp { get; set; } }
-
     [Fact]
     public void SetPropertyValue_SetsPublicProperty()
     {
+        // Arrange & Act
         var obj = new Simple();
         obj.SetPropertyValue("IntProp", 42);
+
+        // Assert
         Assert.Equal(42, obj.IntProp);
     }
 
     [Fact]
     public void SetPropertyValue_SetsPrivateProperty()
     {
+        // Arrange & Act
         var obj = new Simple();
         obj.SetPropertyValue("PrivateProp", 99);
+
+        // Assert
         Assert.Equal(99, obj.GetPrivateProp());
     }
 
     [Fact]
     public void SetPropertyValue_ThrowsIfNotFoundOrNotWritable()
     {
+        // Arrange & Act & Assert
         var obj = new Simple();
         Assert.Throws<ArgumentException>(() => obj.SetPropertyValue("NotExist", 1));
     }
@@ -196,23 +216,30 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetPropertyValue_GetsPublicProperty()
     {
+        // Arrange & Act
         var obj = new Simple { IntProp = 123 };
         var value = obj.GetPropertyValue("IntProp");
+
+        // Assert
         Assert.Equal(123, value);
     }
 
     [Fact]
     public void GetPropertyValue_GetsPrivateProperty()
     {
+        // Arrange & Act
         var obj = new Simple();
         obj.SetPrivateProp(55);
         var value = obj.GetPropertyValue("PrivateProp");
+
+        // Assert
         Assert.Equal(55, value);
     }
 
     [Fact]
     public void GetPropertyValue_ThrowsIfNotFound()
     {
+        // Arrange & Act & Assert
         var obj = new Simple();
         Assert.Throws<ArgumentException>(() => obj.GetPropertyValue("NotExist"));
     }
@@ -220,8 +247,13 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetClone_DeepClonesObject()
     {
+        // Arrange
         var original = new CustomClone { Name = "A", Child = new CustomClone { Name = "B" } };
+
+        // Act
         var clone = original.GetClone();
+
+        // Assert
         Assert.NotSame(original, clone);
         Assert.NotSame(original.Child, clone.Child);
         Assert.Equal("A", clone?.Name);
@@ -231,6 +263,7 @@ public class ReflectionExtensionsTests
     [Fact]
     public void GetClone_ThrowsOnNull()
     {
+        // Arrange & Act & Assert
         CustomClone obj = null!;
         Assert.Throws<ArgumentNullException>(() => obj.GetClone());
     }
@@ -245,10 +278,6 @@ public class ReflectionExtensionsTests
         public void SetPrivateProp(int value) => PrivateProp = value;
     }
 
-    private class Nested
-    {
-        public double DoubleProp { get; set; }
-    }
 
     private class CustomClone
     {
@@ -256,8 +285,8 @@ public class ReflectionExtensionsTests
         public CustomClone? Child { get; set; }
     }
 
-    private class NullableHolder 
-    { 
-        public int? NullableInt { get; set; } 
-    }
+    private class Nested { public double DoubleProp { get; set; } }
+    private class NullableHolder { public int? NullableInt { get; set; } }
+    private class Base { public int BaseProp { get; set; } }
+    private class Derived : Base { public int DerivedProp { get; set; } }
 }
