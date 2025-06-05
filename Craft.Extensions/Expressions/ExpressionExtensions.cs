@@ -24,8 +24,6 @@ public static class ExpressionExtensions
     /// <exception cref="ArgumentException">Thrown if the member name is null, empty, or not found.</exception>
     public static LambdaExpression CreateMemberExpression(this Type? type, string? memberName)
     {
-        //if (type == null || string.IsNullOrWhiteSpace(memberName))
-        //    throw new ArgumentNullException(nameof(type));
         ArgumentNullException.ThrowIfNull(type);
         ArgumentException.ThrowIfNullOrWhiteSpace(memberName);
 
@@ -45,7 +43,7 @@ public static class ExpressionExtensions
             _ => throw new InvalidOperationException("Member must be a property or field.")
         };
 
-        return Expression.Lambda(memberAccess, parameter != null ? new[] { parameter } : Array.Empty<ParameterExpression>());
+        return Expression.Lambda(memberAccess, parameter != null ? [parameter] : []);
     }
 
     /// <summary>
@@ -140,23 +138,47 @@ public static class ExpressionExtensions
         return Expression.Lambda<Func<TResult>>(memberAccess);
     }
 
+    /// <summary>
+    /// Combines two boolean expressions into a single expression that evaluates to <see langword="true"/> only if both
+    /// expressions evaluate to <see langword="true"/>.
+    /// </summary>
+    /// <remarks>This method creates a new expression by invoking both input expressions with the same
+    /// parameter and combining their results using a logical AND operation. The resulting expression can be used in
+    /// LINQ queries or other scenarios where expressions are required.</remarks>
+    /// <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+    /// <param name="expr1">The first boolean expression to combine.</param>
+    /// <param name="expr2">The second boolean expression to combine.</param>
+    /// <returns>A new expression that represents the logical AND of <paramref name="expr1"/> and <paramref name="expr2"/>.</returns>
     public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,
         Expression<Func<T, bool>> expr2)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
+
         var body = Expression.AndAlso(
             Expression.Invoke(expr1, parameter),
             Expression.Invoke(expr2, parameter));
+
         return Expression.Lambda<Func<T, bool>>(body, parameter);
     }
 
+    /// <summary>
+    /// Combines two boolean expressions into a single expression using a logical OR operation.
+    /// </summary>
+    /// <remarks>The resulting expression evaluates to <see langword="true"/> if either <paramref
+    /// name="expr1"/> or <paramref name="expr2"/> evaluates to <see langword="true"/> for a given input.</remarks>
+    /// <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+    /// <param name="expr1">The first boolean expression to combine. Cannot be <see langword="null"/>.</param>
+    /// <param name="expr2">The second boolean expression to combine. Cannot be <see langword="null"/>.</param>
+    /// <returns>A new expression that represents the logical OR of <paramref name="expr1"/> and <paramref name="expr2"/>.</returns>
     public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1,
         Expression<Func<T, bool>> expr2)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
+
         var body = Expression.OrElse(
             Expression.Invoke(expr1, parameter),
             Expression.Invoke(expr2, parameter));
+
         return Expression.Lambda<Func<T, bool>>(body, parameter);
     }
 }

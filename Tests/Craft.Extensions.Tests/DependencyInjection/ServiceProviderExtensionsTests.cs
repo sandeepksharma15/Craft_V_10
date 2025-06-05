@@ -4,16 +4,6 @@ namespace Craft.Extensions.Tests.DependencyInjection;
 
 public class ServiceProviderExtensionsTests
 {
-    private interface ITestService { }
-    private class TestService : ITestService { }
-    private class TestService1 : ITestService { }
-    private class TestService2 : ITestService { }
-    private class TestService3
-    {
-        public ITestService TestService { get; }
-        public TestService3(ITestService testService = null!) => TestService = testService;
-    }
-
     [Fact]
     public void AddService_ThrowsOnNullArguments()
     {
@@ -194,8 +184,13 @@ public class ServiceProviderExtensionsTests
     [Fact]
     public void IsAdded_ReturnsTrueIfRegistered()
     {
+        // Arrange
         var services = new ServiceCollection();
+
+        // Act
         services.AddSingleton<TestService>();
+
+        // Assert
         Assert.True(services.IsAdded<TestService>());
 #pragma warning disable CA2263 // Prefer generic overload when type is known
         Assert.True(services.IsAdded(typeof(TestService)));
@@ -205,7 +200,9 @@ public class ServiceProviderExtensionsTests
     [Fact]
     public void IsImplementationAdded_ThrowsOnNullArgument()
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => ServiceProviderExtensions.IsImplementationAdded(null!, typeof(TestService)));
+
         var services = new ServiceCollection();
         Assert.Throws<ArgumentNullException>(() => services.IsImplementationAdded(null!));
     }
@@ -213,7 +210,10 @@ public class ServiceProviderExtensionsTests
     [Fact]
     public void IsImplementationAdded_ReturnsFalseIfNotRegistered()
     {
+        // Arrange
         var services = new ServiceCollection();
+
+        // Act & Assert
         Assert.False(services.IsImplementationAdded<TestService>());
 #pragma warning disable CA2263 // Prefer generic overload when type is known
         Assert.False(services.IsImplementationAdded(typeof(TestService)));
@@ -223,8 +223,13 @@ public class ServiceProviderExtensionsTests
     [Fact]
     public void IsImplementationAdded_ReturnsTrueIfRegistered()
     {
+        // Arrange
         var services = new ServiceCollection();
+
+        // Act
         services.AddSingleton<TestService>();
+
+        // Assert
         Assert.True(services.IsImplementationAdded<TestService>());
 #pragma warning disable CA2263 // Prefer generic overload when type is known
         Assert.True(services.IsImplementationAdded(typeof(TestService)));
@@ -234,25 +239,35 @@ public class ServiceProviderExtensionsTests
     [Fact]
     public void IsImplementationAdded_ReturnsFalseForInterfaceRegistration()
     {
+        // Arrange
         var services = new ServiceCollection();
+
+        // Act
         services.AddSingleton<ITestService>(new TestService1());
+
+        // Assert
         Assert.False(services.IsImplementationAdded<TestService>());
     }
 
     [Fact]
     public void ResolveWith_ThrowsOnNullProvider()
     {
+        // Arrange & Act & Assert
         Assert.Throws<ArgumentNullException>(() => ServiceProviderExtensions.ResolveWith<TestService>(null!));
     }
 
     [Fact]
     public void ResolveWith_ResolvesInstanceWithoutParameters()
     {
+        // Arrange
         var services = new ServiceCollection();
+
+        // Act
         services.AddTransient<TestService>();
         var provider = services.BuildServiceProvider();
-
         var instance = provider.ResolveWith<TestService>();
+
+        // Assert
         Assert.NotNull(instance);
         Assert.IsType<TestService>(instance);
     }
@@ -260,14 +275,28 @@ public class ServiceProviderExtensionsTests
     [Fact]
     public void ResolveWith_ResolvesInstanceWithParameters()
     {
+        // Arrange
         var services = new ServiceCollection();
+
+        // Act
         services.AddTransient<TestService3>();
         services.AddTransient<ITestService, TestService>();
         var provider = services.BuildServiceProvider();
         var dependency = provider.GetService<ITestService>();
-
         var instance = provider.ResolveWith<TestService3>(dependency!);
+
+        // Assert
         Assert.NotNull(instance);
         Assert.Same(dependency, instance.TestService);
+    }
+
+    private interface ITestService { }
+    private class TestService : ITestService { }
+    private class TestService1 : ITestService { }
+    private class TestService2 : ITestService { }
+    private class TestService3
+    {
+        public ITestService TestService { get; }
+        public TestService3(ITestService testService = null!) => TestService = testService;
     }
 }

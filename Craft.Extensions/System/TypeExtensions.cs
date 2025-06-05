@@ -67,6 +67,15 @@ public static class TypeExtensions
         return classes;
     }
 
+    /// <summary>
+    /// Retrieves the underlying type of the specified member.
+    /// </summary>
+    /// <param name="member">The <see cref="MemberInfo"/> instance representing the member whose underlying type is to be determined. Must be
+    /// of type <see cref="FieldInfo"/>, <see cref="PropertyInfo"/>, or <see cref="EventInfo"/>.</param>
+    /// <returns>The <see cref="Type"/> of the member if it is a field, property, or event; otherwise, <see langword="null"/> if
+    /// <paramref name="member"/> is <see langword="null"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="member"/> is not of type <see cref="FieldInfo"/>, <see cref="PropertyInfo"/>, or <see
+    /// cref="EventInfo"/>.</exception>
     public static Type? GetMemberUnderlyingType(this MemberInfo? member)
     {
         return member?.MemberType switch

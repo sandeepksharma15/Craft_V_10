@@ -32,6 +32,18 @@ public static class ConditionRemover
         return Expression.Lambda<Func<T, bool>>(modifiedBody, expression.Parameters);
     }
 
+    /// <summary>
+    /// Removes specified conditions from the given expression, returning a new expression with the conditions removed.
+    /// </summary>
+    /// <remarks>This method iterates through the provided conditions and removes any matching conditions from
+    /// the original expression. If the resulting expression is equivalent to one of the conditions, the method returns
+    /// <see langword="null"/>.</remarks>
+    /// <typeparam name="T">The type of the parameter in the expression.</typeparam>
+    /// <param name="expression">The original expression from which conditions will be removed. Cannot be <see langword="null"/>.</param>
+    /// <param name="conditions">An array of conditions to remove from the expression. If the array is <see langword="null"/> or empty, the
+    /// original expression is returned.</param>
+    /// <returns>A new expression with the specified conditions removed, or <see langword="null"/> if the entire expression is
+    /// equivalent to one of the conditions.</returns>
     public static Expression<Func<T, bool>>? RemoveConditions<T>(this Expression<Func<T, bool>> expression,
         params Expression<Func<T, bool>>[] conditions)
     {
@@ -52,6 +64,18 @@ public static class ConditionRemover
         return Expression.Lambda<Func<T, bool>>(body, expression.Parameters);
     }
 
+    /// <summary>
+    /// Replaces all occurrences of a specified condition within a given expression with a new condition.
+    /// </summary>
+    /// <remarks>This method is useful for dynamically modifying expressions, such as when building or
+    /// transforming LINQ queries. The replacement is performed by traversing the expression tree and substituting
+    /// occurrences of <paramref name="oldCondition"/> with <paramref name="newCondition"/>.</remarks>
+    /// <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+    /// <param name="expression">The original expression in which the condition will be replaced. Cannot be <see langword="null"/>.</param>
+    /// <param name="oldCondition">The condition to be replaced. Cannot be <see langword="null"/>.</param>
+    /// <param name="newCondition">The condition to replace the old condition with. Cannot be <see langword="null"/>.</param>
+    /// <returns>A new expression with all occurrences of <paramref name="oldCondition"/> replaced by <paramref
+    /// name="newCondition"/>.</returns>
     public static Expression<Func<T, bool>> ReplaceCondition<T>(this Expression<Func<T, bool>> expression,
         Expression<Func<T, bool>> oldCondition,
         Expression<Func<T, bool>> newCondition)
