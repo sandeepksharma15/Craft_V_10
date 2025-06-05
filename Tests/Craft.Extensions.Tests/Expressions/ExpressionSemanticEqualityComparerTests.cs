@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
-using Xunit;
 
 namespace Craft.Extensions.Tests.Expressions;
 
