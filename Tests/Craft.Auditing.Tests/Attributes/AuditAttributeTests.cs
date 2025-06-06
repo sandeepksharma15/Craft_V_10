@@ -27,6 +27,38 @@ public class AuditAttributeTests
         Assert.False(usage.Inherited);
     }
 
+    [Fact]
+    public void AuditAttribute_ShouldBeAppliedToBaseClass()
+    {
+        // Arrange
+        var baseClassType = typeof(BaseClass);
+
+        // Act
+        var hasAttribute = baseClassType.HasAuditAttribute();
+
+        // Assert
+        Assert.True(hasAttribute);
+    }
+
+    [Fact]
+    public void AuditAttribute_ShouldNotBeAppliedToDerivedClass()
+    {
+        // Arrange
+        var derivedClassType = typeof(DerivedClass);
+
+        // Act
+        var hasAttribute = derivedClassType.HasAuditAttribute();
+
+        // Assert
+        Assert.False(hasAttribute);
+    }
+
     [Audit]
     private class DummyAuditedClass { }
+
+    [Audit]
+    private class BaseClass { }
+
+    private class DerivedClass : BaseClass { }
+
 }

@@ -27,6 +27,37 @@ public class DoNotAuditAttributeTests
         Assert.False(usage.Inherited);
     }
 
+    [Fact]
+    public void DoNotAuditAttribute_ShouldBeAppliedToBaseClass()
+    {
+        // Arrange
+        var baseClassType = typeof(BaseClass);
+
+        // Act
+        var hasAttribute = baseClassType.HasDoNotAuditAttribute();
+
+        // Assert
+        Assert.True(hasAttribute);
+    }
+
+    [Fact]
+    public void DoNotAuditAttribute_ShouldNotBeAppliedToDerivedClass()
+    {
+        // Arrange
+        var derivedClassType = typeof(DerivedClass);
+
+        // Act
+        var hasAttribute = derivedClassType.HasDoNotAuditAttribute();
+
+        // Assert
+        Assert.False(hasAttribute);
+    }
+
     [DoNotAudit]
     private class DummyNonAuditedClass { }
+
+    [DoNotAudit]
+    private class BaseClass { }
+
+    private class DerivedClass : BaseClass { }
 }
