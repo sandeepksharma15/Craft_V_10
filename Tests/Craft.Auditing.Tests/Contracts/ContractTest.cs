@@ -8,6 +8,7 @@ public class ContractTest
     [Fact]
     public void Properties_GetSet_WorkAsExpected()
     {
+        // Arrange
         var audit = new TestAuditTrail();
         var now = DateTime.UtcNow;
         audit.ChangedColumns = "Col1,Col2";
@@ -19,6 +20,7 @@ public class ContractTest
         audit.ShowDetails = true;
         audit.TableName = "TestTable";
 
+        // Act & Assert
         Assert.Equal("Col1,Col2", audit.ChangedColumns);
         Assert.Equal(EntityChangeType.Updated, audit.ChangeType);
         Assert.Equal(now, audit.DateTimeUTC);
@@ -32,10 +34,17 @@ public class ContractTest
     [Fact]
     public void SoftDelete_Contract_Works()
     {
+        // Arrange
         var audit = new TestAuditTrail();
+
+        // Initially, IsDeleted should be false
         Assert.False(audit.IsDeleted);
+
+        // Act & Assert
         audit.Delete();
         Assert.True(audit.IsDeleted);
+
+        // Act & Assert
         audit.Restore();
         Assert.False(audit.IsDeleted);
     }
@@ -43,10 +52,14 @@ public class ContractTest
     [Fact]
     public void HasUser_Contract_Works()
     {
+        // Arrange
         var audit = new TestAuditTrail();
+
+        // Initially, UserId should not be set
         Assert.False(audit.IsUserIdSet());
         Assert.Equal(default, audit.GetUserId());
 
+        // Act & Assert
         var userId = 1;
         audit.SetUserId(userId);
 
