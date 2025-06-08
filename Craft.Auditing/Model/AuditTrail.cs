@@ -24,8 +24,13 @@ public class AuditTrail : BaseEntity, IAuditTrail
 
     public AuditTrail(EntityEntry entity, KeyType userId)
     {
+        // Validate the entity entry is not null
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+
+        // Set UserId
         UserId = userId;
+
+        // Populate the audit trail properties based on the entity entry state
         PopulateFromEntityEntry(entity);
     }
 
@@ -51,7 +56,7 @@ public class AuditTrail : BaseEntity, IAuditTrail
                 break;
 
             case EntityState.Modified:
-                if (IsSoftDelete(entity))
+                if (IsItASoftDeleteUpdate(entity))
                 {
                     ChangeType = EntityChangeType.Deleted;
                     ExtractDeletedValues(entity, keyValues, oldValues);
@@ -122,13 +127,12 @@ public class AuditTrail : BaseEntity, IAuditTrail
         }
     }
 
-    private static bool IsSoftDelete(EntityEntry entity)
+    private static bool IsItASoftDeleteUpdate(EntityEntry entity)
     {
         foreach (var property in entity.Properties)
-        {
             if (property.Metadata.Name == ISoftDelete.ColumnName && property.CurrentValue is true)
                 return true;
-        }
+
         return false;
     }
 
