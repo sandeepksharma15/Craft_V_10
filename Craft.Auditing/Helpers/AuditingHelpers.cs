@@ -5,46 +5,70 @@ namespace Craft.Auditing;
 public static class AuditingHelpers
 {
     /// <summary>
-    /// Retrieves a list of model names that are derived from <see cref="BaseEntity"/>      and marked with the
+    /// Retrieves a list of model names that are derived from <see cref="BaseEntity"/> and marked with the
     /// "DoNotAudit" attribute.
     /// </summary>
-    /// <remarks>This method scans all loaded assemblies in the current application domain to identify     
-    /// classes that inherit from <see cref="BaseEntity"/>, are non-abstract, and have the      "DoNotAudit" attribute
-    /// applied. The names of these classes are returned as a list of strings.</remarks>
-    /// <returns>A list of strings containing the names of models that are not auditable.      The list will be empty if no such
-    /// models are found.</returns>
-    public static IList<string> GetNonAuditableModels()
-    {
-        // Get the list of all the types inherited from class BaseEntity
-        var modelNames = AppDomain.CurrentDomain.GetAssemblies()
-               .SelectMany(s => s.GetTypes())
-               .Where(t => typeof(BaseEntity).IsAssignableFrom(t)
-                           && t.IsClass && !t.IsAbstract && t.HasDoNotAuditAttribute())
-               .Select(t => t.Name)
-               .ToList();
+    public static IList<string> GetNonAuditableBaseEntityTypes()
+        => GetTypesWithAttribute<BaseEntity, DoNotAuditAttribute>();
 
-        return modelNames;
+    /// <summary>
+    /// Retrieves a list of model names that inherit from <see cref="BaseEntity"/> and are marked as auditable.
+    /// </summary>
+    public static IList<string> GetAuditableBaseEntityTypes()
+        => GetTypesWithAttribute<BaseEntity, AuditAttribute>();
+
+    /// <summary>
+    /// Retrieves a list of model names that are NOT derived from <see cref="BaseEntity"/> but are marked with the
+    /// "DoNotAudit" attribute.
+    /// </summary>
+    public static IList<string> GetNonAuditableNonBaseEntityTypes()
+        => GetTypesWithAttribute<BaseEntity, DoNotAuditAttribute>(mustInheritFromBaseType: false);
+
+    /// <summary>
+    /// Retrieves a list of model names that are NOT derived from <see cref="BaseEntity"/> but are marked as auditable.
+    /// </summary>
+    public static IList<string> GetAuditableNonBaseEntityTypes()
+        => GetTypesWithAttribute<BaseEntity, AuditAttribute>(mustInheritFromBaseType: false);
+
+    /// <summary>
+    /// Retrieves a list of model names that are derived from <typeparamref name="TBase"/> and marked 
+    /// with <typeparamref name="TAttribute"/>.
+    /// </summary>
+    public static IList<string> GetTypesWithAttribute<TBase, TAttribute>(
+        bool includeAbstract = false,
+        bool mustInheritFromBaseType = true)
+        where TAttribute : Attribute
+    {
+        return [.. AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(s => s.GetTypes())
+            .Where(t =>
+                t.IsClass &&
+                (includeAbstract || !t.IsAbstract) &&
+                t.IsDefined(typeof(TAttribute), inherit: false) &&
+                (mustInheritFromBaseType
+                    ? typeof(TBase).IsAssignableFrom(t)
+                    : !typeof(TBase).IsAssignableFrom(t)))
+            .Select(t => t.Name)];
     }
 
     /// <summary>
-    /// Retrieves a list of model names that inherit from <see cref="BaseEntity"/>  and are marked as auditable.
+    /// Retrieves a list of model names that are derived from <typeparamref name="TBase"/> and are NOT marked 
+    /// with <typeparamref name="TAttribute"/>.
     /// </summary>
-    /// <remarks>This method scans all loaded assemblies in the current application domain  to identify
-    /// classes that derive from <see cref="BaseEntity"/>, are non-abstract,  and have the audit attribute applied. The
-    /// names of these classes are returned  as a list of strings.</remarks>
-    /// <returns>A list of strings containing the names of auditable models. The list will be empty  if no matching models are
-    /// found.</returns>
-    public static IList<string> GetAuditableModels()
+    public static IList<string> GetTypesWithoutAttribute<TBase, TAttribute>(
+        bool includeAbstract = false,
+        bool mustInheritFromBaseType = true)
+        where TAttribute : Attribute
     {
-        // Get the list of all the types inherited from class BaseEntity
-        var modelNames = AppDomain.CurrentDomain.GetAssemblies()
-               .SelectMany(s => s.GetTypes())
-               .Where(t => typeof(BaseEntity).IsAssignableFrom(t)
-                           && t.IsClass && !t.IsAbstract && t.HasAuditAttribute())
-               .Select(t => t.Name)
-               .ToList();
-
-        return modelNames;
+        return [.. AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(s => s.GetTypes())
+            .Where(t =>
+                t.IsClass &&
+                (includeAbstract || !t.IsAbstract) &&
+                (!t.IsDefined(typeof(TAttribute), inherit: false)) &&
+                (mustInheritFromBaseType
+                    ? typeof(TBase).IsAssignableFrom(t)
+                    : !typeof(TBase).IsAssignableFrom(t)))
+            .Select(t => t.Name)];
     }
-
 }
