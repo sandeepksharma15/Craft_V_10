@@ -12,8 +12,6 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0-preview.4.25258.110" />
 	</ItemGroup>
 
 </Project>
