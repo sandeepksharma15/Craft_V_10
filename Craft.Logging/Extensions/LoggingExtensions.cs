@@ -16,6 +16,8 @@ public static class LoggingExtensions
     /// <returns>The WebApplicationBuilder instance.</returns>
     public static WebApplicationBuilder AddLogging(this WebApplicationBuilder builder)
     {
+        ArgumentNullException.ThrowIfNull(builder);
+
         builder.Logging.ClearProviders();
 
         builder.Host
