@@ -6,8 +6,8 @@ public class CraftSerilogOptions
 
     public class SerilogEnricherNames
     {
-        public string TenantId { get; set; } = "TenantId";
-        public string UserId { get; set; } = "UserId";
-        public string ClientId { get; set; } = "ClientId";
+        public string TenantId { get; set; } = "_TENANT_ID_";
+        public string UserId { get; set; } = "_USER_ID_";
+        public string ClientId { get; set; } = "_CLIENT_ID_";
     }
 }

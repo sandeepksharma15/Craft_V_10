@@ -73,7 +73,7 @@ public class CraftLoggerTests
 
     private class TestSink : ILogEventSink
     {
-        public ConcurrentBag<LogEvent> Events { get; } = new();
+        public ConcurrentBag<LogEvent> Events { get; } = [];
 
         public void Emit(LogEvent logEvent) => Events.Add(logEvent);
     }
