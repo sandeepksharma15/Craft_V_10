@@ -1,67 +1,97 @@
-﻿namespace Craft.Utilities.Helpers;
+﻿using System;
+using System.Threading.Tasks;
+using System.Timers;
 
-public class Debouncer
+namespace Craft.Utilities.Helpers;
+
+/// <summary>
+/// Provides debouncing and throttling functionality for asynchronous actions.
+/// </summary>
+public class Debouncer : IDisposable
 {
-    System.Timers.Timer? timer;
-    DateTime timerStarted { get; set; } = DateTime.UtcNow.AddYears(-1);
+    private Timer? _timer;
+    private DateTime _lastActionTime = DateTime.UtcNow.AddYears(-1);
+    private readonly object _lock = new();
+    private bool _disposed;
 
+    /// <summary>
+    /// Debounces the specified action, ensuring it only executes after the interval has elapsed without further calls.
+    /// </summary>
+    /// <param name="interval">The debounce interval in milliseconds.</param>
+    /// <param name="action">The asynchronous action to execute.</param>
     public void Debounce(int interval, Func<Task> action)
     {
-        timer?.Stop();
-        timer = null!;
-
-        timer = new System.Timers.Timer() { Interval = interval, Enabled = false, AutoReset = false };
-        timer.Elapsed += (s, e) =>
+        lock (_lock)
         {
-            if (timer == null)
-                return;
-
-            timer?.Stop();
-            timer = null;
-
-            try
+            DisposeTimer();
+            _timer = new Timer(interval) { AutoReset = false, Enabled = false };
+            _timer.Elapsed += async (s, e) =>
             {
-                Task.Run(action);
-            }
-            catch (TaskCanceledException)
-            {
-                //
-            }
-        };
-
-        timer.Start();
+                lock (_lock)
+                {
+                    DisposeTimer();
+                }
+                try
+                {
+                    await action();
+                }
+                catch (TaskCanceledException) { /* Swallow */ }
+                catch (Exception) { /* Optionally log */ }
+            };
+            _timer.Start();
+        }
     }
 
+    /// <summary>
+    /// Throttles the specified action, ensuring it only executes at most once per interval.
+    /// </summary>
+    /// <param name="interval">The throttle interval in milliseconds.</param>
+    /// <param name="action">The asynchronous action to execute.</param>
     public void Throttle(int interval, Func<Task> action)
     {
-        timer?.Stop();
-        timer = null;
-
-        var curTime = DateTime.UtcNow;
-
-        if (curTime.Subtract(timerStarted).TotalMilliseconds < interval)
-            interval -= (int)curTime.Subtract(timerStarted).TotalMilliseconds;
-
-        timer = new System.Timers.Timer() { Interval = interval, Enabled = false, AutoReset = false };
-        timer.Elapsed += (s, e) =>
+        lock (_lock)
         {
-            if (timer == null)
-                return;
-
-            timer?.Stop();
-            timer = null;
-
-            try
+            var now = DateTime.UtcNow;
+            var elapsed = (int)(now - _lastActionTime).TotalMilliseconds;
+            var delay = Math.Max(0, interval - elapsed);
+            DisposeTimer();
+            _timer = new Timer(delay) { AutoReset = false, Enabled = false };
+            _timer.Elapsed += async (s, e) =>
             {
-                Task.Run(action);
-            }
-            catch (TaskCanceledException)
-            {
-                //
-            }
-        };
+                lock (_lock)
+                {
+                    DisposeTimer();
+                    _lastActionTime = DateTime.UtcNow;
+                }
+                try
+                {
+                    await action();
+                }
+                catch (TaskCanceledException) { /* Swallow */ }
+                catch (Exception) { /* Optionally log */ }
+            };
+            _timer.Start();
+        }
+    }
 
-        timer.Start();
-        timerStarted = curTime;
+    private void DisposeTimer()
+    {
+        if (_timer != null)
+        {
+            _timer.Stop();
+            _timer.Dispose();
+            _timer = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        lock (_lock)
+        {
+            DisposeTimer();
+            _disposed = true;
+        }
+        GC.SuppressFinalize(this);
     }
 }
