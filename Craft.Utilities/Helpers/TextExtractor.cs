@@ -5,7 +5,7 @@ namespace Craft.Utilities.Helpers;
 
 public static class TextExtractor
 {
-    public static string ExtractTextFromDocOrPdf(string fileName)
+    public static string? ExtractTextFromDocOrPdf(string fileName)
     {
         // Ensure File Name is not null or empty
         ArgumentException.ThrowIfNullOrEmpty(fileName);
@@ -32,7 +32,7 @@ public static class TextExtractor
             return ExtractTextFromWordDocumentAsync(stream);
     }
 
-    private static string ExtractTextFromWordDocumentAsync(Stream stream)
+    private static string? ExtractTextFromWordDocumentAsync(Stream stream)
     {
         using var document = WordprocessingDocument.Open(stream, false);
 

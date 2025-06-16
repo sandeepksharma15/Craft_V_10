@@ -2,13 +2,13 @@
 
 public class Debouncer
 {
-    System.Timers.Timer timer;
+    System.Timers.Timer? timer;
     DateTime timerStarted { get; set; } = DateTime.UtcNow.AddYears(-1);
 
     public void Debounce(int interval, Func<Task> action)
     {
         timer?.Stop();
-        timer = null;
+        timer = null!;
 
         timer = new System.Timers.Timer() { Interval = interval, Enabled = false, AutoReset = false };
         timer.Elapsed += (s, e) =>
