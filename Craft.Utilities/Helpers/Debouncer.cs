@@ -1,17 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Timers;
-
-namespace Craft.Utilities.Helpers;
+﻿namespace Craft.Utilities.Helpers;
 
 /// <summary>
 /// Provides debouncing and throttling functionality for asynchronous actions.
 /// </summary>
 public class Debouncer : IDisposable
 {
-    private Timer? _timer;
+    private System.Timers.Timer? _timer;
     private DateTime _lastActionTime = DateTime.UtcNow.AddYears(-1);
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private bool _disposed;
 
     /// <summary>
@@ -24,7 +20,9 @@ public class Debouncer : IDisposable
         lock (_lock)
         {
             DisposeTimer();
-            _timer = new Timer(interval) { AutoReset = false, Enabled = false };
+
+            _timer = new System.Timers.Timer(interval) { AutoReset = false, Enabled = false };
+
             _timer.Elapsed += async (s, e) =>
             {
                 lock (_lock)
@@ -38,6 +36,7 @@ public class Debouncer : IDisposable
                 catch (TaskCanceledException) { /* Swallow */ }
                 catch (Exception) { /* Optionally log */ }
             };
+
             _timer.Start();
         }
     }
@@ -52,10 +51,15 @@ public class Debouncer : IDisposable
         lock (_lock)
         {
             var now = DateTime.UtcNow;
+
             var elapsed = (int)(now - _lastActionTime).TotalMilliseconds;
+
             var delay = Math.Max(0, interval - elapsed);
+
             DisposeTimer();
-            _timer = new Timer(delay) { AutoReset = false, Enabled = false };
+
+            _timer = new System.Timers.Timer(delay) { AutoReset = false, Enabled = false };
+
             _timer.Elapsed += async (s, e) =>
             {
                 lock (_lock)
@@ -87,11 +91,13 @@ public class Debouncer : IDisposable
     public void Dispose()
     {
         if (_disposed) return;
+
         lock (_lock)
         {
             DisposeTimer();
             _disposed = true;
         }
+
         GC.SuppressFinalize(this);
     }
 }
