@@ -54,7 +54,7 @@ public class Debouncer : IDisposable
 
             var elapsed = (int)(now - _lastActionTime).TotalMilliseconds;
 
-            var delay = Math.Max(0, interval - elapsed);
+            var delay = Math.Max(1, interval - elapsed);
 
             DisposeTimer();
 
