@@ -6,8 +6,6 @@ namespace Craft.Utilities.Helpers;
 /// </summary>
 public static class RandomHelper
 {
-    private static readonly Random Rnd = new();
-
     /// <summary>
     /// Generates a randomized list from given enumerable.
     /// </summary>
@@ -18,7 +16,7 @@ public static class RandomHelper
         ArgumentNullException.ThrowIfNull(items, nameof(items));
 
         var currentList = new List<T>(items);
-        var randomList = new List<T>();
+        var randomList = new List<T>(currentList.Count);
 
         while (currentList.Count != 0)
         {
@@ -41,10 +39,7 @@ public static class RandomHelper
     /// If minValue equals maxValue, minValue is returned.
     /// </returns>
     public static int GetRandom(int minValue, int maxValue)
-    {
-        lock (Rnd)
-            return Rnd.Next(minValue, maxValue);
-    }
+        => Random.Shared.Next(minValue, maxValue);
 
     /// <summary>
     /// Returns a nonnegative random number less than the specified maximum.
@@ -56,20 +51,14 @@ public static class RandomHelper
     /// However, if maxValue equals zero, maxValue is returned.
     /// </returns>
     public static int GetRandom(int maxValue)
-    {
-        lock (Rnd)
-            return Rnd.Next(maxValue);
-    }
+        => Random.Shared.Next(maxValue);
 
     /// <summary>
     /// Returns a nonnegative random number.
     /// </summary>
     /// <returns>A 32-bit signed integer greater than or equal to zero and less than <see cref="int.MaxValue"/>.</returns>
     public static int GetRandom()
-    {
-        lock (Rnd)
-            return Rnd.Next();
-    }
+        => Random.Shared.Next();
 
     /// <summary>
     /// Gets random of given objects.
