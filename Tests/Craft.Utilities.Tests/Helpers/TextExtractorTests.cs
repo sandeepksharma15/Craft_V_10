@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using Xunit;
-using Craft.Utilities.Helpers;
+﻿using Craft.Utilities.Helpers;
 
 namespace Craft.Utilities.Tests.Helpers;
 
@@ -37,6 +34,7 @@ public class TextExtractorTests
     public void ExtractTextFromDocOrPdf_ReturnsEmptyString_ForCorruptedDocx()
     {
         var tempFile = Path.GetTempFileName() + ".docx";
+
         File.WriteAllText(tempFile, "not a real docx");
         try
         {
