@@ -29,4 +29,13 @@
     <Folder Include="TestClasses\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestData\Test.docx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Test.pdf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
