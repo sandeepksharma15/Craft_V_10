@@ -16,12 +16,27 @@ public static class TestHelpers
         ArgumentNullException.ThrowIfNull(one, nameof(one));
         ArgumentNullException.ThrowIfNull(another, nameof(another));
 
-        foreach (PropertyInfo field in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        // Compare public properties
+        foreach (PropertyInfo property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            object? oneValue = property.GetValue(obj: one);
+            object? anotherValue = property.GetValue(obj: another);
+
+            Type type = property.PropertyType;
+
+            if ((type != typeof(string) && typeof(IEnumerable<string>).IsAssignableFrom(type)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
+                Assert.Equivalent(anotherValue, oneValue);
+            else
+                Assert.Equal(anotherValue, oneValue);
+        }
+
+        // Compare public fields
+        foreach (FieldInfo field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
             object? oneValue = field.GetValue(obj: one);
             object? anotherValue = field.GetValue(obj: another);
 
-            Type type = field.PropertyType;
+            Type type = field.FieldType;
 
             if ((type != typeof(string) && typeof(IEnumerable<string>).IsAssignableFrom(type)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
                 Assert.Equivalent(anotherValue, oneValue);

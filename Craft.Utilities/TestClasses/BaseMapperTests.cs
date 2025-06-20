@@ -24,7 +24,7 @@ public abstract class BaseMapperTests<T, EntityDTO, EntityVM, IType>
         T? entity = entityDTO?.Adapt<T>();
 
         // Assert
-        entityDTO?.ShouldBeSameAs<IType>(entity);
+        entityDTO?.ShouldBeSameAs<IType>(entity!);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public abstract class BaseMapperTests<T, EntityDTO, EntityVM, IType>
         EntityVM? entityVM = entity?.Adapt<EntityVM>();
 
         // Assert
-        entity?.ShouldBeSameAs<IType>(entityVM);
+        entity?.ShouldBeSameAs<IType>(entityVM!);
     }
 
     [Fact]
@@ -50,6 +50,6 @@ public abstract class BaseMapperTests<T, EntityDTO, EntityVM, IType>
         EntityDTO? entityDTO = entityVM?.Adapt<EntityDTO>();
 
         // Assert
-        entityVM?.ShouldBeSameAs<IType>(entityDTO);
+        entityVM?.ShouldBeSameAs<IType>(entityDTO!);
     }
 }
