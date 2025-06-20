@@ -1,7 +1,4 @@
-﻿using Craft.Utilities.Helpers;
-using Craft.Utilities.TestClasses;
-using Mapster;
-using Xunit;
+﻿using Craft.Utilities.TestClasses;
 
 namespace Craft.Utilities.Tests.TestClasses;
 
@@ -36,15 +33,18 @@ public class TestVm : ITestType
 // Concrete test class for BaseMapperTests
 public class ConcreteMapperTests : BaseMapperTests<TestEntity, TestDto, TestVm, ITestType>
 {
-    protected override TClass? CreateInstance<TClass>()
+    protected override TClass CreateInstance<TClass>()
     {
         if (typeof(TClass) == typeof(TestEntity))
-            return new TestEntity { Id = 1, Name = "Entity" } as TClass;
+            return (TClass)(object)new TestEntity { Id = 1, Name = "Entity" };
+
         if (typeof(TClass) == typeof(TestDto))
-            return new TestDto { Id = 1, Name = "DTO" } as TClass;
+            return (TClass)(object)new TestDto { Id = 1, Name = "DTO" };
+
         if (typeof(TClass) == typeof(TestVm))
-            return new TestVm { Id = 1, Name = "VM" } as TClass;
-        return null;
+            return (TClass)(object)new TestVm { Id = 1, Name = "VM" };
+
+        throw new InvalidOperationException($"Unsupported type: {typeof(TClass).Name}");
     }
 }
 
@@ -96,5 +96,5 @@ public class TestClassesTests
 // Mapper that always returns null for CreateInstance
 public class NullInstanceMapperTests : BaseMapperTests<TestEntity, TestDto, TestVm, ITestType>
 {
-    protected override TClass? CreateInstance<TClass>() => null;
+    protected override TClass CreateInstance<TClass>() => null!;
 }

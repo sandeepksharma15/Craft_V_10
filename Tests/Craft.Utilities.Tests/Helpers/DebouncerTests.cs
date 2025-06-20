@@ -10,7 +10,7 @@ public class DebouncerTests : IDisposable
     public async Task Debounce_ExecutesActionOnce_AfterInterval()
     {
         int callCount = 0;
-        Func<Task> action = () => { callCount++; return Task.CompletedTask; };
+        Task action() { callCount++; return Task.CompletedTask; }
 
         _debouncer.Debounce(100, action);
         _debouncer.Debounce(100, action);

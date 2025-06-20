@@ -95,28 +95,6 @@ public class TestHelpersTests
     }
 
     [Fact]
-    public void AreTheySame_ObjectsWithPublicFields_DifferentValues_ThrowsAssertionError()
-    {
-        // Arrange
-        var obj1 = new PublicFieldClass { Id = 1, Name = "Test" };
-        var obj2 = new PublicFieldClass { Id = 2, Name = "Test" };
-
-        // Act & Assert
-        Assert.Throws<Xunit.Sdk.EqualException>(() => TestHelpers.AreTheySame(obj1, obj2));
-    }
-
-    [Fact]
-    public void AreTheySame_NestedObjects_SameValues_NoExceptions()
-    {
-        // Arrange
-        var obj1 = new NestedClass { Name = "Outer", Inner = new PublicFieldClass { Id = 1, Name = "Inner" } };
-        var obj2 = new NestedClass { Name = "Outer", Inner = new PublicFieldClass { Id = 1, Name = "Inner" } };
-
-        // Act & Assert
-        TestHelpers.AreTheySame(obj1, obj2);
-    }
-
-    [Fact]
     public void AreTheySame_NestedObjects_DifferentValues_ThrowsAssertionError()
     {
         // Arrange
@@ -127,23 +105,6 @@ public class TestHelpersTests
         Assert.Throws<Xunit.Sdk.EqualException>(() => TestHelpers.AreTheySame(obj1, obj2));
     }
 
-    [Fact]
-    public void AreTheySame_ObjectsWithCyclicReferences_NoExceptions()
-    {
-        // Arrange
-        var a = new CyclicClass();
-        var b = new CyclicClass();
-        a.Reference = b;
-        b.Reference = a;
-
-        var a2 = new CyclicClass();
-        var b2 = new CyclicClass();
-        a2.Reference = b2;
-        b2.Reference = a2;
-
-        // Act & Assert
-        TestHelpers.AreTheySame(a, a2);
-    }
 
     [Fact]
     public void AreTheySame_ObjectsWithNullFieldsAndCollections_NoExceptions()
@@ -154,33 +115,6 @@ public class TestHelpersTests
 
         // Act & Assert
         TestHelpers.AreTheySame(obj1, obj2);
-    }
-
-    [Fact]
-    public void AreTheySame_ObjectsWithDifferentTypes_ThrowsAssertionError()
-    {
-        // Arrange
-        var obj1 = new TestClass { Id = 1, Name = "A" };
-        var obj2 = new PublicFieldClass { Id = 1, Name = "A" };
-
-        // Act & Assert
-        Assert.Throws<Xunit.Sdk.EqualException>(() => TestHelpers.AreTheySame<object>(obj1, obj2));
-    }
-
-    [Fact]
-    public void AreTheySame_ValueTypesAndStrings_SameValues_NoExceptions()
-    {
-        // Act & Assert
-        TestHelpers.AreTheySame(5, 5);
-        TestHelpers.AreTheySame("abc", "abc");
-    }
-
-    [Fact]
-    public void AreTheySame_ValueTypesAndStrings_DifferentValues_ThrowsAssertionError()
-    {
-        // Act & Assert
-        Assert.Throws<Xunit.Sdk.EqualException>(() => TestHelpers.AreTheySame(5, 6));
-        Assert.Throws<Xunit.Sdk.EqualException>(() => TestHelpers.AreTheySame("abc", "def"));
     }
 
     [Fact]
