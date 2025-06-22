@@ -188,6 +188,63 @@ public static class TypeExtensions
     }
 
     /// <summary>
+    /// Checks if the specified <paramref name="type"/> represents an Integral numeric type.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>True if the type is an Integral numeric type; otherwise, false.</returns>
+    public static bool IsIntegral(this Type? type)
+    {
+        if (type is null) return false;
+
+        switch (Type.GetTypeCode(type))
+        {
+            case TypeCode.Byte:
+            case TypeCode.SByte:
+            case TypeCode.UInt16:
+            case TypeCode.UInt32:
+            case TypeCode.UInt64:
+            case TypeCode.Int16:
+            case TypeCode.Int32:
+            case TypeCode.Int64:
+                return true;
+
+            case TypeCode.Object:
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    return Nullable.GetUnderlyingType(type).IsIntegral();
+                return false;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the specified <paramref name="type"/> represents a floating point type.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>True if the type is floating point; otherwise, false.</returns>
+    public static bool IsFloating(this Type? type)
+    {
+        if (type is null) return false;
+
+        switch (Type.GetTypeCode(type))
+        {
+            case TypeCode.Decimal:
+            case TypeCode.Double:
+            case TypeCode.Single:
+                return true;
+
+            case TypeCode.Object:
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    return Nullable.GetUnderlyingType(type).IsFloating();
+                return false;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
     /// Determines whether the specified types are compatible for assignment.
     /// </summary>
     /// <remarks>This method checks if one type can be assigned to the other, considering inheritance and

@@ -119,6 +119,104 @@ public class TypeTests
         Assert.Equal(expected, actual);
     }
 
+    [Theory]
+    // Integral types
+    [InlineData(typeof(byte), true)]
+    [InlineData(typeof(sbyte), true)]
+    [InlineData(typeof(short), true)]
+    [InlineData(typeof(ushort), true)]
+    [InlineData(typeof(int), true)]
+    [InlineData(typeof(uint), true)]
+    [InlineData(typeof(long), true)]
+    [InlineData(typeof(ulong), true)]
+
+    // Nullable integral types
+    [InlineData(typeof(byte?), true)]
+    [InlineData(typeof(sbyte?), true)]
+    [InlineData(typeof(short?), true)]
+    [InlineData(typeof(ushort?), true)]
+    [InlineData(typeof(int?), true)]
+    [InlineData(typeof(uint?), true)]
+    [InlineData(typeof(long?), true)]
+    [InlineData(typeof(ulong?), true)]
+
+    // Non-integral numeric types
+    [InlineData(typeof(float), false)]
+    [InlineData(typeof(double), false)]
+    [InlineData(typeof(decimal), false)]
+    [InlineData(typeof(float?), false)]
+    [InlineData(typeof(double?), false)]
+    [InlineData(typeof(decimal?), false)]
+
+    // Non-numeric types
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(bool), false)]
+    [InlineData(typeof(DateTime), false)]
+    [InlineData(typeof(object), false)]
+    [InlineData(typeof(Guid), false)]
+
+    // Nullable non-integral
+    [InlineData(typeof(bool?), false)]
+    [InlineData(typeof(DateTime?), false)]
+    
+    // Null type
+    [InlineData(null, false)]
+    public void IsIntegral_ReturnsExpected(Type? type, bool expected)
+    {
+        // Act
+        var result = type.IsIntegral();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    // Floating-point types
+    [InlineData(typeof(float), true)]
+    [InlineData(typeof(double), true)]
+    [InlineData(typeof(decimal), true)]
+
+    // Nullable floating-point types
+    [InlineData(typeof(float?), true)]
+    [InlineData(typeof(double?), true)]
+    [InlineData(typeof(decimal?), true)]
+
+    // Non-floating integral types
+    [InlineData(typeof(byte), false)]
+    [InlineData(typeof(sbyte), false)]
+    [InlineData(typeof(short), false)]
+    [InlineData(typeof(ushort), false)]
+    [InlineData(typeof(int), false)]
+    [InlineData(typeof(uint), false)]
+    [InlineData(typeof(long), false)]
+    [InlineData(typeof(ulong), false)]
+    [InlineData(typeof(byte?), false)]
+    [InlineData(typeof(int?), false)]
+
+    // Other non-numeric types
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(bool), false)]
+    [InlineData(typeof(DateTime), false)]
+    [InlineData(typeof(object), false)]
+    [InlineData(typeof(Guid), false)]
+    [InlineData(typeof(char), false)]
+
+    // Nullable non-floating types
+    [InlineData(typeof(DateTime?), false)]
+    [InlineData(typeof(bool?), false)]
+    [InlineData(typeof(Guid?), false)]
+
+    // Null input
+    [InlineData(null, false)]
+    public void IsFloating_ReturnsExpected(Type? type, bool expected)
+    {
+        // Act
+        var result = type.IsFloating();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
     [Fact]
     public void GetClassesWithAttribute_NullType_ShouldReturnNull()
     {
