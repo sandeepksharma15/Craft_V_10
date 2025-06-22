@@ -3,6 +3,24 @@ using System.Text.Json.Serialization;
 
 namespace Craft.Core;
 
+/// <summary>
+/// Provides custom JSON serialization and deserialization for <see cref="PageResponse{T}"/> objects.
+/// </summary>
+/// <remarks>This converter handles the serialization and deserialization of paginated responses, ensuring that
+/// the <see cref="PageResponse{T}"/> object is correctly mapped to and from JSON. The JSON format is expected to
+/// include the following properties: <list type="bullet"> <item><term>Items</term><description>An array of items of
+/// type <typeparamref name="T"/>.</description></item> <item><term>CurrentPage</term><description>The current page
+/// number.</description></item> <item><term>PageSize</term><description>The number of items per
+/// page.</description></item> <item><term>TotalCount</term><description>The total number of items across all
+/// pages.</description></item> </list></remarks>
+/// <typeparam name="T">The type of items contained within the <see cref="PageResponse{T}"/>. Must be a reference type.</typeparam>
+
+/// Usage: This converter can be used with the JSON serializer in the following way:
+/// var options = new JsonSerializerOptions { Converters = { new PageResponseJsonConverter<YourType>() } };
+/// var json = JsonSerializer.Serialize(pageResponse, options);
+/// OR
+/// builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new PageResponseJsonConverter()); });
+/// 
 public class PageResponseJsonConverter<T> : JsonConverter<PageResponse<T>> where T : class
 {
     public override bool CanConvert(Type typeToConvert)
