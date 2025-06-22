@@ -6,14 +6,9 @@
 		<Nullable>enable</Nullable>
 		<Authors>Sandeep SHARMA</Authors>
 		<LangVersion>preview</LangVersion>
-		<RootNamespace>Craft.Domain</RootNamespace>
+		<RootNamespace>Craft.Exceptions</RootNamespace>
 		<AssemblyVersion>1.0.32.9</AssemblyVersion>
 		<FileVersion>1.0.0.9</FileVersion>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
-	  <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
-	</ItemGroup>
 
 </Project>
