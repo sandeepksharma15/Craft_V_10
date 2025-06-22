@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Craft.Core\Craft.Core.csproj" />
+    <ProjectReference Include="..\..\Craft.Security\Craft.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Sandeep SHARMA</Authors>
+		<LangVersion>preview</LangVersion>
+		<RootNamespace>Craft.Security</RootNamespace>
+		<AssemblyVersion>1.0.32.9</AssemblyVersion>
+		<FileVersion>1.0.0.9</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0-preview.5.25277.114" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
+	</ItemGroup>
+
+</Project>
