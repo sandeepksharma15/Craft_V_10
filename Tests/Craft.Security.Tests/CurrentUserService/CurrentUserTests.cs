@@ -203,7 +203,7 @@ public class CurrentUserTests
     [Fact]
     public void IsInRole_ReturnsTrue_WhenUserInRole()
     {
-        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "admin") }, "mock");
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, "admin")], "mock");
         var principal = new ClaimsPrincipal(identity);
         var provider = MockProvider(principal);
         var user = new CurrentUser<int>(provider.Object);
@@ -213,7 +213,7 @@ public class CurrentUserTests
     [Fact]
     public void IsInRole_ReturnsFalse_WhenUserNotInRole()
     {
-        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "user") }, "mock");
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, "user")], "mock");
         var principal = new ClaimsPrincipal(identity);
         var provider = MockProvider(principal);
         var user = new CurrentUser<int>(provider.Object);

@@ -26,9 +26,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Claims\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>
