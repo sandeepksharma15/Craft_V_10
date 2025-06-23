@@ -1,4 +1,4 @@
-﻿namespace Craft.Security.Contracts;
+﻿namespace Craft.Security;
 
 public interface IPasswordChangeRequest<TKey>
 {

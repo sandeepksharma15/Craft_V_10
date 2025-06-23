@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Craft.Security.Contracts;
 
 namespace Craft.Security;
 
