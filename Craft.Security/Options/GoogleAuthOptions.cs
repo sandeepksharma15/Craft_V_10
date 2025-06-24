@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Craft.Security.Options;
+namespace Craft.Security;
 
 public class GoogleAuthOptions : IValidatableObject
 {
