@@ -1,7 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Craft.Security;
-using Xunit;
-using System.Collections.Generic;
 
 namespace Craft.Security.Tests.Options;
 
@@ -18,8 +15,8 @@ public class GoogleAuthOptionsTest
             TokenUri = "https://token.uri",
             AuthProviderX509CertUrl = "https://cert.url",
             ClientSecret = "secret",
-            RedirectUris = new[] { "https://redirect1", "https://redirect2" },
-            JavascriptOrigins = new[] { "https://origin1", "https://origin2" }
+            RedirectUris = ["https://redirect1", "https://redirect2"],
+            JavascriptOrigins = ["https://origin1", "https://origin2"]
         };
         var results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
         Assert.Empty(results);
@@ -99,8 +96,8 @@ public class GoogleAuthOptionsTest
         var results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
         Assert.Contains(results, r => r.MemberNames.Contains(nameof(GoogleAuthOptions.RedirectUris)));
 
-        options.RedirectUris = new string[0];
-        results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
+        options.RedirectUris = [];
+        results = [.. options.Validate(new ValidationContext(options))];
         Assert.Contains(results, r => r.MemberNames.Contains(nameof(GoogleAuthOptions.RedirectUris)));
     }
 
@@ -108,7 +105,7 @@ public class GoogleAuthOptionsTest
     public void Validate_RedirectUris_ContainsEmpty()
     {
         var options = ValidOptions();
-        options.RedirectUris = new[] { "valid", "" };
+        options.RedirectUris = ["valid", ""];
         var results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
         Assert.Contains(results, r => r.MemberNames.Contains(nameof(GoogleAuthOptions.RedirectUris)));
     }
@@ -121,8 +118,8 @@ public class GoogleAuthOptionsTest
         var results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
         Assert.Contains(results, r => r.MemberNames.Contains(nameof(GoogleAuthOptions.JavascriptOrigins)));
 
-        options.JavascriptOrigins = new string[0];
-        results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
+        options.JavascriptOrigins = [];
+        results = [.. options.Validate(new ValidationContext(options))];
         Assert.Contains(results, r => r.MemberNames.Contains(nameof(GoogleAuthOptions.JavascriptOrigins)));
     }
 
@@ -130,12 +127,12 @@ public class GoogleAuthOptionsTest
     public void Validate_JavascriptOrigins_ContainsEmpty()
     {
         var options = ValidOptions();
-        options.JavascriptOrigins = new[] { "valid", "" };
+        options.JavascriptOrigins = ["valid", ""];
         var results = new List<ValidationResult>(options.Validate(new ValidationContext(options)));
         Assert.Contains(results, r => r.MemberNames.Contains(nameof(GoogleAuthOptions.JavascriptOrigins)));
     }
 
-    private static GoogleAuthOptions ValidOptions() => new GoogleAuthOptions
+    private static GoogleAuthOptions ValidOptions() => new()
     {
         ClientId = "client-id",
         ProjectId = "project-id",
@@ -143,7 +140,7 @@ public class GoogleAuthOptionsTest
         TokenUri = "https://token.uri",
         AuthProviderX509CertUrl = "https://cert.url",
         ClientSecret = "secret",
-        RedirectUris = new[] { "https://redirect1" },
-        JavascriptOrigins = new[] { "https://origin1" }
+        RedirectUris = ["https://redirect1"],
+        JavascriptOrigins = ["https://origin1"]
     };
 }
