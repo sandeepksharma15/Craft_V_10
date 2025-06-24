@@ -1,63 +1,72 @@
-﻿using System.Security.Cryptography;
-using Craft.Utilities.Services;
+﻿using Craft.KeySafe;
 
-if (args.Length < 1 || (args[0] != "-e" && args[0] != "-d" && args[0] != "-g"))
+class Program
 {
-    Console.WriteLine("Usage:");
-    Console.WriteLine("  Encrypt:   KeySafe.exe -e \"Your text here\"");
-    Console.WriteLine("  Decrypt:   KeySafe.exe -d \"Your encrypted text here\"");
-    Console.WriteLine("  Generate:  KeySafe.exe -g");
-    return;
-}
-
-// Get The Mode
-string mode = args[0];
-
-try
-{
-    if (mode == "-g")
+    static void Main(string[] args)
     {
-        using var aes = Aes.Create();
+        // Check if the user provided the correct number of arguments
+        if (args.Length < 1 || (args[0] != "-e" && args[0] != "-d" && args[0] != "-g"))
+        {
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  Encrypt:   KeySafe.exe -e \"Your text here\"");
+            Console.WriteLine("  Decrypt:   KeySafe.exe -d \"Your encrypted text here\"");
+            Console.WriteLine("  Generate:  KeySafe.exe -g");
+            return;
+        }
 
-        aes.GenerateKey();
-        var genKey = aes.Key;
+        // Create an instance of the KeySafeApp
+        var app = new KeySafeApp();
+        string mode = args[0];
 
-        aes.GenerateIV();
-        var genIV = aes.IV;
+        try
+        {
+            // Handle the different modes: generate, encrypt, decrypt
+            if (mode == "-g")
+            {
+                var (success, message) = KeySafeApp.Generate();
+                Console.WriteLine(message);
+                return;
+            }
 
-        Console.WriteLine("Generated Key: " + Convert.ToBase64String(genKey));
-        Console.WriteLine("Generated IV: " + Convert.ToBase64String(genIV));
+            // Retrieve the AES key and IV from environment variables
+            string? keyString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_KEY");
+            string? ivString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_IV");
 
-        return;
+            byte[]? key = null;
+            byte[]? iv = null;
+
+            // If the key and IV are provided, convert them from Base64 strings
+            if (!string.IsNullOrEmpty(keyString) && !string.IsNullOrEmpty(ivString))
+            {
+                key = Convert.FromBase64String(keyString);
+                iv = Convert.FromBase64String(ivString);
+            }
+
+            // If the key or IV is not provided, inform the user
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Error: Input text is required for encryption/decryption.");
+                return;
+            }
+
+            // Retrieve the input text from the command line arguments
+            string inputText = args[1];
+
+            // Perform encryption or decryption based on the mode
+            if (mode == "-e")
+            {
+                var (success, message) = app.Encrypt(inputText, key, iv);
+                Console.WriteLine(success ? $"Encrypted: {message}" : message);
+            }
+            else if (mode == "-d")
+            {
+                var (success, message) = app.Decrypt(inputText, key, iv);
+                Console.WriteLine(success ? $"Decrypted: {message}" : message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
     }
-
-    string? keyString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_KEY");
-    string? ivString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_IV");
-
-    if (string.IsNullOrEmpty(keyString) || string.IsNullOrEmpty(ivString))
-    {
-        Console.WriteLine("Error: AES_ENCRYPTION_KEY or AES_ENCRYPTION_IV is not set in environment variables.");
-        return;
-    }
-
-    byte[] key = Convert.FromBase64String(keyString);
-    byte[] iv = Convert.FromBase64String(ivString);
-
-    // Get The Input Text
-    string inputText = args[1];
-
-    if (mode == "-e")
-    {
-        string encrypted = KeySafeService.Encrypt(inputText, key, iv);
-        Console.WriteLine($"Encrypted: {encrypted}");
-    }
-    else if (mode == "-d")
-    {
-        string decrypted = KeySafeService.Decrypt(inputText, key, iv);
-        Console.WriteLine($"Decrypted: {decrypted}");
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Error: {ex.Message}");
 }
