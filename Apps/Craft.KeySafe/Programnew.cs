@@ -1,13 +1,13 @@
-﻿using Craft.KeySafe;
+using Craft.KeySafe;
 
 public class Program
 {
     /// <summary>
     /// Entry point for the KeySafe application.
     /// </summary>
-    public static void Main(string[] args)
+    public static void Main(string[] args, EnvironmentVariableTarget target = EnvironmentVariableTarget.Machine)
     {
-        if (TryHandleSetKeyOrIv(args, EnvironmentVariableTarget.Machine))
+        if (TryHandleSetKeyOrIv(args, target))
             return;
 
         if (!IsValidMainArgs(args))
@@ -16,7 +16,6 @@ public class Program
             return;
         }
 
-        var app = new KeySafeApp();
         string mode = args[0];
 
         try
@@ -27,6 +26,8 @@ public class Program
                 Console.WriteLine(message);
                 return;
             }
+
+            var app = new KeySafeApp();
 
             string? keyString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_KEY");
             string? ivString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_IV");
@@ -80,7 +81,6 @@ public class Program
 
             Environment.SetEnvironmentVariable("AES_ENCRYPTION_KEY", args[1], target);
             Console.WriteLine($"{(target == EnvironmentVariableTarget.Machine ? "System-wide " : "Process ")}AES_ENCRYPTION_KEY set successfully.");
-
             return true;
         }
 
@@ -94,7 +94,6 @@ public class Program
 
             Environment.SetEnvironmentVariable("AES_ENCRYPTION_IV", args[1], target);
             Console.WriteLine($"{(target == EnvironmentVariableTarget.Machine ? "System-wide " : "Process ")}AES_ENCRYPTION_IV set successfully.");
-
             return true;
         }
 
@@ -107,9 +106,7 @@ public class Program
     public static bool IsValidMainArgs(string[] args)
     {
         if (args.Length < 1) return false;
-
         string[] valid = { "-e", "-d", "-g" };
-
         return Array.Exists(valid, v => v == args[0]);
     }
 
@@ -132,9 +129,7 @@ public class Program
     public static bool IsBase64String(string s)
     {
         if (string.IsNullOrWhiteSpace(s)) return false;
-
         Span<byte> buffer = new(new byte[s.Length]);
-
         return Convert.TryFromBase64String(s, buffer, out _);
     }
 }
