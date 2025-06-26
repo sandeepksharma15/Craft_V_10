@@ -1,4 +1,5 @@
-﻿using Craft.KeySafe;
+﻿using Craft.Extensions.System;
+using Craft.KeySafe;
 
 public class Program
 {
@@ -7,7 +8,7 @@ public class Program
     /// </summary>
     public static void Main(string[] args)
     {
-        if (TryHandleSetKeyOrIv(args, EnvironmentVariableTarget.Machine))
+        if (TryHandleSetKeyOrIv(args))
             return;
 
         if (!IsValidMainArgs(args))
@@ -16,7 +17,6 @@ public class Program
             return;
         }
 
-        var app = new KeySafeApp();
         string mode = args[0];
 
         try
@@ -27,6 +27,8 @@ public class Program
                 Console.WriteLine(message);
                 return;
             }
+
+            var app = new KeySafeApp();
 
             string? keyString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_KEY");
             string? ivString = Environment.GetEnvironmentVariable("AES_ENCRYPTION_IV");
@@ -68,17 +70,18 @@ public class Program
     /// <summary>
     /// Handles --set-key and --set-iv arguments. Returns true if handled.
     /// </summary>
-    public static bool TryHandleSetKeyOrIv(string[] args, EnvironmentVariableTarget target = EnvironmentVariableTarget.Machine)
+    public static bool TryHandleSetKeyOrIv(string[] args, EnvironmentVariableTarget target = EnvironmentVariableTarget.Process)
     {
         if (args.Length == 2 && args[0] == "--set-key")
         {
-            if (!IsBase64String(args[1]))
+            if (!args[1].IsBase64String())
             {
                 Console.WriteLine("Error: The provided key is not a valid Base64 string.");
                 return true;
             }
 
             Environment.SetEnvironmentVariable("AES_ENCRYPTION_KEY", args[1], target);
+
             Console.WriteLine($"{(target == EnvironmentVariableTarget.Machine ? "System-wide " : "Process ")}AES_ENCRYPTION_KEY set successfully.");
 
             return true;
@@ -86,7 +89,7 @@ public class Program
 
         if (args.Length == 2 && args[0] == "--set-iv")
         {
-            if (!IsBase64String(args[1]))
+            if (!args[1].IsBase64String())
             {
                 Console.WriteLine("Error: The provided IV is not a valid Base64 string.");
                 return true;
@@ -94,7 +97,6 @@ public class Program
 
             Environment.SetEnvironmentVariable("AES_ENCRYPTION_IV", args[1], target);
             Console.WriteLine($"{(target == EnvironmentVariableTarget.Machine ? "System-wide " : "Process ")}AES_ENCRYPTION_IV set successfully.");
-
             return true;
         }
 
@@ -107,9 +109,7 @@ public class Program
     public static bool IsValidMainArgs(string[] args)
     {
         if (args.Length < 1) return false;
-
         string[] valid = { "-e", "-d", "-g" };
-
         return Array.Exists(valid, v => v == args[0]);
     }
 
@@ -124,17 +124,5 @@ public class Program
         Console.WriteLine("  Generate:  KeySafe.exe -g");
         Console.WriteLine("  Set Key:   KeySafe.exe --set-key <base64key>");
         Console.WriteLine("  Set IV:    KeySafe.exe --set-iv <base64iv>");
-    }
-
-    /// <summary>
-    /// Checks if a string is a valid Base64 string.
-    /// </summary>
-    public static bool IsBase64String(string s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return false;
-
-        Span<byte> buffer = new(new byte[s.Length]);
-
-        return Convert.TryFromBase64String(s, buffer, out _);
     }
 }

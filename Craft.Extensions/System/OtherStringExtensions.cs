@@ -129,4 +129,22 @@ public static class OtherStringExtensions
 
         return sb.ToString();
     }
+
+    /// <summary>
+    /// Determines whether the specified string is a valid Base64-encoded string.
+    /// </summary>
+    /// <remarks>A valid Base64 string must contain only characters allowed in Base64 encoding  and must have
+    /// a length that is a multiple of 4. This method returns <see langword="false"/>  for null, empty, or whitespace
+    /// strings.</remarks>
+    /// <param name="s">The string to validate as Base64-encoded.</param>
+    /// <returns><see langword="true"/> if the specified string is a valid Base64-encoded string;  otherwise, <see
+    /// langword="false"/>.</returns>
+    public static bool IsBase64String(this string s)
+    {
+        if (s.IsNullOrWhiteSpace()) return false;
+
+        Span<byte> buffer = new byte[s.Length + 1];
+
+        return Convert.TryFromBase64String(s, buffer, out _);
+    }
 }

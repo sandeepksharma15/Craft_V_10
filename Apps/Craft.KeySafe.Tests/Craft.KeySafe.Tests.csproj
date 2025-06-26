@@ -19,6 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Craft.Extensions\Craft.Extensions.csproj" />
 		<ProjectReference Include="..\Craft.KeySafe\Craft.KeySafe.csproj" />
 	</ItemGroup>
 
