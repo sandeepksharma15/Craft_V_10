@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.QuerySpec", "Craft.Qu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.QuerySpec.Tests", "Tests\Craft.QuerySpec.Tests\Craft.QuerySpec.Tests.csproj", "{0388A042-5547-4D45-AE1D-6A2B3366FD53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.TestDataStore", "Tests\Craft.TestDataStore\Craft.TestDataStore.csproj", "{64A9F450-9080-4F34-B0F5-E356386AD29B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,10 @@ Global
 		{0388A042-5547-4D45-AE1D-6A2B3366FD53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0388A042-5547-4D45-AE1D-6A2B3366FD53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0388A042-5547-4D45-AE1D-6A2B3366FD53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64A9F450-9080-4F34-B0F5-E356386AD29B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64A9F450-9080-4F34-B0F5-E356386AD29B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64A9F450-9080-4F34-B0F5-E356386AD29B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64A9F450-9080-4F34-B0F5-E356386AD29B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -180,6 +186,7 @@ Global
 		{6839DF56-1BBD-4106-BB74-3B7E412995A7} = {7B236707-816C-462F-AFFD-A7C4C58097C5}
 		{2D73F2F9-58CC-485D-B57B-A3D9427C63C8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{0388A042-5547-4D45-AE1D-6A2B3366FD53} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{64A9F450-9080-4F34-B0F5-E356386AD29B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32F1F00A-8F0F-4BF6-9CA6-1F4D2ED338B9}
