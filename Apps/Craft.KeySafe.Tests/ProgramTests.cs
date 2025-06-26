@@ -37,8 +37,10 @@ public class ProgramTests
     public void SetKey_ValidBase64_PrintsSuccess()
     {
         SetDummyKeyIv();
+
         string base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("testkeytestkeytestkeytestkeytestkey12"));
         var output = CaptureConsoleOutput(() => ProgramMain(["--set-key", base64]));
+
         Assert.Contains("Process AES_ENCRYPTION_KEY set successfully", output);
     }
 
@@ -68,7 +70,7 @@ public class ProgramTests
     // Helper to invoke Program.Main via reflection
     private static void ProgramMain(string[] args)
     {
-        var programType = typeof(Program).Assembly.GetType("Program");
+        var programType = typeof(KeySafeApp).Assembly.GetType("Craft.KeySafe.Program");
 
         var mainMethod = programType?.GetMethod("Main", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
 
