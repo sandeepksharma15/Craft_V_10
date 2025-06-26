@@ -9,7 +9,9 @@ public class ProgramTests
     public void Prints_Usage_Or_Error_On_Invalid_Args(string[] args, string expected)
     {
         SetDummyKeyIv();
+
         var output = CaptureConsoleOutput(() => ProgramMain(args));
+
         Assert.Contains(expected, output);
     }
 
@@ -17,7 +19,7 @@ public class ProgramTests
     public void SetKey_InvalidBase64_PrintsError()
     {
         SetDummyKeyIv();
-        var output = CaptureConsoleOutput(() => ProgramMain(new[] { "--set-key", "notbase64" }));
+        var output = CaptureConsoleOutput(() => ProgramMain(["--set-key", "notbase64"]));
         Assert.Contains("not a valid Base64 string", output);
     }
 
@@ -36,7 +38,7 @@ public class ProgramTests
     {
         SetDummyKeyIv();
         string base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("testkeytestkeytestkeytestkeytestkey12"));
-        var output = CaptureConsoleOutput(() => ProgramMain(new[] { "--set-key", base64 }));
+        var output = CaptureConsoleOutput(() => ProgramMain(["--set-key", base64]));
         Assert.Contains("Process AES_ENCRYPTION_KEY set successfully", output);
     }
 
@@ -95,7 +97,7 @@ public class ProgramTests
 
     public static IEnumerable<object[]> InvalidArgsData()
     {
-        yield return new object[] { new string[] { }, "Usage:" };
+        yield return new object[] { Array.Empty<string>(), "Usage:" };
         yield return new object[] { new string[] { "-x" }, "Usage:" };
         yield return new object[] { new string[] { "-e" }, "Error: Input text is required for encryption/decryption." };
         yield return new object[] { new string[] { "-d" }, "Error: Input text is required for encryption/decryption." };

@@ -1,4 +1,4 @@
-﻿namespace Craft.QuerySpec.Enums;
+﻿namespace Craft.QuerySpec;
 
 public enum OrderTypeEnum
 {

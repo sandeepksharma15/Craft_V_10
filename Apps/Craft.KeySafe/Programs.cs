@@ -1,5 +1,6 @@
 ﻿using Craft.Extensions.System;
-using Craft.KeySafe;
+
+namespace Craft.KeySafe;
 
 public class Program
 {
@@ -109,7 +110,7 @@ public class Program
     public static bool IsValidMainArgs(string[] args)
     {
         if (args.Length < 1) return false;
-        string[] valid = { "-e", "-d", "-g" };
+        string[] valid = ["-e", "-d", "-g"];
         return Array.Exists(valid, v => v == args[0]);
     }
 

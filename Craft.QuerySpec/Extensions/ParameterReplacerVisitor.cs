@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Craft.QuerySpec.Extensions;
+namespace Craft.QuerySpec;
 
 internal sealed class ParameterReplacerVisitor : ExpressionVisitor
 {

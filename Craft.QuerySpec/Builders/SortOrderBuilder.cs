@@ -3,8 +3,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Craft.Extensions.Expressions;
-using Craft.QuerySpec.Enums;
-using Craft.QuerySpec.Helpers;
 
 namespace Craft.QuerySpec.Builders;
 
@@ -50,7 +48,8 @@ public class SortOrderBuilder<T> where T : class
     public SortOrderBuilder<T> Add(string propName, OrderTypeEnum orderType = OrderTypeEnum.OrderBy)
     {
         var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName);
-        OrderDescriptorList.Add(new OrderDescriptor<T>(propExpr, AdjustOrderType(orderType)));
+        OrderDescriptorList.Add(new OrderDescriptor<T>(propExpr!, AdjustOrderType(orderType)));
+
         return this;
     }
 
@@ -83,7 +82,7 @@ public class SortOrderBuilder<T> where T : class
     /// </summary>
     public SortOrderBuilder<T> Remove(string propName)
     {
-        Remove(ExpressionBuilder.GetPropertyExpression<T>(propName));
+        Remove(ExpressionBuilder.GetPropertyExpression<T>(propName)!);
         return this;
     }
 

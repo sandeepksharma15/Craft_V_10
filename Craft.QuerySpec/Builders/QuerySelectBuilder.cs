@@ -2,10 +2,8 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Craft.QuerySpec.Contracts;
-using Craft.QuerySpec.Helpers;
 
-namespace Craft.QuerySpec.Builders;
+namespace Craft.QuerySpec;
 
 [Serializable]
 public class QuerySelectBuilder<T> : QuerySelectBuilder<T, T>, IQuerySelectBuilder<T> where T : class;
@@ -98,7 +96,7 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
     /// <summary>
     /// Builds the select expression.
     /// </summary>
-    public Expression<Func<T, TResult>> Build()
+    public Expression<Func<T, TResult>>? Build()
         => typeof(TResult) == typeof(object) ? BuildAnnonymousSelect() : BuildSelect();
 
     /// <summary>
@@ -107,13 +105,13 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
     public void Clear()
         => SelectDescriptorList.Clear();
 
-    private Expression<Func<T, TResult>> BuildAnnonymousSelect()
+    private Expression<Func<T, TResult>>? BuildAnnonymousSelect()
     {
         var sourceParam = Expression.Parameter(typeof(T), "x");
 
         var selectExpressions = SelectDescriptorList.Select(item =>
         {
-            var columnInvoke = Expression.Invoke(item.Assignor, sourceParam);
+            var columnInvoke = Expression.Invoke(item.Assignor!, sourceParam);
 
             return Expression.Convert(columnInvoke, typeof(object));
         });
@@ -130,9 +128,12 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
 
         foreach (var item in SelectDescriptorList)
         {
-            var columnInvoke = Expression.Invoke(item.Assignor, selectParam);
-            var propertyInfo = item.Assignee.GetPropertyInfo();
-            var propertyType = propertyInfo.PropertyType;
+            var columnInvoke = Expression.Invoke(item.Assignor!, selectParam);
+            var propertyInfo = item.Assignee?.GetPropertyInfo();
+            var propertyType = propertyInfo?.PropertyType;
+
+            if (propertyInfo == null || propertyType == null)
+                throw new InvalidOperationException("Property info or type cannot be null.");
 
             var convertedValue = Expression.Convert(columnInvoke, propertyType);
 

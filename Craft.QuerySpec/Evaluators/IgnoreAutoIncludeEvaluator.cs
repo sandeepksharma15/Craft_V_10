@@ -1,7 +1,6 @@
-﻿using Craft.QuerySpec.Contracts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace Craft.QuerySpec.Evaluators;
+namespace Craft.QuerySpec;
 
 public sealed class IgnoreAutoIncludeEvaluator : IEvaluator
 {
@@ -9,9 +8,9 @@ public sealed class IgnoreAutoIncludeEvaluator : IEvaluator
 
     private IgnoreAutoIncludeEvaluator() { }
 
-    public IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T> query) where T : class
+    public IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query) where T : class
     {
-        if (query.IgnoreAutoIncludes)
+        if (query?.IgnoreAutoIncludes == true)
             queryable = queryable.IgnoreAutoIncludes();
 
         return queryable;

@@ -1,12 +1,7 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Craft.Extensions.Expressions;
-using Craft.QuerySpec.Enums;
-using Craft.QuerySpec.Helpers;
 
-namespace Craft.QuerySpec.Builders;
+namespace Craft.QuerySpec;
 
 [Serializable]
 public class EntityFilterBuilder<T> where T : class
@@ -54,9 +49,9 @@ public class EntityFilterBuilder<T> where T : class
         return this;
     }
 
-    public EntityFilterBuilder<T> Remove(Expression<Func<T, bool>> expression)
+    public EntityFilterBuilder<T> Remove(Expression<Func<T, bool>>? expression)
     {
-        ArgumentNullException.ThrowIfNull(nameof(expression));
+        ArgumentNullException.ThrowIfNull(expression);
 
         if (expression.CanReduce)
             expression = (Expression<Func<T, bool>>)expression.ReduceAndCheck();
@@ -89,9 +84,9 @@ public class EntityFilterBuilder<T> where T : class
         return this;
     }
 
-    private static Expression<Func<T, bool>> GetExpression(Expression<Func<T, object>> propExpr, object compareWith, ComparisonType comparisonType)
+    private static Expression<Func<T, bool>> GetExpression(Expression<Func<T, object>>? propExpr, object compareWith, ComparisonType comparisonType)
     {
-        ArgumentNullException.ThrowIfNull(nameof(propExpr));
+        ArgumentNullException.ThrowIfNull(propExpr);
 
         var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
 
@@ -102,61 +97,8 @@ public class EntityFilterBuilder<T> where T : class
     {
         // Check if the property exists
         var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName);
-        var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
+        var filterInfo = FilterCriteria.GetFilterInfo(propExpr!, compareWith, comparisonType);
 
         return ExpressionBuilder.CreateWhereExpression<T>(filterInfo);
-    }
-}
-
-public class EntityFilterBuilderJsonConverter<T> : JsonConverter<EntityFilterBuilder<T>> where T : class
-{
-    public override bool CanConvert(Type objectType)
-        => objectType == typeof(EntityFilterBuilder<T>);
-
-    public override EntityFilterBuilder<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        var entityFilterBuilder = new EntityFilterBuilder<T>();
-
-        // We Want To Clone The Options To Add The EntityFilterCriteriaJsonConverter
-        var localOptions = options.GetClone();
-        localOptions.Converters.Add(new EntityFilterCriteriaJsonConverter<T>());
-
-        // Check for array start
-        if (reader.TokenType != JsonTokenType.StartArray)
-            throw new JsonException("Invalid format for SortOrderBuilder: expected array of OrderDescriptor");
-
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndArray)
-                break;
-
-            var entityFilterCriteria = JsonSerializer.Deserialize<EntityFilterCriteria<T>>(ref reader, localOptions);
-
-            if (entityFilterCriteria != null)
-                entityFilterBuilder.EntityFilterList.Add(entityFilterCriteria);
-            else
-                throw new JsonException("Invalid format for EntityFilterBuilder: expected array of EntityFilterCriteria");
-        }
-
-        return entityFilterBuilder;
-    }
-
-    public override void Write(Utf8JsonWriter writer, EntityFilterBuilder<T> value, JsonSerializerOptions options)
-    {
-        // Start The Array
-        writer.WriteStartArray();
-
-        // We Want To Clone The Options To Add The EntityFilterCriteriaJsonConverter
-        var localOptions = options.GetClone();
-        localOptions.Converters.Add(new EntityFilterCriteriaJsonConverter<T>());
-
-        foreach (var entityFilter in value.EntityFilterList)
-        {
-            var json = JsonSerializer.Serialize(entityFilter, localOptions);
-            writer.WriteRawValue(json);
-        }
-
-        // End the array
-        writer.WriteEndArray();
     }
 }

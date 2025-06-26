@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Craft.QuerySpec.Enums;
+namespace Craft.QuerySpec;
 
 public enum ComparisonType
 {

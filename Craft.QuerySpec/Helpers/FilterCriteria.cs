@@ -1,9 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Craft.QuerySpec.Builders;
-using Craft.QuerySpec.Enums;
 
-namespace Craft.QuerySpec.Helpers;
+namespace Craft.QuerySpec;
 
 public class FilterCriteria(string typeName, string name, string value, ComparisonType comparison = ComparisonType.EqualTo)
 {
@@ -21,18 +19,18 @@ public class FilterCriteria(string typeName, string name, string value, Comparis
             ?? throw new ArgumentException("You must pass a lambda of the form: '() => Class.Property' ");
 
         string name = prop.Name;
-        Type type = prop.GetMemberUnderlyingType();
+        Type? type = prop.GetMemberUnderlyingType();
 
-        if (type.IsEnum)
+        if (type?.IsEnum == true)
         {
             type = typeof(int);
             compareWith = (int)compareWith;
         }
 
-        if (Nullable.GetUnderlyingType(type) != null)
-            type = type.GetNonNullableType();
+        if (Nullable.GetUnderlyingType(type!) != null)
+            type = type?.GetNonNullableType();
 
-        return new FilterCriteria(type.FullName, name, compareWith.ToString(), comparisonType);
+        return new FilterCriteria(type?.FullName!, name, compareWith.ToString()!, comparisonType);
     }
 
     public static FilterCriteria GetFilterInfo<T>(Expression<Func<T, bool>> whereExpr)
@@ -74,9 +72,9 @@ public class FilterCriteria(string typeName, string name, string value, Comparis
             _ => throw new ArgumentException("Comparison operator not supported"),
         };
 
-        return new FilterCriteria(dataType.FullName,
+        return new FilterCriteria(dataType.FullName!,
             propertyName,
-            comparedValue.ToString(),
+            comparedValue?.ToString()!,
             comparisonOperator);
     }
 }

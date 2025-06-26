@@ -1,10 +1,8 @@
-﻿using Craft.QuerySpec.Contracts;
-
-namespace Craft.QuerySpec.Core;
+﻿namespace Craft.QuerySpec;
 
 public static class QueryExtensions
 {
-    public static IQuery<T> AsNoTracking<T>(this IQuery<T> query) where T : class
+    public static IQuery<T>? AsNoTracking<T>(this IQuery<T> query) where T : class
     {
         if (query is null) return null;
 
@@ -12,7 +10,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T> AsSplitQuery<T>(this IQuery<T> query) where T : class
+    public static IQuery<T>? AsSplitQuery<T>(this IQuery<T> query) where T : class
     {
         if (query is null) return null;
 
@@ -20,7 +18,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T> IgnoreAutoIncludes<T>(this IQuery<T> query) where T : class
+    public static IQuery<T>? IgnoreAutoIncludes<T>(this IQuery<T> query) where T : class
     {
         if (query is null) return null;
 
@@ -29,7 +27,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T> IgnoreQueryFilters<T>(this IQuery<T> query) where T : class
+    public static IQuery<T>? IgnoreQueryFilters<T>(this IQuery<T> query) where T : class
     {
         if (query is null) return null;
 
@@ -37,7 +35,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T> Skip<T>(this IQuery<T> query, int? skip) where T : class
+    public static IQuery<T>? Skip<T>(this IQuery<T> query, int? skip) where T : class
     {
         if (query is null) return null;
 
@@ -45,7 +43,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T> Take<T>(this IQuery<T> query, int? take) where T : class
+    public static IQuery<T>? Take<T>(this IQuery<T> query, int? take) where T : class
     {
         if (query is null) return null;
 
@@ -53,7 +51,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T> SetPostProcessingAction<T>(this IQuery<T> query, Func<IEnumerable<T>, IEnumerable<T>> postProcessingAction) where T : class
+    public static IQuery<T>? SetPostProcessingAction<T>(this IQuery<T> query, Func<IEnumerable<T>, IEnumerable<T>> postProcessingAction) where T : class
     {
         if (query is null) return null;
 
@@ -61,7 +59,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static IQuery<T, TResult> SetPostProcessingAction<T, TResult>(this IQuery<T, TResult> query, Func<IEnumerable<TResult>, IEnumerable<TResult>> postProcessingAction) where T : class where TResult : class
+    public static IQuery<T, TResult>? SetPostProcessingAction<T, TResult>(this IQuery<T, TResult> query, Func<IEnumerable<TResult>, IEnumerable<TResult>> postProcessingAction) where T : class where TResult : class
     {
         if (query is null) return null;
 
@@ -69,7 +67,7 @@ public static class QueryExtensions
         return query;
     }
 
-    public static bool IsWithoutOrder<T>(this IQuery<T> query) where T : class
+    public static bool IsWithoutOrder<T>(this IQuery<T>? query) where T : class
     {
         if (query is null) return true;
 

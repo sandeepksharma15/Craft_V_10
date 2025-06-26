@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-namespace Craft.QuerySpec.Builders;
+namespace Craft.QuerySpec;
 
 public class ExpressionTreeBuilder
 {
@@ -56,19 +56,25 @@ public class ExpressionTreeBuilder
     private static readonly ConcurrentDictionary<Type, PropertyDescriptorCollection> _typePropertyCollection
                                                                     = new();
 
-    public static Expression<Func<T, bool>> BuildBinaryTreeExpression<T>(string query)
+    public static Expression<Func<T, bool>>? BuildBinaryTreeExpression<T>(string? query)
     {
+        if (query == null) return null;
+
         var exp = BuildBinaryTreeExpression(typeof(T), query);
+
         return exp as Expression<Func<T, bool>>;
     }
 
-    public static LambdaExpression BuildBinaryTreeExpression(Type type, string query)
+    public static LambdaExpression? BuildBinaryTreeExpression(Type type, string? query)
     {
+        if (query == null) return null;
+
         var pe = Expression.Parameter(type, "x");
+
         return BuildBinaryTreeExpressionWorker(type, query, pe);
     }
 
-    public static LambdaExpression BuildBinaryTreeExpression(Type type, string propertyName, string @operator, string value, ParameterExpression parameterExpression)
+    public static LambdaExpression? BuildBinaryTreeExpression(Type type, string propertyName, string @operator, string value, ParameterExpression parameterExpression)
     {
         if (!propertyName.IsNonEmpty() || !@operator.IsNonEmpty() || !value.IsNonEmpty())
             return null;
@@ -92,16 +98,17 @@ public class ExpressionTreeBuilder
         }
     }
 
-    public static Func<T, bool> BuildBinaryTreeExpression<T>(IDictionary<string, string> filter)
+    public static Func<T, bool>? BuildBinaryTreeExpression<T>(IDictionary<string, string> filter)
     {
         var exp = ToExpression<T>(filter);
         return exp?.Compile();
     }
 
-    public static Expression<Func<T, bool>> ToExpression<T>(IDictionary<string, string> filter)
+    public static Expression<Func<T, bool>>? ToExpression<T>(IDictionary<string, string> filter)
     {
         if (filter?.Any() != true)
             return null;
+
         var props = GetTypeProperties(typeof(T));
         var pe = Expression.Parameter(typeof(T));
 
@@ -130,7 +137,7 @@ public class ExpressionTreeBuilder
         return Expression.Lambda<Func<T, bool>>(allBinaryExpressions, [pe]);
     }
 
-    private static LambdaExpression BuildBinaryTreeExpressionWorker(Type type, string query, ParameterExpression parameterExpression)
+    private static LambdaExpression? BuildBinaryTreeExpressionWorker(Type type, string query, ParameterExpression parameterExpression)
     {
         var q = query.Trim();
         var m = Regex.Match(q, HasSurroundingBracketsOnly);
@@ -178,7 +185,7 @@ public class ExpressionTreeBuilder
             => source.IsNonEmpty() ? source : onEmptyOrNullValue;
     }
 
-    private static Match GetMatch(string q, params string[] patterns)
+    private static Match? GetMatch(string q, params string[] patterns)
     {
         for (int i = 0; i < patterns.Length; i++)
         {
@@ -189,33 +196,39 @@ public class ExpressionTreeBuilder
         return null;
     }
 
-    private static PropertyDescriptor GetPropertyByName(PropertyDescriptorCollection props, string fieldName)
+    private static PropertyDescriptor? GetPropertyByName(PropertyDescriptorCollection props, string fieldName)
     {
         if (!fieldName.Contains('.'))
             return props.Find(fieldName, true);
 
         var fieldNameProperty = fieldName.Split('.');
-        return props.Find(fieldNameProperty[0], true).GetChildProperties().Find(fieldNameProperty[1], true);
+
+        return props
+            .Find(fieldNameProperty[0], true)?
+            .GetChildProperties().Find(fieldNameProperty[1], true);
     }
 
     private static PropertyDescriptorCollection GetTypeProperties(Type type)
     {
-        if (!_typePropertyCollection.TryGetValue(type, out PropertyDescriptorCollection value))
+        if (!_typePropertyCollection.TryGetValue(type, out PropertyDescriptorCollection? value))
         {
             value = TypeDescriptor.GetProperties(type);
             _typePropertyCollection.TryAdd(type, value);
         }
+
         return value;
     }
 
-    private static LambdaExpression SendToEvaluation(Type type, string leftQuery, string evaluator, string rightQuery, ParameterExpression parameterExpression)
+    private static LambdaExpression? SendToEvaluation(Type type, string leftQuery, string evaluator, string rightQuery, ParameterExpression parameterExpression)
     {
         var leftBinaryExpression = BuildBinaryTreeExpressionWorker(type, leftQuery, parameterExpression);
         var rightBinaryExpression = BuildBinaryTreeExpressionWorker(type, rightQuery, parameterExpression);
+
         if (leftBinaryExpression == null || rightBinaryExpression == null) return null;
 
         var builder = EvaluationExpressionBuilder[evaluator];
         var body = builder(leftBinaryExpression.Body, rightBinaryExpression.Body);
+
         // return  Expression.Lambda<Func<T, bool>>(body, leftBinaryExpression.Parameters);
         var delegateType = typeof(Func<,>).MakeGenericType(type, typeof(bool));
 

@@ -1,27 +1,20 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Craft.QuerySpec.Enums;
-using Craft.QuerySpec.Helpers;
 
-namespace Craft.QuerySpec.Builders;
+namespace Craft.QuerySpec;
 
 public static class ExpressionBuilder
 {
-    private static readonly MethodInfo _containsMethod = typeof(string)
-        .GetMethod("Contains", [typeof(string)]);
-
-    private static readonly MethodInfo _endsWithMethod = typeof(string)
-        .GetMethod("EndsWith", [typeof(string)]);
-
-    private static readonly MethodInfo _equalsMethod = typeof(string)
-    .GetMethod("Equals", [typeof(string)]);
-
     // Get The Methods' References
-    private static readonly MethodInfo _startsWithMethod = typeof(string)
-        .GetMethod("StartsWith", [typeof(string)]);
+    private static readonly MethodInfo _containsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
 
-    private static readonly MethodInfo _toUpperMethod = typeof(string)
-        .GetMethod("ToUpper", []);
+    private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod("EndsWith", [typeof(string)])!;
+
+    private static readonly MethodInfo _equalsMethod = typeof(string).GetMethod("Equals", [typeof(string)])!;
+
+    private static readonly MethodInfo _startsWithMethod = typeof(string).GetMethod("StartsWith", [typeof(string)])!;
+
+    private static readonly MethodInfo _toUpperMethod = typeof(string).GetMethod("ToUpper", [])!;
 
     public static Expression<Func<T, bool>> CreateWhereExpression<T>(FilterCriteria filterInfo)
     {
@@ -35,7 +28,7 @@ public static class ExpressionBuilder
         // Get The Name Of The Property
         MemberExpression leftExpression = Expression.Property(lambdaParam, filterInfo.Name);
 
-        Type dataType = Type.GetType(filterInfo.TypeName);
+        Type dataType = Type.GetType(filterInfo.TypeName)!;
 
         exprBody = CreateExpressionBody(leftExpression, dataType, filterInfo.Value, filterInfo.Comparison);
 
@@ -48,7 +41,7 @@ public static class ExpressionBuilder
         ParameterExpression lambdaParam = Expression.Parameter(typeof(T));
 
         var name = propExpr.GetPropertyInfo()?.Name;
-        MemberExpression memberExpression = Expression.Property(lambdaParam, name);
+        MemberExpression memberExpression = Expression.Property(lambdaParam, name!);
 
         var dataType = memberExpression.Type;
 
@@ -57,7 +50,7 @@ public static class ExpressionBuilder
         return Expression.Lambda<Func<T, bool>>(exprBody, lambdaParam);
     }
 
-    public static Expression<Func<T, object>> GetPropertyExpression<T>(string propName)
+    public static Expression<Func<T, object>>? GetPropertyExpression<T>(string propName)
     {
         MemberExpression member;
 

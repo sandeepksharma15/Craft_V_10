@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Craft.QuerySpec.Builders;
 
-namespace Craft.QuerySpec.Contracts;
+namespace Craft.QuerySpec;
 
 public interface IQuerySelectBuilder<T, TResult>
     where T : class
@@ -11,7 +11,7 @@ public interface IQuerySelectBuilder<T, TResult>
 
     QuerySelectBuilder<T, TResult> Add(LambdaExpression column);
 
-    Expression<Func<T, TResult>> Build();
+    Expression<Func<T, TResult>>? Build();
 
     void Clear();
 }

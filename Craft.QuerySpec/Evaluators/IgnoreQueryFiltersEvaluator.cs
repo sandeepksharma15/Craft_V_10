@@ -1,7 +1,6 @@
-﻿using Craft.QuerySpec.Contracts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace Craft.QuerySpec.Evaluators;
+namespace Craft.QuerySpec;
 
 public sealed class IgnoreQueryFiltersEvaluator : IEvaluator
 {
@@ -10,9 +9,9 @@ public sealed class IgnoreQueryFiltersEvaluator : IEvaluator
     private IgnoreQueryFiltersEvaluator()
     { }
 
-    public IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T> query) where T : class
+    public IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query) where T : class
     {
-        if (query.IgnoreQueryFilters)
+        if (query?.IgnoreQueryFilters == true)
             queryable = queryable.IgnoreQueryFilters();
 
         return queryable;
