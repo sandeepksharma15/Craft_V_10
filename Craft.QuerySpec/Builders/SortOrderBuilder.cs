@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Craft.Extensions.Expressions;
 
-namespace Craft.QuerySpec.Builders;
+namespace Craft.QuerySpec;
 
 /// <summary>
 /// Builder class for creating order expressions.

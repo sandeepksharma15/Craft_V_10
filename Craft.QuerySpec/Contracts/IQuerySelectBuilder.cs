@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Craft.QuerySpec.Builders;
 
 namespace Craft.QuerySpec;
 
