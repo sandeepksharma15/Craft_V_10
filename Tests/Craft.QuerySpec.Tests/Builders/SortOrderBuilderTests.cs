@@ -1,10 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Text.Json;
-using Craft.QuerySpec.Builders;
-using Craft.QuerySpec.Enums;
-using Craft.QuerySpec.Helpers;
-using Craft.TestHelper.Models;
-using FluentAssertions;
+using Craft.TestDataStore.Models;
 
 namespace Craft.QuerySpec.Tests.Builders;
 
@@ -26,12 +22,12 @@ public class SortOrderBuilderTests
         var orderBuilder = new SortOrderBuilder<Company>();
 
         // Act
-        orderBuilder.Add(x => x.Name);
+        orderBuilder.Add(x => x.Name!);
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().NotBeEmpty();
-        orderBuilder.OrderDescriptorList[0].OrderItem.Should().NotBeNull();
-        orderBuilder.OrderDescriptorList[0].OrderItem.Body.ToString().Should().Be("x.Name");
+        Assert.NotEmpty(orderBuilder.OrderDescriptorList);
+        Assert.NotNull(orderBuilder.OrderDescriptorList[0].OrderItem);
+        Assert.Equal("x.Name", orderBuilder.OrderDescriptorList[0].OrderItem.Body.ToString());
     }
 
     [Fact]
@@ -40,14 +36,14 @@ public class SortOrderBuilderTests
         // Arrange
         var orderBuilder = new SortOrderBuilder<Company>();
         Expression<Func<Company, object>> propExpr1 = x => x.Id;
-        Expression<Func<Company, object>> propExpr2 = x => x.Name;
+        Expression<Func<Company, object>> propExpr2 = x => x.Name!;
         orderBuilder.Add(propExpr1);
 
         // Act
         var result = orderBuilder.Add(propExpr2, OrderTypeEnum.OrderBy);
 
         // Assert
-        result.OrderDescriptorList[1].OrderType.Should().Be(OrderTypeEnum.ThenBy);
+        Assert.Equal(OrderTypeEnum.ThenBy, result.OrderDescriptorList[1].OrderType);
     }
 
     [Fact]
@@ -56,14 +52,14 @@ public class SortOrderBuilderTests
         // Arrange
         var orderBuilder = new SortOrderBuilder<Company>();
         Expression<Func<Company, object>> propExpr1 = x => x.Id;
-        Expression<Func<Company, object>> propExpr2 = x => x.Name;
+        Expression<Func<Company, object>> propExpr2 = x => x.Name!;
         orderBuilder.Add(propExpr1, OrderTypeEnum.OrderByDescending);
 
         // Act
         var result = orderBuilder.Add(propExpr2, OrderTypeEnum.OrderBy);
 
         // Assert
-        result.OrderDescriptorList[1].OrderType.Should().Be(OrderTypeEnum.ThenBy);
+        Assert.Equal(OrderTypeEnum.ThenBy, result.OrderDescriptorList[1].OrderType);
     }
 
     [Fact]
@@ -76,8 +72,8 @@ public class SortOrderBuilderTests
         orderBuilder.Add("Name");
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().NotBeEmpty();
-        orderBuilder.OrderDescriptorList[0].OrderItem.Should().NotBeNull();
+        Assert.NotEmpty(orderBuilder.OrderDescriptorList);
+        Assert.NotNull(orderBuilder.OrderDescriptorList[0].OrderItem);
     }
 
     [Theory]
@@ -87,13 +83,13 @@ public class SortOrderBuilderTests
     {
         // Arrange
         var orderBuilder = new SortOrderBuilder<object>();
-        orderBuilder.OrderDescriptorList.Add(new OrderDescriptor<object>(null, existingOrderType));
+        orderBuilder.OrderDescriptorList.Add(new OrderDescriptor<object>(null!, existingOrderType));
 
         // Act
         var adjustedOrderType = orderBuilder.AdjustOrderType(OrderTypeEnum.OrderBy);
 
         // Assert
-        adjustedOrderType.Should().Be(OrderTypeEnum.ThenBy);
+        Assert.Equal(OrderTypeEnum.ThenBy, adjustedOrderType);
     }
 
     [Theory]
@@ -103,13 +99,13 @@ public class SortOrderBuilderTests
     {
         // Arrange
         var orderBuilder = new SortOrderBuilder<object>();
-        orderBuilder.OrderDescriptorList.Add(new OrderDescriptor<object>(null, existingOrderType));
+        orderBuilder.OrderDescriptorList.Add(new OrderDescriptor<object>(null!, existingOrderType));
 
         // Act
         var adjustedOrderType = orderBuilder.AdjustOrderType(OrderTypeEnum.OrderByDescending);
 
         // Assert
-        adjustedOrderType.Should().Be(OrderTypeEnum.ThenByDescending);
+        Assert.Equal(OrderTypeEnum.ThenByDescending, adjustedOrderType);
     }
 
     [Fact]
@@ -122,7 +118,7 @@ public class SortOrderBuilderTests
         var adjustedOrderType = orderBuilder.AdjustOrderType(OrderTypeEnum.OrderBy);
 
         // Assert
-        adjustedOrderType.Should().Be(OrderTypeEnum.OrderBy);
+        Assert.Equal(OrderTypeEnum.OrderBy, adjustedOrderType);
     }
 
     [Fact]
@@ -130,13 +126,13 @@ public class SortOrderBuilderTests
     {
         // Arrange
         var orderBuilder = new SortOrderBuilder<Company>();
-        orderBuilder.Add(x => x.Name);
+        orderBuilder.Add(x => x.Name!);
 
         // Act
         orderBuilder.Clear();
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().BeEmpty();
+        Assert.Empty(orderBuilder.OrderDescriptorList);
     }
 
     [Fact]
@@ -144,14 +140,14 @@ public class SortOrderBuilderTests
     {
         // Arrange
         var orderBuilder = new SortOrderBuilder<Company>();
-        Expression<Func<Company, object>> orderExpr = x => x.Name;
+        Expression<Func<Company, object>> orderExpr = x => x.Name!;
         orderBuilder.Add(orderExpr);
 
         // Act
         orderBuilder.Remove(orderExpr);
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().BeEmpty();
+        Assert.Empty(orderBuilder.OrderDescriptorList);
     }
 
     [Fact]
@@ -165,7 +161,7 @@ public class SortOrderBuilderTests
         orderBuilder.Remove("Name");
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().BeEmpty();
+        Assert.Empty(orderBuilder.OrderDescriptorList);
     }
 
     [Fact]
@@ -175,8 +171,8 @@ public class SortOrderBuilderTests
         var orderBuilder = new SortOrderBuilder<Company>();
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().NotBeNull();
-        orderBuilder.OrderDescriptorList.Should().BeEmpty();
+        Assert.NotNull(orderBuilder.OrderDescriptorList);
+        Assert.Empty(orderBuilder.OrderDescriptorList);
     }
 
     [Fact]
@@ -191,7 +187,7 @@ public class SortOrderBuilderTests
         orderBuilder.Add(orderInfo);
 
         // Assert
-        orderBuilder.OrderDescriptorList.Should().Contain(orderInfo);
+        Assert.Contains(orderInfo, orderBuilder.OrderDescriptorList);
     }
 
     [Fact]
@@ -199,15 +195,15 @@ public class SortOrderBuilderTests
     {
         // Arrange
         var orderBuilder = new SortOrderBuilder<Company>();
-        orderBuilder.Add(c => c.Name);
+        orderBuilder.Add(c => c.Name!);
         orderBuilder.Add(c => c.Id);
 
         // Act
         var serializedOrderBuilder = JsonSerializer.Serialize(orderBuilder, serializeOptions);
 
         // Assert
-        serializedOrderBuilder.Should().Contain("Name");
-        serializedOrderBuilder.Should().Contain("Id");
+        Assert.Contains("Name", serializedOrderBuilder);
+        Assert.Contains("Id", serializedOrderBuilder);
     }
 
     [Fact]
@@ -220,9 +216,9 @@ public class SortOrderBuilderTests
         var orderBuilder = JsonSerializer.Deserialize<SortOrderBuilder<Company>>(json, serializeOptions);
 
         // Assert
-        orderBuilder.Should().NotBeNull();
-        orderBuilder.OrderDescriptorList.Should().HaveCount(2);
-        orderBuilder.OrderDescriptorList[0].OrderItem.Body.ToString().Should().Contain("x.Name");
-        orderBuilder.OrderDescriptorList[1].OrderItem.Body.ToString().Should().Contain("x.Id");
+        Assert.NotNull(orderBuilder);
+        Assert.Equal(2, orderBuilder.OrderDescriptorList.Count);
+        Assert.Contains("x.Name", orderBuilder.OrderDescriptorList[0].OrderItem.Body.ToString());
+        Assert.Contains("x.Id", orderBuilder.OrderDescriptorList[1].OrderItem.Body.ToString());
     }
 }

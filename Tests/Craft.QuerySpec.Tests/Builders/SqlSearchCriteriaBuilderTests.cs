@@ -1,8 +1,5 @@
-﻿using Craft.QuerySpec.Builders;
-using Craft.QuerySpec.Helpers;
-using Craft.TestHelper.Models;
-using FluentAssertions;
-using System.Text.Json;
+﻿using System.Text.Json;
+using Craft.TestDataStore.Models;
 
 namespace Craft.QuerySpec.Tests.Builders;
 
@@ -23,8 +20,8 @@ public class SqlSearchCriteriaBuilderTests
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().NotBeNull();
-        builder.SqlLikeSearchCriteriaList.Should().BeEmpty();
+        Assert.NotNull(builder.SqlLikeSearchCriteriaList);
+        Assert.Empty(builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -32,13 +29,13 @@ public class SqlSearchCriteriaBuilderTests
     {
         // Arrange
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
-        var searchInfo = new SqlLikeSearchInfo<Company>(x => x.Name, "searchString");
+        var searchInfo = new SqlLikeSearchInfo<Company>(x => x.Name!, "searchString");
 
         // Act
         builder.Add(searchInfo);
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().Contain(searchInfo);
+        Assert.Contains(searchInfo, builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -48,10 +45,10 @@ public class SqlSearchCriteriaBuilderTests
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
 
         // Act
-        builder.Add(x => x.Name, "searchString");
+        builder.Add(x => x.Name!, "searchString");
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().HaveCount(1);
+        Assert.Single(builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -64,7 +61,7 @@ public class SqlSearchCriteriaBuilderTests
         builder.Add("Name", "searchString");
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().HaveCount(1);
+        Assert.Single(builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -72,13 +69,13 @@ public class SqlSearchCriteriaBuilderTests
     {
         // Arrange
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
-        builder.Add(x => x.Name, "searchString");
+        builder.Add(x => x.Name!, "searchString");
 
         // Act
         builder.Clear();
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().BeEmpty();
+        Assert.Empty(builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -86,14 +83,14 @@ public class SqlSearchCriteriaBuilderTests
     {
         // Arrange
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
-        var searchInfo = new SqlLikeSearchInfo<Company>(x => x.Name, "searchString");
+        var searchInfo = new SqlLikeSearchInfo<Company>(x => x.Name!, "searchString");
         builder.Add(searchInfo);
 
         // Act
         builder.Remove(searchInfo);
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().NotContain(searchInfo);
+        Assert.DoesNotContain(searchInfo, builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -101,13 +98,13 @@ public class SqlSearchCriteriaBuilderTests
     {
         // Arrange
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
-        builder.Add(x => x.Name, "searchString");
+        builder.Add(x => x.Name!, "searchString");
 
         // Act
-        builder.Remove(x => x.Name);
+        builder.Remove(x => x.Name!);
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().BeEmpty();
+        Assert.Empty(builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -121,7 +118,7 @@ public class SqlSearchCriteriaBuilderTests
         builder.Remove("Name");
 
         // Assert
-        builder.SqlLikeSearchCriteriaList.Should().BeEmpty();
+        Assert.Empty(builder.SqlLikeSearchCriteriaList);
     }
 
     [Fact]
@@ -129,8 +126,7 @@ public class SqlSearchCriteriaBuilderTests
     {
         var converter = new SqlSearchCriteriaBuilderJsonConverter<TestClass>();
         bool canConvert = converter.CanConvert(typeof(SqlLikeSearchCriteriaBuilder<TestClass>));
-
-        canConvert.Should().BeTrue();
+        Assert.True(canConvert);
     }
 
     [Fact]
@@ -143,10 +139,10 @@ public class SqlSearchCriteriaBuilderTests
         var searchBuilder = JsonSerializer.Deserialize<SqlLikeSearchCriteriaBuilder<Company>>(json, serializeOptions);
 
         // Assert
-        searchBuilder.Count.Should().Be(1);
-        searchBuilder.SqlLikeSearchCriteriaList[0].SearchItem.Body.ToString().Should().Contain("x.Name");
-        searchBuilder.SqlLikeSearchCriteriaList[0].SearchString.Should().Be("John");
-        searchBuilder.SqlLikeSearchCriteriaList[0].SearchGroup.Should().Be(1);
+        Assert.Equal(1, searchBuilder?.Count);
+        Assert.Contains("x.Name", searchBuilder?.SqlLikeSearchCriteriaList[0]?.SearchItem?.Body.ToString());
+        Assert.Equal("John", searchBuilder?.SqlLikeSearchCriteriaList[0]?.SearchString);
+        Assert.Equal(1, searchBuilder?.SqlLikeSearchCriteriaList[0]?.SearchGroup);
     }
 
     [Fact]
@@ -155,10 +151,8 @@ public class SqlSearchCriteriaBuilderTests
         // Arrange
         const string json = "{}"; // Not an array
 
-        // Act and Assert
-        Action act = () => JsonSerializer.Deserialize<SqlLikeSearchCriteriaBuilder<Company>>(json, serializeOptions);
-
-        act.Should().Throw<JsonException>();
+        // Act & Assert
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<SqlLikeSearchCriteriaBuilder<Company>>(json, serializeOptions));
     }
 
     [Fact]
@@ -166,12 +160,12 @@ public class SqlSearchCriteriaBuilderTests
     {
         // Arrange
         var searchBuilder = new SqlLikeSearchCriteriaBuilder<Company>();
-        searchBuilder.Add(new SqlLikeSearchInfo<Company>(x => x.Name, "Alice", 2));
+        searchBuilder.Add(new SqlLikeSearchInfo<Company>(x => x.Name!, "Alice", 2));
 
         // Act
         var json = JsonSerializer.Serialize(searchBuilder, serializeOptions);
 
         // Assert
-        json.Should().Be("[{\"SearchItem\":\"Name\",\"SearchString\":\"Alice\",\"SearchGroup\":2}]");
+        Assert.Equal("[{\"SearchItem\":\"Name\",\"SearchString\":\"Alice\",\"SearchGroup\":2}]", json);
     }
 }

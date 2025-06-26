@@ -12,7 +12,7 @@ public class ExpressionTreeBuilderTests
         Assert.Equal(@"^\s*\(\s*(?'leftOperand'([^\(\)])+)\s*\)\s*$", ExpressionBuilderForTest.HasSurroundingBracketsOnlyValue);
         Assert.Equal(@"^(?'leftOperand'\S{1,}\s*(==|!=|<|<=|>|>=)\s*\S{1,})\s*(?'evaluator_first'((\|{1,2})|(\&{1,2})))\s*(?'rightOperand'.*)\s*$", ExpressionBuilderForTest.EvalPatternValue);
         Assert.Equal(@"^\s*(?'leftOperand'\w+)\s*(?'operator'(==|!=|<|<=|>|>=))\s*(?'rightOperand'\w+)\s*$", ExpressionBuilderForTest.BinaryPatternValue);
-        Assert.Equal("^\\s*(\"\\s*(?'leftOperand'.*)\\s*\"\\s*(?'operator'(==|!=|<|<=|>|>=))\\s*(?'rightOperand'\\w+)|(?'leftOperand'\\w+)\\s*(?'operator'(==|!=|<|<=|>|>=))\\s*\"\\s*(?'rightOperand'.*)\\s*\"\\s*)\\s*$", ExpressionBuilderForTest.EscapedBinaryPatternValue);
+        Assert.Equal(@"^\s*(\""\s*(?'leftOperand'.*)\s*\""\s*(?'operator'(==|!=|<|<=|>|>=))\s*(?'rightOperand'\w+)|(?'leftOperand'\w+)\s*(?'operator'(==|!=|<|<=|>|>=))\s*\""\s*(?'rightOperand'.*)\s*\""\s*)\s*$", ExpressionBuilderForTest.EscapedBinaryPatternValue);
         Assert.Equal(@"^\s*\(\s*(?'leftOperand'\w+)\s*(?'operator'(==|!=|<|<=|>|>=))\s*(?'rightOperand'\w+)\s*\)\s*$", ExpressionBuilderForTest.BinaryWithBracketsPatternValue);
     }
 
@@ -94,7 +94,7 @@ public class ExpressionTreeBuilderTests
     [InlineData("id == 2 || (numericvalue ==32 && stringValue ==a) || stringValue ==b", "x => ((x.Id == \"2\") OrElse (((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")) OrElse (x.StringValue == \"b\")))")]
     public void ToBinaryTree_FromString(string query, string expResult)
     {
-        var e = ExpressionTreeBuilder.BuildBinaryTreeExpression(typeof(TestClass), query);
+        var e = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(query);
         Assert.Equal(expResult, e?.ToString());
     }
 
@@ -116,7 +116,7 @@ public class ExpressionTreeBuilderTests
     [InlineData("\"this-is-id\" == id")]
     public void ToBinaryTree_FromString_ReturnsNull(string query)
     {
-        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression(typeof(TestClass), query));
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(query));
     }
 
     [Fact]

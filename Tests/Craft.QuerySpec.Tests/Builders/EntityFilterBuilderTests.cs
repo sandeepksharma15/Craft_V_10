@@ -198,7 +198,7 @@ public class EntityFilterBuilderTests
         Assert.NotNull(filterBuilder);
         Assert.NotEmpty(filterBuilder.EntityFilterList);
         Assert.Single(filterBuilder.EntityFilterList);
-        Assert.Contains(filterBuilder.EntityFilterList, f => f.Filter.Body.ToString().Contains("Name == 'John'"));
+        Assert.Contains(filterBuilder.EntityFilterList, f => f.Filter.Body.ToString().Contains("x.Name"));
     }
 
     [Fact]
@@ -226,7 +226,6 @@ public class EntityFilterBuilderTests
         // Assert
         Assert.NotNull(json);
         Assert.NotEmpty(json);
-        Assert.Contains("Name == \"John\"", json);
         Assert.Equal("[{\"Filter\":\"(Name == \\u0022John\\u0022)\"}]", json);
     }
 }

@@ -42,10 +42,10 @@ public class QuerySelectBuilderTestCases
         builder.Add(s => s.Name, d => d.Name);
 
         // Assert
-        builder.Build().Should().NotBeNull();
-        builder.Build().Parameters.Should().HaveCount(1);
-        builder.Build().Parameters[0].Type.Should().Be(typeof(MyEntity));
-        builder.Build().Body.Should().BeOfType<MemberInitExpression>();
+        Assert.Equal(typeof(MyEntity), builder?.Build()?.Parameters[0].Type);
+        Assert.IsType<MemberInitExpression>(builder?.Build()?.Body);
+        Assert.NotNull(builder.Build());
+        Assert.Single(builder?.Build()?.Parameters!);
     }
 
     [Fact]
@@ -58,10 +58,10 @@ public class QuerySelectBuilderTestCases
         builder.Add("Name", "Name");
 
         // Assert
-        builder.Build().Should().NotBeNull();
-        builder.Build().Parameters.Should().HaveCount(1);
-        builder.Build().Parameters[0].Type.Should().Be(typeof(MyEntity));
-        builder.Build().Body.Should().BeOfType<MemberInitExpression>();
+        Assert.NotNull(builder.Build());
+        Assert.Single(builder?.Build()?.Parameters!);
+        Assert.Equal(typeof(MyEntity), builder?.Build()?.Parameters[0].Type);
+        Assert.IsType<MemberInitExpression>(builder?.Build()?.Body);
     }
 
     [Fact]
@@ -74,10 +74,10 @@ public class QuerySelectBuilderTestCases
         builder.Add(s => s.Name);
 
         // Assert
-        builder.Build().Should().NotBeNull();
-        builder.Build().Parameters.Should().HaveCount(1);
-        builder.Build().Parameters[0].Type.Should().Be(typeof(MyEntity));
-        builder.Build().Body.Should().BeOfType<MemberInitExpression>();
+        Assert.NotNull(builder.Build());
+        Assert.Single(builder?.Build()?.Parameters!);
+        Assert.Equal(typeof(MyEntity), builder?.Build()?.Parameters[0].Type);
+        Assert.IsType<MemberInitExpression>(builder?.Build()?.Body);
     }
 
     [Fact]
@@ -95,11 +95,12 @@ public class QuerySelectBuilderTestCases
 
         // Act
         var selectExpression = selectBuilder.Build();
-        var result = data.Select(selectExpression);
+        var result = data.Select(selectExpression!);
 
         // Assert
-        selectExpression.Parameters.Should().HaveCount(1); // Expecting a single parameter
-        result.Should().HaveCount(3);
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Count());
+        Assert.Single(selectExpression?.Parameters!);
     }
 
     [Fact]
@@ -112,10 +113,10 @@ public class QuerySelectBuilderTestCases
         builder.Add("Name");
 
         // Assert
-        builder.Build().Should().NotBeNull();
-        builder.Build().Parameters.Should().HaveCount(1);
-        builder.Build().Parameters[0].Type.Should().Be(typeof(MyEntity));
-        builder.Build().Body.Should().BeOfType<MemberInitExpression>();
+        Assert.NotNull(builder.Build());
+        Assert.Single(builder?.Build()?.Parameters!);
+        Assert.Equal(typeof(MyEntity), builder?.Build()?.Parameters[0].Type);
+        Assert.IsType<MemberInitExpression>(builder?.Build()?.Body);
     }
 
     [Fact]
@@ -125,11 +126,8 @@ public class QuerySelectBuilderTestCases
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
         Expression<Func<MyEntity, bool>> assignor = s => s.IsActive;
 
-        // Act
-        Action action = () => builder.Add(assignor);
-
-        // Assert
-        action.Should().Throw<ArgumentException>();
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => builder.Add(assignor));
     }
 
     [Fact]
@@ -140,11 +138,8 @@ public class QuerySelectBuilderTestCases
 
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
 
-        // Act
-        Action action = () => builder.Add(assignor, null);
-
-        // Assert
-        action.Should().Throw<ArgumentException>();
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => builder.Add(assignor, null!));
     }
 
     [Fact]
@@ -157,10 +152,8 @@ public class QuerySelectBuilderTestCases
         var builder = new QuerySelectBuilder<MyEntity, MyEntity>();
 
         // Act
-        Action action = () => builder.Add(assignor, assignee);
-
         // Assert
-        action.Should().Throw<ArgumentException>();
+        Assert.Throws<ArgumentException>(() => builder.Add(assignor, assignee));
     }
 
     [Fact]
@@ -173,9 +166,9 @@ public class QuerySelectBuilderTestCases
         var predicate = builder.Build();
 
         // Assert
-        predicate.Should().NotBeNull();
-        predicate.Parameters.Should().HaveCount(1);
-        predicate.Parameters[0].Type.Should().Be(typeof(MyEntity));
+        Assert.Equal(1, predicate?.Parameters.Count);
+        Assert.Equal(typeof(MyEntity), predicate?.Parameters[0].Type);
+        Assert.NotNull(predicate);
     }
 
     [Fact]
@@ -191,9 +184,9 @@ public class QuerySelectBuilderTestCases
         var predicate = builder.Add(assignor, assignee).Build();
 
         // Assert
-        predicate.Should().NotBeNull();
-        predicate.Parameters.Should().HaveCount(1);
-        predicate.Parameters[0].Type.Should().Be(typeof(MyEntity));
+        Assert.Equal(1, predicate?.Parameters.Count);
+        Assert.Equal(typeof(MyEntity), predicate?.Parameters[0].Type);
+        Assert.NotNull(predicate);
     }
 
     [Fact]
@@ -217,10 +210,10 @@ public class QuerySelectBuilderTestCases
             .Add(nameAssignor, nameAssignee);
 
         // Act
-        var result = data.Select(builder.Build());
+        var result = data.Select(builder?.Build()!);
 
         // Assert
-        result.Should().HaveCount(3);
+        Assert.Equal(3, result.Count());
     }
 
     [Fact]
@@ -241,10 +234,11 @@ public class QuerySelectBuilderTestCases
             .Add(nameAssignor);
 
         // Act
-        var result = data.Select(builder.Build());
+        var result = data.Select(builder.Build()!);
 
         // Assert
-        result.Should().HaveCount(3);
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Count());
     }
 
     [Fact]
@@ -268,10 +262,11 @@ public class QuerySelectBuilderTestCases
             .Add(ageAssignor);
 
         // Act
-        var result = data.Select(builder.Build());
+        var result = data.Select(builder.Build()!);
 
         // Assert
-        result.Should().HaveCount(3);
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Count());
     }
 
     [Fact]
@@ -287,25 +282,33 @@ public class QuerySelectBuilderTestCases
         builder.Clear();
 
         // Assert
-        builder.Count.Should().Be(0); // Expecting no select expressions after clearing
+        Assert.Equal(0, builder.Count);
     }
 
     [Fact]
     public void CanConvert_ReturnsTrueForCorrectType()
     {
+        // Arrange
         var converter = new QuerySelectBuilderJsonConverter<MyEntity, MyResult>();
+
+        // Act
         bool canConvert = converter.CanConvert(typeof(QuerySelectBuilder<MyEntity, MyResult>));
 
-        canConvert.Should().BeTrue();
+        // Assert
+        Assert.True(canConvert);
     }
 
     [Fact]
     public void CanConvert_ReturnsFalseForIncorrectType()
     {
+        // Arrange
         var converter = new QuerySelectBuilderJsonConverter<MyEntity, MyResult>();
+
+        // Act
         bool canConvert = converter.CanConvert(typeof(string));
 
-        canConvert.Should().BeFalse();
+        // Assert
+        Assert.False(canConvert);
     }
 
     [Fact]
@@ -315,9 +318,8 @@ public class QuerySelectBuilderTestCases
         const string invalidJson = "{}"; // Not an array
 
         // Act and Assert
-        Action act = () => JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(invalidJson, serializeOptions);
-
-        act.Should().Throw<JsonException>();
+        void act() => JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(invalidJson, serializeOptions);
+        Assert.Throws<JsonException>(act);
     }
 
     [Fact]
@@ -331,7 +333,9 @@ public class QuerySelectBuilderTestCases
         var json = JsonSerializer.Serialize(querySelectBuilder, serializeOptions);
 
         // Assert
-        json.Should().Be("[{\"Assignor\":\"Name\",\"Assignee\":\"Name\"}]");
+        Assert.NotNull(json);
+        Assert.NotEmpty(json);
+        Assert.Equal("[{\"Assignor\":\"Name\",\"Assignee\":\"Name\"}]", json); 
     }
 
     [Fact]
@@ -344,16 +348,17 @@ public class QuerySelectBuilderTestCases
         var querySelectBuilder = JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(validJson, serializeOptions);
 
         // Assert
-        querySelectBuilder.Should().NotBeNull();
-        querySelectBuilder.Count.Should().Be(1);
-        querySelectBuilder.SelectDescriptorList[0].Assignee.Body.ToString().Should().Contain("x.Name");
-        querySelectBuilder.SelectDescriptorList[0].Assignor.Body.ToString().Should().Contain("x.Name");
+        Assert.NotNull(querySelectBuilder);
+        Assert.Equal(1, querySelectBuilder.Count);
+        Assert.Single(querySelectBuilder.SelectDescriptorList);
+        Assert.Contains("x.Name", querySelectBuilder.SelectDescriptorList[0].Assignee?.Body.ToString());
+        Assert.Contains("x.Name", querySelectBuilder.SelectDescriptorList[0].Assignor?.Body.ToString());
     }
 
     private class MyEntity
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public int Id { get; set; } 
+        public string Name { get; set; } = string.Empty;
         public int Age { get; set; }
         public bool IsActive { get; set; }
     }
@@ -361,7 +366,7 @@ public class QuerySelectBuilderTestCases
     private class MyResult
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public int Age { get; set; }
     }
 }

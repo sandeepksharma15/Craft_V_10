@@ -49,9 +49,9 @@ public class EntityFilterBuilder<T> where T : class
         return this;
     }
 
-    public EntityFilterBuilder<T> Remove(Expression<Func<T, bool>>? expression)
+    public EntityFilterBuilder<T> Remove(Expression<Func<T, bool>> expression)
     {
-        ArgumentNullException.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
 
         if (expression.CanReduce)
             expression = (Expression<Func<T, bool>>)expression.ReduceAndCheck();
@@ -84,9 +84,9 @@ public class EntityFilterBuilder<T> where T : class
         return this;
     }
 
-    private static Expression<Func<T, bool>> GetExpression(Expression<Func<T, object>>? propExpr, object compareWith, ComparisonType comparisonType)
+    private static Expression<Func<T, bool>> GetExpression(Expression<Func<T, object>> propExpr, object compareWith, ComparisonType comparisonType)
     {
-        ArgumentNullException.ThrowIfNull(propExpr);
+        ArgumentNullException.ThrowIfNull(propExpr, nameof(propExpr));
 
         var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
 
