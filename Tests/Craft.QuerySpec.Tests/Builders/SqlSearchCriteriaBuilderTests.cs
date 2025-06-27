@@ -168,4 +168,84 @@ public class SqlSearchCriteriaBuilderTests
         // Assert
         Assert.Equal("[{\"SearchItem\":\"Name\",\"SearchString\":\"Alice\",\"SearchGroup\":2}]", json);
     }
+
+    [Fact]
+    public void Add_NullSearchInfo_ThrowsArgumentNullException()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((SqlLikeSearchInfo<Company>)null!));
+    }
+
+    [Fact]
+    public void Add_NullMemberExpression_ThrowsArgumentNullException()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((System.Linq.Expressions.Expression<Func<Company, object>>)null!, "search"));
+    }
+
+    [Fact]
+    public void Add_InvalidPropertyName_ThrowsArgumentNullException()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add("NotAProp", "search"));
+    }
+
+    [Fact]
+    public void Remove_NullSearchInfo_ThrowsArgumentNullException()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Remove((SqlLikeSearchInfo<Company>)null!));
+    }
+
+    [Fact]
+    public void Remove_NullMemberExpression_ThrowsArgumentNullException()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Remove((System.Linq.Expressions.Expression<Func<Company, object>>)null!));
+    }
+
+    [Fact]
+    public void Remove_InvalidPropertyName_ThrowsArgumentNullException()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Remove("NotAProp"));
+    }
+
+    [Fact]
+    public void Remove_OnEmptyBuilder_DoesNotThrow()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        var expr = (System.Linq.Expressions.Expression<Func<Company, object>>)(x => x.Name!);
+        builder.Remove(expr);
+        Assert.Empty(builder.SqlLikeSearchCriteriaList);
+    }
+
+    [Fact]
+    public void Add_DuplicateSearchCriteria_AddsBoth()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        var info = new SqlLikeSearchInfo<Company>(x => x.Name!, "search");
+        builder.Add(info);
+        builder.Add(info);
+        Assert.Equal(2, builder.SqlLikeSearchCriteriaList.Count);
+    }
+
+    [Fact]
+    public void Clear_OnEmptyBuilder_DoesNotThrow()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        builder.Clear();
+        Assert.Empty(builder.SqlLikeSearchCriteriaList);
+    }
+
+    [Fact]
+    public void Add_And_Remove_WithDifferentSearchGroups()
+    {
+        var builder = new SqlLikeSearchCriteriaBuilder<Company>();
+        builder.Add(x => x.Name!, "search1", 1);
+        builder.Add(x => x.Name!, "search2", 2);
+        builder.Remove(x => x.Name!);
+        Assert.Single(builder.SqlLikeSearchCriteriaList);
+        Assert.Equal("search2", builder.SqlLikeSearchCriteriaList[0].SearchString);
+    }
 }

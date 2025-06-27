@@ -44,7 +44,9 @@ public class SortOrderBuilder<T> where T : class
     /// </summary>
     public SortOrderBuilder<T> Add(string propName, OrderTypeEnum orderType = OrderTypeEnum.OrderBy)
     {
-        var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName);
+        var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName)
+            ?? throw new ArgumentException($"Property '{propName}' does not exist on type '{typeof(T).Name}'.");
+
         OrderDescriptorList.Add(new OrderDescriptor<T>(propExpr!, AdjustOrderType(orderType)));
 
         return this;
