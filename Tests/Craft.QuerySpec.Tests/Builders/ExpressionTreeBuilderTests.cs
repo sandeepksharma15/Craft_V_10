@@ -195,6 +195,12 @@ public class ExpressionTreeBuilderTests
         var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(" ( ( NumericValue == 1 ) ) ");
         Assert.NotNull(expr);
     }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_MultipleNestedBrackets_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("((()))"));
+    }
 }
 
 public class TestClass

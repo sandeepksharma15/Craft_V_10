@@ -56,22 +56,42 @@ public class ExpressionTreeBuilder
     private static readonly ConcurrentDictionary<Type, PropertyDescriptorCollection> _typePropertyCollection
                                                                     = new();
 
+    private static string TrimAllOuterBracketsAndWhitespace(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+        s = s.Trim();
+        while (s.Length >= 2 && s[0] == '(' && s[^1] == ')')
+        {
+            var inner = s[1..^1].Trim();
+            // Only trim if the inner string is strictly shorter (prevents infinite loop)
+            if (inner.Length < s.Length - 1)
+                s = inner;
+            else
+                break;
+        }
+        return s;
+    }
+
     public static Expression<Func<T, bool>>? BuildBinaryTreeExpression<T>(string? query)
     {
-        if (query == null) return null;
-
-        var exp = BuildBinaryTreeExpression(typeof(T), query);
-
+        if (string.IsNullOrWhiteSpace(query) || IsNullOrBracketsOnly(query))
+            return null;
+        var trimmed = TrimAllOuterBracketsAndWhitespace(query);
+        if (string.IsNullOrEmpty(trimmed) || IsNullOrBracketsOnly(trimmed))
+            return null;
+        var exp = BuildBinaryTreeExpression(typeof(T), trimmed);
         return exp as Expression<Func<T, bool>>;
     }
 
     public static LambdaExpression? BuildBinaryTreeExpression(Type type, string? query)
     {
-        if (query == null) return null;
-
+        if (string.IsNullOrWhiteSpace(query) || IsNullOrBracketsOnly(query))
+            return null;
+        var trimmed = TrimAllOuterBracketsAndWhitespace(query);
+        if (string.IsNullOrEmpty(trimmed) || IsNullOrBracketsOnly(trimmed))
+            return null;
         var pe = Expression.Parameter(type, "x");
-
-        return BuildBinaryTreeExpressionWorker(type, query, pe);
+        return BuildBinaryTreeExpressionWorker(type, trimmed, pe);
     }
 
     public static LambdaExpression? BuildBinaryTreeExpression(Type type, string propertyName, string @operator, string value, ParameterExpression parameterExpression)
@@ -86,8 +106,6 @@ public class ExpressionTreeBuilder
         if (prop == null) return null;
 
         var me = Expression.PropertyOrField(parameterExpression, propertyName);
-
-        //object v;
 
         try
         {
@@ -147,16 +165,32 @@ public class ExpressionTreeBuilder
         return Expression.Lambda<Func<T, bool>>(allBinaryExpressions, [pe]);
     }
 
+    private static bool IsNullOrBracketsOnly(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return true;
+        foreach (char c in s)
+            if (!char.IsWhiteSpace(c) && c != '(' && c != ')')
+                return false;
+        return true;
+    }
+
     private static LambdaExpression? BuildBinaryTreeExpressionWorker(Type type, string query, ParameterExpression parameterExpression)
     {
-        var q = query.Trim();
-        var m = Regex.Match(q, HasSurroundingBracketsOnly);
+        var q = TrimAllOuterBracketsAndWhitespace(query);
+        if (string.IsNullOrEmpty(q) || IsNullOrBracketsOnly(q))
+            return null;
 
+        var m = Regex.Match(q, HasSurroundingBracketsOnly);
         if (m.Success)
-            return BuildBinaryTreeExpressionWorker(type, q[1..^1], parameterExpression);
+        {
+            var inner = q[1..^1].Trim();
+            inner = TrimAllOuterBracketsAndWhitespace(inner);
+            if (string.IsNullOrEmpty(inner) || IsNullOrBracketsOnly(inner) || inner == q)
+                return null;
+            return BuildBinaryTreeExpressionWorker(type, inner, parameterExpression);
+        }
 
         var binaryOperationMatch = GetMatch(q, BinaryPattern, EscapedBinaryPattern, BinaryWithBracketsPattern);
-
         if (binaryOperationMatch?.Success == true)
             return BuildBinaryTreeExpression(type,
                 binaryOperationMatch.Groups[LeftOperand].Value,
@@ -165,7 +199,6 @@ public class ExpressionTreeBuilder
                 parameterExpression);
 
         var hasBrackets = GetMatch(q, HasBrackets); //DO NOT CHANGE EXPRESSIONS ORDER!!!
-
         if (hasBrackets?.Success == true)
         {
             Group leftOp = hasBrackets.Groups[LeftOperand],
@@ -179,24 +212,19 @@ public class ExpressionTreeBuilder
             {
                 var e = evaluatorSecond.Value;
                 var firstEvaluatorIndex = q.IndexOf(e) + e.Length;
-
                 return SendToEvaluation(type, leftOp.Value, e, q[firstEvaluatorIndex..], parameterExpression);
             }
 
             string leftQuery = GetValueOrReplaceIfEmptyOrNull(leftOp.Value, brackets.Value),
                 evaluator = GetValueOrReplaceIfEmptyOrNull(evaluatorFirst.Value, evaluatorSecond.Value),
                 rightQuery = GetValueOrReplaceIfEmptyOrNull(rightOp.Value, brackets.Value);
-
             return SendToEvaluation(type, leftQuery, evaluator, rightQuery, parameterExpression);
         }
 
         var evalMatch = Regex.Match(q, EvalPattern);
-
         if (evalMatch.Success)
             return SendToEvaluation(type, evalMatch.Groups[LeftOperand].Value, evalMatch.Groups[EvaluatorFirst].Value, evalMatch.Groups[RightOperand].Value, parameterExpression);
-
         return null;
-
         static string GetValueOrReplaceIfEmptyOrNull(string source, string onEmptyOrNullValue)
             => source.IsNonEmpty() ? source : onEmptyOrNullValue;
     }
@@ -246,7 +274,6 @@ public class ExpressionTreeBuilder
         var builder = EvaluationExpressionBuilder[evaluator];
         var body = builder(leftBinaryExpression.Body, rightBinaryExpression.Body);
 
-        // return  Expression.Lambda<Func<T, bool>>(body, leftBinaryExpression.Parameters);
         var delegateType = typeof(Func<,>).MakeGenericType(type, typeof(bool));
 
         return Expression.Lambda(delegateType, body, leftBinaryExpression.Parameters);
