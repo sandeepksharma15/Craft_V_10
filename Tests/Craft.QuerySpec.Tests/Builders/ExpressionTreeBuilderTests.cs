@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Craft.QuerySpec.Tests.Builders;
 
@@ -125,6 +126,75 @@ public class ExpressionTreeBuilderTests
         var filter = new Dictionary<string, string> { { "p", "d" } };
         Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(filter));
     }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_EmptyQuery_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(""));
+    }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_WhitespaceQuery_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("   "));
+    }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_OnlyBrackets_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("()"));
+    }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_InvalidPropertyName_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("notAProp == 1"));
+    }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_InvalidOperator_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("Id %% 1"));
+    }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_InvalidValueType_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("NumericValue == notAnInt"));
+    }
+
+    [Fact]
+    public void ToExpression_NullFilter_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.ToExpression<TestClass>(null!));
+    }
+
+    [Fact]
+    public void ToExpression_EmptyFilter_ReturnsNull()
+    {
+        Assert.Null(ExpressionTreeBuilder.ToExpression<TestClass>(new Dictionary<string, string>()));
+    }
+
+    [Fact]
+    public void ToExpression_InvalidPropertyInFilter_ReturnsNull()
+    {
+        var filter = new Dictionary<string, string> { { "notAProp", "1" } };
+        Assert.Null(ExpressionTreeBuilder.ToExpression<TestClass>(filter));
+    }
+
+    [Fact]
+    public void ToExpression_InvalidValueTypeInFilter_ReturnsNull()
+    {
+        var filter = new Dictionary<string, string> { { "NumericValue", "notAnInt" } };
+        Assert.Null(ExpressionTreeBuilder.ToExpression<TestClass>(filter));
+    }
+
+    [Fact]
+    public void BuildBinaryTreeExpression_NestedBracketsAndWhitespace_Works()
+    {
+        var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(" ( ( NumericValue == 1 ) ) ");
+        Assert.NotNull(expr);
+    }
 }
 
 public class TestClass
@@ -145,7 +215,7 @@ public class ToBinaryTree_EmptyOrNullOrIncorrectFilter_ReturnsNull_Data : Theory
     }
 }
 
-internal class ExpressionBuilderForTest : ExpressionTreeBuilder
+public class ExpressionBuilderForTest : ExpressionTreeBuilder
 {
     internal const string BinaryPatternValue = BinaryPattern;
     internal const string BinaryWithBracketsPatternValue = BinaryWithBracketsPattern;

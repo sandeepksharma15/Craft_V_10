@@ -3,11 +3,11 @@ using System.Text.Json;
 
 namespace Craft.QuerySpec.Tests.Builders;
 
-public class QuerySelectBuilderTestCases
+public class QuerySelectBuilderTests
 {
     private readonly JsonSerializerOptions serializeOptions;
 
-    public QuerySelectBuilderTestCases()
+    public QuerySelectBuilderTests()
     {
         serializeOptions = new JsonSerializerOptions();
         serializeOptions.Converters.Add(new QuerySelectBuilderJsonConverter<MyEntity, MyResult>());
@@ -139,7 +139,7 @@ public class QuerySelectBuilderTestCases
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => builder.Add(assignor, null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(assignor, null!));
     }
 
     [Fact]
@@ -353,6 +353,79 @@ public class QuerySelectBuilderTestCases
         Assert.Single(querySelectBuilder.SelectDescriptorList);
         Assert.Contains("x.Name", querySelectBuilder.SelectDescriptorList[0].Assignee?.Body.ToString());
         Assert.Contains("x.Name", querySelectBuilder.SelectDescriptorList[0].Assignor?.Body.ToString());
+    }
+
+    [Fact]
+    public void Add_NullAssignor_ThrowsArgumentNullException()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((Expression<Func<MyEntity, object>>)null!, d => d.Name));
+    }
+
+    [Fact]
+    public void Add_NullAssignee_ThrowsArgumentNullException()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        Expression<Func<MyEntity, object>> assignor = s => s.Name;
+
+        Assert.Throws<ArgumentNullException>(() => builder.Add(assignor, (Expression<Func<MyResult, object>>)null!));
+    }
+
+    [Fact]
+    public void Add_NullSelectDescriptor_ThrowsArgumentNullException()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((SelectDescriptor<MyEntity, MyResult>)null!));
+    }
+
+    [Fact]
+    public void Add_NullLambdaColumn_ThrowsArgumentNullException()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((LambdaExpression)null!));
+    }
+
+    [Fact]
+    public void Add_InvalidPropertyName_ThrowsArgumentException()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        Assert.Throws<ArgumentException>(() => builder.Add("NotAProp", "Name"));
+        Assert.Throws<ArgumentException>(() => builder.Add("Name", "NotAProp"));
+    }
+
+    [Fact]
+    public void Clear_AfterAddingColumns_EmptiesList()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        builder.Add(s => s.Name, d => d.Name);
+        builder.Clear();
+        Assert.Empty(builder.SelectDescriptorList);
+    }
+
+    [Fact]
+    public void Write_SerializesEmptyQuerySelectBuilderToJsonCorrectly()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        var json = JsonSerializer.Serialize(builder, serializeOptions);
+        Assert.Equal("[]", json);
+    }
+
+    [Fact]
+    public void Read_DeserializesEmptyArrayToQuerySelectBuilder()
+    {
+        const string emptyJson = "[]";
+        var builder = JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(emptyJson, serializeOptions);
+        Assert.NotNull(builder);
+        Assert.Empty(builder.SelectDescriptorList);
+    }
+
+    [Fact]
+    public void Add_DuplicateColumns_AddsBoth()
+    {
+        var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+        builder.Add(s => s.Name, d => d.Name);
+        builder.Add(s => s.Name, d => d.Name);
+        Assert.Equal(2, builder.SelectDescriptorList.Count);
     }
 
     private class MyEntity

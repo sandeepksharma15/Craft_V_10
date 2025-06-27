@@ -152,7 +152,6 @@ public class EntityFilterBuilderTests
     public void Remove_WhenPropertyNameExpressionFound_ShouldRemoveFromWhereExpressions()
     {
         // Arrange
-        // Arrange
         var whereBuilder = new EntityFilterBuilder<Company>();
         const string propName = "Name";
         object compareWith = "Company 1";
@@ -227,5 +226,141 @@ public class EntityFilterBuilderTests
         Assert.NotNull(json);
         Assert.NotEmpty(json);
         Assert.Equal("[{\"Filter\":\"(Name == \\u0022John\\u0022)\"}]", json);
+    }
+
+    [Fact]
+    public void Write_SerializesEmptyEntityFilterBuilderToJsonCorrectly()
+    {
+        var filterBuilder = new EntityFilterBuilder<Company>();
+        var json = JsonSerializer.Serialize(filterBuilder, serializeOptions);
+        Assert.Equal("[]", json);
+    }
+
+    [Fact]
+    public void Read_DeserializesEmptyArrayToEntityFilterBuilder()
+    {
+        const string emptyJson = "[]";
+        var filterBuilder = JsonSerializer.Deserialize<EntityFilterBuilder<Company>>(emptyJson, serializeOptions);
+        Assert.NotNull(filterBuilder);
+        Assert.Empty(filterBuilder.EntityFilterList);
+    }
+
+    [Fact]
+    public void Write_SerializesMultipleFiltersToJsonCorrectly()
+    {
+        var filterBuilder = new EntityFilterBuilder<Company>();
+        filterBuilder.Add(x => x.Name == "A");
+        filterBuilder.Add(x => x.Id > 0);
+        var json = JsonSerializer.Serialize(filterBuilder, serializeOptions);
+        Assert.Contains("Name", json);
+        Assert.Contains("Id", json);
+    }
+
+    [Fact]
+    public void Read_ThrowsJsonExceptionForNonArrayToken()
+    {
+        const string notArrayJson = "{\"Filter\":\"Name == 'A'\"}";
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EntityFilterBuilder<Company>>(notArrayJson, serializeOptions));
+    }
+
+    [Fact]
+    public void Read_ThrowsJsonExceptionForInvalidFilterCriteria()
+    {
+        // Invalid: missing Filter property
+        const string invalidCriteriaJson = "[{\"Invalid\":123}]";
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EntityFilterBuilder<Company>>(invalidCriteriaJson, serializeOptions));
+    }
+
+    [Fact]
+    public void Write_SerializesComplexFilterToJsonCorrectly()
+    {
+        var filterBuilder = new EntityFilterBuilder<Company>();
+
+        filterBuilder.Add(x => x.Name != "B");
+        filterBuilder.Add(x => x.Name!.Contains('C'));
+
+        var json = JsonSerializer.Serialize(filterBuilder, serializeOptions);
+
+        Assert.Contains("!=", json);
+        Assert.Contains("Contains", json);
+    }
+
+    [Fact]
+    public void Add_NullExpression_ThrowsArgumentNullException()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((Expression<Func<Company, bool>>)null!));
+    }
+
+    [Fact]
+    public void Add_NullPropertyExpression_ThrowsArgumentNullException()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add((Expression<Func<Company, object>>)null!, "Test", ComparisonType.EqualTo));
+    }
+
+    [Fact]
+    public void Add_InvalidPropertyName_ThrowsArgumentNullException()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Add("InvalidProperty", "Test", ComparisonType.EqualTo));
+    }
+
+    [Fact]
+    public void Remove_NullExpression_ThrowsArgumentNullException()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Remove((Expression<Func<Company, bool>>)null!));
+    }
+
+    [Fact]
+    public void Remove_NullPropertyExpression_ThrowsArgumentNullException()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Remove((Expression<Func<Company, object>>)null!, "Test", ComparisonType.EqualTo));
+    }
+
+    [Fact]
+    public void Remove_InvalidPropertyName_ThrowsArgumentNullException()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Assert.Throws<ArgumentNullException>(() => builder.Remove("InvalidProperty", "Test", ComparisonType.EqualTo));
+    }
+
+    [Fact]
+    public void Remove_OnEmptyBuilder_DoesNotThrow()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        var expr = (Expression<Func<Company, bool>>)(x => x.Name == "Test");
+        builder.Remove(expr);
+        Assert.Empty(builder.EntityFilterList);
+    }
+
+    [Fact]
+    public void Add_DuplicateExpressions_AddsBoth()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        Expression<Func<Company, bool>> expr = x => x.Name == "Test";
+        builder.Add(expr);
+        builder.Add(expr);
+        Assert.Equal(2, builder.EntityFilterList.Count);
+    }
+
+    [Fact]
+    public void Clear_OnEmptyBuilder_DoesNotThrow()
+    {
+        var builder = new EntityFilterBuilder<Company>();
+        builder.Clear();
+        Assert.Empty(builder.EntityFilterList);
+    }
+
+    [Fact]
+    public void Add_And_Remove_EnumProperty()
+    {
+        // Assuming Company has an enum property, for demonstration we'll use Id as int
+        var builder = new EntityFilterBuilder<Company>();
+        builder.Add(x => x.Id == 1);
+        builder.Remove(x => x.Id == 1);
+        Assert.Empty(builder.EntityFilterList);
     }
 }

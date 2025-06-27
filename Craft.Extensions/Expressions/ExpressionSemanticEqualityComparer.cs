@@ -179,8 +179,7 @@ internal static class ExpressionComparer
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var other = _y as MethodCallExpression;
-            if (other == null)
+            if (_y is not MethodCallExpression other)
                 return null!;
 
             if (node.Method != other.Method)
