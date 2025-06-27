@@ -50,6 +50,8 @@ public class Query<T> : IQuery<T> where T : class
     // Checks if the entity satisfies the query specifications.
     public virtual bool IsSatisfiedBy(T entity)
     {
+        if (entity is null) return false;
+
         // Create a queryable from the entity
         var queryable = new List<T> { entity }.AsQueryable();
 
