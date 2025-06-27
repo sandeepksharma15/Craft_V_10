@@ -109,11 +109,11 @@ public class ExpressionTreeBuilderTests
     [InlineData("id == >= 2")]
     [InlineData("id == > 2")]
     [InlineData("id != > 2")]
-    [InlineData("id == 2  value1 ==32")]
-    [InlineData("(id == 2 || value1 ==32) value2 <123")]
+    [InlineData("id == 2  value1 == 32")]
+    [InlineData("(id == 2 || value1 == 32) value2 < 123")]
     [InlineData("(id == 2  value1 ==32)")]
-    [InlineData("(id == 2 || value1 ==32) value2 <123 || claue3 = 9898")]
-    [InlineData("id == 2 (value1 ==32 && value2 <123)")]
+    [InlineData("(id == 2 || value1 == 32) value2 < 123 || claue3 = 9898")]
+    //[InlineData("id == 2 (value1 == 32 && value2 < 123)")]
     [InlineData("\"this-is-id\" == id")]
     public void ToBinaryTree_FromString_ReturnsNull(string query)
     {

@@ -78,16 +78,20 @@ public class ExpressionTreeBuilder
     {
         if (!propertyName.IsNonEmpty() || !@operator.IsNonEmpty() || !value.IsNonEmpty())
             return null;
+
         var props = GetTypeProperties(type);
 
         var prop = GetPropertyByName(props, propertyName);
+
         if (prop == null) return null;
 
         var me = Expression.PropertyOrField(parameterExpression, propertyName);
-        object v;
+
+        //object v;
+
         try
         {
-            v = Convert.ChangeType(value, me.Type);
+            object v = Convert.ChangeType(value, me.Type);
             var body = BinaryExpressionBuilder[@operator](me, v);
             var delegateType = typeof(Func<,>).MakeGenericType(type, typeof(bool));
             return Expression.Lambda(delegateType, body, parameterExpression);
@@ -101,26 +105,29 @@ public class ExpressionTreeBuilder
     public static Func<T, bool>? BuildBinaryTreeExpression<T>(IDictionary<string, string> filter)
     {
         var exp = ToExpression<T>(filter);
+
         return exp?.Compile();
     }
 
     public static Expression<Func<T, bool>>? ToExpression<T>(IDictionary<string, string> filter)
     {
-        if (filter?.Any() != true)
-            return null;
+        if (filter?.Any() != true) return null;
 
         var props = GetTypeProperties(typeof(T));
         var pe = Expression.Parameter(typeof(T));
 
         var expCol = new List<BinaryExpression>();
+
         foreach (var kvp in filter)
         {
             var fieldName = kvp.Key;
 
             var prop = GetPropertyByName(props, fieldName);
+
             if (prop == null) return null;
 
             var me = Expression.PropertyOrField(pe, fieldName);
+
             object value;
             try
             {
@@ -133,7 +140,10 @@ public class ExpressionTreeBuilder
             var be = Expression.Equal(me, Expression.Constant(value));
             expCol.Add(be);
         }
-        var allBinaryExpressions = expCol.Aggregate((left, right) => Expression.AndAlso(left, right));
+
+        var allBinaryExpressions = expCol.Aggregate((left, right) 
+            => Expression.AndAlso(left, right));
+
         return Expression.Lambda<Func<T, bool>>(allBinaryExpressions, [pe]);
     }
 
@@ -141,6 +151,7 @@ public class ExpressionTreeBuilder
     {
         var q = query.Trim();
         var m = Regex.Match(q, HasSurroundingBracketsOnly);
+
         if (m.Success)
             return BuildBinaryTreeExpressionWorker(type, q[1..^1], parameterExpression);
 
@@ -152,7 +163,9 @@ public class ExpressionTreeBuilder
                 binaryOperationMatch.Groups[Operator].Value,
                 binaryOperationMatch.Groups[RightOperand].Value,
                 parameterExpression);
+
         var hasBrackets = GetMatch(q, HasBrackets); //DO NOT CHANGE EXPRESSIONS ORDER!!!
+
         if (hasBrackets?.Success == true)
         {
             Group leftOp = hasBrackets.Groups[LeftOperand],
@@ -166,16 +179,19 @@ public class ExpressionTreeBuilder
             {
                 var e = evaluatorSecond.Value;
                 var firstEvaluatorIndex = q.IndexOf(e) + e.Length;
+
                 return SendToEvaluation(type, leftOp.Value, e, q[firstEvaluatorIndex..], parameterExpression);
             }
 
             string leftQuery = GetValueOrReplaceIfEmptyOrNull(leftOp.Value, brackets.Value),
                 evaluator = GetValueOrReplaceIfEmptyOrNull(evaluatorFirst.Value, evaluatorSecond.Value),
                 rightQuery = GetValueOrReplaceIfEmptyOrNull(rightOp.Value, brackets.Value);
+
             return SendToEvaluation(type, leftQuery, evaluator, rightQuery, parameterExpression);
         }
 
         var evalMatch = Regex.Match(q, EvalPattern);
+
         if (evalMatch.Success)
             return SendToEvaluation(type, evalMatch.Groups[LeftOperand].Value, evalMatch.Groups[EvaluatorFirst].Value, evalMatch.Groups[RightOperand].Value, parameterExpression);
 
@@ -190,6 +206,7 @@ public class ExpressionTreeBuilder
         for (int i = 0; i < patterns.Length; i++)
         {
             var m = Regex.Match(q, patterns[i]);
+
             if (m.Success)
                 return m;
         }
