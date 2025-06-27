@@ -30,7 +30,7 @@ public class FilterCriteria(string typeName, string name, string value, Comparis
         if (Nullable.GetUnderlyingType(type!) != null)
             type = type?.GetNonNullableType();
 
-        return new FilterCriteria(type?.FullName!, name, compareWith.ToString()!, comparisonType);
+        return new FilterCriteria(type?.FullName!, name, compareWith?.ToString()!, comparisonType);
     }
 
     public static FilterCriteria GetFilterInfo<T>(Expression<Func<T, bool>> whereExpr)
