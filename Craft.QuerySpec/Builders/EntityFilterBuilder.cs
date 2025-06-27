@@ -97,7 +97,10 @@ public class EntityFilterBuilder<T> where T : class
     {
         // Check if the property exists
         var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName);
-        var filterInfo = FilterCriteria.GetFilterInfo(propExpr!, compareWith, comparisonType);
+
+        ArgumentNullException.ThrowIfNull(propExpr, nameof(propExpr));
+        
+        var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
 
         return ExpressionBuilder.CreateWhereExpression<T>(filterInfo);
     }

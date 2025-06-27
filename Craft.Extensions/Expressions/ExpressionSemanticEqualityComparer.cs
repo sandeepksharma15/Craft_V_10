@@ -177,6 +177,30 @@ internal static class ExpressionComparer
             return Equals(node.Body, other.Body) ? node : null!;
         }
 
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            var other = _y as MethodCallExpression;
+            if (other == null)
+                return null!;
+
+            if (node.Method != other.Method)
+                return null!;
+
+            if (!Equals(node.Object, other.Object))
+                return null!;
+
+            if (node.Arguments.Count != other.Arguments.Count)
+                return null!;
+
+            for (int i = 0; i < node.Arguments.Count; i++)
+            {
+                if (!Equals(node.Arguments[i], other.Arguments[i]))
+                    return null!;
+            }
+
+            return node;
+        }
+
         private static bool IsCommutative(ExpressionType nodeType)
         {
             return nodeType == ExpressionType.Equal ||
