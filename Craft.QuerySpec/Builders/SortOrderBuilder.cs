@@ -25,6 +25,9 @@ public class SortOrderBuilder<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(orderInfo);
 
+        if (CheckForDuplicate(orderInfo.OrderItem))
+            throw new ArgumentException($"Order '{orderInfo.OrderItem.Body}' already exists in the list.");
+
         orderInfo.OrderType = AdjustOrderType(orderInfo.OrderType);
         OrderDescriptorList.Add(orderInfo);
 
@@ -38,10 +41,7 @@ public class SortOrderBuilder<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(propExpr);
 
-        if (CheckForDuplicate(propExpr))
-            throw new ArgumentException($"Order expression for '{propExpr}' already exists.");
-
-        Add(new OrderDescriptor<T>(propExpr, AdjustOrderType(orderType)));
+        Add(new OrderDescriptor<T>(propExpr, orderType));
 
         return this;
     }
@@ -51,10 +51,13 @@ public class SortOrderBuilder<T> where T : class
     /// </summary>
     public SortOrderBuilder<T> Add(string propName, OrderTypeEnum orderType = OrderTypeEnum.OrderBy)
     {
+        if (propName.IsNullOrWhiteSpace())
+            throw new ArgumentException($"Property {nameof(propName)} cannot be null or empty.");
+
         var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName)
             ?? throw new ArgumentException($"Property '{propName}' does not exist on type '{typeof(T).Name}'.");
 
-        Add(new OrderDescriptor<T>(propExpr!, AdjustOrderType(orderType)));
+        Add(new OrderDescriptor<T>(propExpr!, orderType));
 
         return this;
     }
@@ -85,7 +88,7 @@ public class SortOrderBuilder<T> where T : class
         return this;
     }
 
-    private bool CheckForDuplicate(Expression<Func<T, object>> propExpr)
+    private bool CheckForDuplicate(LambdaExpression propExpr)
     {
         ArgumentNullException.ThrowIfNull(propExpr);
 
@@ -99,6 +102,9 @@ public class SortOrderBuilder<T> where T : class
     /// </summary>
     public SortOrderBuilder<T> Remove(string propName)
     {
+        if (propName.IsNullOrWhiteSpace())
+            throw new ArgumentException($"Property {nameof(propName)} cannot be null or empty.");
+
         Remove(ExpressionBuilder.GetPropertyExpression<T>(propName)!);
 
         return this;
@@ -116,5 +122,13 @@ public class SortOrderBuilder<T> where T : class
                 orderType = OrderTypeEnum.ThenByDescending;
 
         return orderType;
+    }
+
+    /// <summary>
+    /// Returns a string representation of the current order chain for debugging.
+    /// </summary>
+    public override string ToString()
+    {
+        return string.Join(", ", OrderDescriptorList.Select(x => $"{x.OrderType}: {x.OrderItem}"));
     }
 }

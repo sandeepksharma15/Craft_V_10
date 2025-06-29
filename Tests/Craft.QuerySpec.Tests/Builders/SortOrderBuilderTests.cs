@@ -299,4 +299,105 @@ public class SortOrderBuilderTests
         Assert.Single(builder.OrderDescriptorList);
         Assert.Contains(builder.OrderDescriptorList, o => o.OrderItem.Body.ToString().Contains("x.Name"));
     }
+
+    [Fact]
+    public void ToString_ShouldReturnOrderChainString()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        builder.Add(x => x.Name!);
+        builder.Add(x => x.Id, OrderTypeEnum.OrderByDescending);
+        var str = builder.ToString();
+        Assert.Contains("OrderBy", str);
+        Assert.Contains("ThenByDescending", str);
+        Assert.Contains("x.Name", str);
+        Assert.Contains("x.Id", str);
+    }
+
+    [Fact]
+    public void Remove_NonExistentPropertyExpression_DoesNotThrowOrRemove()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        builder.Add(x => x.Name!);
+        var expr = (Expression<Func<Company, object>>)(x => x.Id);
+        builder.Remove(expr);
+        Assert.Single(builder.OrderDescriptorList);
+        Assert.Contains(builder.OrderDescriptorList, o => o.OrderItem.Body.ToString().Contains("x.Name"));
+    }
+
+    [Fact]
+    public void Remove_NullPropertyName_ThrowsArgumentNullException()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        Assert.Throws<ArgumentException>(() => builder.Remove((string)null!));
+    }
+
+    [Fact]
+    public void Add_NullPropertyName_ThrowsArgumentNullException()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        Assert.Throws<ArgumentException>(() => builder.Add((string)null!));
+    }
+
+    [Fact]
+    public void Add_DuplicatePropertyName_ThrowsArgumentException()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        builder.Add("Name");
+        Assert.Throws<ArgumentException>(() => builder.Add("Name"));
+    }
+
+    [Fact]
+    public void Add_WhitespacePropertyName_ThrowsArgumentException()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        Assert.Throws<ArgumentException>(() => builder.Add("   "));
+    }
+
+    [Fact]
+    public void Remove_WhitespacePropertyName_ThrowsArgumentException()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        Assert.Throws<ArgumentException>(() => builder.Remove("   "));
+    }
+
+    [Fact]
+    public void Add_InvalidButExistingPropertyName_ThrowsArgumentException()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        // 'Equals' exists but is not a property
+        Assert.Throws<ArgumentException>(() => builder.Add("Equals"));
+    }
+
+    [Fact]
+    public void CountProperty_ShouldReflectOrderDescriptorListCount()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        Assert.Equal(0, builder.Count);
+        builder.Add(x => x.Name!);
+        Assert.Equal(1, builder.Count);
+        builder.Add(x => x.Id);
+        Assert.Equal(2, builder.Count);
+        builder.Clear();
+        Assert.Equal(0, builder.Count);
+    }
+
+    [Fact]
+    public void OrderDescriptorList_IsMutable()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        builder.Add(x => x.Name!);
+        builder.OrderDescriptorList.Clear();
+        Assert.Empty(builder.OrderDescriptorList);
+    }
+
+    [Fact]
+    public void Add_And_Remove_WithNestedPropertyExpression_Works()
+    {
+        var builder = new SortOrderBuilder<Company>();
+        Expression<Func<Company, object>> expr = x => x.Country!.Name!;
+        builder.Add(expr);
+        Assert.Single(builder.OrderDescriptorList);
+        builder.Remove(expr);
+        Assert.Empty(builder.OrderDescriptorList);
+    }
 }
