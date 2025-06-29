@@ -24,8 +24,10 @@ public class SortOrderBuilder<T> where T : class
     public SortOrderBuilder<T> Add(OrderDescriptor<T> orderInfo)
     {
         ArgumentNullException.ThrowIfNull(orderInfo);
+
         orderInfo.OrderType = AdjustOrderType(orderInfo.OrderType);
         OrderDescriptorList.Add(orderInfo);
+
         return this;
     }
 
@@ -35,7 +37,9 @@ public class SortOrderBuilder<T> where T : class
     public SortOrderBuilder<T> Add(Expression<Func<T, object>> propExpr, OrderTypeEnum orderType = OrderTypeEnum.OrderBy)
     {
         ArgumentNullException.ThrowIfNull(propExpr);
+
         OrderDescriptorList.Add(new OrderDescriptor<T>(propExpr, AdjustOrderType(orderType)));
+
         return this;
     }
 
@@ -58,6 +62,7 @@ public class SortOrderBuilder<T> where T : class
     public SortOrderBuilder<T> Clear()
     {
         OrderDescriptorList.Clear();
+
         return this;
     }
 
@@ -67,6 +72,7 @@ public class SortOrderBuilder<T> where T : class
     public SortOrderBuilder<T> Remove(Expression<Func<T, object>> propExpr)
     {
         ArgumentNullException.ThrowIfNull(propExpr);
+
         var comparer = new ExpressionSemanticEqualityComparer();
         var orderInfo = OrderDescriptorList.Find(x => comparer.Equals(x.OrderItem, propExpr));
 
@@ -76,12 +82,22 @@ public class SortOrderBuilder<T> where T : class
         return this;
     }
 
+    private bool CheckForDuplicate(Expression<Func<T, object>> propExpr)
+    {
+        ArgumentNullException.ThrowIfNull(propExpr);
+
+        var comparer = new ExpressionSemanticEqualityComparer();
+
+        return OrderDescriptorList.Any(x => comparer.Equals(x.OrderItem, propExpr));
+    }
+
     /// <summary>
     /// Removes an order expression based on a property name.
     /// </summary>
     public SortOrderBuilder<T> Remove(string propName)
     {
         Remove(ExpressionBuilder.GetPropertyExpression<T>(propName)!);
+
         return this;
     }
 
@@ -95,6 +111,7 @@ public class SortOrderBuilder<T> where T : class
                 orderType = OrderTypeEnum.ThenBy;
             else if (orderType is OrderTypeEnum.OrderByDescending)
                 orderType = OrderTypeEnum.ThenByDescending;
+
         return orderType;
     }
 }

@@ -11,6 +11,8 @@ public sealed class OrderEvaluator : IEvaluator
 
     public IQueryable<T>? GetQuery<T>(IQueryable<T>? queryable, IQuery<T>? query) where T : class
     {
+        ArgumentNullException.ThrowIfNull(queryable);
+
         if (query?.SortOrderBuilder?.OrderDescriptorList.Count == 0)
             return queryable;
 

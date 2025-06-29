@@ -11,6 +11,8 @@ public sealed class IgnoreQueryFiltersEvaluator : IEvaluator
 
     public IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query) where T : class
     {
+        ArgumentNullException.ThrowIfNull(queryable);
+
         if (query?.IgnoreQueryFilters == true)
             queryable = queryable.IgnoreQueryFilters();
 
