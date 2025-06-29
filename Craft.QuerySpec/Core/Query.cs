@@ -36,8 +36,26 @@ public class Query<T> : IQuery<T> where T : class
     public bool IgnoreQueryFilters { get; set; }
 
     // Pagination specifications.
-    public int? Skip { get; set; }
-    public int? Take { get; set; }
+    public int? Skip
+    {
+        get => field;
+        set
+        {
+            if (field is not null && field < 0)
+                throw new ArgumentOutOfRangeException(nameof(Skip), "Skip cannot be negative.");
+            field = value;
+        }
+    }
+    public int? Take
+    {
+        get => field;
+        set
+        {
+            if (field is not null && field < 0)
+                throw new ArgumentOutOfRangeException(nameof(Take), "Take cannot be negative.");
+            field = value;
+        }
+    }
 
     // Builders for building where and order expressions.
     public SortOrderBuilder<T>? SortOrderBuilder { get; internal set; } = new();
