@@ -1,27 +1,35 @@
-﻿using Craft.TestDataStore.Models;
+﻿using Craft.TestDataStore.Fixtures;
+using Craft.TestDataStore.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.QuerySpec.Tests.Evaluators;
 
-public class SearchEvaluatorTests
+public class SearchEvaluatorTests : IDisposable
 {
+    private readonly TestDbContext _context;
     private readonly IQueryable<Company> _companies;
 
     public SearchEvaluatorTests()
     {
-        _companies = new List<Company>
-        {
-            new() { Id = 1, Name = "Alpha" },
-            new() { Id = 2, Name = "Beta" },
-            new() { Id = 3, Name = "Gamma" },
-            new() { Id = 4, Name = "Alphabeta" },
-            new() { Id = 5, Name = null }
-        }.AsQueryable();
+        var services = new ServiceCollection()
+             .AddDbContext<TestDbContext>(options =>
+             {
+                 options.UseInMemoryDatabase("InMemoryTestDb");
+             });
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Get The DbContext instance
+        _context = serviceProvider.GetRequiredService<TestDbContext>();
+        _companies = _context.Companies!.AsNoTracking();
     }
 
     [Fact]
     public void GetQuery_WithNullQuery_ReturnsOriginalQueryable()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
 
         // Act
@@ -38,17 +46,15 @@ public class SearchEvaluatorTests
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
 
-        // Act
-        var result = evaluator.GetQuery<Company>(null, query);
-
         // Assert
-        Assert.Null(result);
+        Assert.Throws<ArgumentNullException>(() => evaluator.GetQuery<Company>(null, query));
     }
 
     [Fact]
     public void GetQuery_WithNoSearchCriteria_ReturnsOriginalQueryable()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
 
@@ -63,35 +69,37 @@ public class SearchEvaluatorTests
     public void GetQuery_WithSingleSearchCriteria_FiltersResults()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
-        query.Search(x => x.Name!, "%Alpha%");
 
         // Act
-        var result = evaluator?.GetQuery(_companies, query)?.ToList();
+        query.Search(x => x.Name!, "Company%");
+        var result = evaluator.GetQuery(_companies, query)?.ToList();
 
         // Assert
-        Assert.Equal(2, result?.Count);
-        Assert.All(result!, c => Assert.Contains("Alpha", c.Name));
+        Assert.Equal(3, result?.Count);
+        Assert.All(result!, c => Assert.Contains("Company", c.Name));
     }
 
     [Fact]
     public void GetQuery_WithMultipleSearchCriteria_FiltersResults()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
-        var query = new Query<Company>();
-        query.Search(x => x.Name!, "%Alpha%");
-        query.Search(x => x.Name!, "%Beta%");
+        var query = new Query<Store>();
 
         // Act
-        var result = evaluator?.GetQuery(_companies, query)?.ToList();
+        query.Search(x => x.Name!, "A%");
+        query.Search(x => x.Name!, "B%");
+        var result = evaluator.GetQuery(_context.Stores, query)?.ToList();
 
         // Assert
         Assert.Equal(3, result?.Count);
-        Assert.Contains(result!, c => c.Name == "Alpha");
-        Assert.Contains(result!, c => c.Name == "Alphabeta");
-        Assert.Contains(result!, c => c.Name == "Beta");
+        Assert.Contains("ABCEFGH", result?.Select(x => x.Name)!);
+        Assert.Contains("AAA", result?.Select(x => x.Name)!);
+        Assert.Contains("BBB", result?.Select(x => x.Name)!);
     }
 
     [Fact]
@@ -100,11 +108,18 @@ public class SearchEvaluatorTests
         // Arrange
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
-        query.Search(x => x.Name!, "%Alpha%");
-        var emptyQueryable = new List<Company>().AsQueryable();
+        var emptyOptions = new DbContextOptionsBuilder<TestDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var emptyContext = new TestDbContext(emptyOptions);
+        emptyContext.Database.EnsureCreated();
 
-        // Act & Assert
+        // Act
+        query.Search(x => x.Name!, "%Alpha%");
+        var emptyQueryable = emptyContext.Companies!;
         var result = evaluator.GetQuery(emptyQueryable, query);
+
+        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -113,11 +128,9 @@ public class SearchEvaluatorTests
     public void GetQuery_WithNullSearchCriteriaList_ReturnsOriginalQueryable()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
-        var query = new Query<Company>
-        {
-            SqlLikeSearchCriteriaBuilder = null
-        };
+        var query = new Query<Company> { SqlLikeSearchCriteriaBuilder = null };
 
         // Act
         var result = evaluator.GetQuery(_companies, query);
@@ -130,6 +143,7 @@ public class SearchEvaluatorTests
     public void GetQuery_WithNullSearchTerm_DoesNotFilter()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
 
@@ -145,6 +159,7 @@ public class SearchEvaluatorTests
     public void GetQuery_WithNullMember_DoesNotFilter()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
 
@@ -160,6 +175,7 @@ public class SearchEvaluatorTests
     public void GetQuery_WithNullMemberName_DoesNotFilter()
     {
         // Arrange
+        _context.Database.EnsureCreated();
         var evaluator = SearchEvaluator.Instance;
         var query = new Query<Company>();
 
@@ -169,5 +185,10 @@ public class SearchEvaluatorTests
 
         // Assert
         Assert.Equal([.. _companies], result?.ToList());
+    }
+
+    public void Dispose()
+    {
+        _context?.Dispose();
     }
 }
