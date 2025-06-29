@@ -270,11 +270,15 @@ public class SortOrderBuilderTests
     [Fact]
     public void Add_DuplicateOrderExpressions_AddsBoth()
     {
+        // Arrange
         var builder = new SortOrderBuilder<Company>();
         Expression<Func<Company, object>> expr = x => x.Name!;
+
+        // Act
         builder.Add(expr);
-        builder.Add(expr);
-        Assert.Equal(2, builder.OrderDescriptorList.Count);
+
+        // Assert
+        Assert.Throws<ArgumentException>(() => builder.Add(expr));
     }
 
     [Fact]

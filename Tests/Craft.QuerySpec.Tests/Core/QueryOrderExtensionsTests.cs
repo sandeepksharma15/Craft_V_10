@@ -386,7 +386,7 @@ public class QueryOrderExtensionsTests
         // Act
         query.OrderBy(x => x.Id);
         query.ThenBy(x => x.Name!);
-        query.ThenByDescending(x => x.Name!);
+        query.ThenByDescending(x => x.CountryId!);
 
         // Assert
         Assert.Equal(3, query.SortOrderBuilder?.OrderDescriptorList.Count);
@@ -406,16 +406,15 @@ public class QueryOrderExtensionsTests
     }
 
     [Fact]
-    public void OrderBy_WithDuplicateExpressions_AddsBoth()
+    public void OrderBy_WithDuplicateExpressions_ThrowsError()
     {
         // Arrange
         IQuery<Company> query = new Query<Company>();
 
         // Act
         query.OrderBy(x => x.Name!);
-        query.OrderBy(x => x.Name!);
 
         // Assert
-        Assert.Equal(2, query.SortOrderBuilder?.OrderDescriptorList.Count);
+        Assert.Throws<ArgumentException>(() => query.OrderBy(x => x.Name!));
     }
 }

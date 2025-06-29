@@ -38,7 +38,10 @@ public class SortOrderBuilder<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(propExpr);
 
-        OrderDescriptorList.Add(new OrderDescriptor<T>(propExpr, AdjustOrderType(orderType)));
+        if (CheckForDuplicate(propExpr))
+            throw new ArgumentException($"Order expression for '{propExpr}' already exists.");
+
+        Add(new OrderDescriptor<T>(propExpr, AdjustOrderType(orderType)));
 
         return this;
     }
@@ -51,7 +54,7 @@ public class SortOrderBuilder<T> where T : class
         var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName)
             ?? throw new ArgumentException($"Property '{propName}' does not exist on type '{typeof(T).Name}'.");
 
-        OrderDescriptorList.Add(new OrderDescriptor<T>(propExpr!, AdjustOrderType(orderType)));
+        Add(new OrderDescriptor<T>(propExpr!, AdjustOrderType(orderType)));
 
         return this;
     }

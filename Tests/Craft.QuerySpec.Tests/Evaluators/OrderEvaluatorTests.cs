@@ -117,12 +117,12 @@ public class OrderEvaluatorTests
         // Arrange
         var evaluator = OrderEvaluator.Instance;
         var query = new Query<Company>();
+
         query.OrderBy(x => x.Id);
         query.OrderBy(x => x.Name!);
-        query.OrderByDescending(x => x.Id); // Add a second root order
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => evaluator.GetQuery(_companies, query));
+        Assert.Throws<ArgumentException>(() => query.OrderByDescending(x => x.Id));
     }
 
     [Fact]
