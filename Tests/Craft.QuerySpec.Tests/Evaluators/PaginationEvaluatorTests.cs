@@ -88,7 +88,7 @@ public class PaginationEvaluatorTests
         var result = evaluator.GetQuery(_companies, null);
 
         // Assert
-        Assert.Equal(_companies.ToList(), result.ToList());
+        Assert.Equal([.. _companies], result.ToList());
     }
 
     [Fact]
