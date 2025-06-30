@@ -5,14 +5,6 @@ namespace Craft.Utilities.Helpers;
 
 public static class TextExtractor
 {
-    /// <summary>
-    /// Extracts text content from a PDF, DOC, or DOCX file.
-    /// </summary>
-    /// <param name="fileName">The path to the file.</param>
-    /// <returns>The extracted text, or an empty string if extraction fails.</returns>
-    /// <exception cref="ArgumentException">Thrown if fileName is null or empty.</exception>
-    /// <exception cref="NotSupportedException">Thrown if file extension is not supported.</exception>
-    /// <exception cref="FileNotFoundException">Thrown if the file does not exist.</exception>
     public static string ExtractTextFromDocOrPdf(string fileName)
     {
         ArgumentException.ThrowIfNullOrEmpty(fileName);
@@ -25,45 +17,25 @@ public static class TextExtractor
         if (!File.Exists(fileName))
             throw new FileNotFoundException("The file does not exist", fileName);
 
-        using (var stream = File.OpenRead(fileName))
+        if (extension == ".pdf")
         {
-            return extension == ".pdf" ? ExtractTextFromPdf(stream) : ExtractTextFromWordDocument(stream);
+            // Use file path directly for PDF
+            return ExtractTextFromPdf(fileName);
         }
-    }
-
-    private static string ExtractTextFromWordDocument(Stream stream)
-    {
-        try
+        else
         {
-            using var document = WordprocessingDocument.Open(stream, false);
-
-            var body = document?.MainDocumentPart?.Document.Body;
-
-            if (body == null)
-                return string.Empty;
-
-            // Concatenate all text nodes for robustness
-            var text = new StringBuilder();
-
-            foreach (var textElement in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+            using (var stream = File.OpenRead(fileName))
             {
-                text.Append(textElement.Text);
-                text.Append(' ');
+                return ExtractTextFromWordDocument(stream);
             }
-
-            return text.ToString().Trim();
-        }
-        catch
-        {
-            return string.Empty;
         }
     }
 
-    private static string ExtractTextFromPdf(Stream stream)
+    private static string ExtractTextFromPdf(string fileName)
     {
         try
         {
-            using var reader = new iText.Kernel.Pdf.PdfReader(stream);
+            using var reader = new iText.Kernel.Pdf.PdfReader(fileName);
             using var pdfDoc = new iText.Kernel.Pdf.PdfDocument(reader);
 
             var text = new StringBuilder();
@@ -76,6 +48,19 @@ public static class TextExtractor
             }
 
             return text.ToString().Trim();
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string ExtractTextFromWordDocument(Stream stream)
+    {
+        try
+        {
+            using var doc = WordprocessingDocument.Open(stream, false);
+            return doc?.MainDocumentPart?.Document?.Body?.InnerText!;
         }
         catch
         {
