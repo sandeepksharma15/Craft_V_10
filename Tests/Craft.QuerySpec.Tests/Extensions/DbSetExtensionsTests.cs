@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Craft.QuerySpec;
+﻿using Craft.QuerySpec;
 using Craft.QuerySpec.Core;
 using Craft.TestDataStore.Fixtures;
 using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Craft.TestDataStore; // For SystemTestCollectionDefinition
 
 namespace Craft.QuerySpec.Tests.Extensions;

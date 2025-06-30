@@ -30,14 +30,16 @@ public static class SearchExtension
     public static IQueryable<T>? Search<T>(this IQueryable<T> source, IEnumerable<SqlLikeSearchInfo<T>> criterias)
         where T : class
     {
+        if (criterias is null) return source;
+
         Expression? expr = null;
 
         var parameter = Expression.Parameter(typeof(T), "x");
 
         foreach (var criteria in criterias)
         {
-            if (string.IsNullOrEmpty(criteria.SearchString))
-                continue;
+            if (criteria is null || criteria.SearchItem is null || string.IsNullOrEmpty(criteria.SearchString))
+                continue;   
 
             var propertySelector = ParameterReplacerVisitor.Replace(criteria?.SearchItem!,
                 criteria?.SearchItem?.Parameters[0]!, parameter) as LambdaExpression;
