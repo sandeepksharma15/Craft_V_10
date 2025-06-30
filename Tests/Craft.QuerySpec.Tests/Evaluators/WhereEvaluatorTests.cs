@@ -44,7 +44,7 @@ public class WhereEvaluatorTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_companies.ToList(), result);
+        Assert.Equal([.. _companies], result);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class WhereEvaluatorTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_companies.ToList(), result);
+        Assert.Equal([.. _companies], result);
     }
 
     [Fact]
