@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
+using Craft.Utilities.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.QuerySpec;

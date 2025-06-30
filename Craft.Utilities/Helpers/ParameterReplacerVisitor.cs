@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Craft.QuerySpec;
+namespace Craft.Utilities.Helpers;
 
 /// <summary>
 /// Provides functionality to replace occurrences of a specific parameter in an expression tree with a new expression.
@@ -24,8 +24,16 @@ public sealed class ParameterReplacerVisitor : ExpressionVisitor
         return p == oldParameter ? newExpression : p;
     }
 
-    internal static Expression Replace(Expression expression, ParameterExpression oldParameter, Expression newExpression)
+    public static Expression Replace(Expression expression, ParameterExpression oldParameter, Expression newExpression)
     {
+        ArgumentNullException.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(oldParameter);
+        ArgumentNullException.ThrowIfNull(newExpression);
+        if (oldParameter.Type != newExpression.Type)
+        {
+            throw new ArgumentException("The type of the new expression must match the type of the old parameter.");
+        }
+
         return new ParameterReplacerVisitor(oldParameter, newExpression).Visit(expression);
     }
 }
