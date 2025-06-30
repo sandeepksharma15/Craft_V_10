@@ -96,6 +96,7 @@ public class EntityFilterCriteriaTests
     }
 
     [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "JSON001:Invalid JSON pattern", Justification = "Test Case")]
     public void JsonConverter_Read_InvalidJson_ThrowsJsonException()
     {
         // Arrange
@@ -116,6 +117,7 @@ public class EntityFilterCriteriaTests
     }
 
     [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "JSON001:Invalid JSON pattern", Justification = "Test Case")]
     public void JsonConverter_Read_InvalidSyntax_ThrowsJsonException()
     {
         // Arrange
