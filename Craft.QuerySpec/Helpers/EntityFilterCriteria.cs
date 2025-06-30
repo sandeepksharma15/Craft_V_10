@@ -21,6 +21,7 @@ public class EntityFilterCriteria<T> where T : class
     }
 
     public Expression<Func<T, bool>> Filter { get; }
+
     public Func<T, bool> FilterFunc => filterFunc.Value;
 
     /// <summary>
