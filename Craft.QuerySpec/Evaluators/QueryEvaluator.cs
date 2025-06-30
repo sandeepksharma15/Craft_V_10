@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Craft.QuerySpec;
+﻿namespace Craft.QuerySpec;
 
 /// <summary>
 /// Evaluates and applies query specifications such as filtering, ordering, searching, pagination, and selection.

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Craft.QuerySpec;
-using Craft.QuerySpec.Core;
-using Xunit;
+﻿using Craft.QuerySpec;
 
 namespace Craft.QuerySpec.Tests.Evaluators;
 

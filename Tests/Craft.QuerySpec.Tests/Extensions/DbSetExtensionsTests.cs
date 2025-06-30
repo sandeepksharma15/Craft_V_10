@@ -1,5 +1,4 @@
 ﻿using Craft.QuerySpec;
-using Craft.QuerySpec.Core;
 using Craft.TestDataStore.Fixtures;
 using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;

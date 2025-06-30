@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 
-namespace Craft.QuerySpec.Contracts;
+namespace Craft.QuerySpec;
 
 public interface IQueryJsonConverter<T> where T : class
 {

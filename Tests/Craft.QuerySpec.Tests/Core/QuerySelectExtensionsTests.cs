@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Craft.QuerySpec.Core;
 using Craft.TestDataStore.Models;
 
 namespace Craft.QuerySpec.Tests.Core;

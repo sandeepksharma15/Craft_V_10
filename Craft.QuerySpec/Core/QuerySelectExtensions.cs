@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Craft.QuerySpec.Core;
+namespace Craft.QuerySpec;
 
 public static class QuerySelectExtensions
 {
