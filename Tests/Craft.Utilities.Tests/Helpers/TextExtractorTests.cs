@@ -64,28 +64,70 @@ public class TextExtractorTests
     }
 
     [Fact]
-     public void ExtractTextFromDocOrPdf_ReturnsText_ForValidDocx()
+    public void ExtractTextFromDocOrPdf_ReturnsText_ForValidDocx()
     {
-        // Arrange
-        string filePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData", "Test.docx");
+        // Arrange: Create a minimal valid DOCX file with "Hello World"
+        var tempFile = Path.GetTempFileName() + ".docx";
+        try
+        {
+            using (var doc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Create(tempFile, DocumentFormat.OpenXml.WordprocessingDocumentType.Document))
+            {
+                var mainPart = doc.AddMainDocumentPart();
+                mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document(
+                    new DocumentFormat.OpenXml.Wordprocessing.Body(
+                        new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                            new DocumentFormat.OpenXml.Wordprocessing.Run(
+                                new DocumentFormat.OpenXml.Wordprocessing.Text("Hello World")
+                            )
+                        )
+                    )
+                );
+            }
 
-        // Act
-        var result = TextExtractor.ExtractTextFromDocOrPdf(filePath);
+            // Act
+            var result = TextExtractor.ExtractTextFromDocOrPdf(tempFile);
 
-        // Assert
-        Assert.Equal("Hello World", result);
+            // Assert
+            Assert.Equal("Hello World", result);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
     }
 
     [Fact]
     public void ExtractTextFromDocOrPdf_ReturnsText_ForValidPdf()
     {
-        // Arrange
-        string filePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData", "Test.pdf");
+        // Arrange: Create a minimal valid PDF file with "Hello World"
+        var tempFile = Path.GetTempFileName() + ".pdf";
+        try
+        {
+            // Create and close the PDF file before reading
+            using (var writer = new iText.Kernel.Pdf.PdfWriter(tempFile))
+            {
+                using (var pdf = new iText.Kernel.Pdf.PdfDocument(writer))
+                {
+                    using (var doc = new iText.Layout.Document(pdf))
+                    {
+                        doc.Add(new iText.Layout.Element.Paragraph("Hello World"));
+                    }
+                }
+            }
 
-        // Act
-        var result = TextExtractor.ExtractTextFromDocOrPdf(filePath);
+            // Act (after file is closed and all handles are released)
+            var result = TextExtractor.ExtractTextFromDocOrPdf(tempFile);
 
-        // Assert
-        Assert.Equal("Hello World", result);
+            // Assert
+            Assert.Equal("Hello World", result);
+        }
+        finally
+        {
+                try
+                {
+                    File.Delete(tempFile);
+                }
+                catch (Exception) {}
+        }
     }
 }

@@ -17,8 +17,4 @@
     <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

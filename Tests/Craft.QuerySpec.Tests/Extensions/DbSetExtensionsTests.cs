@@ -24,6 +24,13 @@ public class DbSetExtensionsTests : IDisposable
         scope = provider.CreateScope();
         dbContext = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         dbContext.Database.EnsureCreated();
+
+        // Ensure seed data is present for live testing
+        if (dbContext.Companies != null && !dbContext.Companies.Any())
+        {
+            dbContext.Companies.AddRange(CompanySeed.Get());
+            dbContext.SaveChanges();
+        }
     }
 
     public void Dispose()

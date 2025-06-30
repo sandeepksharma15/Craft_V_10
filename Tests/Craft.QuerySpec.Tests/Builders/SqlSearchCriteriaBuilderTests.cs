@@ -11,6 +11,9 @@ public class SqlSearchCriteriaBuilderTests
     {
         serializeOptions = new JsonSerializerOptions();
         serializeOptions.Converters.Add(new SqlSearchCriteriaBuilderJsonConverter<Company>());
+
+        // Ensure reflection-based property access works in all environments
+        AppContext.SetSwitch("System.Text.Json.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
     }
 
     [Fact]

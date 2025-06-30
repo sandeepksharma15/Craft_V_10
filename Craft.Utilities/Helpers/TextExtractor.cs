@@ -25,9 +25,10 @@ public static class TextExtractor
         if (!File.Exists(fileName))
             throw new FileNotFoundException("The file does not exist", fileName);
 
-        using var stream = File.OpenRead(fileName);
-
-        return extension == ".pdf" ? ExtractTextFromPdf(stream) : ExtractTextFromWordDocument(stream);
+        using (var stream = File.OpenRead(fileName))
+        {
+            return extension == ".pdf" ? ExtractTextFromPdf(stream) : ExtractTextFromWordDocument(stream);
+        }
     }
 
     private static string ExtractTextFromWordDocument(Stream stream)
