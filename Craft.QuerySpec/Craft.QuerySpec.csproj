@@ -1,24 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	  <TargetFramework>net10.0</TargetFramework>
-	  <ImplicitUsings>enable</ImplicitUsings>
-	  <Nullable>enable</Nullable>
-	  <Authors>Sandeep SHARMA</Authors>
-	  <LangVersion>preview</LangVersion>
-	  <RootNamespace>Craft.QuerySpec</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Sandeep SHARMA</Authors>
+		<LangVersion>preview</LangVersion>
+		<RootNamespace>Craft.QuerySpec</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0-preview.5.25277.114" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
-    <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
-    <ProjectReference Include="..\Craft.HttpServices\Craft.HttpServices.csproj" />
-    <ProjectReference Include="..\Craft.Repositories\Craft.Repositories.csproj" />
-    <ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0-preview.5.25277.114" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Craft.Controllers\Craft.Controllers.csproj" />
+		<ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
+		<ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
+		<ProjectReference Include="..\Craft.HttpServices\Craft.HttpServices.csproj" />
+		<ProjectReference Include="..\Craft.Repositories\Craft.Repositories.csproj" />
+		<ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />
+	</ItemGroup>
 
 </Project>
