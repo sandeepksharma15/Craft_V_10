@@ -9,4 +9,13 @@
 		<RootNamespace>Craft.HttpServices</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
+	  <ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
+	</ItemGroup>
+
 </Project>
