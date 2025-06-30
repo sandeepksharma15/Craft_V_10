@@ -5,11 +5,7 @@ namespace Craft.QuerySpec.Tests.Helpers;
 
 public class SqlLikeSearchInfoTests
 {
-    private class MyResult
-    {
-        public long Id { get; set; }
-        public string ResultName { get; set; } = string.Empty;
-    }
+    private static readonly JsonSerializerOptions CachedJsonSerializerOptions = CreateJsonSerializerOptions();
 
     [Fact]
     public void Constructor_InitializationWithValidValues()
@@ -67,12 +63,10 @@ public class SqlLikeSearchInfoTests
         const string searchString = "x%y";
         const int searchGroup = 2;
         var searchInfo = new SqlLikeSearchInfo<MyResult>(searchItem, searchString, searchGroup);
-        var serializeOptions = new JsonSerializerOptions();
-        serializeOptions.Converters.Add(new SqlLikeSearchInfoJsonConverter<MyResult>());
 
         // Act
-        var serializationInfo = JsonSerializer.Serialize(searchInfo, serializeOptions);
-        var deserializedInfo = JsonSerializer.Deserialize<SqlLikeSearchInfo<MyResult>>(serializationInfo, serializeOptions);
+        var serializationInfo = JsonSerializer.Serialize(searchInfo, CachedJsonSerializerOptions);
+        var deserializedInfo = JsonSerializer.Deserialize<SqlLikeSearchInfo<MyResult>>(serializationInfo, CachedJsonSerializerOptions);
 
         // Assert
         Assert.NotNull(deserializedInfo);
@@ -86,12 +80,10 @@ public class SqlLikeSearchInfoTests
     public void JsonConverter_Read_WithNullJson_ReturnsNull()
     {
         // Arrange
-        var serializeOptions = new JsonSerializerOptions();
-        serializeOptions.Converters.Add(new SqlLikeSearchInfoJsonConverter<MyResult>());
         const string json = "null";
 
         // Act & Assert
-        var searchInfo = JsonSerializer.Deserialize<SqlLikeSearchInfo<MyResult>>(json, serializeOptions);
+        var searchInfo = JsonSerializer.Deserialize<SqlLikeSearchInfo<MyResult>>(json, CachedJsonSerializerOptions);
 
         // Assert
         Assert.Null(searchInfo);
@@ -101,11 +93,22 @@ public class SqlLikeSearchInfoTests
     public void JsonConverter_Read_WithInvalidMemberExpression_ThrowsException()
     {
         // Arrange
-        var serializeOptions = new JsonSerializerOptions();
-        serializeOptions.Converters.Add(new SqlLikeSearchInfoJsonConverter<MyResult>());
         const string json = "{\"SearchItem\": \"InvalidMember\", \"SearchString\": \"x%y\", \"SearchGroup\": 2}";
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => JsonSerializer.Deserialize<SqlLikeSearchInfo<MyResult>>(json, serializeOptions));
+        Assert.Throws<ArgumentException>(() => JsonSerializer.Deserialize<SqlLikeSearchInfo<MyResult>>(json, CachedJsonSerializerOptions));
+    }
+
+    private static JsonSerializerOptions CreateJsonSerializerOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new SqlLikeSearchInfoJsonConverter<MyResult>());
+        return options;
+    }
+
+    private class MyResult
+    {
+        public long Id { get; set; }
+        public string ResultName { get; set; } = string.Empty;
     }
 }
