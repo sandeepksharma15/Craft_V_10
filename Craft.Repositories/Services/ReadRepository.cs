@@ -1,4 +1,5 @@
 ﻿using Craft.Core;
+using Craft.Data.Abstractions;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,8 +9,8 @@ namespace Craft.Repositories.Services;
 /// <summary>
 /// Generic read-only repository for entities.
 /// </summary>
-public class ReadRepository<T, TKey>(DbContext appDbContext, ILogger<ReadRepository<T, TKey>> logger)
-    : BaseRepository<T, TKey>(appDbContext, logger), IReadRepository<T, TKey> where T : class, IEntity<TKey>, new()
+public class ReadRepository<T, TKey>(IDbContext dbContext, ILogger<ReadRepository<T, TKey>> logger)
+    : BaseRepository<T, TKey>(dbContext, logger), IReadRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
     /// <inheritdoc />
     public virtual async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
@@ -72,3 +73,7 @@ public class ReadRepository<T, TKey>(DbContext appDbContext, ILogger<ReadReposit
         return new PageResponse<T>(items: pagedItems, totalCount, currentPage, pageSize);
     }
 }
+
+public class ReadRepository<T>(IDbContext dbContext, ILogger<ReadRepository<T, KeyType>> logger)
+    : ReadRepository<T, KeyType>(dbContext, logger), IReadRepository<T>
+        where T : class, IEntity, new();

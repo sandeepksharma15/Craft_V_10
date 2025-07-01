@@ -1,11 +1,14 @@
-﻿using Craft.TestDataStore.Models;
+﻿using Craft.Data.Abstractions;
+using Craft.TestDataStore.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.TestDataStore.Fixtures;
 
-public class TestDbContext(DbContextOptions<TestDbContext> options) : IdentityDbContext<TestUser, TestRole, int>(options)
+public class TestDbContext : IdentityDbContext<TestUser, TestRole, int>, IDbContext
 {
+    public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
+
     public DbSet<Company>? Companies { get; set; }
     public DbSet<Country>? Countries { get; set; }
     public DbSet<Store>? Stores { get; set; }

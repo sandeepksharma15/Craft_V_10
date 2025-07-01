@@ -1,4 +1,5 @@
-﻿using Craft.Domain;
+﻿using Craft.Data.Abstractions;
+using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Repositories;
@@ -9,7 +10,7 @@ public interface IBaseRepository<T, TKey> : IRepository where T : class, IEntity
     /// Returns the <see cref="DbContext"/> instance
     /// </summary>
     /// <returns></returns>
-    Task<DbContext> GetDbContextAsync();
+    Task<IDbContext> GetDbContextAsync();
 
     /// <summary>
     /// Returns the <see cref="DbSet{T}"/> instance

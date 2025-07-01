@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Craft.Data\Craft.Data.csproj" />
     <ProjectReference Include="..\..\Craft.Domain\Craft.Domain.csproj" />
   </ItemGroup>
 
