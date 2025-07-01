@@ -24,7 +24,8 @@ public interface IChangeRepository<T, TKey> : IReadRepository<T, TKey> where T :
     /// <param name="entities">Entities to be added in the data store.</param>
     /// <param name="autoSave">Set false to save changes later by calling SaveChangesAsync manually. Default is true.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    Task AddRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
+    /// <returns>The list of added entities with updated keys.</returns>
+    Task<List<T>> AddRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes an entity from the data store. If the entity implements <see cref="ISoftDelete"/>, it will be soft deleted.
@@ -32,7 +33,8 @@ public interface IChangeRepository<T, TKey> : IReadRepository<T, TKey> where T :
     /// <param name="entity">Entity to be deleted in the data store.</param>
     /// <param name="autoSave">Set false to save changes later by calling SaveChangesAsync manually. Default is true.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    Task DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default);
+    /// <returns>The deleted entity.</returns>
+    Task<T> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes multiple entities from the data store. If any entity implements <see cref="ISoftDelete"/>, it will be soft deleted.
@@ -40,7 +42,8 @@ public interface IChangeRepository<T, TKey> : IReadRepository<T, TKey> where T :
     /// <param name="entities">Entities to be deleted in the data store.</param>
     /// <param name="autoSave">Set false to save changes later by calling SaveChangesAsync manually. Default is true.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    Task DeleteRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
+    /// <returns>The list of deleted entities.</returns>
+    Task<List<T>> DeleteRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an existing entity in the data store.
@@ -57,7 +60,8 @@ public interface IChangeRepository<T, TKey> : IReadRepository<T, TKey> where T :
     /// <param name="entities">Entities to be updated in the data store.</param>
     /// <param name="autoSave">Set false to save changes later by calling SaveChangesAsync manually. Default is true.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    Task UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
+    /// <returns>The list of updated entities.</returns>
+    Task<List<T>> UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

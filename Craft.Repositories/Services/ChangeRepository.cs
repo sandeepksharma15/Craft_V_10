@@ -35,23 +35,28 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
     }
 
     /// <inheritdoc/>
-    public virtual async Task AddRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
+    public virtual async Task<List<T>> AddRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entities, nameof(entities));
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[ChangeRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"AddRangeAsync\"]");
 
-        await _dbSet
-            .AddRangeAsync(entities, cancellationToken)
-            .ConfigureAwait(false);
+        var entityList = entities.ToList();
+
+        await _dbSet.AddRangeAsync(entityList, cancellationToken).ConfigureAwait(false);
 
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        foreach (var entity in entityList)
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+
+        return entityList;
     }
 
     /// <inheritdoc/>
-    public virtual async Task DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public virtual async Task<T> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
@@ -68,31 +73,42 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        _appDbContext.Entry(entity).State = EntityState.Detached;
+
+        return entity;
     }
 
     /// <inheritdoc/>
-    public virtual async Task DeleteRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
+    public virtual async Task<List<T>> DeleteRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entities, nameof(entities));
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[ChangeRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteRangeAsync\"]");
 
-        if (entities.Any(entity => entity is ISoftDelete))
+        var entityList = entities.ToList();
+
+        if (entityList.Any(entity => entity is ISoftDelete))
         {
-            foreach (var entity in entities)
+            foreach (var entity in entityList)
             {
                 ISoftDelete softDeleteEntity = (ISoftDelete)entity;
                 softDeleteEntity.IsDeleted = true;
             }
 
-            _dbSet.UpdateRange(entities);
+            _dbSet.UpdateRange(entityList);
         }
         else
-            _dbSet.RemoveRange(entities);
+            _dbSet.RemoveRange(entityList);
 
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        foreach (var entity in entityList)
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+
+        return entityList;
     }
 
     /// <inheritdoc/>
@@ -114,17 +130,24 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
     }
 
     /// <inheritdoc/>
-    public virtual async Task UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
+    public virtual async Task<List<T>> UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entities, nameof(entities));
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[ChangeRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"UpdateRangeAsync\"]");
 
-        _dbSet.UpdateRange(entities);
+        var entityList = entities.ToList();
+
+        _dbSet.UpdateRange(entityList);
 
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        foreach (var entity in entityList)
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+
+        return entityList;
     }
 }
 
