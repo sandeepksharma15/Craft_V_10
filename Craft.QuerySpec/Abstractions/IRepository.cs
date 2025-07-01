@@ -37,19 +37,6 @@ public interface IRepository<T, TKey> : IChangeRepository<T, TKey> where T : cla
     Task DeleteAsync(IQuery<T> query, bool autoSave = true, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a list of all the entities that meet the criteria by the given <paramref name="query"/>
-    /// </summary>
-    /// <param name="query">A Query containing filtering and sorting parameters</param>
-    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>List of entities</returns>
-    async Task<List<T>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
-    {
-        query.SetPage(1, int.MaxValue);
-
-        return [.. (await GetPagedListAsync(query, cancellationToken)).Items];
-    }
-
-    /// <summary>
     /// Asynchronously retrieves the count of items matching the specified query.
     /// </summary>
     /// <param name="query">The query used to filter items for counting. Cannot be null.</param>
@@ -63,12 +50,16 @@ public interface IRepository<T, TKey> : IChangeRepository<T, TKey> where T : cla
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>List of entities</returns>
-    async Task<List<TResult>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default) where TResult : class, new()
-    {
-        query.SetPage(1, int.MaxValue);
+    Task<List<T>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
-        return [.. (await GetPagedListAsync(query, cancellationToken)).Items];
-    }
+    /// <summary>
+    /// Gets a list of all the entities that meet the criteria by the given <paramref name="query"/>
+    /// </summary>
+    /// <param name="query">A Query containing filtering and sorting parameters</param>
+    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>List of entities</returns>
+    Task<List<TResult>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+        where TResult : class, new();
 
     /// <summary>
     /// Gets a paginated list of entities.
