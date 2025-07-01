@@ -13,6 +13,8 @@ public class TestDbContext : IdentityDbContext<TestUser, TestRole, int>, IDbCont
     public DbSet<Country>? Countries { get; set; }
     public DbSet<Store>? Stores { get; set; }
 
+    public DbSet<NoSoftDeleteEntity>? NoSoftDeleteEntities { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
