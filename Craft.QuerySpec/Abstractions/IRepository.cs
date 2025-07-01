@@ -15,7 +15,7 @@ public interface IRepository<T, TKey> : IChangeRepository<T, TKey> where T : cla
     /// </param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The entity</returns>
-    Task<T> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<T?> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get TResult by the given <paramref name="query"/>; returns null if no entry meets criteria
@@ -26,7 +26,7 @@ public interface IRepository<T, TKey> : IChangeRepository<T, TKey> where T : cla
     /// </param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>TResult</returns>
-    Task<TResult> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default) where TResult : class, new();
+    Task<TResult?> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default) where TResult : class, new();
 
     /// <summary>
     /// Deletes all the entities that meet the criteria by the given <paramref name="query"/>

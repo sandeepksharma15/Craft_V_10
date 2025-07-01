@@ -398,7 +398,7 @@ public class ChangeRepositoryTests
         var options = CreateOptions();
         await using var context = new TestDbContext(options);
         var repo = CreateRepository(context);
-        var countries = new List<Country> { new Country { Name = "ToDelete1" } };
+        var countries = new List<Country> { new() { Name = "ToDelete1" } };
         await repo.AddRangeAsync(countries);
         using var cts = new CancellationTokenSource();
 
@@ -414,7 +414,7 @@ public class ChangeRepositoryTests
         var options = CreateOptions();
         await using var context = new TestDbContext(options);
         var repo = CreateRepository(context);
-        var countries = new List<Country> { new Country { Name = "ToDelete1" } };
+        var countries = new List<Country> { new() { Name = "ToDelete1" } };
 
         // Act
         await repo.AddRangeAsync(countries);
