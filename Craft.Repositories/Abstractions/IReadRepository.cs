@@ -20,7 +20,7 @@ public interface IReadRepository<T, TKey> : IBaseRepository<T, TKey> where T : c
     /// <param name="includeDetails">Set true to include all children of this entity</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>List of entities</returns>
-    Task<List<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets total count of all entities.

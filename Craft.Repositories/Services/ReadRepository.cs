@@ -12,7 +12,7 @@ public class ReadRepository<T, TKey>(DbContext appDbContext, ILogger<ReadReposit
     : BaseRepository<T, TKey>(appDbContext, logger), IReadRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
     /// <inheritdoc />
-    public virtual async Task<List<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[ReadRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
