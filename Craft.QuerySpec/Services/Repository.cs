@@ -164,6 +164,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"] Query: {query}");
