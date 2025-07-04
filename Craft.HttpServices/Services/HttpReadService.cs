@@ -13,7 +13,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
     protected readonly HttpClient _httpClient = httpClient;
     protected readonly ILogger _logger = logger;
 
-    public virtual async Task<List<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
@@ -27,7 +27,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
         return await response
             .Content
             .ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false) ?? [];
+            .ConfigureAwait(false) ?? new List<T>();
     }
 
     public virtual async Task<T?> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default)
@@ -66,59 +66,50 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
     public async Task<PageResponse<T>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
-        // Validate input parameters
-        if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page must be greater than 0.");
-        if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than 0.");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
-        // Construct the request URL
         var requestUrl = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
 
-        // Make the HTTP GET request
         var response = await _httpClient
             .GetAsync(requestUrl, cancellationToken)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
-        // Deserialize the response content
         var content = await response
             .Content
             .ReadAsStringAsync(cancellationToken);
 
         var pagedList = JsonSerializer.Deserialize<PageResponse<T>>(content);
-
         return pagedList!;
     }
 
     public async Task<PageResponse<TResult>> GetPagedListAsync<TResult>(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default) where TResult : class, new()
     {
-        // Validate input parameters
-        if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page must be greater than 0.");
-        if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than 0.");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
-        // Prepare the request URL
         var requestUrl = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
 
-        // Make the HTTP GET request
         var response = await _httpClient
             .GetAsync(requestUrl, cancellationToken)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
-        // Deserialize the response content
         var content = await response
             .Content
             .ReadAsStringAsync(cancellationToken);
 
         var pagedResponse = JsonSerializer.Deserialize<PageResponse<TResult>>(content);
-
-        return pagedResponse!;
+        if (pagedResponse == null)
+            throw new InvalidOperationException("Failed to deserialize the paged response.");
+        return pagedResponse;
     }
 }
 
 public class HttpReadService<T>(Uri apiURL, HttpClient httpClient, ILogger<HttpReadService<T>> logger)
     : HttpReadService<T, KeyType>(apiURL, httpClient, logger), IHttpReadService<T>
-        where T : class, IEntity, IModel, new();
-
+    where T : class, IEntity, IModel, new();
 
