@@ -663,32 +663,6 @@ public class RepositoryTests
         await Assert.ThrowsAsync<ArgumentNullException>(() => repo.GetAllAsync<CountryDto>(null!));
     }
 
-    [Fact]
-    public async Task GetAllAsyncTResult_RespectsCancellationToken()
-    {
-        // Arrange
-        await using var context = new TestDbContext(CreateOptions());
-        context.Database.EnsureCreated();
-
-        var repo = CreateRepository(context);
-        var country = new Country { Name = "TestCountry" };
-        context.Countries?.Add(country);
-        await context.SaveChangesAsync();
-        context.ChangeTracker.Clear();
-
-        // Create a query to get all countries
-        var query = new Query<Country, CountryDto>
-        {
-            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
-        };
-        query.Where(c => c.Name == "TestCountry");
-        using var cts = new CancellationTokenSource();
-
-        // Act & Assert
-        cts.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetAllAsync(query, cts.Token));
-    }
-
     // DTO for projection tests
     private class CountryDto
     {

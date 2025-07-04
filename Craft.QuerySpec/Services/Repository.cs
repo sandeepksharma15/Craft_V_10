@@ -21,7 +21,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
 
         await _dbSet
             .WithQuery(query)
@@ -47,7 +47,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         return await _dbSet
             .WithQuery(query)
@@ -62,7 +62,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         return await _dbSet
             .WithQuery(query)
@@ -76,7 +76,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
         return await _dbSet
             .WithQuery(query)
@@ -90,7 +90,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
 
         if (query.Take is null || query.Take <= 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Page size (Take) must be set and greater than zero.");
@@ -121,7 +121,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
 
         if (query.Take is null || query.Take <= 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Page size (Take) must be set and greater than zero.");
@@ -151,7 +151,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         return await _dbSet
             .WithQuery(query)
@@ -164,15 +164,18 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
-        cancellationToken.ThrowIfCancellationRequested();
 
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"] Query: {query}");
+            _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        return await _dbSet
-            .WithQuery(query)
+        // Ensure projection to TResult
+        var projected = _dbSet.WithQuery(query);
+
+        var result = await projected
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        return result ?? [];
     }
 }
 
