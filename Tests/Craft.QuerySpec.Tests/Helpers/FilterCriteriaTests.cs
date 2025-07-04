@@ -109,16 +109,92 @@ public class FilterCriteriaTests
     }
 
     [Fact]
-    public void ParseExpression_WithUnsupportedOperator_ThrowsArgumentException()
+    public void ParseExpression_WithNotEqualOperator_ReturnsNotEqualComparisonType()
     {
         // Arrange
         Expression<Func<DummyClass, bool>> whereExpression = s => s.Length != 10;
 
-        // Act & Assert
+        // Act
         var filterInfo = FilterCriteria.GetFilterInfo(whereExpression);
 
         // Assert
         Assert.Equal(ComparisonType.NotEqualTo, filterInfo.Comparison);
+    }
+
+    [Fact]
+    public void Constructor_WithNullArguments_ThrowsArgumentNullException()
+    {
+        // Arrange, Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new FilterCriteria(null!, "Name", "Value"));
+        Assert.Throws<ArgumentNullException>(() => new FilterCriteria("TypeName", null!, "Value"));
+        Assert.Throws<ArgumentNullException>(() => new FilterCriteria("TypeName", "Name", null!));
+    }
+
+    [Fact]
+    public void GetExpression_WithNullFilterInfo_ThrowsArgumentNullException()
+    {
+        // Arrange, Act & Assert
+        Assert.Throws<ArgumentNullException>(() => FilterCriteria.GetExpression<DummyClass>(null!));
+    }
+
+    [Fact]
+    public void GetFilterInfo_WithNullPropertyExpression_ThrowsArgumentNullException()
+    {
+        // Arrange, Act & Assert
+        Assert.Throws<ArgumentNullException>(() => FilterCriteria.GetFilterInfo<DummyClass>(null!, 1, ComparisonType.EqualTo));
+    }
+
+    [Fact]
+    public void GetFilterInfo_WithNullCompareWith_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Expression<Func<DummyClass, object>> propertyExpression = s => s.Length;
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => FilterCriteria.GetFilterInfo(propertyExpression, null!, ComparisonType.EqualTo));
+    }
+
+    [Fact]
+    public void GetFilterInfo_WithNullWhereExpression_ThrowsArgumentNullException()
+    {
+        // Arrange, Act & Assert
+        Assert.Throws<ArgumentNullException>(() => FilterCriteria.GetFilterInfo<DummyClass>(null!));
+    }
+
+    [Fact]
+    public void ParseExpression_WithNonBinaryExpression_ThrowsArgumentException()
+    {
+        // Arrange
+        Expression<Func<DummyClass, bool>> expr = s => true;
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => FilterCriteria.GetFilterInfo(expr));
+    }
+
+    [Fact]
+    public void ParseExpression_WithNonMemberLeft_ThrowsArgumentException()
+    {
+        // Arrange
+        Expression<Func<DummyClass, bool>> expr = s => (s.Length + 1) == 2;
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => FilterCriteria.GetFilterInfo(expr));
+    }
+
+    [Fact]
+    public void ParseExpression_WithNonConstantRight_ThrowsArgumentException()
+    {
+        // Arrange
+        int value = 2;
+        Expression<Func<DummyClass, bool>> expr = s => s.Length == value;
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => FilterCriteria.GetFilterInfo(expr));
+    }
+
+    [Fact]
+    public void ParseExpression_WithUnsupportedOperator_ThrowsArgumentException()
+    {
+        // Arrange
+        Expression<Func<DummyClass, bool>> expr = s => s.Length * 2 == 4;
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => FilterCriteria.GetFilterInfo(expr));
     }
 
     private class DummyClass

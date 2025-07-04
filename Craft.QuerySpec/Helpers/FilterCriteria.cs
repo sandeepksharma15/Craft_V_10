@@ -3,20 +3,63 @@ using System.Reflection;
 
 namespace Craft.QuerySpec;
 
-public class FilterCriteria(string typeName, string name, string value, ComparisonType comparison = ComparisonType.EqualTo)
+/// <summary>
+/// Represents a filter criterion for querying entities, including property name, type, value, and comparison type.
+/// </summary>
+public sealed record FilterCriteria
 {
-    public ComparisonType Comparison { get; } = comparison;
-    public string Name { get; } = name;
-    public string TypeName { get; } = typeName;
-    public string Value { get; } = value;
+    /// The type name of the property being filtered.
+    public string TypeName { get; }
 
+    /// The property name being filtered.
+    public string Name { get; }
+
+    /// The value to compare with.
+    public string Value { get; }
+
+    /// The type of comparison to perform.
+    public ComparisonType Comparison { get; }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="FilterCriteria"/>.
+    /// </summary>
+    /// <param name="typeName">The type name of the property.</param>
+    /// <param name="name">The property name.</param>
+    /// <param name="value">The value to compare with.</param>
+    /// <param name="comparison">The comparison type.</param>
+    /// <exception cref="ArgumentNullException">Thrown if any required argument is null.</exception>
+    public FilterCriteria(string typeName, string name, string value, ComparisonType comparison = ComparisonType.EqualTo)
+    {
+        TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
+        Name = name ?? throw new ArgumentNullException(nameof(name));
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+        Comparison = comparison;
+    }
+
+    /// <summary>
+    /// Creates a LINQ expression that represents a filter condition based on the specified criteria.
+    /// </summary>
+    /// <typeparam name="T">The type of the entity to which the filter will be applied.</typeparam>
+    /// <param name="filterInfo">The filter criteria used to construct the expression. Cannot be <see langword="null"/>.</param>
+    /// <returns>A LINQ expression of type <see cref="Expression{Func{T, Boolean}}"/> that can be used to filter a collection of
+    /// <typeparamref name="T"/>.</returns>
     public static Expression<Func<T, bool>> GetExpression<T>(FilterCriteria filterInfo)
-        => ExpressionBuilder.CreateWhereExpression<T>(filterInfo);
+    {
+        ArgumentNullException.ThrowIfNull(filterInfo, nameof(filterInfo));
 
+        return ExpressionBuilder.CreateWhereExpression<T>(filterInfo);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="FilterCriteria"/> from a property selector and comparison value.
+    /// </summary>
     public static FilterCriteria GetFilterInfo<T>(Expression<Func<T, object>> propName, object compareWith, ComparisonType comparisonType)
     {
+        ArgumentNullException.ThrowIfNull(propName, nameof(propName));
+        ArgumentNullException.ThrowIfNull(compareWith, nameof(compareWith));
+
         MemberInfo prop = propName.GetPropertyInfo<T>()
-            ?? throw new ArgumentException("You must pass a lambda of the form: '() => Class.Property' ");
+            ?? throw new ArgumentException($"You must pass a lambda of the form: '() => {{Class}}.{{Property}}'", nameof(propName));
 
         string name = prop.Name;
         Type? type = prop.GetMemberUnderlyingType();
@@ -33,14 +76,22 @@ public class FilterCriteria(string typeName, string name, string value, Comparis
         return new FilterCriteria(type?.FullName!, name, compareWith?.ToString()!, comparisonType);
     }
 
+    /// <summary>
+    /// Creates a <see cref="FilterCriteria"/> from a binary expression (e.g., x => x.Property == value).
+    /// </summary>
     public static FilterCriteria GetFilterInfo<T>(Expression<Func<T, bool>> whereExpr)
     {
+        ArgumentNullException.ThrowIfNull(whereExpr, nameof(whereExpr));
+
         if (IsValidExpression(whereExpr))
             return ParseExpression(whereExpr);
-        else
-            throw new ArgumentException("Invalid expression format.");
+
+        throw new ArgumentException("Invalid expression format. Only simple binary expressions are supported.", nameof(whereExpr));
     }
 
+    /// <summary>
+    /// Builds a lambda expression for this filter criteria.
+    /// </summary>
     public Expression<Func<T, bool>> GetExpression<T>()
         => ExpressionBuilder.CreateWhereExpression<T>(this);
 
@@ -54,11 +105,17 @@ public class FilterCriteria(string typeName, string name, string value, Comparis
 
     private static FilterCriteria ParseExpression<T>(Expression<Func<T, bool>> expression)
     {
-        var binaryExpression = (BinaryExpression)expression.Body;
+        if (expression.Body is not BinaryExpression binaryExpression)
+            throw new ArgumentException("Expression body must be a binary expression.", nameof(expression));
 
-        var leftExpression = (MemberExpression)binaryExpression.Left;
+        if (binaryExpression.Left is not MemberExpression leftExpression)
+            throw new ArgumentException("Left side of expression must be a property.", nameof(expression));
+
+        if (binaryExpression.Right is not ConstantExpression rightExpression)
+            throw new ArgumentException("Right side of expression must be a constant.", nameof(expression));
+
         var dataType = leftExpression.Type;
-        var comparedValue = ((ConstantExpression)binaryExpression.Right).Value;
+        var comparedValue = rightExpression.Value;
         var propertyName = leftExpression.Member.Name;
 
         var comparisonOperator = binaryExpression.NodeType switch
@@ -69,12 +126,9 @@ public class FilterCriteria(string typeName, string name, string value, Comparis
             ExpressionType.LessThan => ComparisonType.LessThan,
             ExpressionType.GreaterThanOrEqual => ComparisonType.GreaterThanOrEqualTo,
             ExpressionType.LessThanOrEqual => ComparisonType.LessThanOrEqualTo,
-            _ => throw new ArgumentException("Comparison operator not supported"),
+            _ => throw new ArgumentException($"Comparison operator '{binaryExpression.NodeType}' not supported.", nameof(expression)),
         };
 
-        return new FilterCriteria(dataType.FullName!,
-            propertyName,
-            comparedValue?.ToString()!,
-            comparisonOperator);
+        return new FilterCriteria(dataType.FullName!, propertyName, comparedValue?.ToString()!, comparisonOperator);
     }
 }
