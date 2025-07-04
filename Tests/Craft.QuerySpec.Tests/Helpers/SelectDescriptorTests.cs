@@ -41,8 +41,10 @@ public class SelectDescriptorTests
         // Arrange
         const string json = "null";
 
-        // Act & Assert
+        // Act
         var selectInfo = JsonSerializer.Deserialize<SelectDescriptor<Company, MyResult>>(json, CachedJsonSerializerOptions);
+
+        // Assert
         Assert.Null(selectInfo);
     }
 
@@ -54,5 +56,127 @@ public class SelectDescriptorTests
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() => JsonSerializer.Deserialize<SelectDescriptor<Company, MyResult>>(json, CachedJsonSerializerOptions));
+    }
+
+    [Fact]
+    public void Constructor_NullAssignor_ThrowsArgumentNullException()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new SelectDescriptor<Company, MyResult>((LambdaExpression)null!));
+    }
+
+    [Fact]
+    public void Constructor_NonMemberAssignor_ThrowsArgumentException()
+    {
+        // Arrange
+        Expression<Func<Company, string>> expr = x => x.ToString();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new SelectDescriptor<Company, MyResult>(expr));
+    }
+
+    [Fact]
+    public void Constructor_NullAssignorOrAssignee_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Expression<Func<Company, string>> assignor = x => x.Name!;
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new SelectDescriptor<Company, MyResult>(null!, assignor));
+        Assert.Throws<ArgumentNullException>(() => new SelectDescriptor<Company, MyResult>(assignor, null!));
+    }
+
+    [Fact]
+    public void Constructor_NonMemberAssignee_ThrowsArgumentException()
+    {
+        // Arrange
+        Expression<Func<Company, string>> assignor = x => x.Name!;
+        Expression<Func<MyResult, string>> assignee = x => x.ToString()!;
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new SelectDescriptor<Company, MyResult>(assignor, assignee));
+    }
+
+    [Fact]
+    public void Constructor_AssignorPropertyName_NullOrWhitespace_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new SelectDescriptor<Company, MyResult>((string)null!));
+        Assert.Throws<ArgumentException>(() => new SelectDescriptor<Company, MyResult>(" "));
+    }
+
+    [Fact]
+    public void Constructor_AssignorPropertyName_DoesNotExist_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentException>(() => new SelectDescriptor<Company, MyResult>("NonExistentProperty"));
+    }
+
+    [Fact]
+    public void Constructor_AssignorAndAssigneePropertyName_NullOrWhitespace_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new SelectDescriptor<Company, MyResult>(null!, "ResultName"));
+        Assert.Throws<ArgumentNullException>(() => new SelectDescriptor<Company, MyResult>("Name", null!));
+        Assert.Throws<ArgumentException>(() => new SelectDescriptor<Company, MyResult>(" ", "ResultName"));
+        Assert.Throws<ArgumentException>(() => new SelectDescriptor<Company, MyResult>("Name", " "));
+    }
+
+    [Fact]
+    public void InternalConstructor_ForSerialization_DoesNotThrow()
+    {
+        // Arrange
+        var ctor = typeof(SelectDescriptor<Company, MyResult>).GetConstructor(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+
+        // Act
+        var instance = ctor?.Invoke(null);
+
+        // Assert
+        Assert.NotNull(instance);
+    }
+
+    [Fact]
+    public void JsonConverter_Read_WithMissingProperties_DoesNotThrowAndPropertiesAreNull()
+    {
+        // Arrange
+        const string json = "{}";
+
+        // Act
+        var selectInfo = JsonSerializer.Deserialize<SelectDescriptor<Company, MyResult>>(json, CachedJsonSerializerOptions);
+
+        // Assert
+        Assert.NotNull(selectInfo);
+        Assert.Null(selectInfo.Assignor);
+        Assert.Null(selectInfo.Assignee);
+    }
+
+    [Fact]
+    public void JsonConverter_Read_WithEmptyOrWhitespaceProperties_DoesNotThrowAndPropertiesAreNull()
+    {
+        // Arrange
+        const string json = "{\"Assignor\": \"\", \"Assignee\": \" \"}";
+
+        // Act
+        var selectInfo = JsonSerializer.Deserialize<SelectDescriptor<Company, MyResult>>(json, CachedJsonSerializerOptions);
+
+        // Assert
+        Assert.NotNull(selectInfo);
+        Assert.Null(selectInfo.Assignor);
+        Assert.Null(selectInfo.Assignee);
+    }
+
+    [Fact]
+    public void JsonConverter_Write_WithNullAssignorOrAssignee_WritesNulls()
+    {
+        // Arrange
+        var ctor = typeof(SelectDescriptor<Company, MyResult>).GetConstructor(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+        var emptyInfo = (SelectDescriptor<Company, MyResult>)ctor!.Invoke(null);
+
+        // Act
+        var json = JsonSerializer.Serialize(emptyInfo, CachedJsonSerializerOptions);
+
+        // Assert
+        Assert.Contains("\"Assignor\":null", json);
+        Assert.Contains("\"Assignee\":null", json);
     }
 }
