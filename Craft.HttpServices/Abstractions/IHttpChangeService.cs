@@ -3,7 +3,7 @@
 namespace Craft.HttpServices;
 
 public interface IHttpChangeService<T, ViewT, DataTransferT, TKey> : IHttpReadService<T, TKey>
-    where T : class, IEntity<TKey>, IModel<TKey>
+    where T : class, IEntity<TKey>, IModel<TKey>, new()
     where ViewT : class, IModel<TKey>
     where DataTransferT : class, IModel<TKey>
 {
@@ -53,6 +53,6 @@ public interface IHttpChangeService<T, ViewT, DataTransferT, TKey> : IHttpReadSe
 }
 
 public interface IHttpChangeService<T, ViewT, DataTransferT> : IHttpChangeService<T, ViewT, DataTransferT, KeyType>
-    where T : class, IEntity, IModel
+    where T : class, IEntity, IModel, new()
     where ViewT : class, IModel
     where DataTransferT : class, IModel;

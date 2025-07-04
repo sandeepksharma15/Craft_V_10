@@ -5,7 +5,7 @@ using Craft.HttpServices;
 namespace Craft.QuerySpec;
 
 public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeService<T, ViewT, DataTransferT, TKey>
-    where T : class, IEntity<TKey>, IModel<TKey>
+    where T : class, IEntity<TKey>, IModel<TKey>, new()
     where ViewT : class, IModel<TKey>
     where DataTransferT : class, IModel<TKey>
 {
@@ -92,10 +92,10 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
 }
 
 public interface IHttpService<T, ViewT, DataTransferT> : IHttpService<T, ViewT, DataTransferT, KeyType>
-    where T : class, IEntity, IModel
-    where ViewT : class, IModel
-    where DataTransferT : class, IModel;
+    where T : class, IEntity, IModel, new()
+    where ViewT : class, IModel, new()
+    where DataTransferT : class, IModel, new();
 
 public interface IHttpService<T> : IHttpService<T, T, T>
-    where T : class, IEntity, IModel;
+    where T : class, IEntity, IModel, new();
 
