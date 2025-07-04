@@ -24,6 +24,5 @@ public class ServerResponse
         Data = null;
     }
 
-    public override string ToString()
-        => JsonSerializer.Serialize(this);
+    public override string ToString() => JsonSerializer.Serialize(this);
 }
