@@ -44,7 +44,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
         if (response.IsSuccessStatusCode)
         {
             var data = await response.Content.ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken);
-            result.Data = data ?? new List<T>();
+            result.Data = data ?? [];
             result.Success = true;
         }
         else
@@ -136,7 +136,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
         if (response.IsSuccessStatusCode)
         {
             var data = await response.Content.ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken);
-            result.Data = data ?? new List<T>();
+            result.Data = data ?? [];
             result.Success = true;
         }
         else
@@ -155,12 +155,12 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
         try
         {
             var errors = await response.Content.ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken);
-            return errors ?? new List<string> { $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" };
+            return errors ?? [$"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}"];
         }
         catch
         {
             var text = await response.Content.ReadAsStringAsync(cancellationToken);
-            return new List<string> { string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" : text };
+            return [string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" : text];
         }
     }
 }
