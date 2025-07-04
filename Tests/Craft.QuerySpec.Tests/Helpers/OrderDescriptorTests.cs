@@ -29,25 +29,40 @@ public class OrderDescriptorTests
     }
 
     [Fact]
-    public void Read_WithInvalidMemberExpression_ThrowsException()
+    public void Constructor_WithNullOrderItem_AllowsNull()
     {
-        // Arrange
-        const string json = "{\"OrderItem\": \"InvalidMember\", \"OrderType\": 0}";
+        // Arrange & Act
+        var orderInfo = new OrderDescriptor<MyTestClass>(null!, OrderTypeEnum.OrderBy);
 
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() => JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, serializeOptions));
+        // Assert
+        Assert.Null(orderInfo.OrderItem);
+        Assert.Equal(OrderTypeEnum.OrderBy, orderInfo.OrderType);
     }
 
     [Fact]
-    public void Read_WithNullJson_ReturnsNull()
+    public void Constructor_DefaultsToOrderBy()
     {
-        // Arrange
-        const string json = "null";
+        // Arrange & Act
+        Expression<Func<MyTestClass, object>> orderItemExpression = x => x.MyProperty;
+        var orderInfo = new OrderDescriptor<MyTestClass>(orderItemExpression);
 
-        // Act & Assert
-        var orderInfo = JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, 
-            serializeOptions);
-        Assert.Null(orderInfo);
+        // Assert
+        Assert.Equal(OrderTypeEnum.OrderBy, orderInfo.OrderType);
+    }
+
+    [Theory]
+    [InlineData(OrderTypeEnum.OrderBy)]
+    [InlineData(OrderTypeEnum.OrderByDescending)]
+    [InlineData(OrderTypeEnum.ThenBy)]
+    [InlineData(OrderTypeEnum.ThenByDescending)]
+    public void Constructor_SetsAllOrderTypeEnumValues(OrderTypeEnum orderType)
+    {
+        // Arrange & Act
+        Expression<Func<MyTestClass, object>> orderItemExpression = x => x.MyProperty;
+        var orderInfo = new OrderDescriptor<MyTestClass>(orderItemExpression, orderType);
+
+        // Assert
+        Assert.Equal(orderType, orderInfo.OrderType);
     }
 
     [Fact]
@@ -89,24 +104,77 @@ public class OrderDescriptorTests
     }
 
     [Fact]
-    public void Constructor_WithNullOrderItem_DoesNotThrows()
+    public void Write_WithNullOrderDescriptor_WritesJsonNull()
     {
         // Arrange & Act
-        var ex = Record.Exception(() => new OrderDescriptor<MyTestClass>(null!, OrderTypeEnum.OrderBy));
+        var json = JsonSerializer.Serialize<OrderDescriptor<MyTestClass>>(null!, serializeOptions);
 
         // Assert
-        Assert.Null(ex);
+        Assert.Equal("null", json);
     }
 
     [Fact]
-    public void Constructor_DefaultsToOrderBy()
+    public void Read_WithNullJson_ReturnsNull()
     {
-        // Arrange & Act
-        Expression<Func<MyTestClass, object>> orderItemExpression = x => x.MyProperty;
-        var orderInfo = new OrderDescriptor<MyTestClass>(orderItemExpression);
+        // Arrange
+        const string json = "null";
+
+        // Act
+        var orderInfo = JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, serializeOptions);
 
         // Assert
-        Assert.Equal(OrderTypeEnum.OrderBy, orderInfo.OrderType);
+        Assert.Null(orderInfo);
+    }
+
+    [Fact]
+    public void Read_WithMissingOrderItem_ThrowsJsonException()
+    {
+        // Arrange
+        const string json = "{\"OrderType\": 1}";
+
+        // Act & Assert
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, serializeOptions));
+    }
+
+    [Fact]
+    public void Read_WithInvalidMemberExpression_ThrowsJsonException()
+    {
+        // Arrange
+        const string json = "{\"OrderItem\": \"InvalidMember\", \"OrderType\": 1}";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, serializeOptions));
+    }
+
+    [Fact]
+    public void Read_WithInvalidOrderType_ThrowsJsonException()
+    {
+        // Arrange
+        const string json = "{\"OrderItem\": \"MyProperty\", \"OrderType\": \"notAnInt\"}";
+
+        // Act & Assert
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, serializeOptions));
+    }
+
+    [Fact]
+    public void Read_WithUnknownProperty_ThrowsJsonException()
+    {
+        // Arrange
+        const string json = "{\"OrderItem\": \"MyProperty\", \"OrderType\": 1, \"Unknown\": 123}";
+
+        // Act & Assert
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<OrderDescriptor<MyTestClass>>(json, serializeOptions));
+    }
+
+    [Fact]
+    public void Write_WithOrderItemNotAProperty_ThrowsJsonException()
+    {
+        // Arrange
+        Expression<Func<MyTestClass, object>> expr = x => x.Id + 1;
+        var orderInfo = new OrderDescriptor<MyTestClass>(expr, OrderTypeEnum.OrderBy);
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => JsonSerializer.Serialize(orderInfo, serializeOptions));
     }
 
     public class MyTestClass
