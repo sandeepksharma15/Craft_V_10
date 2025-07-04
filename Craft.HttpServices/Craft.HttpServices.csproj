@@ -10,8 +10,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
-	  <ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
+		<PackageReference Include="Mapster" Version="7.4.1-pre01" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
+		<ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
 	</ItemGroup>
 
 </Project>

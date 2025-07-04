@@ -13,6 +13,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
     protected readonly HttpClient _httpClient = httpClient;
     protected readonly ILogger _logger = logger;
 
+    /// inheritdoc />
     public virtual async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -27,9 +28,10 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
         return await response
             .Content
             .ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false) ?? new List<T>();
+            .ConfigureAwait(false) ?? [];
     }
 
+    /// inheritdoc />
     public virtual async Task<T?> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -47,6 +49,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             .ConfigureAwait(false);
     }
 
+    /// inheritdoc />
     public virtual async Task<long> GetCountAsync(CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -64,6 +67,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             .ConfigureAwait(false);
     }
 
+    /// inheritdoc />
     public async Task<PageResponse<T>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
@@ -85,6 +89,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
         return pagedList!;
     }
 
+    /// inheritdoc />
     public async Task<PageResponse<TResult>> GetPagedListAsync<TResult>(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default) where TResult : class, new()
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));

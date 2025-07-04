@@ -157,7 +157,7 @@ public class HttpReadServiceTests
     public async Task GetPagedListAsync_ReturnsPageResponse_WhenResponseIsValid()
     {
         // Arrange
-        var page = new PageResponse<TestEntity>(new[] { new TestEntity { Id = 1 } }, 10, 1, 1);
+        var page = new PageResponse<TestEntity>([new TestEntity { Id = 1 }], 10, 1, 1);
         var json = JsonSerializer.Serialize(page);
         var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -223,7 +223,7 @@ public class HttpReadServiceTests
     public async Task GetPagedListAsyncTResult_ReturnsPageResponse_WhenResponseIsValid()
     {
         // Arrange
-        var page = new PageResponse<AltResult>(new[] { new AltResult { Value = "abc" } }, 5, 1, 1);
+        var page = new PageResponse<AltResult>([new AltResult { Value = "abc" }], 5, 1, 1);
         var json = JsonSerializer.Serialize(page);
         var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
