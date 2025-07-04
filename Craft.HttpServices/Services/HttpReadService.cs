@@ -103,9 +103,8 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             .ReadAsStringAsync(cancellationToken);
 
         var pagedResponse = JsonSerializer.Deserialize<PageResponse<TResult>>(content);
-        if (pagedResponse == null)
-            throw new InvalidOperationException("Failed to deserialize the paged response.");
-        return pagedResponse;
+
+        return pagedResponse ?? throw new InvalidOperationException("Failed to deserialize the paged response.");
     }
 }
 
