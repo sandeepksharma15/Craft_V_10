@@ -12,7 +12,16 @@ namespace Craft.QuerySpec;
 /// <typeparam name="T">The type of the entities being filtered.</typeparam>
 public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityFilterCriteria<T>> where T : class
 {
+    /// <summary>
+    /// The property name for the filter, cached for performance and maintainability.
+    /// </summary>
+    private static readonly string FilterPropertyName = nameof(EntityFilterCriteria<>.Filter);
+
     /// <inheritdoc />
+    /// <remarks>
+    /// The filter string is expected to be a valid C# boolean expression (e.g., "x => x.Property == value").
+    /// Only simple binary expressions are supported. Complex/nested expressions may not be parsed correctly.
+    /// </remarks>
     public override EntityFilterCriteria<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         Expression<Func<T, bool>>? filter = null;
@@ -34,46 +43,70 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
 
                 reader.Read();
 
-                if (propertyName == nameof(EntityFilterCriteria<>.Filter))
+                if (propertyName == FilterPropertyName)
                 {
                     var str = reader.GetString();
 
-                    str = str?.Replace('\'', '\"');
-                    str = str?.RemovePreFix("(");
-                    str = str?.RemovePostFix(")");
+                    if (string.IsNullOrWhiteSpace(str))
+                        throw new JsonException($"The '{FilterPropertyName}' property value is null or empty.");
 
-                    filter = ExpressionTreeBuilder.BuildBinaryTreeExpression<T>(str);
+                    try
+                    {
+                        str = str.Replace('\'', '\"');
+                        str = str.RemovePreFix("(");
+                        str = str.RemovePostFix(")");
+
+                        // Validate basic format (very basic, can be extended)
+                        if (!str!.Contains("==") && !str!.Contains("!=") && !str!.Contains('>') && !str!.Contains('<'))
+                            throw new JsonException($"The filter string '{str}' does not appear to be a valid binary expression.");
+
+                        filter = ExpressionTreeBuilder.BuildBinaryTreeExpression<T>(str);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new JsonException($"Failed to parse filter expression: '{str}'. See inner exception for details.", ex);
+                    }
                 }
                 else
                 {
-                    throw new JsonException($"Expected a valid property value instead of {reader.GetString()}");
+                    throw new JsonException($"Unexpected property '{propertyName}' in EntityFilterCriteria JSON. Only '{FilterPropertyName}' is supported.");
                 }
             }
         }
 
         if (filter == null)
-            throw new JsonException("Missing or invalid 'Filter' property in JSON.");
+            throw new JsonException($"Missing or invalid '{FilterPropertyName}' property in JSON.");
 
         return new EntityFilterCriteria<T>(filter);
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// If the value is null, writes a JSON null. Otherwise, writes the filter as a string property.
+    /// </remarks>
     public override void Write(Utf8JsonWriter writer, EntityFilterCriteria<T> value, JsonSerializerOptions options)
     {
-        ArgumentNullException.ThrowIfNull(value, nameof(value));
+        if (value == null)
+        {
+            writer.WriteNullValue();
+            return;
+        }
 
         writer.WriteStartObject();
-        writer.WriteString(nameof(EntityFilterCriteria<>.Filter), RemoveAccessor(value.Filter.Body.ToString()));
+        writer.WriteString(FilterPropertyName, RemoveAccessor(value.Filter.Body.ToString()));
         writer.WriteEndObject();
     }
 
     /// <summary>
-    /// Removes parameter accessor prefixes from the filter string for cleaner serialization.
+    /// Removes all parameter accessor prefixes from the filter string for cleaner serialization.
+    /// For example, converts "(x.Property1 == 5 && x.Property2 == 10)" to "(Property1 == 5 && Property2 == 10)".
     /// </summary>
+    /// <param name="source">The filter string to clean.</param>
+    /// <returns>The cleaned filter string.</returns>
     private static string RemoveAccessor(string source)
     {
         if (string.IsNullOrEmpty(source)) return source;
-        // Remove patterns like (x.Property) => (Property)
-        return Regex.Replace(source, @"\((\w+)\.", "(");
+        // Remove all patterns like x.Property, y.Property, etc. (handles nested and multiple accessors)
+        return Regex.Replace(source, @"\b\w+\.", string.Empty);
     }
 }

@@ -208,15 +208,22 @@ public class EntityFilterCriteriaTests
     }
 
     [Fact]
-    public void JsonConverter_Write_NullValue_ThrowsArgumentNullException()
+    public void JsonConverter_Write_NullValue_WritesJsonNull()
     {
         // Arrange
         var converter = new EntityFilterCriteriaJsonConverter<MyEntity>();
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => converter.Write(writer, null!, options));
+        // Act
+        converter.Write(writer, null!, options);
+        writer.Flush();
+        stream.Position = 0;
+        using var reader = new StreamReader(stream);
+        var json = reader.ReadToEnd();
+
+        // Assert
+        Assert.Equal("null", json);
     }
 
     private class MyEntity
