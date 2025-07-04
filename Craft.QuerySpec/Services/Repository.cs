@@ -169,13 +169,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         // Ensure projection to TResult
-        var projected = _dbSet.WithQuery(query);
-
-        var result = await projected
+        return await _dbSet
+            .WithQuery(query)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
-
-        return result ?? [];
     }
 }
 

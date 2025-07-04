@@ -621,7 +621,8 @@ public class RepositoryTests
         // Act
         var query = new Query<Country, CountryDto>
         {
-            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
         };
         var result = await repo.GetAllAsync(query);
 
@@ -641,7 +642,8 @@ public class RepositoryTests
         var repo = CreateRepository(context);
         var query = new Query<Country, CountryDto>
         {
-            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
         };
         query.Where(c => c.Name == "DoesNotExist");
 
