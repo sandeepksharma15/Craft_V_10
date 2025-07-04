@@ -7,17 +7,21 @@ using Craft.Extensions.System;
 namespace Craft.QuerySpec;
 
 /// <summary>
-/// A custom JSON converter for the `EntityFilterCriteria<T>` class, enabling serialization and deserialization of filter expressions for entity filtering.
+/// A custom JSON converter for the <see cref="EntityFilterCriteria{T}"/> class, enabling serialization and deserialization of filter expressions for entity filtering.
 /// </summary>
 /// <typeparam name="T">The type of the entities being filtered.</typeparam>
-public class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityFilterCriteria<T>> where T : class
+public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityFilterCriteria<T>> where T : class
 {
+    /// <inheritdoc />
     public override EntityFilterCriteria<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         Expression<Func<T, bool>>? filter = null;
 
         if (reader.TokenType == JsonTokenType.Null)
             return null;
+
+        if (reader.TokenType != JsonTokenType.StartObject)
+            throw new JsonException($"Expected StartObject token, got {reader.TokenType}.");
 
         while (reader.Read())
         {
@@ -26,7 +30,7 @@ public class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityFilterCr
 
             if (reader.TokenType == JsonTokenType.PropertyName)
             {
-                var propertyName = reader.GetString();
+                string? propertyName = reader.GetString();
 
                 reader.Read();
 
@@ -47,23 +51,29 @@ public class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityFilterCr
             }
         }
 
+        if (filter == null)
+            throw new JsonException("Missing or invalid 'Filter' property in JSON.");
+
         return new EntityFilterCriteria<T>(filter);
     }
 
+    /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, EntityFilterCriteria<T> value, JsonSerializerOptions options)
     {
+        ArgumentNullException.ThrowIfNull(value, nameof(value));
+
         writer.WriteStartObject();
-
-        writer.WriteString(nameof(EntityFilterCriteria<>.Filter),
-            RemoveAccessor(value.Filter.Body.ToString()));
-
+        writer.WriteString(nameof(EntityFilterCriteria<>.Filter), RemoveAccessor(value.Filter.Body.ToString()));
         writer.WriteEndObject();
     }
 
+    /// <summary>
+    /// Removes parameter accessor prefixes from the filter string for cleaner serialization.
+    /// </summary>
     private static string RemoveAccessor(string source)
     {
-        var result =  Regex.Replace(source, @"\((\w+)\.", "(");
-
-        return result;
+        if (string.IsNullOrEmpty(source)) return source;
+        // Remove patterns like (x.Property) => (Property)
+        return Regex.Replace(source, @"\((\w+)\.", "(");
     }
 }

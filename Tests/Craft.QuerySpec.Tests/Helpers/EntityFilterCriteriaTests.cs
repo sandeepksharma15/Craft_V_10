@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using System.Text.Json;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Craft.QuerySpec.Tests.Helpers;
 
@@ -96,6 +95,31 @@ public class EntityFilterCriteriaTests
     }
 
     [Fact]
+    public void ToString_ReturnsExpectedString()
+    {
+        // Arrange
+        Expression<Func<MyEntity, bool>> filter = x => x.Name == "Test";
+        var criteria = new EntityFilterCriteria<MyEntity>(filter);
+
+        // Act
+        var result = criteria.ToString();
+
+        // Assert
+        Assert.Equal(filter.ToString(), result);
+    }
+
+    [Fact]
+    public void Matches_NullEntity_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Expression<Func<MyEntity, bool>> filter = x => x.Name == "Test";
+        var criteria = new EntityFilterCriteria<MyEntity>(filter);
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => criteria.Matches(null!));
+    }
+
+    [Fact]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "JSON001:Invalid JSON pattern", Justification = "Test Case")]
     public void JsonConverter_Read_InvalidJson_ThrowsJsonException()
     {
@@ -128,10 +152,30 @@ public class EntityFilterCriteriaTests
     }
 
     [Fact]
-    public void JsonConverter_Read_NullJson_ThrowsException()
+    public void JsonConverter_Read_NullJson_ThrowsJsonException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => JsonSerializer.Deserialize<EntityFilterCriteria<MyEntity>>("\"null\"", options));
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EntityFilterCriteria<MyEntity>>("\"null\"", options));
+    }
+
+    [Fact]
+    public void JsonConverter_Read_EmptyFilterString_ThrowsJsonException()
+    {
+        // Arrange
+        const string json = "{\"Filter\":\"\"}";
+
+        // Act & Assert
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EntityFilterCriteria<MyEntity>>(json, options));
+    }
+
+    [Fact]
+    public void JsonConverter_Read_WhitespaceFilterString_ThrowsJsonException()
+    {
+        // Arrange
+        const string json = "{\"Filter\":\"   \"}";
+
+        // Act & Assert
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<EntityFilterCriteria<MyEntity>>(json, options));
     }
 
     [Fact]
@@ -161,6 +205,18 @@ public class EntityFilterCriteriaTests
 
         // Assert
         Assert.Contains("{\"Filter\":\"(Name == \\u0022John\\u0022)\"}", json);
+    }
+
+    [Fact]
+    public void JsonConverter_Write_NullValue_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var converter = new EntityFilterCriteriaJsonConverter<MyEntity>();
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream);
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => converter.Write(writer, null!, options));
     }
 
     private class MyEntity
