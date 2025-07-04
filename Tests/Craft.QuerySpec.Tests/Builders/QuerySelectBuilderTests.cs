@@ -413,8 +413,13 @@ public class QuerySelectBuilderTests
     [Fact]
     public void Read_DeserializesEmptyArrayToQuerySelectBuilder()
     {
+        // Arrange
         const string emptyJson = "[]";
+
+        // Act
         var builder = JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(emptyJson, serializeOptions);
+
+        // Assert
         Assert.NotNull(builder);
         Assert.Empty(builder.SelectDescriptorList);
     }
