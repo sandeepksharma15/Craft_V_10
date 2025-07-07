@@ -32,7 +32,7 @@ public sealed record FilterCriteria
     {
         TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
         Name = name ?? throw new ArgumentNullException(nameof(name));
-        Value = value ?? throw new ArgumentNullException(nameof(value));
+        Value = value;
         Comparison = comparison;
     }
 
