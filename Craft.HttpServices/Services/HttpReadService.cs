@@ -49,6 +49,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
                 result.Success = false;
             }
         }
+        catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             result.Errors = [ex.Message];
@@ -86,6 +87,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
                 result.Success = false;
             }
         }
+        catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             result.Errors = [ex.Message];
@@ -122,6 +124,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
                 result.Success = false;
             }
         }
+        catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             result.Errors = [ex.Message];
@@ -162,6 +165,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
                 result.Success = false;
             }
         }
+        catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             result.Errors = [ex.Message];
@@ -202,6 +206,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
                 result.Success = false;
             }
         }
+        catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             result.Errors = [ex.Message];
