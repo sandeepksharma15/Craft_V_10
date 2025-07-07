@@ -4,7 +4,7 @@ using Craft.Domain;
 using Craft.HttpServices.Services;
 using Microsoft.Extensions.Logging;
 
-namespace Craft.QuerySpec.Services;
+namespace Craft.QuerySpec;
 
 public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient httpClient, ILogger<HttpService<T, ViewT, DataTransferT, TKey>> logger)
     : HttpChangeService<T, ViewT, DataTransferT, TKey>(apiURL, httpClient, logger), IHttpService<T, ViewT, DataTransferT, TKey>
