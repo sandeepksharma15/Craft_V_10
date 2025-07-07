@@ -4,55 +4,54 @@ using System.Text.Json.Serialization;
 
 namespace Craft.QuerySpec;
 
+/// <summary>
+/// JSON converter for <see cref="EntityFilterBuilder{T}"/> to support custom serialization and deserialization.
+/// </summary>
+/// <typeparam name="T">The entity type.</typeparam>
 public class EntityFilterBuilderJsonConverter<T> : JsonConverter<EntityFilterBuilder<T>> where T : class
 {
+    /// <inheritdoc />
     public override bool CanConvert(Type objectType)
         => objectType == typeof(EntityFilterBuilder<T>);
 
+    /// <inheritdoc />
     public override EntityFilterBuilder<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var entityFilterBuilder = new EntityFilterBuilder<T>();
+        if (reader.TokenType != JsonTokenType.StartArray)
+            throw new JsonException($"Invalid format for {nameof(EntityFilterBuilder<>)}: expected array of {nameof(EntityFilterCriteria<>)}.");
 
-        // We Want To Clone The Options To Add The EntityFilterCriteriaJsonConverter
+        var entityFilterBuilder = new EntityFilterBuilder<T>();
         var localOptions = options.GetClone();
         localOptions.Converters.Add(new EntityFilterCriteriaJsonConverter<T>());
-
-        // Check for array start
-        if (reader.TokenType != JsonTokenType.StartArray)
-            throw new JsonException("Invalid format for SortOrderBuilder: expected array of OrderDescriptor");
 
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndArray)
                 break;
 
-            var entityFilterCriteria = JsonSerializer.Deserialize<EntityFilterCriteria<T>>(ref reader, localOptions);
+            var entityFilterCriteria = JsonSerializer.Deserialize<EntityFilterCriteria<T>>(ref reader, localOptions) 
+                ?? throw new JsonException($"Invalid format for {nameof(EntityFilterBuilder<>)}: expected array of {nameof(EntityFilterCriteria<>)}.");
 
-            if (entityFilterCriteria != null)
-                entityFilterBuilder.EntityFilterList.Add(entityFilterCriteria);
-            else
-                throw new JsonException("Invalid format for EntityFilterBuilder: expected array of EntityFilterCriteria");
+            entityFilterBuilder.EntityFilterList.Add(entityFilterCriteria);
         }
 
         return entityFilterBuilder;
     }
 
+    /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, EntityFilterBuilder<T> value, JsonSerializerOptions options)
     {
-        // Start The Array
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(value);
+
         writer.WriteStartArray();
 
-        // We Want To Clone The Options To Add The EntityFilterCriteriaJsonConverter
         var localOptions = options.GetClone();
         localOptions.Converters.Add(new EntityFilterCriteriaJsonConverter<T>());
 
         foreach (var entityFilter in value.EntityFilterList)
-        {
-            var json = JsonSerializer.Serialize(entityFilter, localOptions);
-            writer.WriteRawValue(json);
-        }
+            JsonSerializer.Serialize(writer, entityFilter, localOptions);
 
-        // End the array
         writer.WriteEndArray();
     }
 }
