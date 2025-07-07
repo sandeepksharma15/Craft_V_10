@@ -1,4 +1,5 @@
 ﻿using Craft.Repositories.Services;
+using Craft.TestDataStore;
 using Craft.TestDataStore.Fixtures;
 using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Craft.Repositories.Tests;
 
-// Removed [Collection(nameof(SystemTestCollectionDefinition))] due to missing definition
+[Collection(nameof(SystemTestCollectionDefinition))]
 public class ReadRepositoryTests
 {
     private static DbContextOptions<TestDbContext> CreateOptions() =>

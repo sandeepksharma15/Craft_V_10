@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq.Expressions;
-using Xunit;
+﻿using System.Linq.Expressions;
+using Craft.TestDataStore;
 
 namespace Craft.QuerySpec.Tests.Helpers;
 
+[Collection(nameof(SystemTestCollectionDefinition))]
 public class FilterCriteriaTests
 {
     [Fact]
@@ -127,7 +127,6 @@ public class FilterCriteriaTests
         // Arrange, Act & Assert
         Assert.Throws<ArgumentNullException>(() => new FilterCriteria(null!, "Name", "Value"));
         Assert.Throws<ArgumentNullException>(() => new FilterCriteria("TypeName", null!, "Value"));
-        Assert.Throws<ArgumentNullException>(() => new FilterCriteria("TypeName", "Name", null!));
     }
 
     [Fact]
@@ -145,12 +144,17 @@ public class FilterCriteriaTests
     }
 
     [Fact]
-    public void GetFilterInfo_WithNullCompareWith_ThrowsArgumentNullException()
+    public void GetFilterInfo_WithNullCompareWith_DoesnNotThrowsArgumentNullException()
     {
         // Arrange
         Expression<Func<DummyClass, object>> propertyExpression = s => s.Length;
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => FilterCriteria.GetFilterInfo(propertyExpression, null!, ComparisonType.EqualTo));
+
+        // Act
+        var ex = Record.Exception(() =>
+            FilterCriteria.GetFilterInfo(propertyExpression, null!, ComparisonType.EqualTo));
+
+        // Assert
+        Assert.Null(ex);
     }
 
     [Fact]

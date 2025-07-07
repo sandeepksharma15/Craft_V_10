@@ -2,8 +2,10 @@
 using Craft.Data.Abstractions;
 using Craft.Domain;
 using Craft.Repositories;
+using Craft.TestDataStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace Craft.QuerySpec;
 
@@ -12,6 +14,7 @@ namespace Craft.QuerySpec;
 /// </summary>
 /// <typeparam name="T">Entity type.</typeparam>
 /// <typeparam name="TKey">Entity key type.</typeparam>
+[Collection(nameof(SystemTestCollectionDefinition))]
 public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, TKey>> logger)
     : ChangeRepository<T, TKey>(appDbContext, logger), IRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {

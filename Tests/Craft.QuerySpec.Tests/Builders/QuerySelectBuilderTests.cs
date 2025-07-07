@@ -345,7 +345,8 @@ public class QuerySelectBuilderTests
         const string validJson = "[{\"Assignor\":\"Name\",\"Assignee\":\"Name\"}]";
 
         // Act
-        var querySelectBuilder = JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(validJson, serializeOptions);
+        var querySelectBuilder = JsonSerializer
+            .Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(validJson, serializeOptions);
 
         // Assert
         Assert.NotNull(querySelectBuilder);
@@ -417,7 +418,8 @@ public class QuerySelectBuilderTests
         const string emptyJson = "[]";
 
         // Act
-        var builder = JsonSerializer.Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(emptyJson, serializeOptions);
+        var builder = JsonSerializer
+            .Deserialize<QuerySelectBuilder<MyEntity, MyResult>>(emptyJson, serializeOptions);
 
         // Assert
         Assert.NotNull(builder);
