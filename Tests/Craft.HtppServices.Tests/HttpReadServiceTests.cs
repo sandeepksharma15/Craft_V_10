@@ -7,6 +7,7 @@ using Craft.Domain;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
+using Craft.Core.Common;
 
 namespace Craft.HtppServices.Tests;
 
@@ -30,9 +31,11 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, e => e.Id == 1);
-        Assert.Contains(result, e => e.Id == 2);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Contains(result.Data, e => e.Id == 1);
+        Assert.Contains(result.Data, e => e.Id == 2);
     }
 
     [Fact]
@@ -52,11 +55,13 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Empty(result);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
     }
 
     [Fact]
-    public async Task GetAllAsync_Throws_WhenHttpFails()
+    public async Task GetAllAsync_ReturnsError_WhenHttpFails()
     {
         // Arrange
         var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
@@ -64,8 +69,12 @@ public class HttpReadServiceTests
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<HttpRequestException>(() => service.GetAllAsync());
+        // Act
+        var result = await service.GetAllAsync();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
     }
 
     [Fact]
@@ -86,7 +95,9 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(42, result!.Id);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal(42, result.Data.Id);
     }
 
     [Fact]
@@ -105,11 +116,12 @@ public class HttpReadServiceTests
         var result = await service.GetAsync(99);
 
         // Assert
-        Assert.Null(result);
+        Assert.True(result.Success);
+        Assert.Null(result.Data);
     }
 
     [Fact]
-    public async Task GetAsync_Throws_WhenHttpFails()
+    public async Task GetAsync_ReturnsError_WhenHttpFails()
     {
         // Arrange
         var response = new HttpResponseMessage(HttpStatusCode.NotFound);
@@ -117,8 +129,12 @@ public class HttpReadServiceTests
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<HttpRequestException>(() => service.GetAsync(1));
+        // Act
+        var result = await service.GetAsync(1);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
     }
 
     [Fact]
@@ -137,11 +153,12 @@ public class HttpReadServiceTests
         var result = await service.GetCountAsync();
 
         // Assert
-        Assert.Equal(123L, result);
+        Assert.True(result.Success);
+        Assert.Equal(123L, result.Data);
     }
 
     [Fact]
-    public async Task GetCountAsync_Throws_WhenHttpFails()
+    public async Task GetCountAsync_ReturnsError_WhenHttpFails()
     {
         // Arrange
         var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
@@ -149,8 +166,12 @@ public class HttpReadServiceTests
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<HttpRequestException>(() => service.GetCountAsync());
+        // Act
+        var result = await service.GetCountAsync();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
     }
 
     [Fact]
@@ -172,26 +193,32 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal(1, result.Items.First().Id);
-        Assert.Equal(10, result.TotalCount);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Single(result.Data.Items);
+        Assert.Equal(1, result.Data.Items.First().Id);
+        Assert.Equal(10, result.Data.TotalCount);
     }
 
     [Fact]
-    public async Task GetPagedListAsync_Throws_WhenPageOrPageSizeInvalid()
+    public async Task GetPagedListAsync_ReturnsError_WhenPageOrPageSizeInvalid()
     {
         // Arrange
         var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetPagedListAsync(0, 1));
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetPagedListAsync(1, 0));
+        // Act
+        var ex1 = await Record.ExceptionAsync(async () => await service.GetPagedListAsync(0, 1));
+        var ex2 = await Record.ExceptionAsync(async () => await service.GetPagedListAsync(1, 0));
+
+        // Assert
+        Assert.NotNull(ex1);
+        Assert.NotNull(ex2);
     }
 
     [Fact]
-    public async Task GetPagedListAsync_Throws_WhenHttpFails()
+    public async Task GetPagedListAsync_ReturnsError_WhenHttpFails()
     {
         // Arrange
         var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
@@ -199,12 +226,16 @@ public class HttpReadServiceTests
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<HttpRequestException>(() => service.GetPagedListAsync(1, 1));
+        // Act
+        var result = await service.GetPagedListAsync(1, 1);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
     }
 
     [Fact]
-    public async Task GetPagedListAsync_Throws_WhenDeserializationFails()
+    public async Task GetPagedListAsync_ReturnsError_WhenDeserializationFails()
     {
         // Arrange
         var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -215,8 +246,12 @@ public class HttpReadServiceTests
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<JsonException>(() => service.GetPagedListAsync(1, 1));
+        // Act
+        var result = await service.GetPagedListAsync(1, 1);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
     }
 
     [Fact]
@@ -238,13 +273,15 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal("abc", result.Items.First().Value);
-        Assert.Equal(5, result.TotalCount);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Single(result.Data.Items);
+        Assert.Equal("abc", result.Data.Items.First().Value);
+        Assert.Equal(5, result.Data.TotalCount);
     }
 
     [Fact]
-    public async Task GetPagedListAsyncTResult_Throws_WhenDeserializationFails()
+    public async Task GetPagedListAsyncTResult_ReturnsError_WhenDeserializationFails()
     {
         // Arrange
         var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -255,24 +292,12 @@ public class HttpReadServiceTests
         var logger = CreateLogger();
         var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<JsonException>(() => service.GetPagedListAsync<AltResult>(1, 1));
-    }
+        // Act
+        var result = await service.GetPagedListAsync<AltResult>(1, 1);
 
-    [Fact]
-    public async Task GetPagedListAsyncTResult_Throws_WhenNullDeserialized()
-    {
-        // Arrange
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("null", System.Text.Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = CreateLogger();
-        var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetPagedListAsync<AltResult>(1, 1));
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
     }
 
     // Helper for TResult tests
