@@ -65,6 +65,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
 
         var response = await _httpClient.DeleteAsync(new Uri($"{_apiURL}/{id}"), cancellationToken);
         var result = new HttpServiceResult<bool> { StatusCode = (int)response.StatusCode };
+
         if (response.IsSuccessStatusCode)
         {
             result.Data = true;

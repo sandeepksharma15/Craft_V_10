@@ -1,4 +1,5 @@
 ﻿using Craft.Core;
+using Craft.Core.Common;
 using Craft.Domain;
 using Craft.HttpServices;
 
@@ -36,7 +37,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// </summary>
     /// <param name="query">A Query containing filtering parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    Task<HttpResponseMessage> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a list of all the entities that meet the criteria by the given <paramref name="query"/>
