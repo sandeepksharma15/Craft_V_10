@@ -20,237 +20,245 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where ViewT : class, IModel<TKey>, new()
         where DataTransferT : class, IModel<TKey>, new()
 {
-    /// <summary>
-    /// Deletes all entities that match the specified query criteria.
-    /// </summary>
-    /// <param name="query">A query containing filtering parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>The HTTP response message.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
+    /// <inheritdoc />
     public virtual async Task<HttpServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
-
-        var response = await _httpClient
-            .PostAsJsonAsync(new Uri($"{_apiURL}/delete"), query, cancellationToken)
-            .ConfigureAwait(false);
-
-        var result = new HttpServiceResult<bool> { StatusCode = (int)response.StatusCode };
-
-        if (response.IsSuccessStatusCode)
+        var result = new HttpServiceResult<bool>();
+        try
         {
-            result.Data = true;
-            result.Success = true;
+            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/delete"), query, cancellationToken).ConfigureAwait(false);
+            result.StatusCode = (int)response.StatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                result.Data = true;
+                result.Success = true;
+            }
+            else
+            {
+                result.Data = false;
+                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Success = false;
+            }
         }
-        else
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
         {
             result.Data = false;
-            result.Errors = await TryReadErrors(response, cancellationToken);
+            result.Errors = [ex.Message];
             result.Success = false;
         }
         return result;
     }
 
-    /// <summary>
-    /// Gets all entities that match the specified query criteria.
-    /// </summary>
-    /// <param name="query">A query containing filtering and sorting parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A list of entities.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    public virtual async Task<List<T>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<List<T>>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
-
-        query.SetPage(1, int.MaxValue);
-
-        var pagedResult = await GetPagedListAsync(query, cancellationToken)
-            .ConfigureAwait(false);
-
-        return pagedResult?.Items?.ToList() ?? [];
-    }
-
-    /// <summary>
-    /// Gets all projected entities that match the specified query criteria.
-    /// </summary>
-    /// <typeparam name="TResult">The type to project to.</typeparam>
-    /// <param name="query">A query containing filtering, sorting, and projection parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A list of projected entities.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    public virtual async Task<List<TResult>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
-        where TResult : class, new()
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
-
-        query.SetPage(1, int.MaxValue);
-
-        var pagedResult = await GetPagedListAsync(query, cancellationToken)
-            .ConfigureAwait(false);
-
-        return pagedResult?.Items?.ToList() ?? [];
-    }
-
-    /// <summary>
-    /// Gets a single entity that matches the specified query criteria.
-    /// </summary>
-    /// <param name="query">A query containing filtering parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>The entity or null if no match found.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    /// <exception cref="HttpRequestException">Thrown when the request fails.</exception>
-    public virtual async Task<T?> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
-
-        HttpResponseMessage response = await _httpClient
-            .PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken)
-            .ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        return await response
-            .Content
-            .ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Gets a single projected entity that matches the specified query criteria.
-    /// </summary>
-    /// <typeparam name="TResult">The type to project to.</typeparam>
-    /// <param name="query">A query containing filtering and projection parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>The projected entity or null if no match found.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    /// <exception cref="HttpRequestException">Thrown when the request fails.</exception>
-    public virtual async Task<TResult?> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
-        where TResult : class, new()
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
-
-        HttpResponseMessage response = await _httpClient
-            .PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken)
-            .ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        return await response
-            .Content
-            .ReadFromJsonAsync<TResult>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Gets the count of entities that match the specified query criteria.
-    /// </summary>
-    /// <param name="query">A query containing filtering parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>The count of matching entities.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    /// <exception cref="HttpRequestException">Thrown when the request fails.</exception>
-    public virtual async Task<long> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
-
-        HttpResponseMessage response = await _httpClient
-            .PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken)
-            .ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        return await response
-            .Content
-            .ReadFromJsonAsync<long>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Gets a paginated list of entities that match the specified query criteria.
-    /// </summary>
-    /// <param name="query">A query containing filtering and sorting parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A paginated response of entities.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    /// <exception cref="HttpRequestException">Thrown when the request fails.</exception>
-    public virtual async Task<PageResponse<T>?> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
-
-        HttpResponseMessage response = await _httpClient
-            .PostAsJsonAsync(new Uri($"{_apiURL}/search"), query, cancellationToken)
-            .ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        return await response
-            .Content
-            .ReadFromJsonAsync<PageResponse<T>>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Gets a paginated list of projected entities that match the specified query criteria.
-    /// </summary>
-    /// <typeparam name="TResult">The type to project to.</typeparam>
-    /// <param name="query">A query containing filtering, sorting, and projection parameters.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>A paginated response of projected entities.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when query is null.</exception>
-    /// <exception cref="HttpRequestException">Thrown when the request fails.</exception>
-    public virtual async Task<PageResponse<TResult>?> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
-        where TResult : class, new()
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync<{typeof(TResult).Name}>\"]");
-
-        HttpResponseMessage response = await _httpClient
-            .PostAsJsonAsync(new Uri($"{_apiURL}/select"), query, cancellationToken)
-            .ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        return await response
-            .Content
-            .ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    private static async Task<List<string>> TryReadErrors(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
+        var result = new HttpServiceResult<List<T>>();
         try
         {
-            var errors = await response.Content.ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken);
-            return errors ?? [$"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}"];
+            query.SetPage(1, int.MaxValue);
+            var pagedResult = await GetPagedListAsync(query, cancellationToken).ConfigureAwait(false);
+            result.Data = pagedResult?.Data?.Items?.ToList() ?? [];
+            result.Success = pagedResult?.Success ?? false;
+            result.Errors = pagedResult?.Errors;
+            result.StatusCode = pagedResult?.StatusCode;
         }
-        catch
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
         {
-            var text = await response.Content.ReadAsStringAsync(cancellationToken);
-            return [string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" : text];
+            result.Errors = [ex.Message];
+            result.Success = false;
         }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<List<TResult>>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+        where TResult : class, new()
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
+        var result = new HttpServiceResult<List<TResult>>();
+        try
+        {
+            query.SetPage(1, int.MaxValue);
+            var pagedResult = await GetPagedListAsync(query, cancellationToken).ConfigureAwait(false);
+            result.Data = pagedResult?.Data?.Items?.ToList() ?? [];
+            result.Success = pagedResult?.Success ?? false;
+            result.Errors = pagedResult?.Errors;
+            result.StatusCode = pagedResult?.StatusCode;
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
+        var result = new HttpServiceResult<T?>();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken).ConfigureAwait(false);
+            result.StatusCode = (int)response.StatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                result.Data = await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Success = true;
+            }
+            else
+            {
+                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Success = false;
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<TResult?>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+        where TResult : class, new()
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
+        var result = new HttpServiceResult<TResult?>();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken).ConfigureAwait(false);
+            result.StatusCode = (int)response.StatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                result.Data = await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Success = true;
+            }
+            else
+            {
+                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Success = false;
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
+        var result = new HttpServiceResult<long>();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken).ConfigureAwait(false);
+            result.StatusCode = (int)response.StatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                result.Data = await response.Content.ReadFromJsonAsync<long>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Success = true;
+            }
+            else
+            {
+                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Success = false;
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
+        var result = new HttpServiceResult<PageResponse<T>?>();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/search"), query, cancellationToken).ConfigureAwait(false);
+            result.StatusCode = (int)response.StatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                result.Data = await response.Content.ReadFromJsonAsync<PageResponse<T>>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Success = true;
+            }
+            else
+            {
+                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Success = false;
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+        where TResult : class, new()
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync<{typeof(TResult).Name}>\"]");
+        var result = new HttpServiceResult<PageResponse<TResult>?>();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/select"), query, cancellationToken).ConfigureAwait(false);
+            result.StatusCode = (int)response.StatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                result.Data = await response.Content.ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Success = true;
+            }
+            else
+            {
+                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Success = false;
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
     }
 }
 
@@ -262,9 +270,9 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
 /// <typeparam name="DataTransferT">Data transfer object type for the entity.</typeparam>
 public class HttpService<T, ViewT, DataTransferT>(Uri apiURL, HttpClient httpClient, ILogger<HttpService<T, ViewT, DataTransferT>> logger)
     : HttpService<T, ViewT, DataTransferT, KeyType>(apiURL, httpClient, logger), IHttpService<T, ViewT, DataTransferT>
-        where T : class, IEntity, IModel, new()
-        where ViewT : class, IModel, new()
-        where DataTransferT : class, IModel, new();
+    where T : class, IEntity, IModel, new()
+    where ViewT : class, IModel, new()
+    where DataTransferT : class, IModel, new();
 
 /// <summary>
 /// Simplified version of HttpService for use with default entity, view, and DTO types.
@@ -272,4 +280,4 @@ public class HttpService<T, ViewT, DataTransferT>(Uri apiURL, HttpClient httpCli
 /// <typeparam name="T">Entity type.</typeparam>
 public class HttpService<T>(Uri apiURL, HttpClient httpClient, ILogger<HttpService<T>> logger)
     : HttpService<T, T, T, KeyType>(apiURL, httpClient, logger), IHttpService<T>
-        where T : class, IEntity, IModel, new();
+    where T : class, IEntity, IModel, new();

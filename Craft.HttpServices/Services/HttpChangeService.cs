@@ -301,7 +301,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
     /// <summary>
     /// Attempts to read error messages from the HTTP response.
     /// </summary>
-    private static async Task<List<string>> TryReadErrors(HttpResponseMessage response, CancellationToken cancellationToken)
+    protected static async Task<List<string>> TryReadErrors(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         try
         {
