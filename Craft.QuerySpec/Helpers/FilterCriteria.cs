@@ -56,7 +56,6 @@ public sealed record FilterCriteria
     public static FilterCriteria GetFilterInfo<T>(Expression<Func<T, object>> propName, object compareWith, ComparisonType comparisonType)
     {
         ArgumentNullException.ThrowIfNull(propName, nameof(propName));
-        ArgumentNullException.ThrowIfNull(compareWith, nameof(compareWith));
 
         MemberInfo prop = propName.GetPropertyInfo<T>()
             ?? throw new ArgumentException($"You must pass a lambda of the form: '() => {{Class}}.{{Property}}'", nameof(propName));

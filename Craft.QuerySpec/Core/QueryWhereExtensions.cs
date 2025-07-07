@@ -13,7 +13,7 @@ public static class QueryWhereExtensions
         return query;
     }
 
-    public static IQuery<T>? Where<T>(this IQuery<T> query, Expression<Func<T, object>> propExpr,
+    public static IQuery<T>?  Where<T>(this IQuery<T> query, Expression<Func<T, object>> propExpr,
         object compareWith, ComparisonType comparisonType = ComparisonType.EqualTo) where T : class
     {
         if (query is null || propExpr is null) return query;
