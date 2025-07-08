@@ -28,26 +28,13 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
 
         var uri = new Uri($"{_apiURL}/{includeDetails}");
 
-        var result = await GetAllFromPagedAsync<T, List<T>>(
-            async ct =>
-            {
-                var response = await GetAndParseAsync<List<T>>(
-                    c => _httpClient.GetAsync(uri, c),
-                    async (content, c) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: c).ConfigureAwait(false)) ?? [],
-                    ct
-                );
-                return new HttpServiceResult<List<T>>
-                {
-                    Data = response.Data ?? [],
-                    Success = response.Success,
-                    Errors = response.Errors,
-                    StatusCode = response.StatusCode
-                };
-            },
+        var result = await GetAllFromPagedAsync<T, List<T>>(ct => GetAndParseAsync<List<T>>(c => _httpClient.GetAsync(uri, c),
+                async (content, c) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: c).ConfigureAwait(false)) ?? [], ct)!,
             items => items ?? [],
             cancellationToken
         );
-        // Convert List<T> to IReadOnlyList<T>
+
+        // Just cast List<T> to IReadOnlyList<T>
         return new HttpServiceResult<IReadOnlyList<T>?>
         {
             Data = result.Data,
@@ -85,7 +72,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, 
+    public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, 
         bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
@@ -104,7 +91,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public async Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
+    public virtual async Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
         CancellationToken cancellationToken = default) where TResult : class, new()
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
