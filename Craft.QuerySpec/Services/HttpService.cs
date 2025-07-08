@@ -99,7 +99,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         ArgumentNullException.ThrowIfNull(query, nameof(query));
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
-        return await SendAndParseAsync<T?>(
+        return await SendAndParseAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
             cancellationToken
@@ -113,7 +113,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         ArgumentNullException.ThrowIfNull(query, nameof(query));
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
-        return await SendAndParseAsync<TResult?>(
+        return await SendAndParseAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<TResult>(cancellationToken: ct),
             cancellationToken
@@ -126,7 +126,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         ArgumentNullException.ThrowIfNull(query, nameof(query));
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
-        return await SendAndParseAsync<long>(
+        return await SendAndParseAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<long>(cancellationToken: ct),
             cancellationToken

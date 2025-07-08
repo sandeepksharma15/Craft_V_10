@@ -11,107 +11,16 @@ namespace Craft.HttpServices.Services;
 /// <summary>
 /// Provides HTTP read operations for entities, returning robust service results.
 /// </summary>
-public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger<HttpReadService<T, TKey>> logger)
-    : IHttpReadService<T, TKey> where T : class, IEntity<TKey>, IModel<TKey>, new()
+public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKey> where T : class, IEntity<TKey>, IModel<TKey>, new()
 {
-    protected readonly Uri _apiURL = apiURL;
-    protected readonly HttpClient _httpClient = httpClient;
-    protected readonly ILogger _logger = logger;
+    protected readonly ILogger _logger;
 
-    protected async Task<HttpServiceResult<TResult>> GetAndParseAsync<TResult>(
-        Uri requestUri,
-        Func<HttpContent, CancellationToken, Task<TResult?>> parser,
-        CancellationToken cancellationToken)
+    public HttpReadService(Uri apiURL, HttpClient httpClient, ILogger<HttpReadService<T, TKey>> logger)
+        : base(apiURL, httpClient)
     {
-        var result = new HttpServiceResult<TResult>();
-        try
-        {
-            var response = await _httpClient.GetAsync(requestUri, cancellationToken).ConfigureAwait(false);
-            result.StatusCode = (int)response.StatusCode;
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = await parser(response.Content, cancellationToken).ConfigureAwait(false);
-                result.Success = true;
-            }
-            else
-            {
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        _logger = logger;
     }
 
-    // Shared helper for POST/PUT/DELETE requests with response parsing
-    protected async Task<HttpServiceResult<TResult>> SendAndParseAsync<TResult>(
-        Func<Task<HttpResponseMessage>> sendRequest,
-        Func<HttpContent, CancellationToken, Task<TResult?>> parser,
-        CancellationToken cancellationToken)
-    {
-        var result = new HttpServiceResult<TResult>();
-        try
-        {
-            var response = await sendRequest().ConfigureAwait(false);
-            result.StatusCode = (int)response.StatusCode;
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = await parser(response.Content, cancellationToken).ConfigureAwait(false);
-                result.Success = true;
-            }
-            else
-            {
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
-    }
-
-    // Shared helper for POST/PUT/DELETE requests with no content to parse
-    protected async Task<HttpServiceResult<bool>> SendAndParseNoContentAsync(
-        Func<Task<HttpResponseMessage>> sendRequest,
-        CancellationToken cancellationToken)
-    {
-        var result = new HttpServiceResult<bool>();
-        try
-        {
-            var response = await sendRequest().ConfigureAwait(false);
-            result.StatusCode = (int)response.StatusCode;
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = true;
-                result.Success = true;
-            }
-            else
-            {
-                result.Data = false;
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Data = false;
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
-    }
-
-    /// <inheritdoc />
     public virtual async Task<HttpServiceResult<IReadOnlyList<T>>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -119,41 +28,38 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
         var uri = new Uri($"{_apiURL}/{includeDetails}");
         return await GetAndParseAsync<IReadOnlyList<T>>(
-            uri,
+            ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
             cancellationToken
         );
     }
 
-    /// <inheritdoc />
     public virtual async Task<HttpServiceResult<T?>> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         var uri = new Uri($"{_apiURL}/{id}/{includeDetails}");
-        return await GetAndParseAsync<T?>(
-            uri,
+        return await GetAndParseAsync(
+            ct => _httpClient.GetAsync(uri, ct),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
             cancellationToken
         );
     }
 
-    /// <inheritdoc />
     public virtual async Task<HttpServiceResult<long>> GetCountAsync(CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
         var uri = new Uri($"{_apiURL}/count");
-        return await GetAndParseAsync<long>(
-            uri,
+        return await GetAndParseAsync(
+            ct => _httpClient.GetAsync(uri, ct),
             (content, ct) => content.ReadFromJsonAsync<long>(cancellationToken: ct),
             cancellationToken
         );
     }
 
-    /// <inheritdoc />
     public async Task<HttpServiceResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, 
         bool includeDetails = false, CancellationToken cancellationToken = default)
     {
@@ -161,8 +67,8 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
         var uri = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
-        return await GetAndParseAsync<PageResponse<T>>(
-            uri,
+        return await GetAndParseAsync(
+            ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) =>
             {
                 var str = await content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -172,7 +78,6 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
         );
     }
 
-    /// <inheritdoc />
     public async Task<HttpServiceResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
         CancellationToken cancellationToken = default) where TResult : class, new()
     {
@@ -180,8 +85,8 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
         var uri = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
-        return await GetAndParseAsync<PageResponse<TResult>>(
-            uri,
+        return await GetAndParseAsync(
+            ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) =>
             {
                 var str = await content.ReadAsStringAsync(ct).ConfigureAwait(false);
