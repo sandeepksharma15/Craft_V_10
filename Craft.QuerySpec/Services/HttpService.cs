@@ -24,8 +24,10 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
+
         return await SendAndParseNoContentAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/delete"), query, cancellationToken),
             cancellationToken
@@ -59,6 +61,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             result.Errors = [ex.Message];
             result.Success = false;
         }
+
         return result;
     }
 
@@ -90,6 +93,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             result.Errors = [ex.Message];
             result.Success = false;
         }
+
         return result;
     }
 
@@ -97,8 +101,10 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
+
         return await SendAndParseAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
@@ -111,8 +117,10 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
+
         return await SendAndParseAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<TResult>(cancellationToken: ct),
@@ -124,8 +132,10 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
+
         return await SendAndParseAsync(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<long>(cancellationToken: ct),
@@ -137,8 +147,10 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
+
         return await SendAndParseAsync<PageResponse<T>?>(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/search"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<PageResponse<T>>(cancellationToken: ct),
@@ -151,8 +163,10 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync<{typeof(TResult).Name}>\"]");
+
         return await SendAndParseAsync<PageResponse<TResult>?>(
             () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/select"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: ct),
