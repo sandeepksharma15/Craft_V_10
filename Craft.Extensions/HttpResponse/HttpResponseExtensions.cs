@@ -15,7 +15,7 @@ public static class HttpResponseExtensions
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of error messages extracted
     /// from the response. If no errors are found, the list contains a single message indicating the HTTP status code
     /// and reason phrase.</returns>
-    public static async Task<List<string>> TryReadErrors(HttpResponseMessage response, CancellationToken cancellationToken)
+    public static async Task<List<string>> TryReadErrors(this HttpResponseMessage response, CancellationToken cancellationToken)
     {
         try
         {

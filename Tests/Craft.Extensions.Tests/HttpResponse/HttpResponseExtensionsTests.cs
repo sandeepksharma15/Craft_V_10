@@ -20,7 +20,7 @@ public class HttpResponseExtensionsTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await HttpResponseExtensions.TryReadErrors(response, cancellationToken);
+        var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
         Assert.Equal(errors, result);
@@ -38,7 +38,7 @@ public class HttpResponseExtensionsTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await HttpResponseExtensions.TryReadErrors(response, cancellationToken);
+        var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
         Assert.Single(result);
@@ -57,7 +57,7 @@ public class HttpResponseExtensionsTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await HttpResponseExtensions.TryReadErrors(response, cancellationToken);
+        var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
         Assert.Single(result);
@@ -76,7 +76,7 @@ public class HttpResponseExtensionsTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await HttpResponseExtensions.TryReadErrors(response, cancellationToken);
+        var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
         Assert.Single(result);
@@ -95,7 +95,7 @@ public class HttpResponseExtensionsTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await HttpResponseExtensions.TryReadErrors(response, cancellationToken);
+        var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
         Assert.Single(result);
@@ -114,7 +114,7 @@ public class HttpResponseExtensionsTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await HttpResponseExtensions.TryReadErrors(response, cancellationToken);
+        var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
         Assert.Single(result);
