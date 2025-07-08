@@ -20,184 +20,66 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
     public virtual async Task<HttpServiceResult<T>> AddAsync(ViewT model, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model, nameof(model));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"AddAsync\"]");
-
-        var result = new HttpServiceResult<T>();
-
-        try
-        {
-            DataTransferT dto = model.Adapt<DataTransferT>();
-
-            var response = await _httpClient
-                .PostAsJsonAsync(_apiURL, dto, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            result.StatusCode = (int)response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = await response
-                    .Content
-                    .ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-
-                result.Success = true;
-            }
-            else
-            {
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        DataTransferT dto = model.Adapt<DataTransferT>();
+        return await SendAndParseAsync<T>(
+            () => _httpClient.PostAsJsonAsync(_apiURL, dto, cancellationToken: cancellationToken),
+            (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<List<T>>> AddRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"AddRangeAsync\"]");
-
-        var result = new HttpServiceResult<List<T>>();
-
-        try
-        {
-            IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
-            var response = await _httpClient
-                .PostAsJsonAsync(new Uri($"{_apiURL}/addrange"), dtos, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            result.StatusCode = (int)response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                var data = await response
-                    .Content
-                    .ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-
-                result.Data = data ?? [];
-                result.Success = true;
-            }
-            else
-            {
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
+        return await SendAndParseAsync<List<T>>(
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/addrange"), dtos, cancellationToken: cancellationToken),
+            async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<List<T>>> AddRangeAsync(IEnumerable<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
-
         return await AddRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<bool>> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(id, nameof(id));  
-
+        ArgumentNullException.ThrowIfNull(id, nameof(id));
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
-
-        var result = new HttpServiceResult<bool>();
-
-        try
-        {
-            var response = await _httpClient
-                .DeleteAsync(new Uri($"{_apiURL}/{id}"), cancellationToken)
-                .ConfigureAwait(false);
-
-            result.StatusCode = (int)response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = true;
-                result.Success = true;
-            }
-            else
-            {
-                result.Data = false;
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Data = false;
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        return await SendAndParseNoContentAsync(
+            () => _httpClient.DeleteAsync(new Uri($"{_apiURL}/{id}"), cancellationToken),
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<bool>> DeleteRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteRangeAsync\"]");
-
-        var result = new HttpServiceResult<bool>();
-        try
-        {
-            IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
-
-            var response = await _httpClient
-                .PutAsJsonAsync(new Uri($"{_apiURL}/RemoveRange"), dtos, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            result.StatusCode = (int)response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = true;
-                result.Success = true;
-            }
-            else
-            {
-                result.Data = false;
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Data = false;
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
+        return await SendAndParseNoContentAsync(
+            () => _httpClient.PutAsJsonAsync(new Uri($"{_apiURL}/RemoveRange"), dtos, cancellationToken: cancellationToken),
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<bool>> DeleteRangeAsync(IEnumerable<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
-
         return await DeleteRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 
@@ -205,93 +87,34 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
     public virtual async Task<HttpServiceResult<T>> UpdateAsync(ViewT model, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model, nameof(model));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"UpdateAsync\"]");
-
-        var result = new HttpServiceResult<T>();
-        try
-        {
-            DataTransferT dto = model.Adapt<DataTransferT>();
-
-            var response = await _httpClient
-                .PutAsJsonAsync(_apiURL, dto, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            result.StatusCode = (int)response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                result.Data = await response
-                    .Content
-                    .ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-
-                result.Success = true;
-            }
-            else
-            {
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        DataTransferT dto = model.Adapt<DataTransferT>();
+        return await SendAndParseAsync<T>(
+            () => _httpClient.PutAsJsonAsync(_apiURL, dto, cancellationToken: cancellationToken),
+            (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<List<T>>> UpdateRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
-
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"UpdateRangeAsync\"]");
-
-        var result = new HttpServiceResult<List<T>>();
-        try
-        {
-            IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
-            var response = await _httpClient
-                .PutAsJsonAsync(new Uri($"{_apiURL}/UpdateRange"), dtos, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            result.StatusCode = (int)response.StatusCode;
-
-            if (response.IsSuccessStatusCode)
-            {
-                var data = await response
-                    .Content
-                    .ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
-
-                result.Data = data ?? [];
-                result.Success = true;
-            }
-            else
-            {
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-        return result;
+        IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
+        return await SendAndParseAsync<List<T>>(
+            () => _httpClient.PutAsJsonAsync(new Uri($"{_apiURL}/UpdateRange"), dtos, cancellationToken: cancellationToken),
+            async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
     public virtual async Task<HttpServiceResult<List<T>>> UpdateRangeAsync(IEnumerable<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
-
         return await UpdateRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 }
