@@ -4,6 +4,7 @@ using Craft.Core;
 using Craft.Domain;
 using Microsoft.Extensions.Logging;
 using Craft.Core.Common;
+using Craft.Extensions.HttpResponse;
 
 namespace Craft.HttpServices.Services;
 
@@ -45,7 +46,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -86,7 +87,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -126,7 +127,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -171,7 +172,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -185,8 +186,8 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
     }
 
     /// <inheritdoc />
-    public async Task<HttpServiceResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize,
-        bool includeDetails = false, CancellationToken cancellationToken = default) where TResult : class, new()
+    public async Task<HttpServiceResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
+        CancellationToken cancellationToken = default) where TResult : class, new()
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
@@ -216,7 +217,7 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -229,32 +230,11 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
         return result;
     }
-
-    /// <summary>
-    /// Attempts to read error messages from the HTTP response.
-    /// </summary>
-    private static async Task<List<string>> TryReadErrors(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var errors = await response.Content.ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken);
-            return errors ?? [$"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}"];
-        }
-        catch
-        {
-            var text = await response.Content.ReadAsStringAsync(cancellationToken);
-            return [string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" : text];
-        }
-    }
 }
 
 /// <summary>
 /// Provides HTTP read operations for entities with default key type.
 /// </summary>
-public class HttpReadService<T>(
-    Uri apiURL,
-    HttpClient httpClient,
-    ILogger<HttpReadService<T>> logger)
-    : HttpReadService<T, KeyType>(apiURL, httpClient, logger), IHttpReadService<T>
-    where T : class, IEntity, IModel, new();
+public class HttpReadService<T>(Uri apiURL, HttpClient httpClient, ILogger<HttpReadService<T>> logger)
+    : HttpReadService<T, KeyType>(apiURL, httpClient, logger), IHttpReadService<T> where T : class, IEntity, IModel, new();
 
