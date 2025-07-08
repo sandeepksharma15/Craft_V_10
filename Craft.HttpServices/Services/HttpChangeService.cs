@@ -3,6 +3,7 @@ using Craft.Domain;
 using Mapster;
 using Microsoft.Extensions.Logging;
 using Craft.Core.Common;
+using Craft.Extensions.HttpResponse;
 
 namespace Craft.HttpServices.Services;
 
@@ -46,7 +47,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -90,7 +91,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -108,9 +109,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
 
-        return await AddRangeAsync(models is IReadOnlyCollection<ViewT> c 
-            ? c 
-            : models.ToList(), cancellationToken).ConfigureAwait(false);
+        return await AddRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -139,7 +138,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
             else
             {
                 result.Data = false;
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -180,7 +179,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
             else
             {
                 result.Data = false;
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -232,7 +231,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -275,7 +274,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -293,34 +292,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpCl
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
 
-        return await UpdateRangeAsync(models is IReadOnlyCollection<ViewT> c 
-            ? c 
-            : models.ToList(), cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Attempts to read error messages from the HTTP response.
-    /// </summary>
-    protected static async Task<List<string>> TryReadErrors(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var errors = await response
-                .Content
-                .ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            return errors ?? [$"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}"];
-        }
-        catch
-        {
-            var text = await response
-                .Content
-                .ReadAsStringAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            return [string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" : text];
-        }
+        return await UpdateRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 }
 

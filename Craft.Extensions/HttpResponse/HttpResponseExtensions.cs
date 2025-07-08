@@ -19,12 +19,20 @@ public static class HttpResponseExtensions
     {
         try
         {
-            var errors = await response.Content.ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken);
+            var errors = await response
+                .Content
+                .ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
             return errors ?? [$"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}"];
         }
         catch
         {
-            var text = await response.Content.ReadAsStringAsync(cancellationToken);
+            var text = await response
+                .Content
+                .ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
+
             return [string.IsNullOrWhiteSpace(text) ? $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}" : text];
         }
     }
