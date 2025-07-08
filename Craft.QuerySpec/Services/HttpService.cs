@@ -44,7 +44,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
 
         query.SetPage(1, int.MaxValue);
         return await GetAllFromPagedAsync<T, PageResponse<T>>(
-            ct => GetPagedListAsync(query, ct),
+            ct => GetPagedListAsync(query, ct)!,
             paged => paged?.Items?.ToList() ?? [],
             cancellationToken
         );
@@ -61,7 +61,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
 
         query.SetPage(1, int.MaxValue);
         return await GetAllFromPagedAsync<TResult, PageResponse<TResult>>(
-            ct => GetPagedListAsync(query, ct),
+            ct => GetPagedListAsync(query, ct)!,
             paged => paged?.Items?.ToList() ?? [],
             cancellationToken
         );
