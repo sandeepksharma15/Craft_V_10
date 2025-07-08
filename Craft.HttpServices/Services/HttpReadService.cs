@@ -77,8 +77,11 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
@@ -114,8 +117,11 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<long>(cancellationToken: cancellationToken)
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<long>(cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
@@ -154,7 +160,11 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
             if (response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync(cancellationToken);
+                var content = await response
+                    .Content
+                    .ReadAsStringAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
                 var pagedList = JsonSerializer.Deserialize<PageResponse<T>>(content);
                 result.Data = pagedList!;
                 result.Success = true;
@@ -195,7 +205,11 @@ public class HttpReadService<T, TKey>(Uri apiURL, HttpClient httpClient, ILogger
 
             if (response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync(cancellationToken);
+                var content = await response
+                    .Content
+                    .ReadAsStringAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
                 var pagedResponse = JsonSerializer.Deserialize<PageResponse<TResult>>(content);
                 result.Data = pagedResponse!;
                 result.Success = true;
