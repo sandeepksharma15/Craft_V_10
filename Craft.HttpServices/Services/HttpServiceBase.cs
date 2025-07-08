@@ -75,4 +75,33 @@ public abstract class HttpServiceBase
     {
         return HandleHttpOperationAsync(_ => sendRequest(), (response, _) => Task.FromResult(response.IsSuccessStatusCode), cancellationToken);
     }
+
+    /// <summary>
+    /// Helper to flatten a paged result into a list result for GetAllAsync methods.
+    /// </summary>
+    public static async Task<HttpServiceResult<List<TItem>>> GetAllFromPagedAsync<TItem, TPaged>(
+        Func<CancellationToken, Task<HttpServiceResult<TPaged>?>> getPaged,
+        Func<TPaged, List<TItem>> extractItems,
+        CancellationToken cancellationToken)
+    {
+        var result = new HttpServiceResult<List<TItem>>();
+
+        try
+        {
+            // Make The Call
+            var pagedResult = await getPaged(cancellationToken).ConfigureAwait(false);
+
+            result.Data = pagedResult != null && pagedResult.Data != null ? extractItems(pagedResult.Data) : [];
+            result.Success = pagedResult?.Success ?? false;
+            result.Errors = pagedResult?.Errors;
+            result.StatusCode = pagedResult?.StatusCode;
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            result.Errors = [ex.Message];
+            result.Success = false;
+        }
+        return result;
+    }
 }

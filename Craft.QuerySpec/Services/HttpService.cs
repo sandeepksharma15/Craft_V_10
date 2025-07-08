@@ -42,27 +42,12 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        var result = new HttpServiceResult<List<T>>();
-
-        try
-        {
-            query.SetPage(1, int.MaxValue);
-
-            var pagedResult = await GetPagedListAsync(query, cancellationToken).ConfigureAwait(false);
-
-            result.Data = pagedResult?.Data?.Items?.ToList() ?? [];
-            result.Success = pagedResult?.Success ?? false;
-            result.Errors = pagedResult?.Errors;
-            result.StatusCode = pagedResult?.StatusCode;
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-
-        return result;
+        query.SetPage(1, int.MaxValue);
+        return await GetAllFromPagedAsync<T, PageResponse<T>>(
+            ct => GetPagedListAsync(query, ct),
+            paged => paged?.Items?.ToList() ?? [],
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
@@ -74,27 +59,12 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
 
-        var result = new HttpServiceResult<List<TResult>>();
-
-        try
-        {
-            query.SetPage(1, int.MaxValue);
-
-            var pagedResult = await GetPagedListAsync(query, cancellationToken).ConfigureAwait(false);
-
-            result.Data = pagedResult?.Data?.Items?.ToList() ?? [];
-            result.Success = pagedResult?.Success ?? false;
-            result.Errors = pagedResult?.Errors;
-            result.StatusCode = pagedResult?.StatusCode;
-        }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex)
-        {
-            result.Errors = [ex.Message];
-            result.Success = false;
-        }
-
-        return result;
+        query.SetPage(1, int.MaxValue);
+        return await GetAllFromPagedAsync<TResult, PageResponse<TResult>>(
+            ct => GetPagedListAsync(query, ct),
+            paged => paged?.Items?.ToList() ?? [],
+            cancellationToken
+        );
     }
 
     /// <inheritdoc />
