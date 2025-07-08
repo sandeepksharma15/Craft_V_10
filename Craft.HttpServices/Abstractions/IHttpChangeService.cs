@@ -25,7 +25,7 @@ public interface IHttpChangeService<T, ViewT, DataTransferT, TKey> : IHttpReadSe
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A result containing the added entity or errors.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="model"/> is null.</exception>
-    Task<HttpServiceResult<T>> AddAsync(ViewT model, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<T?>> AddAsync(ViewT model, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds multiple entities to the data store.
@@ -34,7 +34,7 @@ public interface IHttpChangeService<T, ViewT, DataTransferT, TKey> : IHttpReadSe
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A result containing the added entities or errors.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="models"/> is null.</exception>
-    Task<HttpServiceResult<List<T>>> AddRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<List<T>?>> AddRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes an entity from the data store by its identifier.
@@ -60,7 +60,7 @@ public interface IHttpChangeService<T, ViewT, DataTransferT, TKey> : IHttpReadSe
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A result containing the updated entity or errors.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="model"/> is null.</exception>
-    Task<HttpServiceResult<T>> UpdateAsync(ViewT model, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<T?>> UpdateAsync(ViewT model, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates multiple entities in the data store.
@@ -69,7 +69,7 @@ public interface IHttpChangeService<T, ViewT, DataTransferT, TKey> : IHttpReadSe
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A result containing the updated entities or errors.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="models"/> is null.</exception>
-    Task<HttpServiceResult<List<T>>> UpdateRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<List<T>?>> UpdateRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
