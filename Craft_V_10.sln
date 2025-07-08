@@ -64,7 +64,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.TestDataStore", "Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.HttpServices", "Craft.HttpServices\Craft.HttpServices.csproj", "{F8C24529-95C9-44D4-A75C-A6291368DE18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.HtppServices.Tests", "Tests\Craft.HtppServices.Tests\Craft.HtppServices.Tests.csproj", "{E97A1E27-46E0-499E-955A-2A8AD0F3F604}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.HttpServices.Tests", "Tests\Craft.HtppServices.Tests\Craft.HttpServices.Tests.csproj", "{E97A1E27-46E0-499E-955A-2A8AD0F3F604}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.Controllers", "Craft.Controllers\Craft.Controllers.csproj", "{90910F68-54AC-4561-A4CE-59EF71E6C83E}"
 EndProject
