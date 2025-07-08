@@ -21,12 +21,13 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         _logger = logger;
     }
 
-    public virtual async Task<HttpServiceResult<IReadOnlyList<T>>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
+    public virtual async Task<HttpServiceResult<IReadOnlyList<T>?>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         var uri = new Uri($"{_apiURL}/{includeDetails}");
+
         return await GetAndParseAsync<IReadOnlyList<T>>(
             ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
@@ -40,6 +41,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         var uri = new Uri($"{_apiURL}/{id}/{includeDetails}");
+
         return await GetAndParseAsync(
             ct => _httpClient.GetAsync(uri, ct),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
@@ -53,6 +55,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
         var uri = new Uri($"{_apiURL}/count");
+
         return await GetAndParseAsync(
             ct => _httpClient.GetAsync(uri, ct),
             (content, ct) => content.ReadFromJsonAsync<long>(cancellationToken: ct),
@@ -60,13 +63,14 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public async Task<HttpServiceResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, 
+    public async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, 
         bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
         var uri = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
+
         return await GetAndParseAsync(
             ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) =>
@@ -78,13 +82,14 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public async Task<HttpServiceResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
+    public async Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
         CancellationToken cancellationToken = default) where TResult : class, new()
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
         var uri = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
+
         return await GetAndParseAsync(
             ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) =>

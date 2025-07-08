@@ -17,7 +17,7 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="includeDetails">Set true to include all children of this entity.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing list of entities.</returns>
-    Task<HttpServiceResult<IReadOnlyList<T>>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<IReadOnlyList<T>?>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an entity with the given primary key.
@@ -43,7 +43,7 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="includeDetails">Set true to include all children of this entity.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing paginated list of entities.</returns>
-    Task<HttpServiceResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a paginated list of entities with projection.
@@ -54,7 +54,7 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="includeDetails">Set true to include all children of this entity.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing paginated list of projected entities.</returns>
-    Task<HttpServiceResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
+    Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
         where TResult : class, new();
 }
 
