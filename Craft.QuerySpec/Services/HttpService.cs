@@ -2,6 +2,7 @@
 using Craft.Core;
 using Craft.Core.Common;
 using Craft.Domain;
+using Craft.Extensions.HttpResponse;
 using Craft.HttpServices.Services;
 using Microsoft.Extensions.Logging;
 
@@ -39,7 +40,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             else
             {
                 result.Data = false;
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -57,13 +58,18 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<List<T>>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
+
         var result = new HttpServiceResult<List<T>>();
+
         try
         {
             query.SetPage(1, int.MaxValue);
+
             var pagedResult = await GetPagedListAsync(query, cancellationToken).ConfigureAwait(false);
+
             result.Data = pagedResult?.Data?.Items?.ToList() ?? [];
             result.Success = pagedResult?.Success ?? false;
             result.Errors = pagedResult?.Errors;
@@ -83,13 +89,18 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
+
         var result = new HttpServiceResult<List<TResult>>();
+
         try
         {
             query.SetPage(1, int.MaxValue);
+
             var pagedResult = await GetPagedListAsync(query, cancellationToken).ConfigureAwait(false);
+
             result.Data = pagedResult?.Data?.Items?.ToList() ?? [];
             result.Success = pagedResult?.Success ?? false;
             result.Errors = pagedResult?.Errors;
@@ -108,21 +119,32 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
+
         var result = new HttpServiceResult<T?>();
+
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient
+                .PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken)
+                .ConfigureAwait(false);
+
             result.StatusCode = (int)response.StatusCode;
+
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -140,21 +162,32 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
+
         var result = new HttpServiceResult<TResult?>();
+
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient
+                .PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken)
+                .ConfigureAwait(false);
+
             result.StatusCode = (int)response.StatusCode;
+
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<TResult>(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -171,21 +204,32 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
+
         var result = new HttpServiceResult<long>();
+
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient
+                .PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken)
+                .ConfigureAwait(false);
+
             result.StatusCode = (int)response.StatusCode;
+
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<long>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<long>(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -202,21 +246,32 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
+
         var result = new HttpServiceResult<PageResponse<T>?>();
+
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/search"), query, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient
+                .PostAsJsonAsync(new Uri($"{_apiURL}/search"), query, cancellationToken)
+                .ConfigureAwait(false);
+
             result.StatusCode = (int)response.StatusCode;
+
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<PageResponse<T>>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<PageResponse<T>>(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -234,21 +289,32 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
+
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync<{typeof(TResult).Name}>\"]");
+
         var result = new HttpServiceResult<PageResponse<TResult>?>();
+
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/select"), query, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient
+                .PostAsJsonAsync(new Uri($"{_apiURL}/select"), query, cancellationToken)
+                .ConfigureAwait(false);
+
             result.StatusCode = (int)response.StatusCode;
+
             if (response.IsSuccessStatusCode)
             {
-                result.Data = await response.Content.ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: cancellationToken).ConfigureAwait(false);
+                result.Data = await response
+                    .Content
+                    .ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
                 result.Success = true;
             }
             else
             {
-                result.Errors = await TryReadErrors(response, cancellationToken);
+                result.Errors = await response.TryReadErrors(cancellationToken);
                 result.Success = false;
             }
         }
@@ -279,5 +345,4 @@ public class HttpService<T, ViewT, DataTransferT>(Uri apiURL, HttpClient httpCli
 /// </summary>
 /// <typeparam name="T">Entity type.</typeparam>
 public class HttpService<T>(Uri apiURL, HttpClient httpClient, ILogger<HttpService<T>> logger)
-    : HttpService<T, T, T, KeyType>(apiURL, httpClient, logger), IHttpService<T>
-    where T : class, IEntity, IModel, new();
+    : HttpService<T, T, T, KeyType>(apiURL, httpClient, logger), IHttpService<T> where T : class, IEntity, IModel, new();
