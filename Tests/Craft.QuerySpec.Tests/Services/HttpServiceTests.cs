@@ -840,6 +840,7 @@ public class HttpServiceTests
     }
 
     [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging", Justification = "<Pending>")]
     public async Task All_Methods_LogDebug_WhenLoggerEnabled()
     {
         var response = new HttpResponseMessage(HttpStatusCode.OK);
