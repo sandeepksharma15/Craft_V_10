@@ -93,6 +93,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         // Defensive: avoid IndexOutOfRangeException if no match
         var queryable = _dbSet.WithQuery(query).Take(2);
+
         var list = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
 
         if (list.Count == 0)
@@ -161,7 +162,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
         var queryable = _dbSet.WithQuery(query);
-        var items = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+
+        var items = await ToListSafeAsync(queryable, cancellationToken)
+            .ConfigureAwait(false);
 
         // Count total records matching the query (without projection)
         var totalCount = await _dbSet
@@ -196,8 +199,20 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        var queryable = _dbSet.WithQuery(query);
-        return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var queryable = _dbSet.WithQuery(query);
+            return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception for debugging purposes
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError(ex, $"[Repository] Error in GetAllAsync<TResult> for Type: [\"{typeof(T).GetClassName()}\"]");
+            
+            // Re-throw the exception to maintain the existing behavior
+            throw;
+        }
     }
 }
 

@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Craft.Extensions\Craft.Extensions.csproj" />
     <ProjectReference Include="..\..\Craft.QuerySpec\Craft.QuerySpec.csproj" />
     <ProjectReference Include="..\..\Craft.Utilities\Craft.Utilities.csproj" />
     <ProjectReference Include="..\Craft.TestDataStore\Craft.TestDataStore.csproj" />
