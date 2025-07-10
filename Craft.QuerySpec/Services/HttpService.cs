@@ -60,6 +60,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
 
         query.SetPage(1, int.MaxValue);
+
         return await GetAllFromPagedAsync<TResult, PageResponse<TResult>>(
             ct => GetPagedListAsync(query, ct)!,
             paged => paged?.Items?.ToList() ?? [],

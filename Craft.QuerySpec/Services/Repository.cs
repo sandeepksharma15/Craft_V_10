@@ -68,10 +68,20 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
         Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
-        return await _dbSet
+        // Defensive: avoid IndexOutOfRangeException if no match
+        var list = await _dbSet
             .WithQuery(query)
-            .FirstOrDefaultAsync(cancellationToken)
+            .Take(2)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        if (list.Count == 0)
+            return null;
+
+        if (list.Count > 1)
+            throw new InvalidOperationException("Sequence contains more than one matching element.");
+
+        return list[0];
     }
 
     /// <inheritdoc />
@@ -171,8 +181,6 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
-
-        Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         return await _dbSet
             .WithQuery(query)

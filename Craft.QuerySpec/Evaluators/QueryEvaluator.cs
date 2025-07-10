@@ -72,6 +72,10 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
         // Apply all evaluators except selection
         var filtered = GetQuery(queryable, (IQuery<T>)query) ?? queryable;
 
+        // Defensive: ensure we have a valid queryable after filtering
+        if (filtered is null || !filtered.Any())
+            return Enumerable.Empty<TResult>().AsQueryable();
+
         if (hasSelect)
         {
             var selector = query.QuerySelectBuilder?.Build();
