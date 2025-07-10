@@ -145,6 +145,7 @@ public class QueryTests
         serializeOptions.Converters.Add(new QueryJsonConverter<Company, Company>());
 
         var serializedQuery = JsonSerializer.Serialize(query, serializeOptions);
+
         var deserializedQuery = JsonSerializer
             .Deserialize<Query<Company, Company>>(serializedQuery, serializeOptions);
 
