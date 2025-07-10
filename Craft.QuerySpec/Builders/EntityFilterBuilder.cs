@@ -105,7 +105,8 @@ public class EntityFilterBuilder<T> where T : class
             expression = (Expression<Func<T, bool>>)expression.ReduceAndCheck();
 
         var comparer = new ExpressionSemanticEqualityComparer();
-        var toRemove = EntityFilterList.Find(x => comparer.Equals(x.Filter, expression));
+        var toRemove = EntityFilterList
+            .Find(x => comparer.Equals(x.Filter, expression));
 
         if (toRemove is not null)
             EntityFilterList.Remove(toRemove);

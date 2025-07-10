@@ -51,7 +51,9 @@ public class ExpressionTreeBuilderTests
         var filter1 = new Dictionary<string, string> { { nameof(TestClass.NumericValue), "1" } };
         var f1 = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(filter1);
         Assert.NotNull(f1);
+
         var res1 = col.Where(f1).ToArray();
+
         Assert.Equal(2, res1.Length);
 
         var filter2 = new Dictionary<string, string> {
@@ -61,6 +63,7 @@ public class ExpressionTreeBuilderTests
 
         var f2 = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(filter2);
         Assert.NotNull(f2);
+
         var res2 = col.Where(f2).ToArray();
         Assert.Single(res2);
     }

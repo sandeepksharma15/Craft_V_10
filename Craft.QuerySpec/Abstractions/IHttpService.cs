@@ -2,8 +2,6 @@
 using Craft.Core.Common;
 using Craft.Domain;
 using Craft.HttpServices;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Craft.QuerySpec;
 

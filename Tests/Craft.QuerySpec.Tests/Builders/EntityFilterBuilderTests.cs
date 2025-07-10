@@ -192,7 +192,7 @@ public class EntityFilterBuilderTests
     public void Read_DeserializesValidJsonToEntityFilterBuilder()
     {
         // Arrange
-        const string validJson = "[{\"Filter\": \"Name == 'John'\"}]";
+        const string validJson = "[{\"Filter\": \"Name == \\\"John\\\"\"}]";
 
         // Act
         var filterBuilder = JsonSerializer.Deserialize<EntityFilterBuilder<Company>>(validJson, serializeOptions);
