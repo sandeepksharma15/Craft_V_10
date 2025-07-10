@@ -1,10 +1,12 @@
-﻿using Craft.TestDataStore.Fixtures;
+﻿using Craft.TestDataStore;
+using Craft.TestDataStore.Fixtures;
 using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.QuerySpec.Tests.Services;
 
+[Collection(nameof(SystemTestCollectionDefinition))]
 public class RepositoryTests
 {
     private static DbContextOptions<TestDbContext> CreateOptions() =>

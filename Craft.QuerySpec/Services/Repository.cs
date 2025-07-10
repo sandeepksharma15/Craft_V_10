@@ -66,6 +66,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
+        Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         return await _dbSet
             .WithQuery(query)

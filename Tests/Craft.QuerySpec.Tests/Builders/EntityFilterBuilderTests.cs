@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Craft.TestDataStore.Models;
 
 namespace Craft.QuerySpec.Tests.Builders;

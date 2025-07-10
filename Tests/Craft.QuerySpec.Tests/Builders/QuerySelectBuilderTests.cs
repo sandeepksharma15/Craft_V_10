@@ -359,37 +359,51 @@ public class QuerySelectBuilderTests
     [Fact]
     public void Add_NullAssignor_ThrowsArgumentNullException()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act & Assert
         Assert.Throws<ArgumentNullException>(() => builder.Add((Expression<Func<MyEntity, object>>)null!, d => d.Name));
     }
 
     [Fact]
     public void Add_NullAssignee_ThrowsArgumentNullException()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
         Expression<Func<MyEntity, object>> assignor = s => s.Name;
 
+        // Act & Assert
         Assert.Throws<ArgumentNullException>(() => builder.Add(assignor, (Expression<Func<MyResult, object>>)null!));
     }
 
     [Fact]
     public void Add_NullSelectDescriptor_ThrowsArgumentNullException()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act & Assert
         Assert.Throws<ArgumentNullException>(() => builder.Add((SelectDescriptor<MyEntity, MyResult>)null!));
     }
 
     [Fact]
     public void Add_NullLambdaColumn_ThrowsArgumentNullException()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act & Assert
         Assert.Throws<ArgumentNullException>(() => builder.Add((LambdaExpression)null!));
     }
 
     [Fact]
     public void Add_InvalidPropertyName_ThrowsArgumentException()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act & Assert
         Assert.Throws<ArgumentException>(() => builder.Add("NotAProp", "Name"));
         Assert.Throws<ArgumentException>(() => builder.Add("Name", "NotAProp"));
     }
@@ -397,17 +411,27 @@ public class QuerySelectBuilderTests
     [Fact]
     public void Clear_AfterAddingColumns_EmptiesList()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act
         builder.Add(s => s.Name, d => d.Name);
         builder.Clear();
+
+        // Assert
         Assert.Empty(builder.SelectDescriptorList);
     }
 
     [Fact]
     public void Write_SerializesEmptyQuerySelectBuilderToJsonCorrectly()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act
         var json = JsonSerializer.Serialize(builder, serializeOptions);
+
+        // Assert
         Assert.Equal("[]", json);
     }
 
@@ -429,9 +453,14 @@ public class QuerySelectBuilderTests
     [Fact]
     public void Add_DuplicateColumns_AddsBoth()
     {
+        // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyResult>();
+
+        // Act
         builder.Add(s => s.Name, d => d.Name);
         builder.Add(s => s.Name, d => d.Name);
+
+        // Assert
         Assert.Equal(2, builder.SelectDescriptorList.Count);
     }
 
