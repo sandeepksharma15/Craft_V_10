@@ -53,7 +53,13 @@ public class QueryEvaluatorTests
             .Take(2);
 
         // Act
-        var expected = _testEntities.Where(e => e.IsActive).OrderBy(e => e.Id).Skip(1).Take(2).ToList();
+        var expected = _testEntities
+            .Where(e => e.IsActive)
+            .OrderBy(e => e.Id)
+            .Skip(1)
+            .Take(2)
+            .ToList();
+
         var result = evaluator.GetQuery(_testEntities, query).ToList();
 
         // Assert
