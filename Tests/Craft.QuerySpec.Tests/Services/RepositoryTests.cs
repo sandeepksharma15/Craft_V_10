@@ -244,7 +244,8 @@ public class RepositoryTests
         var repo = CreateRepository(context);
         var query = new Query<Country, CountryDto>
         {
-            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
         };
         query.Where(c => c.Name == "DoesNotExist");
 
@@ -282,7 +283,8 @@ public class RepositoryTests
         // Create a query to get the country
         var query = new Query<Country, CountryDto>
         {
-            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
         };
         query.Where(c => c.Name == "TestCountry");
         using var cts = new CancellationTokenSource();

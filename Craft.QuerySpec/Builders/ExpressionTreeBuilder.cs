@@ -76,10 +76,14 @@ public class ExpressionTreeBuilder
     {
         if (string.IsNullOrWhiteSpace(query) || IsNullOrBracketsOnly(query))
             return null;
+
         var trimmed = TrimAllOuterBracketsAndWhitespace(query);
+
         if (string.IsNullOrEmpty(trimmed) || IsNullOrBracketsOnly(trimmed))
             return null;
+
         var exp = BuildBinaryTreeExpression(typeof(T), trimmed);
+
         return exp as Expression<Func<T, bool>>;
     }
 
@@ -87,10 +91,14 @@ public class ExpressionTreeBuilder
     {
         if (string.IsNullOrWhiteSpace(query) || IsNullOrBracketsOnly(query))
             return null;
+
         var trimmed = TrimAllOuterBracketsAndWhitespace(query);
+
         if (string.IsNullOrEmpty(trimmed) || IsNullOrBracketsOnly(trimmed))
             return null;
+
         var pe = Expression.Parameter(type, "x");
+
         return BuildBinaryTreeExpressionWorker(type, trimmed, pe);
     }
 
@@ -238,6 +246,7 @@ public class ExpressionTreeBuilder
             if (m.Success)
                 return m;
         }
+
         return null;
     }
 

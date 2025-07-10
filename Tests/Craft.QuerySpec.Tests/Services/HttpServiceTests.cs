@@ -249,7 +249,7 @@ public class HttpServiceTests
         var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
         var query = new DummyQuery<DummyEntity, DummyDto>();
 
-        var result = await service.GetAllAsync<DummyDto>(query);
+        var result = await service.GetAllAsync(query);
 
         Assert.True(result.Success);
         Assert.NotNull(result.Data);
