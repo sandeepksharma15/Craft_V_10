@@ -72,22 +72,23 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
         // Apply all evaluators except selection
         var filtered = GetQuery(queryable, (IQuery<T>)query) ?? queryable;
 
-        // Defensive: ensure we have a valid queryable after filtering
-        if (filtered is null || !filtered.Any())
-            return Enumerable.Empty<TResult>().AsQueryable();
-
         if (hasSelect)
         {
             var selector = query.QuerySelectBuilder?.Build();
 
-            return selector is null 
-                ? throw new InvalidOperationException("QuerySelectBuilder is not defined") 
-                : filtered.Select(selector);
+            if (selector is null)
+                throw new InvalidOperationException("QuerySelectBuilder is not defined");
+                
+            return filtered.Select(selector);
         }
         else if (hasSelectMany)
+        {
             return filtered.SelectMany(query.SelectorMany!);
+        }
         else
+        {
             // Defensive fallback, should never hit due to earlier checks
             return Enumerable.Empty<TResult>().AsQueryable();
+        }
     }
 }

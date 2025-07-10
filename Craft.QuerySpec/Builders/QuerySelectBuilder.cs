@@ -121,18 +121,25 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
 
     private Expression<Func<T, TResult>>? BuildAnnonymousSelect()
     {
+        if (SelectDescriptorList.Count == 0)
+            return null;
+
         var sourceParam = Expression.Parameter(typeof(T), "x");
 
         var selectExpressions = SelectDescriptorList.Select(item =>
         {
-            var columnInvoke = Expression.Invoke(item.Assignor!, sourceParam);
+            if (item.Assignor == null)
+                throw new InvalidOperationException("Assignor expression cannot be null in BuildAnnonymousSelect");
 
+            var columnInvoke = Expression.Invoke(item.Assignor, sourceParam);
             return Expression.Convert(columnInvoke, typeof(object));
         });
 
-        var selectorBody = Expression.NewArrayInit(typeof(TResult), selectExpressions);
+        var selectorBody = Expression.NewArrayInit(typeof(object), selectExpressions);
 
-        return Expression.Lambda<Func<T, TResult>>(selectorBody, sourceParam);
+        return Expression.Lambda<Func<T, TResult>>(
+            Expression.Convert(selectorBody, typeof(TResult)), 
+            sourceParam);
     }
 
     private Expression<Func<T, TResult>> BuildSelect()
@@ -145,7 +152,10 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
 
         foreach (var item in SelectDescriptorList)
         {
-            var columnInvoke = Expression.Invoke(item.Assignor!, selectParam);
+            if (item.Assignor == null)
+                throw new InvalidOperationException("Assignor expression cannot be null in BuildSelect");
+
+            var columnInvoke = Expression.Invoke(item.Assignor, selectParam);
             var propertyInfo = item.Assignee?.GetPropertyInfo();
             var propertyType = propertyInfo?.PropertyType;
 
