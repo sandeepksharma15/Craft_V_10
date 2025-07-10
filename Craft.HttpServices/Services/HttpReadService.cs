@@ -28,13 +28,13 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
 
         var uri = new Uri($"{_apiURL}/{includeDetails}");
 
-        var result = await GetAllFromPagedAsync<T, List<T>>(ct => GetAndParseAsync<List<T>>(c => _httpClient.GetAsync(uri, c),
-                async (content, c) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: c).ConfigureAwait(false)) ?? [], ct)!,
-            items => items ?? [],
+        var result = await GetAndParseAsync<List<T>>(
+            ct => _httpClient.GetAsync(uri, ct),
+            async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
             cancellationToken
         );
 
-        // Just cast List<T> to IReadOnlyList<T>
+        // Convert to IReadOnlyList<T>
         return new HttpServiceResult<IReadOnlyList<T>?>
         {
             Data = result.Data,

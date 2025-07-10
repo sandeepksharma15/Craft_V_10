@@ -18,6 +18,30 @@ namespace Craft.QuerySpec;
 public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, TKey>> logger)
     : ChangeRepository<T, TKey>(appDbContext, logger), IRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
+    /// <summary>
+    /// Checks if the queryable supports async operations (implements IAsyncEnumerable).
+    /// </summary>
+    private static bool SupportsAsync<TElement>(IQueryable<TElement> queryable)
+    {
+        return queryable is IAsyncEnumerable<TElement>;
+    }
+
+    /// <summary>
+    /// Safely converts IQueryable to List, using async or sync methods as appropriate.
+    /// </summary>
+    private static async Task<List<TElement>> ToListSafeAsync<TElement>(IQueryable<TElement> queryable, CancellationToken cancellationToken = default)
+    {
+        if (SupportsAsync(queryable))
+        {
+            return await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            // For in-memory queryables, use synchronous ToList
+            return await Task.FromResult(queryable.ToList()).ConfigureAwait(false);
+        }
+    }
+
     /// <inheritdoc />
     public virtual async Task DeleteAsync(IQuery<T> query, bool autoSave = true, CancellationToken cancellationToken = default)
     {
@@ -66,14 +90,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
-        Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         // Defensive: avoid IndexOutOfRangeException if no match
-        var list = await _dbSet
-            .WithQuery(query)
-            .Take(2)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var queryable = _dbSet.WithQuery(query).Take(2);
+        var list = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
 
         if (list.Count == 0)
             return null;
@@ -111,10 +131,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (query.Skip is null || query.Skip < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
-        var items = await _dbSet
-            .WithQuery(query)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var queryable = _dbSet.WithQuery(query);
+        var items = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
 
         // Count total records matching the query (without projection)
         var totalCount = await _dbSet
@@ -142,10 +160,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (query.Skip is null || query.Skip < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
-        var items = await _dbSet
-            .WithQuery(query)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var queryable = _dbSet.WithQuery(query);
+        var items = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
 
         // Count total records matching the query (without projection)
         var totalCount = await _dbSet
@@ -167,10 +183,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        return await _dbSet
-            .WithQuery(query)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var queryable = _dbSet.WithQuery(query);
+        return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -182,10 +196,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        return await _dbSet
-            .WithQuery(query)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var queryable = _dbSet.WithQuery(query);
+        return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
     }
 }
 

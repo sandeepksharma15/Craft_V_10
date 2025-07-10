@@ -42,6 +42,10 @@ public class SqlSearchCriteriaBuilderJsonConverter<T> : JsonConverter<SqlLikeSea
 
     public override void Write(Utf8JsonWriter writer, SqlLikeSearchCriteriaBuilder<T> value, JsonSerializerOptions options)
     {
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(options);
+
         // Start The Array
         writer.WriteStartArray();
 
@@ -51,8 +55,7 @@ public class SqlSearchCriteriaBuilderJsonConverter<T> : JsonConverter<SqlLikeSea
 
         foreach (var searchInfo in value.SqlLikeSearchCriteriaList)
         {
-            var json = JsonSerializer.Serialize(searchInfo, localOptions);
-            writer.WriteRawValue(json);
+            JsonSerializer.Serialize(writer, searchInfo, localOptions);
         }
 
         // End the array
