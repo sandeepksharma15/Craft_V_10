@@ -162,13 +162,9 @@ public class QuerySelectBuilderTests
         // Arrange
         var builder = new QuerySelectBuilder<MyEntity, MyEntity>();
 
-        // Act
-        var predicate = builder.Build();
-
-        // Assert
-        Assert.Equal(1, predicate?.Parameters.Count);
-        Assert.Equal(typeof(MyEntity), predicate?.Parameters[0].Type);
-        Assert.NotNull(predicate);
+        // Act & Assert
+        // Now, Build() should throw an InvalidOperationException if no select mappings are defined
+        Assert.Throws<InvalidOperationException>(() => builder.Build());
     }
 
     [Fact]

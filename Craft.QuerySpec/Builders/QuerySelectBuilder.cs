@@ -137,6 +137,9 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
 
     private Expression<Func<T, TResult>> BuildSelect()
     {
+        if (SelectDescriptorList.Count == 0)
+            throw new InvalidOperationException("No select mappings defined in QuerySelectBuilder.");
+
         var selectParam = Expression.Parameter(typeof(T));
         var memberBindings = new List<MemberBinding>();
 
