@@ -17,6 +17,7 @@ public class QueryJsonConverter<T> : JsonConverter<Query<T>>, IQueryJsonConverte
         {
             var query = new Query<T>();
             var localOptions = IQueryJsonConverter<T>.GetLocalSerializerOptions(options);
+
             return IQueryJsonConverter<T>.Read(ref reader, localOptions, query);
         }
         catch (Exception ex)
@@ -34,8 +35,11 @@ public class QueryJsonConverter<T> : JsonConverter<Query<T>>, IQueryJsonConverte
         try
         {
             var localOptions = IQueryJsonConverter<T>.GetLocalSerializerOptions(options);
+
             writer.WriteStartObject();
+
             IQueryJsonConverter<T>.WriteCommonProperties(ref writer, value, localOptions);
+
             writer.WriteEndObject();
         }
         catch (Exception ex)
@@ -58,31 +62,29 @@ public class QueryJsonConverter<T, TResult> : JsonConverter<Query<T, TResult>>, 
     public override Query<T, TResult> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
+
         try
         {
             var query = new Query<T, TResult>();
             var localOptions = IQueryJsonConverter<T>.GetLocalSerializerOptions(options);
+
             localOptions.Converters.Add(new QuerySelectBuilderJsonConverter<T, TResult>());
 
             if (reader.TokenType != JsonTokenType.StartObject)
-            {
                 throw new JsonException($"Expected StartObject token, but got {reader.TokenType}.");
-            }
 
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.EndObject)
-                {
                     break;
-                }
+
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     var propertyName = reader.GetString();
                     reader.Read();
+
                     if (propertyName == nameof(query.QuerySelectBuilder))
-                    {
                         query.QuerySelectBuilder = JsonSerializer.Deserialize<QuerySelectBuilder<T, TResult>>(ref reader, localOptions);
-                    }
                     else
                     {
                         switch (propertyName)
@@ -121,6 +123,7 @@ public class QueryJsonConverter<T, TResult> : JsonConverter<Query<T, TResult>>, 
                     }
                 }
             }
+
             return query;
         }
         catch (Exception ex)
@@ -138,9 +141,13 @@ public class QueryJsonConverter<T, TResult> : JsonConverter<Query<T, TResult>>, 
         try
         {
             var localOptions = IQueryJsonConverter<T>.GetLocalSerializerOptions(options);
+
             localOptions.Converters.Add(new QuerySelectBuilderJsonConverter<T, TResult>());
+
             writer.WriteStartObject();
+
             IQueryJsonConverter<T>.WriteCommonProperties(ref writer, value, localOptions);
+
             if (value.QuerySelectBuilder is not null)
             {
                 writer.WritePropertyName(nameof(value.QuerySelectBuilder));
