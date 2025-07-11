@@ -415,6 +415,23 @@ public class ExpressionTreeBuilderTests
     }
 
     #endregion
+
+    [Fact]
+    public void BuildBinaryTreeExpressionWorker_SurroundingBrackets_InnerLogic_Coverage()
+    {
+        // Arrange: Query with a single set of surrounding brackets and valid inner expression
+        var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("(NumericValue == 1)");
+        Assert.NotNull(expr); // Should parse and not return null
+        
+        // Arrange: Query with only brackets and whitespace (should return null)
+        var exprNull = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("(   )");
+        Assert.Null(exprNull);
+
+        // Arrange: Query where inner == original after trimming (should return null)
+        // This is a crafted edge case: e.g., single character in brackets
+        var exprEdge = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("(x)");
+        Assert.Null(exprEdge);
+    }
 }
 
 public class TestClass
