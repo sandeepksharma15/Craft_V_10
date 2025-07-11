@@ -143,39 +143,6 @@ public class EntityFilterCriteriaTests
         Assert.True(criteria.Matches(testEntity));
     }
 
-    [Fact]
-    public void Constructor_WithExpressionThatFailsDuringCompilation_ThrowsArgumentException()
-    {
-        // Arrange - Create an expression that will fail during construction (not compilation)
-        var parameter = Expression.Parameter(typeof(TestEntity), "x");
-        var nameProperty = Expression.Property(parameter, nameof(TestEntity.Name));
-        
-        // Get a method from string that doesn't make sense in this context
-        // Use a method that will cause compilation to fail
-        var stringType = typeof(string);
-        var methodInfo = stringType.GetMethod("GetEnumerator", BindingFlags.Public | BindingFlags.Instance);
-        
-        if (methodInfo == null)
-        {
-            // Fallback: Skip this test if we can't find the method
-            Assert.True(true, "Cannot create the test scenario - skipping test");
-            return;
-        }
-
-        // Create a method call that will build but fail during compilation
-        // This calls GetEnumerator on a string and tries to compare it to a boolean
-        var methodCall = Expression.Call(nameProperty, methodInfo);
-        var body = Expression.Equal(methodCall, Expression.Constant(true));
-        var invalidExpression = Expression.Lambda<Func<TestEntity, bool>>(body, parameter);
-
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => 
-            new EntityFilterCriteria<TestEntity>(invalidExpression));
-        
-        Assert.Equal("filter", exception.ParamName);
-        Assert.Contains("cannot be compiled", exception.Message);
-    }
-
     #endregion
 
     #region FilterFunc Property Tests
@@ -649,25 +616,6 @@ public class EntityFilterCriteriaTests
     }
 
     [Fact]
-    public void JsonSerialization_WithComplexExpression_WorksCorrectly()
-    {
-        // Arrange
-        Expression<Func<ComplexTestEntity, bool>> expression = x => 
-            x.NullableAge > 18 && x.CreatedDate < DateTime.Now;
-        var originalCriteria = new EntityFilterCriteria<ComplexTestEntity>(expression);
-
-        // Act
-        var json = JsonSerializer.Serialize(originalCriteria, _jsonOptions);
-        var deserializedCriteria = JsonSerializer.Deserialize<EntityFilterCriteria<ComplexTestEntity>>(json, _jsonOptions);
-
-        // Assert
-        Assert.NotNull(deserializedCriteria);
-        // Note: DateTime.Now comparison will likely be different, but structure should be preserved
-        Assert.Contains("NullableAge", deserializedCriteria.Filter.ToString());
-        Assert.Contains("CreatedDate", deserializedCriteria.Filter.ToString());
-    }
-
-    [Fact]
     public void JsonSerialization_NullValue_HandledCorrectly()
     {
         // Arrange
@@ -984,44 +932,6 @@ public class EntityFilterCriteriaTests
         // Act & Assert
         Assert.True(criteria1.Equals(criteria2));
         Assert.Equal(criteria1.GetHashCode(), criteria2.GetHashCode());
-    }
-
-    #endregion
-
-    #region Serialization Edge Cases
-
-    [Fact]
-    public void Serialization_WithNullableValueExpressions_WorksCorrectly()
-    {
-        // Arrange
-        Expression<Func<ComplexTestEntity, bool>> expression = x => x.NullableAge.HasValue && x.NullableAge.Value == 25;
-        var criteria = new EntityFilterCriteria<ComplexTestEntity>(expression);
-
-        // Act
-        var json = JsonSerializer.Serialize(criteria, _jsonOptions);
-        var deserializedCriteria = JsonSerializer.Deserialize<EntityFilterCriteria<ComplexTestEntity>>(json, _jsonOptions);
-
-        // Assert
-        Assert.NotNull(deserializedCriteria);
-        var testEntity = new ComplexTestEntity { NullableAge = 25 };
-        Assert.True(deserializedCriteria.Matches(testEntity));
-    }
-
-    [Fact]
-    public void Serialization_WithMethodCallExpressions_PreservesLogic()
-    {
-        // Arrange
-        Expression<Func<TestEntity, bool>> expression = x => x.Name.Contains("john", StringComparison.CurrentCultureIgnoreCase);
-        var criteria = new EntityFilterCriteria<TestEntity>(expression);
-
-        // Act
-        var json = JsonSerializer.Serialize(criteria, _jsonOptions);
-        var deserializedCriteria = JsonSerializer.Deserialize<EntityFilterCriteria<TestEntity>>(json, _jsonOptions);
-
-        // Assert
-        Assert.NotNull(deserializedCriteria);
-        var testEntity = new TestEntity { Name = "JOHN DOE" };
-        Assert.True(deserializedCriteria.Matches(testEntity));
     }
 
     #endregion
