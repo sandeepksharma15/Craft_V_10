@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Craft.QuerySpec.Tests.Components;
 
