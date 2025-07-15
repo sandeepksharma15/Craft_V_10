@@ -65,7 +65,6 @@ public class FilterCriteriaTests
         if (name is null)
             ex = Assert.Throws<ArgumentNullException>(() => new FilterCriteria(typeof(string), name!, "abc"));
         else
-
             ex = Assert.Throws<ArgumentException>(() => new FilterCriteria(typeof(string), name!, "abc"));
 
         Assert.Equal("name", ex.ParamName);
