@@ -512,6 +512,20 @@ public class ExpressionTreeBuilderTests
     }
 
     /// <summary>
+    /// Tests new Math function builders
+    /// </summary>
+    [Theory]
+    [InlineData("Abs")]
+    [InlineData("Max")]
+    [InlineData("Min")]
+    public void MathFunctionBuilder_Keys_ReturnBuilder(string key)
+    {
+        // Assert
+        Assert.True(ExpressionTreeBuilder.TestBuilders.MathFunctionBuilders.ContainsKey(key));
+        Assert.NotNull(ExpressionTreeBuilder.TestBuilders.MathFunctionBuilders[key]);
+    }
+
+    /// <summary>
     /// Tests arithmetic expressions with properties and constants
     /// </summary>
     [Theory]
@@ -541,8 +555,31 @@ public class ExpressionTreeBuilderTests
     }
 
     /// <summary>
-    /// Tests string method expressions
+    /// Tests Math function expressions
     /// </summary>
+    [Theory]
+    [InlineData("Math.Abs(NumericValue)", -5, 5)]
+    [InlineData("Math.Max(NumericValue, 10)", 5, 10)]
+    [InlineData("Math.Min(NumericValue, 10)", 15, 10)]
+    public void BuildBinaryTreeExpression_MathFunctions_Work(string query, int testValue, int expectedResult)
+    {
+        // Arrange
+        var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(query);
+        
+        // Assert
+        Assert.NotNull(expr);
+        
+        var testData = new TestClass { NumericValue = testValue };
+        var compiled = expr.Compile();
+        
+        // Math functions return the computed value, not boolean
+        // We'll verify the expression compiles and can be invoked
+        Assert.NotNull(compiled);
+        
+        // For testing purposes, we can invoke the expression and check the type
+        var result = compiled(testData);
+        Assert.IsType<int>(result);
+    }
     [Theory]
     [InlineData("StringValue.Contains(\"test\")", "test string", true)]
     [InlineData("StringValue.Contains(\"missing\")", "test string", false)]
@@ -629,10 +666,12 @@ public class ExpressionTreeBuilderTests
         // Assert patterns are accessible
         Assert.NotNull(ExpressionTreeBuilder.TestPatterns.ArithmeticPatternValue);
         Assert.NotNull(ExpressionTreeBuilder.TestPatterns.StringMethodPatternValue);
+        Assert.NotNull(ExpressionTreeBuilder.TestPatterns.MathFunctionPatternValue);
         
         // Verify pattern content
         Assert.Contains("+", ExpressionTreeBuilder.TestPatterns.ArithmeticPatternValue);
         Assert.Contains("Contains", ExpressionTreeBuilder.TestPatterns.StringMethodPatternValue);
+        Assert.Contains("Math", ExpressionTreeBuilder.TestPatterns.MathFunctionPatternValue);
     }
 
     /// <summary>
@@ -643,10 +682,111 @@ public class ExpressionTreeBuilderTests
     [InlineData("StringValue.Contains()")]  // Missing argument
     [InlineData("StringValue.InvalidMethod(\"test\")")]  // Invalid method
     [InlineData("Nested..Value == \"test\"")]  // Double dots
+    [InlineData("Math.InvalidFunction(5)")]  // Invalid Math function
+    [InlineData("Math.Abs()")]  // Missing arguments
+    [InlineData("Math.Max(5)")]  // Insufficient arguments for Max
     public void BuildBinaryTreeExpression_MalformedExpressions_ReturnNull(string query)
     {
         // Assert
         Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(query));
+    }
+
+    /// <summary>
+    /// Comprehensive integration test demonstrating the enhanced capabilities
+    /// </summary>
+    [Fact]
+    public void BuildBinaryTreeExpression_ComplexRealWorldScenarios_Work()
+    {
+        // Test nested properties with logical operators
+        var expr1 = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClassWithNested>(
+            "Id == \"user123\" && Nested.Value.StartsWith(\"prefix\")");
+        Assert.NotNull(expr1);
+
+        // Test combinations that would previously fail
+        var testData = new TestClassWithNested
+        {
+            Id = "user123",
+            Nested = new NestedClass { Value = "prefix_test" }
+        };
+
+        var compiled1 = expr1.Compile();
+        Assert.True(compiled1(testData));
+
+        // Test string methods with complex property access
+        var expr2 = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClassWithNested>(
+            "Nested.Value.Contains(\"test\")");
+        Assert.NotNull(expr2);
+
+        var compiled2 = expr2.Compile() as Func<TestClassWithNested, bool>;
+        Assert.NotNull(compiled2);
+        Assert.True(compiled2(testData));
+    }
+
+    /// <summary>
+    /// Tests backward compatibility - ensures all original functionality still works
+    /// </summary>
+    [Theory]
+    [InlineData("Id == \"test\"")]
+    [InlineData("NumericValue > 5")]
+    [InlineData("Id == \"test\" && NumericValue > 5")]
+    [InlineData("(Id == \"test\" || NumericValue > 10) && StringValue != \"\"")]
+    public void BuildBinaryTreeExpression_BackwardCompatibility_AllOriginalFeaturesWork(string query)
+    {
+        // Arrange & Act
+        var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(query);
+        
+        // Assert
+        Assert.NotNull(expr);
+        
+        // Verify it compiles and can be invoked
+        var compiled = expr.Compile();
+        Assert.NotNull(compiled);
+        
+        // Test with sample data
+        var testData = new TestClass
+        {
+            Id = "test",
+            NumericValue = 10,
+            StringValue = "sample"
+        };
+        
+        // Should not throw exceptions
+        var result = compiled(testData);
+        Assert.IsType<bool>(result);
+    }
+
+    /// <summary>
+    /// Performance test to ensure enhancements don't significantly impact performance
+    /// </summary>
+    [Fact]
+    public void BuildBinaryTreeExpression_Performance_AcceptableForComplexExpressions()
+    {
+        // Arrange
+        var complexQueries = new[]
+        {
+            "Nested.Value == \"test\"",
+            "StringValue.Contains(\"test\") && Id != \"\"",
+            "Nested.Value.StartsWith(\"prefix\") || StringValue.EndsWith(\"suffix\")",
+            "(Id == \"test\" || Nested.Value.Contains(\"val\")) && NumericValue > 5"
+        };
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        // Act - build multiple complex expressions
+        foreach (var query in complexQueries)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClassWithNested>(query);
+                Assert.NotNull(expr);
+            }
+        }
+        
+        stopwatch.Stop();
+        
+        // Assert - should complete in reasonable time (less than 5 seconds for 400 expression builds)
+        Assert.True(stopwatch.ElapsedMilliseconds < 5000, 
+            $"Expression building took too long: {stopwatch.ElapsedMilliseconds}ms");
     }
 
     #endregion

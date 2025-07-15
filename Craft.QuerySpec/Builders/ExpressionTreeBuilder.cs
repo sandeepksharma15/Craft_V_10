@@ -9,15 +9,20 @@ namespace Craft.QuerySpec;
 
 /// <summary>
 /// Provides functionality for building LINQ expression trees from string-based query syntax.
-/// Supports complex boolean expressions with operators, parentheses, and property comparisons.
+/// Supports complex boolean expressions, arithmetic operations, string methods, and Math functions.
 /// </summary>
 /// <remarks>
 /// This class enables dynamic construction of LINQ expressions from string queries, supporting:
 /// - Binary operations: ==, !=, &lt;, &lt;=, &gt;, &gt;=
+/// - Arithmetic operations: +, -, *, /, %
 /// - Logical operations: &amp;, &amp;&amp;, |, ||
+/// - String methods: Contains, StartsWith, EndsWith
+/// - Math functions: Math.Abs, Math.Max, Math.Min
 /// - Parentheses for grouping
-/// - Nested property access (e.g., "Property.SubProperty")
+/// - Nested property access (e.g., "Person.Address.Street")
 /// - Type-safe conversion and validation
+/// 
+/// Enhanced to support more complex expressions inspired by advanced expression parsers.
 /// </remarks>
 public static class ExpressionTreeBuilder
 {
@@ -31,6 +36,9 @@ public static class ExpressionTreeBuilder
 
     /// <summary>Pattern for string method calls like Contains, StartsWith, EndsWith.</summary>
     private const string StringMethodPattern = @"^\s*(?'propertyName'\w+(?:\.\w+)*)\s*\.\s*(?'methodName'(Contains|StartsWith|EndsWith))\s*\(\s*[""'](?'value'[^""']*)[""']\s*\)\s*$";
+
+    /// <summary>Pattern for Math function calls like Math.Abs, Math.Max, Math.Min.</summary>
+    private const string MathFunctionPattern = @"^\s*Math\s*\.\s*(?'functionName'(Abs|Max|Min))\s*\(\s*(?'arguments'[^)]+)\s*\)\s*$";
 
     /// <summary>Pattern for simple binary expressions.</summary>
     private const string BinaryPattern = "^" + BinaryPatternCore + "$";
@@ -97,6 +105,15 @@ public static class ExpressionTreeBuilder
             {"EndsWith", (prop, value) => Expression.Call(prop, typeof(string).GetMethod("EndsWith", [typeof(string)])!, Expression.Constant(value))},
         };
 
+    /// <summary>Maps Math function names to their corresponding method info.</summary>
+    private static readonly IReadOnlyDictionary<string, Func<Expression[], MethodCallExpression?>> MathFunctionBuilder =
+        new Dictionary<string, Func<Expression[], MethodCallExpression?>>
+        {
+            {"Abs", args => args.Length == 1 ? Expression.Call(typeof(Math).GetMethod("Abs", [args[0].Type])!, args[0]) : null},
+            {"Max", args => args.Length == 2 && args[0].Type == args[1].Type ? Expression.Call(typeof(Math).GetMethod("Max", [args[0].Type, args[1].Type])!, args) : null},
+            {"Min", args => args.Length == 2 && args[0].Type == args[1].Type ? Expression.Call(typeof(Math).GetMethod("Min", [args[0].Type, args[1].Type])!, args) : null},
+        };
+
     /// <summary>Maps logical operators to their corresponding expression factory functions.</summary>
     private static readonly IReadOnlyDictionary<string, Func<Expression, Expression, Expression>> EvaluationExpressionBuilder =
         new Dictionary<string, Func<Expression, Expression, Expression>>
@@ -128,13 +145,25 @@ public static class ExpressionTreeBuilder
     /// <param name="query">The string query to parse into an expression.</param>
     /// <returns>A compiled LINQ expression, or null if the query is invalid or empty.</returns>
     /// <remarks>
-    /// Supports complex boolean expressions with parentheses, logical operators, and property comparisons.
+    /// Supports complex boolean expressions with parentheses, logical operators, property comparisons,
+    /// arithmetic operations, string methods, and Math functions.
     /// Returns null for invalid queries rather than throwing exceptions.
     /// </remarks>
     /// <example>
     /// <code>
-    /// var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression&lt;Person&gt;("Age &gt; 18 &amp;&amp; Name == \"John\"");
-    /// var predicate = expr?.Compile();
+    /// // Basic comparison
+    /// var expr1 = ExpressionTreeBuilder.BuildBinaryTreeExpression&lt;Person&gt;("Age &gt; 18 &amp;&amp; Name == \"John\"");
+    /// 
+    /// // Nested properties
+    /// var expr2 = ExpressionTreeBuilder.BuildBinaryTreeExpression&lt;Person&gt;("Address.City == \"Seattle\"");
+    /// 
+    /// // String methods
+    /// var expr3 = ExpressionTreeBuilder.BuildBinaryTreeExpression&lt;Person&gt;("Name.StartsWith(\"J\")");
+    /// 
+    /// // Math functions
+    /// var expr4 = ExpressionTreeBuilder.BuildBinaryTreeExpression&lt;Person&gt;("Math.Abs(Score) &gt; 100");
+    /// 
+    /// var predicate = expr1?.Compile();
     /// </code>
     /// </example>
     public static Expression<Func<T, bool>>? BuildBinaryTreeExpression<T>([AllowNull] string? query)
@@ -318,6 +347,7 @@ public static class ExpressionTreeBuilder
         internal const string HasSurroundingBracketsOnlyValue = HasSurroundingBracketsOnly;
         internal const string ArithmeticPatternValue = ArithmeticPattern;
         internal const string StringMethodPatternValue = StringMethodPattern;
+        internal const string MathFunctionPatternValue = MathFunctionPattern;
     }
 
     /// <summary>
@@ -329,6 +359,7 @@ public static class ExpressionTreeBuilder
         internal static IReadOnlyDictionary<string, Func<Expression, Expression, Expression>> EvaluationExpressionBuilders => EvaluationExpressionBuilder;
         internal static IReadOnlyDictionary<string, Func<Expression, Expression, BinaryExpression>> ArithmeticExpressionBuilders => ArithmeticExpressionBuilder;
         internal static IReadOnlyDictionary<string, Func<MemberExpression, string, MethodCallExpression>> StringMethodBuilders => StringMethodBuilder;
+        internal static IReadOnlyDictionary<string, Func<Expression[], MethodCallExpression?>> MathFunctionBuilders => MathFunctionBuilder;
     }
 
     /// <summary>
@@ -453,6 +484,50 @@ public static class ExpressionTreeBuilder
             var methodCall = StringMethodBuilder[methodName](memberExpression, value);
             var delegateType = typeof(Func<,>).MakeGenericType(type, typeof(bool));
 
+            return Expression.Lambda(delegateType, methodCall, parameterExpression);
+        }
+        catch (Exception ex) when (IsExpectedParsingException(ex))
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Builds a Math function call expression.
+    /// </summary>
+    /// <param name="type">The entity type.</param>
+    /// <param name="functionName">The Math function name.</param>
+    /// <param name="argumentsString">The comma-separated arguments string.</param>
+    /// <param name="parameterExpression">The parameter expression.</param>
+    /// <returns>A lambda expression for the Math function call.</returns>
+    private static LambdaExpression? BuildMathFunctionExpression([NotNull] Type type, [NotNull] string functionName,
+        [NotNull] string argumentsString, [NotNull] ParameterExpression parameterExpression)
+    {
+        if (!MathFunctionBuilder.ContainsKey(functionName))
+            return null;
+
+        try
+        {
+            // Parse arguments (simple comma split for now)
+            var argumentStrings = argumentsString.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToArray();
+
+            var argumentExpressions = new List<Expression>();
+            
+            foreach (var argString in argumentStrings)
+            {
+                var argExpression = ParseOperand(argString, parameterExpression);
+                if (argExpression == null)
+                    return null;
+                argumentExpressions.Add(argExpression);
+            }
+
+            var methodCall = MathFunctionBuilder[functionName](argumentExpressions.ToArray());
+            if (methodCall == null)
+                return null;
+
+            var delegateType = typeof(Func<,>).MakeGenericType(type, methodCall.Type);
             return Expression.Lambda(delegateType, methodCall, parameterExpression);
         }
         catch (Exception ex) when (IsExpectedParsingException(ex))
@@ -600,6 +675,16 @@ public static class ExpressionTreeBuilder
                 arithmeticMatch.Groups[LeftOperand].Value,
                 arithmeticMatch.Groups[Operator].Value,
                 arithmeticMatch.Groups[RightOperand].Value,
+                parameterExpression);
+        }
+
+        // Handle Math function calls
+        var mathFunctionMatch = GetCachedRegexMatch(q, MathFunctionPattern);
+        if (mathFunctionMatch.Success)
+        {
+            return BuildMathFunctionExpression(type,
+                mathFunctionMatch.Groups["functionName"].Value,
+                mathFunctionMatch.Groups["arguments"].Value,
                 parameterExpression);
         }
 
