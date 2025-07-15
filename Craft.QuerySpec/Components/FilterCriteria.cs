@@ -4,49 +4,55 @@ using System.Reflection;
 namespace Craft.QuerySpec;
 
 /// <summary>
-/// Represents a filter criterion for querying entities, including property name, type, value, and comparison type.
+/// Represents a filter criterion for querying entities, including property type, name, value, and comparison type.
 /// </summary>
 public sealed record FilterCriteria
 {
-    /// The type name of the property being filtered.
-    public string TypeName { get; }
+    /// <summary>
+    /// The type of the property being filtered.
+    /// </summary>
+    public Type PropertyType { get; }
 
+    /// <summary>
     /// The property name being filtered.
+    /// </summary>
     public string Name { get; }
 
+    /// <summary>
     /// The value to compare with.
-    public string? Value { get; }
+    /// </summary>
+    public object? Value { get; }
 
+    /// <summary>
     /// The type of comparison to perform.
+    /// </summary>
     public ComparisonType Comparison { get; }
 
     /// <summary>
     /// Initializes a new instance of <see cref="FilterCriteria"/>.
     /// </summary>
-    /// <param name="typeName">The type name of the property.</param>
+    /// <param name="propertyType">The type of the property.</param>
     /// <param name="name">The property name.</param>
     /// <param name="value">The value to compare with.</param>
     /// <param name="comparison">The comparison type.</param>
     /// <exception cref="ArgumentNullException">Thrown if any required argument is null.</exception>
-    public FilterCriteria(string typeName, string name, string? value, ComparisonType comparison = ComparisonType.EqualTo)
+    public FilterCriteria(Type propertyType, string name, object? value, ComparisonType comparison = ComparisonType.EqualTo)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(typeName, nameof(typeName));
+        ArgumentNullException.ThrowIfNull(propertyType, nameof(propertyType));
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
 
-        // Check if value is null and typeName is not nullable
+        // Check if value is null and propertyType is not nullable
         if (value is null)
         {
-            // Allow null for reference types and Nullable<T>
             bool isNullable =
-                !Type.GetType(typeName, throwOnError: false)?.IsValueType ?? true // Reference type
-                || (Type.GetType(typeName, throwOnError: false)?.IsGenericType == true
-                    && Type.GetType(typeName, throwOnError: false)?.GetGenericTypeDefinition() == typeof(Nullable<>));
+                !propertyType.IsValueType // Reference type
+                || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>));
 
             if (!isNullable)
-                throw new ArgumentException($"Value cannot be null for non-nullable type '{typeName}'.", nameof(value));
+                throw new ArgumentException($"Value cannot be null for non-nullable type '{propertyType.FullName}'.", nameof(value));
         }
 
-        TypeName = typeName;
+        PropertyType = propertyType;
         Name = name;
         Value = value;
         Comparison = comparison;
@@ -88,7 +94,7 @@ public sealed record FilterCriteria
         if (Nullable.GetUnderlyingType(type!) != null)
             type = type?.GetNonNullableType();
 
-        return new FilterCriteria(type?.FullName!, name, compareWith?.ToString()!, comparisonType);
+        return new FilterCriteria(type!, name, compareWith, comparisonType);
     }
 
     /// <summary>
@@ -144,6 +150,6 @@ public sealed record FilterCriteria
             _ => throw new ArgumentException($"Comparison operator '{binaryExpression.NodeType}' not supported.", nameof(expression)),
         };
 
-        return new FilterCriteria(dataType.FullName!, propertyName, comparedValue?.ToString()!, comparisonOperator);
+        return new FilterCriteria(dataType, propertyName, comparedValue, comparisonOperator);
     }
 }

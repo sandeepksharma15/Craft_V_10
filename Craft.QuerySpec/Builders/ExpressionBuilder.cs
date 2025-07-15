@@ -38,10 +38,10 @@ public static class ExpressionBuilder
         ParameterExpression lambdaParam = Expression.Parameter(typeof(T));
         MemberExpression leftExpression = Expression.Property(lambdaParam, filterInfo.Name);
 
-        Type? dataType = ResolveType(filterInfo.TypeName) 
-            ?? throw new ArgumentException($"Could not resolve type '{filterInfo.TypeName}'", nameof(filterInfo));
+        Type dataType = filterInfo.PropertyType;
+        object? value = filterInfo.Value;
 
-        Expression exprBody = CreateExpressionBody(leftExpression, dataType, filterInfo.Value, filterInfo.Comparison);
+        Expression exprBody = CreateExpressionBody(leftExpression, dataType, value, filterInfo.Comparison);
 
         return Expression.Lambda<Func<T, bool>>(exprBody, lambdaParam);
     }
@@ -56,7 +56,7 @@ public static class ExpressionBuilder
     /// <returns>A lambda expression for filtering.</returns>
     /// <exception cref="ArgumentNullException">Thrown if propExpr is null.</exception>
     public static Expression<Func<T, bool>> CreateWhereExpression<T>(Expression<Func<T, object>> propExpr,
-        string dataValue, ComparisonType comparison)
+        object? dataValue, ComparisonType comparison)
     {
         ArgumentNullException.ThrowIfNull(propExpr, nameof(propExpr));
 
@@ -101,68 +101,20 @@ public static class ExpressionBuilder
         }
     }
 
-    // Attempts to resolve a type from a type name, handling common .NET types and primitives.
-    private static Type? ResolveType(string typeName)
-    {
-        if (string.IsNullOrWhiteSpace(typeName)) return null;
-
-        // Try Type.GetType first
-        var type = Type.GetType(typeName);
-
-        if (type != null) return type;
-
-        // Handle common .NET types
-        return typeName switch
-        {
-            "int" => typeof(int),
-            "long" => typeof(long),
-            "short" => typeof(short),
-            "byte" => typeof(byte),
-            "bool" => typeof(bool),
-            "string" => typeof(string),
-            "double" => typeof(double),
-            "float" => typeof(float),
-            "decimal" => typeof(decimal),
-            "DateTime" => typeof(DateTime),
-            "DateOnly" => typeof(DateOnly),
-            "TimeOnly" => typeof(TimeOnly),
-            _ => null
-        };
-    }
-
     // Creates the body of the filter expression for the given property, type, value, and comparison.
     private static Expression CreateExpressionBody(MemberExpression leftExpression, Type dataType,
-                    string dataValue, ComparisonType comparison)
+                    object? value, ComparisonType comparison)
     {
-        object value;
-        var dateTimeFormatProvider = System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat;
-
-        try
-        {
-            if (dataType == typeof(TimeOnly))
-                value = TimeOnly.Parse(dataValue, dateTimeFormatProvider);
-            else if (dataType == typeof(DateOnly))
-                value = DateOnly.Parse(dataValue, dateTimeFormatProvider);
-            else if (dataType == typeof(DateTime))
-                value = DateTime.Parse(dataValue, dateTimeFormatProvider);
-            else
-                value = Convert.ChangeType(dataValue, dataType);
-        }
-        catch (Exception ex)
-        {
-            throw new ArgumentException($"Failed to convert '{dataValue}' to type '{dataType.Name}'.", ex);
-        }
-
-        return dataType == typeof(string)
-            ? CreateStringExpressionBody(leftExpression, dataType, value, comparison)
-            : CreateNonStringExpressionBody(leftExpression, value, comparison);
+        if (dataType == typeof(string))
+            return CreateStringExpressionBody(leftExpression, dataType, value, comparison);
+        else
+            return CreateNonStringExpressionBody(leftExpression, value, comparison);
     }
 
     // Creates the body of the filter expression for non-string types.
     private static Expression CreateNonStringExpressionBody(MemberExpression leftExpression,
-        object value, ComparisonType comparison)
+        object? value, ComparisonType comparison)
     {
-        // Use Expression.Constant for value
         var rightExpression = Expression.Convert(Expression.Constant(value, leftExpression.Type), leftExpression.Type);
 
         return comparison switch
@@ -178,12 +130,9 @@ public static class ExpressionBuilder
 
     // Creates the body of the filter expression for string types, using case-insensitive comparison.
     private static Expression CreateStringExpressionBody(MemberExpression leftExpression,
-        Type dataType, object value, ComparisonType comparison)
+        Type dataType, object? value, ComparisonType comparison)
     {
-        // Convert The Value To Upper Case
         var upperCaseValue = Expression.Call(Expression.Constant(value, dataType), _toUpperMethod);
-
-        // Convert The Class Member To Upper Case
         var upperMember = Expression.Call(leftExpression, _toUpperMethod);
 
         return comparison switch
