@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using static Craft.QuerySpec.Tests.Components.OrderDescriptorJsonConverterTests;
 
 namespace Craft.QuerySpec.Tests.Components;
 
@@ -113,5 +114,20 @@ public class OrderDescriptorTests
         // Act & Assert
         var ex = Record.Exception(() => new OrderDescriptor<TestEntity>(null!));
         Assert.Null(ex);
+    }
+
+    [Theory]
+    [InlineData(OrderTypeEnum.OrderBy)]
+    [InlineData(OrderTypeEnum.OrderByDescending)]
+    [InlineData(OrderTypeEnum.ThenBy)]
+    [InlineData(OrderTypeEnum.ThenByDescending)]
+    public void Constructor_SetsAllOrderTypeEnumValues(OrderTypeEnum orderType)
+    {
+        // Arrange & Act
+        Expression<Func<TestEntity, object>> orderItemExpression = x => x.Name;
+        var orderInfo = new OrderDescriptor<TestEntity>(orderItemExpression, orderType);
+
+        // Assert
+        Assert.Equal(orderType, orderInfo.OrderType);
     }
 }
