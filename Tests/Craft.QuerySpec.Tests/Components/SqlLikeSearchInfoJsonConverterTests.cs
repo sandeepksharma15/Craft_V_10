@@ -21,17 +21,6 @@ public class SqlLikeSearchInfoJsonConverterTests
         public string ResultName { get; set; } = string.Empty;
     }
 
-    private static SqlLikeSearchInfo<MyResult> CreateInfo(
-        string? property = "ResultName",
-        string? searchString = "test",
-        int searchGroup = 1)
-    {
-        return new SqlLikeSearchInfo<MyResult>(
-            property != null ? (Expression<Func<MyResult, object>>)(x => property == "Id" ? (object)x.Id : x.ResultName) : (Expression<Func<MyResult, object>>)(x => x.ResultName),
-            searchString ?? string.Empty,
-            searchGroup);
-    }
-
     [Fact]
     public void Serialize_AllPropertiesSet_ProducesExpectedJson()
     {
