@@ -23,13 +23,22 @@ public static class ExpressionTreeBuilder
 {
     #region Constants and Patterns
 
-    /// <summary>Core pattern for binary expressions without anchors.</summary>
-    private const string BinaryPatternCore = @"\s*(?'leftOperand'\w+)\s*(?'operator'(==|!=|<|<=|>|>=))\s*(?'rightOperand'\w+)\s*";
+    /// <summary>Core pattern for binary expressions without anchors. Supports nested properties with dot notation.</summary>
+    private const string BinaryPatternCore = @"\s*(?'leftOperand'\w+(?:\.\w+)*)\s*(?'operator'(==|!=|<|<=|>|>=))\s*(?'rightOperand'\w+(?:\.\w+)*)\s*";
+
+    /// <summary>Core pattern for arithmetic expressions without anchors. Supports nested properties and numeric values.</summary>
+    private const string ArithmeticPatternCore = @"\s*(?'leftOperand'\w+(?:\.\w+)*|\d+(?:\.\d+)?)\s*(?'operator'(\+|\-|\*|\/|\%))\s*(?'rightOperand'\w+(?:\.\w+)*|\d+(?:\.\d+)?)\s*";
+
+    /// <summary>Pattern for string method calls like Contains, StartsWith, EndsWith.</summary>
+    private const string StringMethodPattern = @"^\s*(?'propertyName'\w+(?:\.\w+)*)\s*\.\s*(?'methodName'(Contains|StartsWith|EndsWith))\s*\(\s*[""'](?'value'[^""']*)[""']\s*\)\s*$";
 
     /// <summary>Pattern for simple binary expressions.</summary>
     private const string BinaryPattern = "^" + BinaryPatternCore + "$";
 
-    /// <summary>Pattern for binary expressions wrapped in parentheses.</summary>
+    /// <summary>Pattern for simple arithmetic expressions.</summary>
+    private const string ArithmeticPattern = "^" + ArithmeticPatternCore + "$";
+
+    /// <summary>Pattern for binary expressions wrapped in parentheses. Supports nested properties with dot notation.</summary>
     private const string BinaryWithBracketsPattern = @"^\s*\(" + BinaryPatternCore + @"\)\s*$";
 
     /// <summary>Pattern for escaped binary expressions with quoted values.</summary>
@@ -66,6 +75,26 @@ public static class ExpressionTreeBuilder
             {">=", (me, value) => Expression.MakeBinary(ExpressionType.GreaterThanOrEqual, me, Expression.Constant(value))},
             {"<", (me, value) => Expression.MakeBinary(ExpressionType.LessThan, me, Expression.Constant(value))},
             {"<=", (me, value) => Expression.MakeBinary(ExpressionType.LessThanOrEqual, me, Expression.Constant(value))},
+        };
+
+    /// <summary>Maps arithmetic operators to their corresponding expression factory functions.</summary>
+    private static readonly IReadOnlyDictionary<string, Func<Expression, Expression, BinaryExpression>> ArithmeticExpressionBuilder =
+        new Dictionary<string, Func<Expression, Expression, BinaryExpression>>
+        {
+            {"+", (left, right) => Expression.Add(left, right)},
+            {"-", (left, right) => Expression.Subtract(left, right)},
+            {"*", (left, right) => Expression.Multiply(left, right)},
+            {"/", (left, right) => Expression.Divide(left, right)},
+            {"%", (left, right) => Expression.Modulo(left, right)},
+        };
+
+    /// <summary>Maps string method names to their corresponding method info.</summary>
+    private static readonly IReadOnlyDictionary<string, Func<MemberExpression, string, MethodCallExpression>> StringMethodBuilder =
+        new Dictionary<string, Func<MemberExpression, string, MethodCallExpression>>
+        {
+            {"Contains", (prop, value) => Expression.Call(prop, typeof(string).GetMethod("Contains", [typeof(string)])!, Expression.Constant(value))},
+            {"StartsWith", (prop, value) => Expression.Call(prop, typeof(string).GetMethod("StartsWith", [typeof(string)])!, Expression.Constant(value))},
+            {"EndsWith", (prop, value) => Expression.Call(prop, typeof(string).GetMethod("EndsWith", [typeof(string)])!, Expression.Constant(value))},
         };
 
     /// <summary>Maps logical operators to their corresponding expression factory functions.</summary>
@@ -195,7 +224,7 @@ public static class ExpressionTreeBuilder
             if (prop == null) 
                 return null;
 
-            var memberExpression = Expression.PropertyOrField(parameterExpression, propertyName);
+            var memberExpression = BuildNestedPropertyExpression(parameterExpression, propertyName);
             var convertedValue = ConvertValueToType(value, memberExpression.Type);
             
             if (convertedValue == null)
@@ -253,7 +282,7 @@ public static class ExpressionTreeBuilder
                 if (prop == null) 
                     return null;
 
-                var memberExpression = Expression.PropertyOrField(parameterExpression, fieldName);
+                var memberExpression = BuildNestedPropertyExpression(parameterExpression, fieldName);
                 var convertedValue = ConvertValueToType(kvp.Value, memberExpression.Type);
                 
                 if (convertedValue == null)
@@ -287,6 +316,8 @@ public static class ExpressionTreeBuilder
         internal const string EvalPatternValue = EvalPattern;
         internal const string HasBracketsValue = HasBrackets;
         internal const string HasSurroundingBracketsOnlyValue = HasSurroundingBracketsOnly;
+        internal const string ArithmeticPatternValue = ArithmeticPattern;
+        internal const string StringMethodPatternValue = StringMethodPattern;
     }
 
     /// <summary>
@@ -296,6 +327,138 @@ public static class ExpressionTreeBuilder
     {
         internal static IReadOnlyDictionary<string, Func<MemberExpression, object, BinaryExpression>> BinaryExpressionBuilders => BinaryExpressionBuilder;
         internal static IReadOnlyDictionary<string, Func<Expression, Expression, Expression>> EvaluationExpressionBuilders => EvaluationExpressionBuilder;
+        internal static IReadOnlyDictionary<string, Func<Expression, Expression, BinaryExpression>> ArithmeticExpressionBuilders => ArithmeticExpressionBuilder;
+        internal static IReadOnlyDictionary<string, Func<MemberExpression, string, MethodCallExpression>> StringMethodBuilders => StringMethodBuilder;
+    }
+
+    /// <summary>
+    /// Builds a member expression for potentially nested property access.
+    /// </summary>
+    /// <param name="parameterExpression">The parameter expression.</param>
+    /// <param name="propertyPath">The property path (e.g., "Address.Street").</param>
+    /// <returns>A member expression for the property path.</returns>
+    private static MemberExpression BuildNestedPropertyExpression([NotNull] ParameterExpression parameterExpression, [NotNull] string propertyPath)
+    {
+        ArgumentNullException.ThrowIfNull(parameterExpression, nameof(parameterExpression));
+        ArgumentNullException.ThrowIfNull(propertyPath, nameof(propertyPath));
+
+        if (!propertyPath.Contains('.', StringComparison.Ordinal))
+        {
+            return Expression.PropertyOrField(parameterExpression, propertyPath);
+        }
+
+        var propertyParts = propertyPath.Split('.');
+        Expression currentExpression = parameterExpression;
+
+        foreach (var propertyName in propertyParts)
+        {
+            currentExpression = Expression.Property(currentExpression, propertyName);
+        }
+
+        return (MemberExpression)currentExpression;
+    }
+
+    /// <summary>
+    /// Parses an operand which could be a property path or a literal value.
+    /// </summary>
+    /// <param name="operand">The operand string.</param>
+    /// <param name="parameterExpression">The parameter expression.</param>
+    /// <param name="targetType">The target type for conversion (if operand is literal).</param>
+    /// <returns>An expression representing the operand.</returns>
+    private static Expression? ParseOperand([NotNull] string operand, [NotNull] ParameterExpression parameterExpression, Type? targetType = null)
+    {
+        ArgumentNullException.ThrowIfNull(operand, nameof(operand));
+        ArgumentNullException.ThrowIfNull(parameterExpression, nameof(parameterExpression));
+
+        // Check if operand is a numeric literal
+        if (decimal.TryParse(operand, out var numericValue))
+        {
+            if (targetType != null)
+            {
+                var convertedValue = ConvertValueToType(operand, targetType);
+                return convertedValue != null ? Expression.Constant(convertedValue) : null;
+            }
+            return Expression.Constant(numericValue);
+        }
+
+        // Assume it's a property path
+        try
+        {
+            return BuildNestedPropertyExpression(parameterExpression, operand);
+        }
+        catch (Exception ex) when (IsExpectedParsingException(ex))
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Builds an arithmetic expression from two operands and an operator.
+    /// </summary>
+    /// <param name="type">The entity type.</param>
+    /// <param name="leftOperand">The left operand string.</param>
+    /// <param name="operator">The arithmetic operator.</param>
+    /// <param name="rightOperand">The right operand string.</param>
+    /// <param name="parameterExpression">The parameter expression.</param>
+    /// <returns>A lambda expression for the arithmetic operation.</returns>
+    private static LambdaExpression? BuildArithmeticExpression([NotNull] Type type, [NotNull] string leftOperand, 
+        [NotNull] string @operator, [NotNull] string rightOperand, [NotNull] ParameterExpression parameterExpression)
+    {
+        if (!ArithmeticExpressionBuilder.ContainsKey(@operator))
+            return null;
+
+        try
+        {
+            var leftExpression = ParseOperand(leftOperand, parameterExpression);
+            var rightExpression = ParseOperand(rightOperand, parameterExpression);
+
+            if (leftExpression == null || rightExpression == null)
+                return null;
+
+            var body = ArithmeticExpressionBuilder[@operator](leftExpression, rightExpression);
+            var delegateType = typeof(Func<,>).MakeGenericType(type, body.Type);
+
+            return Expression.Lambda(delegateType, body, parameterExpression);
+        }
+        catch (Exception ex) when (IsExpectedParsingException(ex))
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Builds a string method call expression.
+    /// </summary>
+    /// <param name="type">The entity type.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <param name="methodName">The string method name.</param>
+    /// <param name="value">The value to pass to the method.</param>
+    /// <param name="parameterExpression">The parameter expression.</param>
+    /// <returns>A lambda expression for the string method call.</returns>
+    private static LambdaExpression? BuildStringMethodExpression([NotNull] Type type, [NotNull] string propertyName,
+        [NotNull] string methodName, [NotNull] string value, [NotNull] ParameterExpression parameterExpression)
+    {
+        if (!StringMethodBuilder.ContainsKey(methodName))
+            return null;
+
+        try
+        {
+            var props = GetTypeProperties(type);
+            var prop = GetPropertyByName(props, propertyName);
+
+            if (prop == null || prop.PropertyType != typeof(string))
+                return null;
+
+            var memberExpression = BuildNestedPropertyExpression(parameterExpression, propertyName);
+            var methodCall = StringMethodBuilder[methodName](memberExpression, value);
+            var delegateType = typeof(Func<,>).MakeGenericType(type, typeof(bool));
+
+            return Expression.Lambda(delegateType, methodCall, parameterExpression);
+        }
+        catch (Exception ex) when (IsExpectedParsingException(ex))
+        {
+            return null;
+        }
     }
 
     #endregion
@@ -417,6 +580,28 @@ public static class ExpressionTreeBuilder
                 binaryOperationMatch.Groups[Operator].Value,
                 binaryOperationMatch.Groups[RightOperand].Value,
                 parameterExpression);
+
+        // Handle string method calls
+        var stringMethodMatch = GetCachedRegexMatch(q, StringMethodPattern);
+        if (stringMethodMatch.Success)
+        {
+            return BuildStringMethodExpression(type,
+                stringMethodMatch.Groups["propertyName"].Value,
+                stringMethodMatch.Groups["methodName"].Value,
+                stringMethodMatch.Groups["value"].Value,
+                parameterExpression);
+        }
+
+        // Handle arithmetic expressions
+        var arithmeticMatch = GetCachedRegexMatch(q, ArithmeticPattern);
+        if (arithmeticMatch.Success)
+        {
+            return BuildArithmeticExpression(type,
+                arithmeticMatch.Groups[LeftOperand].Value,
+                arithmeticMatch.Groups[Operator].Value,
+                arithmeticMatch.Groups[RightOperand].Value,
+                parameterExpression);
+        }
 
         // Handle expressions with brackets
         var hasBrackets = GetCachedRegexMatch(q, HasBrackets);
