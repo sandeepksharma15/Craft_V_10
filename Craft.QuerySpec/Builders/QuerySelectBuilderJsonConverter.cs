@@ -73,10 +73,10 @@ public class QuerySelectBuilderJsonConverter<T, TResult> : JsonConverter<QuerySe
             var selectDescriptor = JsonSerializer.Deserialize<SelectDescriptor<T, TResult>>(ref reader, localOptions);
 
             // Validate and add the SelectDescriptor
-            if (selectDescriptor != null)
-                querySelectBuilder.Add(selectDescriptor);
-            else
+            if (selectDescriptor == null || (selectDescriptor.Assignee == null && selectDescriptor.Assignor == null))
                 throw new JsonException("Invalid select descriptor encountered in QuerySelectBuilder array");
+            else
+                querySelectBuilder.Add(selectDescriptor);
         }
 
         return querySelectBuilder;
