@@ -37,9 +37,7 @@ public static class JsonSerializerOptionsExtensions
 
         // Copy converters
         foreach (var converter in options.Converters)
-        {
             clone.Converters.Add(converter);
-        }
 
         return clone;
     }
@@ -73,7 +71,7 @@ public class QuerySelectBuilderJsonConverter<T, TResult> : JsonConverter<QuerySe
             var selectDescriptor = JsonSerializer.Deserialize<SelectDescriptor<T, TResult>>(ref reader, localOptions);
 
             // Validate and add the SelectDescriptor
-            if (selectDescriptor == null || (selectDescriptor.Assignee == null && selectDescriptor.Assignor == null))
+            if (selectDescriptor == null || selectDescriptor.Assignee == null && selectDescriptor.Assignor == null)
                 throw new JsonException("Invalid select descriptor encountered in QuerySelectBuilder array");
             else
                 querySelectBuilder.Add(selectDescriptor);
@@ -96,9 +94,7 @@ public class QuerySelectBuilderJsonConverter<T, TResult> : JsonConverter<QuerySe
         localOptions.Converters.Add(new SelectDescriptorJsonConverter<T, TResult>());
 
         foreach (var selectDescriptor in value.SelectDescriptorList)
-        {
             JsonSerializer.Serialize(writer, selectDescriptor, localOptions);
-        }
 
         // End the array
         writer.WriteEndArray();

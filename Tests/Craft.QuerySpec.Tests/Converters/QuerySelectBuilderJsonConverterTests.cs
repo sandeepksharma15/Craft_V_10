@@ -1,12 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Xunit;
-using Craft.QuerySpec;
 
-namespace Craft.QuerySpec.Tests.Builders;
+namespace Craft.QuerySpec.Tests.Converters;
 
 public class QuerySelectBuilderJsonConverterTests
 {
@@ -139,8 +135,8 @@ public class QuerySelectBuilderJsonConverterTests
         var builder = JsonSerializer.Deserialize<QuerySelectBuilder<TestEntity, TestResult>>(json, options);
         Assert.NotNull(builder);
         Assert.Equal(2, builder!.SelectDescriptorList.Count);
-        Assert.Equal("Name", ((System.Linq.Expressions.MemberExpression)builder.SelectDescriptorList[0].Assignor!.Body).Member.Name);
-        Assert.Equal("Age", ((System.Linq.Expressions.MemberExpression)builder.SelectDescriptorList[1].Assignor!.Body).Member.Name);
+        Assert.Equal("Name", ((MemberExpression)builder.SelectDescriptorList[0].Assignor!.Body).Member.Name);
+        Assert.Equal("Age", ((MemberExpression)builder.SelectDescriptorList[1].Assignor!.Body).Member.Name);
     }
 
     [Fact]
@@ -185,10 +181,8 @@ public class QuerySelectBuilderJsonConverterTests
         Assert.NotNull(deserialized);
         Assert.Equal(builder.SelectDescriptorList.Count, deserialized.SelectDescriptorList.Count);
         for (int i = 0; i < builder.SelectDescriptorList.Count; i++)
-        {
             Assert.Equal(((MemberExpression)builder.SelectDescriptorList[i].Assignor!.Body).Member.Name,
                          ((MemberExpression)deserialized.SelectDescriptorList[i].Assignor!.Body).Member.Name);
-        }
     }
 
     // Additional moved tests from QuerySelectBuilderTests.cs

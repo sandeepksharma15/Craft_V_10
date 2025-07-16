@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Reflection;
 
-namespace Craft.QuerySpec.Tests.Builders;
+namespace Craft.QuerySpec.Tests.Converters;
 
 public class EntityFilterBuilderJsonConverterTests
 {
@@ -92,9 +92,7 @@ public class EntityFilterBuilderJsonConverterTests
         Assert.NotNull(deserialized);
         Assert.Equal(builder.EntityFilterList.Count, deserialized.EntityFilterList.Count);
         for (int i = 0; i < builder.EntityFilterList.Count; i++)
-        {
             Assert.Equal(builder.EntityFilterList[i].Filter.ToString(), deserialized.EntityFilterList[i].Filter.ToString());
-        }
     }
 
     [Fact]
@@ -122,7 +120,7 @@ public class EntityFilterBuilderJsonConverterTests
     public void CreateLocalOptions_NullOptions_ThrowsArgumentNullException()
     {
         var type = typeof(EntityFilterBuilderJsonConverter<TestEntity>);
-        var method = type.GetMethod("CreateLocalOptions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var method = type.GetMethod("CreateLocalOptions", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
         var ex = Assert.Throws<TargetInvocationException>(() => method!.Invoke(null, new object?[] { null }));
         Assert.IsType<ArgumentNullException>(ex.InnerException);

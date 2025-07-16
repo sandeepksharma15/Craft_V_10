@@ -58,9 +58,7 @@ public class EntityFilterBuilderJsonConverter<T> : JsonConverter<EntityFilterBui
         localOptions.Converters.Add(new EntityFilterCriteriaJsonConverter<T>());
 
         foreach (var entityFilter in value.EntityFilterList)
-        {
             JsonSerializer.Serialize(writer, entityFilter, localOptions);
-        }
 
         writer.WriteEndArray();
     }
