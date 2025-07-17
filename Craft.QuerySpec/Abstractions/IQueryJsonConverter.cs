@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Craft.QuerySpec;
 
@@ -8,7 +6,7 @@ public interface IQueryJsonConverter<T> where T : class
 {
     bool CanConvert(Type objectType);
 
-    static IQuery<T> Read(ref Utf8JsonReader reader, JsonSerializerOptions options, IQuery<T> query)
+    static Query<T> Read(ref Utf8JsonReader reader, JsonSerializerOptions options, Query<T> query)
     {
         // Start the object
         if (reader.TokenType != JsonTokenType.StartObject)
