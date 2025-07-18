@@ -102,8 +102,7 @@ public static class ExpressionBuilder
     }
 
     // Creates the body of the filter expression for the given property, type, value, and comparison.
-    private static Expression CreateExpressionBody(MemberExpression leftExpression, Type dataType,
-                    object? value, ComparisonType comparison)
+    private static Expression CreateExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
         if (dataType == typeof(string))
             return CreateStringExpressionBody(leftExpression, dataType, value, comparison);
@@ -112,10 +111,11 @@ public static class ExpressionBuilder
     }
 
     // Creates the body of the filter expression for non-string types.
-    private static Expression CreateNonStringExpressionBody(MemberExpression leftExpression,
-        object? value, ComparisonType comparison)
+    private static Expression CreateNonStringExpressionBody(MemberExpression leftExpression, object? value, ComparisonType comparison)
     {
-        var rightExpression = Expression.Convert(Expression.Constant(value, leftExpression.Type), leftExpression.Type);
+        var typedValue = value == null ? null : Convert.ChangeType(value, leftExpression.Type);
+
+        var rightExpression = Expression.Constant(typedValue, leftExpression.Type);
 
         return comparison switch
         {
@@ -129,8 +129,7 @@ public static class ExpressionBuilder
     }
 
     // Creates the body of the filter expression for string types, using case-insensitive comparison.
-    private static Expression CreateStringExpressionBody(MemberExpression leftExpression,
-        Type dataType, object? value, ComparisonType comparison)
+    private static Expression CreateStringExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
         var upperCaseValue = Expression.Call(Expression.Constant(value, dataType), _toUpperMethod);
         var upperMember = Expression.Call(leftExpression, _toUpperMethod);
