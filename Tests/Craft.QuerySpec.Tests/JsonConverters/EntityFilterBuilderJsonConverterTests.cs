@@ -122,7 +122,7 @@ public class EntityFilterBuilderJsonConverterTests
         var type = typeof(EntityFilterBuilderJsonConverter<TestEntity>);
         var method = type.GetMethod("CreateLocalOptions", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.NotNull(method);
-        var ex = Assert.Throws<TargetInvocationException>(() => method!.Invoke(null, new object?[] { null }));
+        var ex = Assert.Throws<TargetInvocationException>(() => method!.Invoke(null, [null]));
         Assert.IsType<ArgumentNullException>(ex.InnerException);
     }
 

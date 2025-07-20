@@ -433,7 +433,7 @@ public class QuerySelectBuilderTests
         // Arrange & Act
         var builder = new QuerySelectBuilder<TestEntity>();
         // Assert
-        Assert.IsAssignableFrom<QuerySelectBuilder<TestEntity, TestEntity>>(builder);
+        Assert.IsType<QuerySelectBuilder<TestEntity, TestEntity>>(builder, exactMatch: false);
         builder.Add("Name");
         Assert.Single(builder.SelectDescriptorList);
     }

@@ -5,6 +5,32 @@ namespace Craft.QuerySpec.Tests.Converters;
 
 public class QueryJsonConverterTests
 {
+    // Cache and reuse JsonSerializerOptions instances for each test type
+    private static readonly JsonSerializerOptions CompanyOptions = CreateCompanyOptions();
+    private static readonly JsonSerializerOptions CompanyCompanyOptions = CreateCompanyCompanyOptions();
+    private static readonly JsonSerializerOptions CompanyCompanyNameOptions = CreateCompanyCompanyNameOptions();
+
+    private static JsonSerializerOptions CreateCompanyOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new QueryJsonConverter<Company>());
+        return options;
+    }
+
+    private static JsonSerializerOptions CreateCompanyCompanyOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new QueryJsonConverter<Company, Company>());
+        return options;
+    }
+
+    private static JsonSerializerOptions CreateCompanyCompanyNameOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new QueryJsonConverter<Company, CompanyName>());
+        return options;
+    }
+
     [Fact]
     public void SerializeDeserialize_SimpleQuery_T_PreservesValues()
     {
@@ -17,15 +43,10 @@ public class QueryJsonConverterTests
         query?.EntityFilterBuilder?.Add(c => c.Name == "John");
         query?.SortOrderBuilder?.Add(c => c.Id);
 
-        
         // Act
-        var serializeOptions = new JsonSerializerOptions();
-        serializeOptions.Converters.Add(new QueryJsonConverter<Company>());
+        var serializedQuery = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserializedQuery = JsonSerializer.Deserialize<Query<Company>>(serializedQuery, CompanyOptions);
 
-        var serializedQuery = JsonSerializer.Serialize(query, serializeOptions);
-        var deserializedQuery = JsonSerializer.Deserialize<Query<Company>>(serializedQuery, serializeOptions);
-
-        
         // Assert
         Assert.NotNull(deserializedQuery);
         Assert.Equal(1, deserializedQuery.EntityFilterBuilder?.Count);
@@ -47,15 +68,10 @@ public class QueryJsonConverterTests
         query?.QuerySelectBuilder?.Add(c => c.Name!);
         query?.SortOrderBuilder?.Add(c => c.Id);
 
-        
         // Act
-        var serializeOptions = new JsonSerializerOptions();
-        serializeOptions.Converters.Add(new QueryJsonConverter<Company, Company>());
+        var serializedQuery = JsonSerializer.Serialize(query, CompanyCompanyOptions);
+        var deserializedQuery = JsonSerializer.Deserialize<Query<Company, Company>>(serializedQuery, CompanyCompanyOptions);
 
-        var serializedQuery = JsonSerializer.Serialize(query, serializeOptions);
-        var deserializedQuery = JsonSerializer.Deserialize<Query<Company, Company>>(serializedQuery, serializeOptions);
-
-        
         // Assert
         Assert.NotNull(deserializedQuery);
         Assert.Equal(1, deserializedQuery.EntityFilterBuilder?.Count);
@@ -80,10 +96,8 @@ public class QueryJsonConverterTests
         };
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -102,10 +116,8 @@ public class QueryJsonConverterTests
         var query = new Query<Company>();
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -127,10 +139,8 @@ public class QueryJsonConverterTests
         };
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company, Company>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company, Company>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyCompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company, Company>>(json, CompanyCompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -150,10 +160,8 @@ public class QueryJsonConverterTests
         };
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -167,27 +175,23 @@ public class QueryJsonConverterTests
     public void Deserialize_InvalidJson_ThrowsJsonException()
     {
         // Arrange
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
 #pragma warning disable JSON001 // Invalid JSON pattern
         var invalidJson = "{ invalid json }";
 #pragma warning restore JSON001 // Invalid JSON pattern
 
         // Act & Assert
         Assert.Throws<JsonException>(() =>
-            JsonSerializer.Deserialize<Query<Company>>(invalidJson, options));
+            JsonSerializer.Deserialize<Query<Company>>(invalidJson, CompanyOptions));
     }
 
     [Fact]
     public void Deserialize_MissingProperties_UsesDefaults()
     {
         // Arrange
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
         var json = "{}";
 
         // Act
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -225,10 +229,8 @@ public class QueryJsonConverterTests
         query?.SortOrderBuilder?.Add(c => c.Name!);
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company, CompanyName>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company, CompanyName>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyCompanyNameOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company, CompanyName>>(json, CompanyCompanyNameOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -244,12 +246,10 @@ public class QueryJsonConverterTests
     public void Deserialize_ExtraProperties_IgnoresThem()
     {
         // Arrange
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
         var json = "{\"AsNoTracking\":true,\"ExtraProperty\":123,\"Skip\":5}";
 
         // Act
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -269,10 +269,8 @@ public class QueryJsonConverterTests
         };
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -291,10 +289,8 @@ public class QueryJsonConverterTests
         };
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company, CompanyName>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company, CompanyName>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyCompanyNameOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company, CompanyName>>(json, CompanyCompanyNameOptions);
 
         // Assert
         Assert.NotNull(deserialized);
@@ -309,10 +305,8 @@ public class QueryJsonConverterTests
         query?.SqlLikeSearchCriteriaBuilder?.Add(c => c.Name!, "test");
 
         // Act
-        var options = new JsonSerializerOptions();
-        options.Converters.Add(new QueryJsonConverter<Company>());
-        var json = JsonSerializer.Serialize(query, options);
-        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, options);
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
 
         // Assert
         Assert.NotNull(deserialized);
