@@ -153,13 +153,12 @@ public class PaginationEvaluatorTests
     {
         // Arrange
         var evaluator = PaginationEvaluator.Instance;
-        var query = new Query<Company> { Skip = -1, Take = 1 };
 
         // Act
-        var ex = Record.Exception(() => evaluator.GetQuery(_companies, query).ToList());
+        var ex = Record.Exception(() => new Query<Company> { Skip = -1, Take = 1 });
 
         // Assert
-        Assert.Null(ex);
+        Assert.NotNull(ex);
     }
 
     [Fact]
@@ -167,12 +166,11 @@ public class PaginationEvaluatorTests
     {
         // Arrange
         var evaluator = PaginationEvaluator.Instance;
-        var query = new Query<Company> { Skip = 0, Take = -1 };
 
         // Act
-        var ex = Record.Exception(() => evaluator.GetQuery(_companies, query).ToList());
+        var ex = Record.Exception(() => new Query<Company> { Skip = 0, Take = -1 });
 
         // Assert
-        Assert.Null(ex);
+        Assert.NotNull(ex);
     }
 }

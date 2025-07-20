@@ -412,10 +412,8 @@ public class RepositoryTests
         var repo = CreateRepository(context);
 
         // Act & Assert
-        IQuery<Country> query = new Query<Country> { Skip = 0, Take = 0 };
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => repo.GetPagedListAsync(query));
-        query = new Query<Country> { Skip = -1, Take = 1 };
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => repo.GetPagedListAsync(query));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Query<Country> { Skip = 0, Take = 0 });
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Query<Country> { Skip = -1, Take = 1 });
     }
 
     [Fact]
@@ -488,24 +486,26 @@ public class RepositoryTests
         // Arrange
         await using var context = new TestDbContext(CreateOptions());
         context.Database.EnsureCreated();
-
         var repo = CreateRepository(context);
-        var query = new Query<Country, CountryDto>
+
+        // Act & Assert
+        var act = () => new Query<Country, CountryDto>
         {
             Skip = 0,
             Take = 0,
             QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
         };
+        Assert.Throws<ArgumentOutOfRangeException>(act);
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => repo.GetPagedListAsync(query));
-        query = new Query<Country, CountryDto>
+
+        act = () => new Query<Country, CountryDto>
         {
             Skip = -1,
             Take = 1,
             QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
         };
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => repo.GetPagedListAsync(query));
+        Assert.Throws<ArgumentOutOfRangeException>(act);
     }
 
     [Fact]
