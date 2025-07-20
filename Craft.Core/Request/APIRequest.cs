@@ -6,7 +6,7 @@ namespace Craft.Core.Request;
 [JsonDerivedType(typeof(GetRequest), "get")]
 [JsonDerivedType(typeof(GetAllRequest), "getAll")]
 [JsonDerivedType(typeof(GetPagedRequest), "getPaged")]
-public abstract class APIRequest
+public abstract class APIRequest<TKEY>
 {
     public ApiRequestType RequestType { get; }
     public bool IncludeDetails { get; set; } = false;
@@ -15,4 +15,9 @@ public abstract class APIRequest
     {
         RequestType = requestType;
     }
+}
+
+public abstract class APIRequest : APIRequest<KeyType>
+{
+    protected APIRequest(ApiRequestType requestType) : base(requestType) { }
 }
