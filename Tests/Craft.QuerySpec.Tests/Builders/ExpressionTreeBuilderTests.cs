@@ -247,7 +247,7 @@ public class ExpressionTreeBuilderTests
     public void BuildBinaryTreeExpression_NullType_ThrowsArgumentNullException()
     {
         // Assert
-        Assert.Throws<ArgumentNullException>(() => 
+        Assert.Throws<ArgumentNullException>(() =>
             ExpressionTreeBuilder.BuildBinaryTreeExpression(null!, "Id == 1"));
     }
 
@@ -296,10 +296,10 @@ public class ExpressionTreeBuilderTests
     {
         // Arrange
         var query = "Nested.Value == \"test\"";
-        
+
         // Act
         var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClassWithNested>(query);
-        
+
         // Assert
         // This will fail because the BinaryPattern uses \w+ which doesn't match dots (.)
         // Even though GetPropertyByName supports nested properties, the regex parsing doesn't
@@ -315,10 +315,10 @@ public class ExpressionTreeBuilderTests
     {
         // Arrange
         var filter = new Dictionary<string, string> { { "Nested.Value", "test" } };
-        
+
         // Act
         var predicate = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClassWithNested>(filter);
-        
+
         // Assert
         // This fails because while GetPropertyByName finds the nested property descriptor,
         // Expression.PropertyOrField(parameterExpression, "Nested.Value") doesn't work
@@ -334,10 +334,10 @@ public class ExpressionTreeBuilderTests
     {
         // Arrange
         var filter = new Dictionary<string, string> { { "Nested.Value", "test" } };
-        
+
         // Act
         var expr = ExpressionTreeBuilder.ToExpression<TestClassWithNested>(filter);
-        
+
         // Assert
         // This also fails due to Expression.PropertyOrField not supporting dotted notation
         Assert.Null(expr);
@@ -346,33 +346,33 @@ public class ExpressionTreeBuilderTests
     /// <summary>
     /// Tests what actually works with nested properties - manual expression building
     /// </summary>
-    [Fact] 
+    [Fact]
     public void ManualNestedPropertyExpression_Works_WithSimpleProperties()
     {
         // Arrange - use simple properties that don't require dotted notation
         var filter = new Dictionary<string, string> { { "Id", "test" } };
-        
+
         // Act
         var predicate = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClassWithNested>(filter);
-        
+
         // Assert
         Assert.NotNull(predicate);
-        
+
         // Test with actual data
-        var testData = new TestClassWithNested 
-        { 
-            Id = "test", 
-            Nested = new NestedClass { Value = "test" } 
+        var testData = new TestClassWithNested
+        {
+            Id = "test",
+            Nested = new NestedClass { Value = "test" }
         };
-        
+
         Assert.True(predicate(testData));
-        
-        var nonMatchingData = new TestClassWithNested 
-        { 
-            Id = "different", 
-            Nested = new NestedClass { Value = "test" } 
+
+        var nonMatchingData = new TestClassWithNested
+        {
+            Id = "different",
+            Nested = new NestedClass { Value = "test" }
         };
-        
+
         Assert.False(predicate(nonMatchingData));
     }
 
@@ -389,28 +389,28 @@ public class ExpressionTreeBuilderTests
         var constantValue = Expression.Constant("test");
         var equalExpression = Expression.Equal(valueProperty, constantValue);
         var lambda = Expression.Lambda<Func<TestClassWithNested, bool>>(equalExpression, parameter);
-        
+
         // Act
         var compiled = lambda.Compile();
-        
+
         // Assert
         Assert.NotNull(compiled);
-        
+
         // Test with actual data
-        var testData = new TestClassWithNested 
-        { 
-            Id = "test", 
-            Nested = new NestedClass { Value = "test" } 
+        var testData = new TestClassWithNested
+        {
+            Id = "test",
+            Nested = new NestedClass { Value = "test" }
         };
-        
+
         Assert.True(compiled(testData));
-        
-        var nonMatchingData = new TestClassWithNested 
-        { 
-            Id = "test", 
-            Nested = new NestedClass { Value = "different" } 
+
+        var nonMatchingData = new TestClassWithNested
+        {
+            Id = "test",
+            Nested = new NestedClass { Value = "different" }
         };
-        
+
         Assert.False(compiled(nonMatchingData));
     }
 
@@ -422,7 +422,7 @@ public class ExpressionTreeBuilderTests
         // Arrange: Query with a single set of surrounding brackets and valid inner expression
         var expr = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("(NumericValue == 1)");
         Assert.NotNull(expr); // Should parse and not return null
-        
+
         // Arrange: Query with only brackets and whitespace (should return null)
         var exprNull = ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>("(   )");
         Assert.Null(exprNull);

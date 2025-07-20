@@ -43,7 +43,6 @@ public class SqlLikeSearchInfoJsonConverter<T> : JsonConverter<SqlLikeSearchInfo
                 case SearchItemProperty:
                     var memberName = reader.TokenType == JsonTokenType.String ? reader.GetString() : null;
                     if (!string.IsNullOrWhiteSpace(memberName))
-                    {
                         try
                         {
                             searchInfo.SearchItem = typeof(T).CreateMemberExpression(memberName);
@@ -52,11 +51,8 @@ public class SqlLikeSearchInfoJsonConverter<T> : JsonConverter<SqlLikeSearchInfo
                         {
                             throw new ArgumentException($"Failed to create member expression for '{memberName}' on type '{typeof(T).Name}'.", ex);
                         }
-                    }
                     else
-                    {
                         searchInfo.SearchItem = null;
-                    }
                     break;
                 case SearchStringProperty:
                     searchInfo.SearchString = reader.TokenType == JsonTokenType.String ? reader.GetString() : null;

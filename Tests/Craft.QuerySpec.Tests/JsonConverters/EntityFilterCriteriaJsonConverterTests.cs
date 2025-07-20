@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace Craft.QuerySpec.Tests.Components;
+namespace Craft.QuerySpec.Tests.Converters;
 
 /// <summary>
 /// Comprehensive test suite for EntityFilterCriteriaJsonConverter covering all functionality,
@@ -889,7 +889,7 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => 
             (x.Name.Contains("test") || x.Name.Contains("demo")) && 
-            (x.Age >= 18 && x.Age <= 65) && 
+            x.Age >= 18 && x.Age <= 65 && 
             x.IsActive;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
         

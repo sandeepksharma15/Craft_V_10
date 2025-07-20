@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Craft.Extensions.Expressions;
 
-namespace Craft.QuerySpec.Tests.Components;
+namespace Craft.QuerySpec.Tests.Converters;
 
 public class SqlLikeSearchInfoJsonConverterTests
 {

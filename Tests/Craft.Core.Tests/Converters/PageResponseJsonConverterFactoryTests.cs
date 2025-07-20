@@ -24,7 +24,7 @@ public class PageResponseJsonConverterFactoryTests
         // Act & Assert
         Assert.False(factory.CanConvert(typeof(string)));
         Assert.False(factory.CanConvert(typeof(object)));
-        Assert.False(factory.CanConvert(typeof(System.Collections.Generic.List<string>)));
+        Assert.False(factory.CanConvert(typeof(List<string>)));
     }
 
     [Fact]

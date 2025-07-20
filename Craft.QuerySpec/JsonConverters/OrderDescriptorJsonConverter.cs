@@ -53,9 +53,7 @@ public sealed class OrderDescriptorJsonConverter<T> : JsonConverter<OrderDescrip
                     orderType = (OrderTypeEnum)reader.GetInt32();
                 }
                 else
-                {
                     throw new JsonException($"Unknown property '{propertyName}' in OrderDescriptor.");
-                }
             }
         }
 

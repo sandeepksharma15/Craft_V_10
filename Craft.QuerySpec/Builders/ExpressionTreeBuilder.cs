@@ -169,10 +169,10 @@ public static class ExpressionTreeBuilder
     /// <returns>A lambda expression, or null if the parameters are invalid.</returns>
     /// <exception cref="ArgumentNullException">Thrown when required parameters are null.</exception>
     public static LambdaExpression? BuildBinaryTreeExpression(
-        [NotNull] Type type, 
-        [NotNull] string propertyName, 
-        [NotNull] string @operator, 
-        [NotNull] string value, 
+        [NotNull] Type type,
+        [NotNull] string propertyName,
+        [NotNull] string @operator,
+        [NotNull] string value,
         [NotNull] ParameterExpression parameterExpression)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
@@ -192,18 +192,18 @@ public static class ExpressionTreeBuilder
             var props = GetTypeProperties(type);
             var prop = GetPropertyByName(props, propertyName);
 
-            if (prop == null) 
+            if (prop == null)
                 return null;
 
             var memberExpression = Expression.PropertyOrField(parameterExpression, propertyName);
             var convertedValue = ConvertValueToType(value, memberExpression.Type);
-            
+
             if (convertedValue == null)
                 return null;
 
             var body = BinaryExpressionBuilder[@operator](memberExpression, convertedValue);
             var delegateType = typeof(Func<,>).MakeGenericType(type, typeof(bool));
-            
+
             return Expression.Lambda(delegateType, body, parameterExpression);
         }
         catch (Exception ex) when (IsExpectedParsingException(ex))
@@ -236,7 +236,7 @@ public static class ExpressionTreeBuilder
     /// <returns>A LINQ expression, or null if the filter is invalid or empty.</returns>
     public static Expression<Func<T, bool>>? ToExpression<T>([AllowNull] IDictionary<string, string>? filter)
     {
-        if (filter?.Any() != true) 
+        if (filter?.Any() != true)
             return null;
 
         try
@@ -250,12 +250,12 @@ public static class ExpressionTreeBuilder
                 var fieldName = kvp.Key;
                 var prop = GetPropertyByName(props, fieldName);
 
-                if (prop == null) 
+                if (prop == null)
                     return null;
 
                 var memberExpression = Expression.PropertyOrField(parameterExpression, fieldName);
                 var convertedValue = ConvertValueToType(kvp.Value, memberExpression.Type);
-                
+
                 if (convertedValue == null)
                     return null;
 
@@ -306,7 +306,7 @@ public static class ExpressionTreeBuilder
     /// Determines if a query string is invalid (null, empty, whitespace, or only brackets).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsInvalidQuery([AllowNull] string? query) 
+    private static bool IsInvalidQuery([AllowNull] string? query)
         => string.IsNullOrWhiteSpace(query) || IsNullOrBracketsOnly(query);
 
     /// <summary>
@@ -314,7 +314,7 @@ public static class ExpressionTreeBuilder
     /// </summary>
     private static bool IsNullOrBracketsOnly([AllowNull] string? s)
     {
-        if (string.IsNullOrWhiteSpace(s)) 
+        if (string.IsNullOrWhiteSpace(s))
             return true;
 
         foreach (char c in s)
@@ -330,9 +330,9 @@ public static class ExpressionTreeBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsExpectedParsingException(Exception ex)
     {
-        return ex is FormatException 
-            || ex is InvalidCastException 
-            || ex is OverflowException 
+        return ex is FormatException
+            || ex is InvalidCastException
+            || ex is OverflowException
             || ex is ArgumentException
             || ex is InvalidOperationException;
     }
@@ -342,7 +342,7 @@ public static class ExpressionTreeBuilder
     /// </summary>
     private static string TrimAllOuterBracketsAndWhitespace([NotNull] string s)
     {
-        if (string.IsNullOrWhiteSpace(s)) 
+        if (string.IsNullOrWhiteSpace(s))
             return string.Empty;
 
         s = s.Trim();
@@ -370,7 +370,7 @@ public static class ExpressionTreeBuilder
         {
             // Handle nullable types
             var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-            
+
             // Handle string types directly
             if (underlyingType == typeof(string))
                 return value;
@@ -441,7 +441,7 @@ public static class ExpressionTreeBuilder
             string leftQuery = GetValueOrDefault(leftOp.Value, brackets.Value);
             string evaluator = GetValueOrDefault(evaluatorFirst.Value, evaluatorSecond.Value);
             string rightQuery = GetValueOrDefault(rightOp.Value, brackets.Value);
-            
+
             return SendToEvaluation(type, leftQuery, evaluator, rightQuery, parameterExpression);
         }
 
@@ -449,10 +449,10 @@ public static class ExpressionTreeBuilder
         var evalMatch = GetCachedRegexMatch(q, EvalPattern);
         if (evalMatch.Success)
         {
-            return SendToEvaluation(type, 
-                evalMatch.Groups[LeftOperand].Value, 
-                evalMatch.Groups[EvaluatorFirst].Value, 
-                evalMatch.Groups[RightOperand].Value, 
+            return SendToEvaluation(type,
+                evalMatch.Groups[LeftOperand].Value,
+                evalMatch.Groups[EvaluatorFirst].Value,
+                evalMatch.Groups[RightOperand].Value,
                 parameterExpression);
         }
 
@@ -510,13 +510,13 @@ public static class ExpressionTreeBuilder
     /// <summary>
     /// Gets cached property descriptors for a type.
     /// </summary>
-    private static PropertyDescriptorCollection GetTypeProperties([NotNull] Type type) 
+    private static PropertyDescriptorCollection GetTypeProperties([NotNull] Type type)
         => _typePropertyCollection.GetOrAdd(type, t => TypeDescriptor.GetProperties(t));
 
     /// <summary>
     /// Combines two expressions with a logical operator.
     /// </summary>
-    private static LambdaExpression? SendToEvaluation([NotNull] Type type, [NotNull] string leftQuery, 
+    private static LambdaExpression? SendToEvaluation([NotNull] Type type, [NotNull] string leftQuery,
         [NotNull] string evaluator, [NotNull] string rightQuery, [NotNull] ParameterExpression parameterExpression)
     {
         if (!EvaluationExpressionBuilder.ContainsKey(evaluator))
@@ -525,7 +525,7 @@ public static class ExpressionTreeBuilder
         var leftBinaryExpression = BuildBinaryTreeExpressionWorker(type, leftQuery, parameterExpression);
         var rightBinaryExpression = BuildBinaryTreeExpressionWorker(type, rightQuery, parameterExpression);
 
-        if (leftBinaryExpression == null || rightBinaryExpression == null) 
+        if (leftBinaryExpression == null || rightBinaryExpression == null)
             return null;
 
         try

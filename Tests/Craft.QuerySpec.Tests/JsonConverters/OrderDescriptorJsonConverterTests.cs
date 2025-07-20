@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Text.Json;
 
-namespace Craft.QuerySpec.Tests.Components;
+namespace Craft.QuerySpec.Tests.Converters;
 
 public class OrderDescriptorJsonConverterTests
 {

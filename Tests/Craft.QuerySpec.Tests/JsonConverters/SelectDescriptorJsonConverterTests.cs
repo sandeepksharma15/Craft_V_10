@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Text.Json;
 
-namespace Craft.QuerySpec.Tests.Components;
+namespace Craft.QuerySpec.Tests.Converters;
 
 public class SelectDescriptorJsonConverterTests
 {

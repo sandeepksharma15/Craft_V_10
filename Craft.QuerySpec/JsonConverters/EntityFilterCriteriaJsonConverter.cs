@@ -74,19 +74,15 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
                         SkipJsonValue(ref reader);
                 }
                 else
-                {
                     throw new JsonException($"Unexpected token {reader.TokenType} while reading object properties.");
-                }
             }
 
             // Validate that we found the required Filter property
             if (filter is null)
-            {
                 if (propertyCount == 0)
                     throw new JsonException("Empty JSON object is not valid for EntityFilterCriteria.");
                 else
                     throw new JsonException($"Required property '{FilterPropertyName}' not found in JSON object.");
-            }
 
             return new EntityFilterCriteria<T>(filter);
         }
@@ -229,23 +225,21 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
             case JsonTokenType.StartObject:
                 var depth = 0;
                 do
-                {
                     if (reader.TokenType == JsonTokenType.StartObject)
                         depth++;
                     else if (reader.TokenType == JsonTokenType.EndObject)
                         depth--;
-                } while (depth > 0 && reader.Read());
+while (depth > 0 && reader.Read());
                 break;
 
             case JsonTokenType.StartArray:
                 depth = 0;
                 do
-                {
                     if (reader.TokenType == JsonTokenType.StartArray)
                         depth++;
                     else if (reader.TokenType == JsonTokenType.EndArray)
                         depth--;
-                } while (depth > 0 && reader.Read());
+while (depth > 0 && reader.Read());
                 break;
 
             default:
