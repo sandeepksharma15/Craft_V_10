@@ -2,7 +2,7 @@
 
 public class GetAllRequest : APIRequest
 {
-    public GetAllRequest(bool includeDetails) : base(ApiRequestType.GetAll)
+    public GetAllRequest(bool includeDetails = false) : base(ApiRequestType.GetAll)
     {
         IncludeDetails = includeDetails;
     }
