@@ -186,8 +186,6 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         {
             var queryable = _dbSet.WithQuery(query);
 
-            Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"] - Queryable Type: {queryable.GetType().Name}");
-
             return await queryable
                 .ToListSafeAsync(cancellationToken)
                 .ConfigureAwait(false);
