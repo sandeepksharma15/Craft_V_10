@@ -40,4 +40,30 @@ public static class QueriableExtensions
             // For in-memory queryables, use synchronous ToList
             return await Task.FromResult(queryable.ToList()).ConfigureAwait(false);
     }
+
+    public static async Task<long> LongCountSafeAsync<T>(this IQueryable<T> queryable, CancellationToken cancellationToken = default)
+    {
+        // Defensive Code to avoid IndexOutOfRangeException
+        if (!queryable.Any()) return 0;
+
+        if (queryable.SupportsAsync())
+            // For async queryables, use CountAsync
+            return await queryable.LongCountAsync(cancellationToken).ConfigureAwait(false);
+        else
+            // For in-memory queryables, use synchronous Count
+            return await Task.FromResult(queryable.LongCount()).ConfigureAwait(false);
+    }
+
+    public static async Task<long> CountSafeAsync<T>(this IQueryable<T> queryable, CancellationToken cancellationToken = default)
+    {
+        // Defensive Code to avoid IndexOutOfRangeException
+        if (!queryable.Any()) return 0;
+
+        if (queryable.SupportsAsync())
+            // For async queryables, use CountAsync
+            return await queryable.CountAsync(cancellationToken).ConfigureAwait(false);
+        else
+            // For in-memory queryables, use synchronous Count
+            return await Task.FromResult(queryable.Count()).ConfigureAwait(false);
+    }
 }

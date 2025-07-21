@@ -63,7 +63,22 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
 
         return await GetAllFromPagedAsync<TResult, PageResponse<TResult>>(
             ct => GetPagedListAsync(query, ct)!,
-            paged => paged?.Items?.ToList() ?? [],
+            paged => {
+                // Defensive: If paged is null or paged.Items is null or empty, return empty list
+                if (paged == null || paged.Items == null)
+                    return [];
+
+                if (paged.Items is ICollection<TResult> items && items.Count == 0)
+                    return [];
+
+                // If it's not a collection, enumerate and check count
+                var list = paged.Items.ToList();
+
+                if (list.Count == 0)
+                    return [];
+
+                return list;
+            },
             cancellationToken
         );
     }

@@ -10,7 +10,7 @@ public sealed class PaginationEvaluator : IEvaluator
     {
         ArgumentNullException.ThrowIfNull(queryable);
 
-        if (query?.Skip is not null && (query.Skip.Value > 0))
+        if (query?.Skip is not null && (query.Skip.Value >= 0))
             queryable = queryable.Skip(query.Skip.Value);
 
         if (query?.Take is not null && (query.Take.Value > 0))

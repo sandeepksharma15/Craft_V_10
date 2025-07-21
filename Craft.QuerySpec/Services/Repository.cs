@@ -50,10 +50,23 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
-        return await _dbSet
-            .WithQuery(query)
-            .FirstOrDefaultAsync(cancellationToken)
+        // Defensive: avoid IndexOutOfRangeException if no match
+        var queryable = _dbSet.WithQuery(query);
+
+        if (queryable.Any())
+            queryable = queryable.Take(2); // Limit to 2 to check for multiple matches  
+
+        var list = await queryable
+            .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        if (list.Count == 0)
+            return null;
+
+        if (list.Count > 1)
+            throw new InvalidOperationException("Sequence contains more than one matching element.");
+
+        return list[0];
     }
 
     /// <inheritdoc />
@@ -66,7 +79,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         // Defensive: avoid IndexOutOfRangeException if no match
-        var queryable = _dbSet.WithQuery(query).Take(2);
+        var queryable = _dbSet.WithQuery(query);
+
+        if (queryable.Any())
+            queryable = queryable.Take(2); // Limit to 2 to check for multiple matches  
 
         var list = await queryable
             .ToListSafeAsync(cancellationToken)
@@ -91,7 +107,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         return await _dbSet
             .WithQuery(query)
-            .LongCountAsync(cancellationToken)
+            .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -108,16 +124,14 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (query.Skip is null || query.Skip < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
-        var queryable = _dbSet.WithQuery(query);
-
-        var items = await queryable
+        var items = await _dbSet.WithQuery(query)
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
         // Count total records matching the query (without projection)
         var totalCount = await _dbSet
             .WithQuery(query, WhereEvaluator.Instance)
-            .CountAsync(cancellationToken)
+            .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
         int pageSize = query.Take.Value;
@@ -140,16 +154,14 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (query.Skip is null || query.Skip < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
-        var queryable = _dbSet.WithQuery(query);
-
-        var items = await queryable
+        var items = await _dbSet
+            .WithQuery(query)
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        // Count total records matching the query (without projection)
         var totalCount = await _dbSet
             .WithQuery(query, WhereEvaluator.Instance)
-            .CountAsync(cancellationToken)
+            .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
         int pageSize = query.Take.Value;
@@ -166,9 +178,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        var queryable = _dbSet.WithQuery(query);
-
-        return await queryable
+        return await _dbSet
+            .WithQuery(query)
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -182,23 +193,11 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        try
-        {
-            var queryable = _dbSet.WithQuery(query);
 
-            return await queryable
-                .ToListSafeAsync(cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            // Log the exception for debugging purposes
-            if (_logger.IsEnabled(LogLevel.Error))
-                _logger.LogError(ex, $"[Repository] Error in GetAllAsync<TResult> for Type: [\"{typeof(T).GetClassName()}\"]");
-
-            // Re-throw the exception to maintain the existing behavior
-            throw;
-        }
+        return await _dbSet
+            .WithQuery(query)
+            .ToListSafeAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 }
 

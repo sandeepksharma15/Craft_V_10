@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Craft.Extensions.Collections;
+using Microsoft.EntityFrameworkCore;
 
 namespace Craft.QuerySpec;
 
@@ -7,9 +8,11 @@ public static class DbSetExtensions
     public static async Task<IEnumerable<TSource>> ToEnumerableAsync<TSource>(this DbSet<TSource> source,
          IQuery<TSource>? query, CancellationToken cancellationToken = default) where TSource : class
     {
-        var result = await QueryEvaluator.Instance
-            .GetQuery(source, query)
-            .ToListAsync(cancellationToken) ?? [];
+        var queryable = QueryEvaluator.Instance.GetQuery(source, query);
+
+        var result = await queryable.ToListSafeAsync(cancellationToken);
+
+        if (result.Count == 0) return [];
 
         return query?.PostProcessingAction == null
             ? result
@@ -19,9 +22,11 @@ public static class DbSetExtensions
     public static async Task<List<TSource>> ToListAsync<TSource>(this DbSet<TSource> source,
          IQuery<TSource> query, CancellationToken cancellationToken = default) where TSource : class
     {
-        var result = await QueryEvaluator.Instance
-            .GetQuery(source, query)
-            .ToListAsync(cancellationToken) ?? [];
+        var queryable = QueryEvaluator.Instance.GetQuery(source, query);
+
+        var result = await queryable.ToListSafeAsync(cancellationToken);
+
+        if (result.Count == 0) return [];
 
         return query.PostProcessingAction == null
             ? result

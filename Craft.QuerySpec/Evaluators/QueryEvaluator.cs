@@ -79,7 +79,6 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
             return selector is null 
                 ? throw new InvalidOperationException("QuerySelectBuilder is not defined") 
                 : filtered.Select(selector);
-
         }
         else if (hasSelectMany)
         {
