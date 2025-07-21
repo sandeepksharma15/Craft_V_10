@@ -90,25 +90,6 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
             cancellationToken
         );
     }
-
-    public virtual async Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(int page, int pageSize,bool includeDetails = false, 
-        CancellationToken cancellationToken = default) where TResult : class, new()
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
-
-        var uri = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
-
-        return await GetAndParseAsync(
-            ct => _httpClient.GetAsync(uri, ct),
-            async (content, ct) =>
-            {
-                var str = await content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                return JsonSerializer.Deserialize<PageResponse<TResult>>(str);
-            },
-            cancellationToken
-        );
-    }
 }
 
 /// <summary>

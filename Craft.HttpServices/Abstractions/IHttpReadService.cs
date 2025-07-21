@@ -44,18 +44,6 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing paginated list of entities.</returns>
     Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets a paginated list of entities with projection.
-    /// </summary>
-    /// <typeparam name="TResult">Projection result type.</typeparam>
-    /// <param name="page">The page for which the data is desired.</param>
-    /// <param name="pageSize">The number of entities required per page.</param>
-    /// <param name="includeDetails">Set true to include all children of this entity.</param>
-    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>Service result containing paginated list of projected entities.</returns>
-    Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
-        where TResult : class, new();
 }
 
 /// <summary>

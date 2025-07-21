@@ -27,12 +27,6 @@ public interface IEntityReadController<T, TKey> : IEntityController where T : cl
     Task<ActionResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false,
         CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Retrieves a paginated list of items of type <typeparamref name="TResult"/>.
-    /// </summary>
-    Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize, bool includeDetails = false,
-        CancellationToken cancellationToken = default) where TResult : class, new();
-
 }
 
 public interface IEntityReadController<T> : IEntityReadController<T, KeyType> where T : class, IEntity, new();

@@ -254,52 +254,6 @@ public class HttpReadServiceTests
         Assert.NotNull(result.Errors);
     }
 
-    [Fact]
-    public async Task GetPagedListAsyncTResult_ReturnsPageResponse_WhenResponseIsValid()
-    {
-        // Arrange
-        var page = new PageResponse<AltResult>([new AltResult { Value = "abc" }], 5, 1, 1);
-        var json = JsonSerializer.Serialize(page);
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = CreateLogger();
-        var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
-
-        // Act
-        var result = await service.GetPagedListAsync<AltResult>(1, 1);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Single(result.Data.Items);
-        Assert.Equal("abc", result.Data.Items.First().Value);
-        Assert.Equal(5, result.Data.TotalCount);
-    }
-
-    [Fact]
-    public async Task GetPagedListAsyncTResult_ReturnsError_WhenDeserializationFails()
-    {
-        // Arrange
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("invalid json", System.Text.Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = CreateLogger();
-        var service = new HttpReadService<TestEntity, int>(ApiUrl, httpClient, logger);
-
-        // Act
-        var result = await service.GetPagedListAsync<AltResult>(1, 1);
-
-        // Assert
-        Assert.False(result.Success);
-        Assert.NotNull(result.Errors);
-    }
-
     // Helper for TResult tests
     public class AltResult { public string? Value { get; set; } }
 

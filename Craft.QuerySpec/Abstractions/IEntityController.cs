@@ -9,12 +9,17 @@ public interface IEntityController<T, DataTransferT, TKey> : IEntityChangeContro
     where T : class, IEntity<TKey>, new()
     where DataTransferT : class, IModel<TKey>, new()
 {
-    Task<ActionResult> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default);
-
     Task<ActionResult<T>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     Task<ActionResult<TResult>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new();
+
+    Task<ActionResult> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+
+    Task<ActionResult<List<T>>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+
+    Task<ActionResult<List<TResult>>> GetAllAsync<TResult>(IQuery<T, TResult> query,
+        CancellationToken cancellationToken = default) where TResult : class, new();
 
     Task<ActionResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 

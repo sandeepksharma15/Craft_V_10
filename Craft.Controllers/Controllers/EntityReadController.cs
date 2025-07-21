@@ -78,10 +78,10 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     }
 
     [HttpGet]
-    [Route("count")]
+    [Route("getpaged/{page:int}/{pageSize:int}/{includeDetails:bool}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false,
+    public virtual async Task<ActionResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -94,21 +94,10 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
             return Problem(ex.Message);
         }
     }
-
-    [HttpGet]
-    [Route("count")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(int page, int pageSize,
-        bool includeDetails = false, CancellationToken cancellationToken = default)
-        where TResult : class, new()
-    {
-        throw new NotImplementedException();
-    }
 }
 
 public class EntityReadController<T, DataTransferT>(IReadRepository<T> repository, ILogger<EntityReadController<T, DataTransferT>> logger)
     : EntityReadController<T, DataTransferT, KeyType>(repository, logger), IEntityReadController<T>
         where T : class, IEntity, new()
-        where DataTransferT : class, IModel, new()
-{ }
+        where DataTransferT : class, IModel, new();
+
