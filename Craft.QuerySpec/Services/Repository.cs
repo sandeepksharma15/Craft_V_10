@@ -1,10 +1,10 @@
 ﻿using Craft.Core;
 using Craft.Data.Abstractions;
 using Craft.Domain;
+using Craft.Extensions.Collections;
 using Craft.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Xunit;
 
 namespace Craft.QuerySpec;
 
@@ -16,30 +16,6 @@ namespace Craft.QuerySpec;
 public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, TKey>> logger)
     : ChangeRepository<T, TKey>(appDbContext, logger), IRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
-    /// <summary>
-    /// Checks if the queryable supports async operations (implements IAsyncEnumerable).
-    /// </summary>
-    private static bool SupportsAsync<TElement>(IQueryable<TElement> queryable)
-    {
-        return queryable is IAsyncEnumerable<TElement>;
-    }
-
-    /// <summary>
-    /// Safely converts IQueryable to List, using async or sync methods as appropriate.
-    /// </summary>
-    private static async Task<List<TElement>> ToListSafeAsync<TElement>(IQueryable<TElement> queryable, CancellationToken cancellationToken = default)
-    {
-        // Defensive Code to avoid IndexOutOfRangeException
-        if (!queryable.Any()) return [];
-
-        if (SupportsAsync(queryable))
-            // For async queryables, use ToListAsync
-            return await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
-        else
-            // For in-memory queryables, use synchronous ToList
-            return await Task.FromResult(queryable.ToList()).ConfigureAwait(false);
-    }
-
     /// <inheritdoc />
     public virtual async Task DeleteAsync(IQuery<T> query, bool autoSave = true, CancellationToken cancellationToken = default)
     {
@@ -92,7 +68,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         // Defensive: avoid IndexOutOfRangeException if no match
         var queryable = _dbSet.WithQuery(query).Take(2);
 
-        var list = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+        var list = await queryable
+            .ToListSafeAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         if (list.Count == 0)
             return null;
@@ -131,7 +109,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
         var queryable = _dbSet.WithQuery(query);
-        var items = await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+
+        var items = await queryable
+            .ToListSafeAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         // Count total records matching the query (without projection)
         var totalCount = await _dbSet
@@ -161,7 +142,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         var queryable = _dbSet.WithQuery(query);
 
-        var items = await ToListSafeAsync(queryable, cancellationToken)
+        var items = await queryable
+            .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
         // Count total records matching the query (without projection)
@@ -185,7 +167,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         var queryable = _dbSet.WithQuery(query);
-        return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+
+        return await queryable
+            .ToListSafeAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -203,7 +188,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
             Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"] - Queryable Type: {queryable.GetType().Name}");
 
-            return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
+            return await queryable
+                .ToListSafeAsync(cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception ex)
         {
