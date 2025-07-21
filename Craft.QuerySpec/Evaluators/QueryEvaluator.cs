@@ -69,23 +69,30 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
         if (hasSelect && hasSelectMany)
             throw new InvalidOperationException("Cannot define both Select and SelectMany in query");
 
+        Console.WriteLine($"QueryEvaluator: hasSelect={hasSelect}, hasSelectMany={hasSelectMany}");
+
         // Apply all evaluators except selection
         var filtered = GetQuery(queryable, (IQuery<T>)query) ?? queryable;
 
         if (hasSelect)
         {
+            Console.WriteLine("Applying Select...");
+
             var selector = query.QuerySelectBuilder?.Build();
 
             return selector is null 
                 ? throw new InvalidOperationException("QuerySelectBuilder is not defined") 
                 : filtered.Select(selector);
+
         }
         else if (hasSelectMany)
         {
+            Console.WriteLine("Applying SelectMany...");
             return filtered.SelectMany(query.SelectorMany!);
         }
         else
         {
+            Console.WriteLine("No selection defined, returning filtered queryable as is.");
             // Defensive fallback, should never hit due to earlier checks
             return Enumerable.Empty<TResult>().AsQueryable();
         }

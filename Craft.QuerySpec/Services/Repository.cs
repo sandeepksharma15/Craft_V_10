@@ -29,15 +29,15 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
     /// </summary>
     private static async Task<List<TElement>> ToListSafeAsync<TElement>(IQueryable<TElement> queryable, CancellationToken cancellationToken = default)
     {
+        // Defensive Code to avoid IndexOutOfRangeException
+        if (!queryable.Any()) return [];
+
         if (SupportsAsync(queryable))
-        {
+            // For async queryables, use ToListAsync
             return await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
-        }
         else
-        {
             // For in-memory queryables, use synchronous ToList
             return await Task.FromResult(queryable.ToList()).ConfigureAwait(false);
-        }
     }
 
     /// <inheritdoc />
@@ -200,6 +200,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         try
         {
             var queryable = _dbSet.WithQuery(query);
+
+            Console.WriteLine($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"] - Queryable Type: {queryable.GetType().Name}");
+
             return await ToListSafeAsync(queryable, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
