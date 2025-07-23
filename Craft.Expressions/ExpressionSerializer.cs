@@ -11,6 +11,6 @@ public class ExpressionSerializer<T>
 
     public Expression<Func<T, bool>> Deserialize(string expressionString)
     {
-        throw new NotImplementedException();
+        return null!;
     }
 }
