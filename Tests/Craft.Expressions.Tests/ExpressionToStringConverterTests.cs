@@ -270,4 +270,56 @@ public class ExpressionToStringConverterTests
         var ex = Assert.Throws<NotSupportedException>(() => ExpressionToStringConverter.Convert(memberExpr));
         Assert.Contains("Only member access on the parameter or its properties is supported", ex.Message);
     }
+
+    [Fact]
+    public void Convert_BinaryExpression_Equal_DirectLambda()
+    {
+        // Arrange
+        Expression<Func<TestEntity, bool>> expr = e => e.Name == "John";
+
+        // Act
+        var result = ExpressionToStringConverter.Convert(expr.Body);
+
+        // Assert
+        Assert.Equal("(Name == \"John\")", result);
+    }
+
+    [Fact]
+    public void Convert_BinaryExpression_AndAlso_DirectLambda()
+    {
+        // Arrange
+        Expression<Func<TestUser, bool>> expr = u => u.EmailConfirmed && u.UserName == "admin";
+
+        // Act
+        var result = ExpressionToStringConverter.Convert(expr.Body);
+
+        // Assert
+        Assert.Equal("(EmailConfirmed && (UserName == \"admin\"))", result);
+    }
+
+    [Fact]
+    public void Convert_MethodCall_Contains_DirectLambda()
+    {
+        // Arrange
+        Expression<Func<TestEntity, bool>> expr = e => e.Name.Contains("oh");
+
+        // Act
+        var result = ExpressionToStringConverter.Convert(expr.Body);
+
+        // Assert
+        Assert.Equal("Name.Contains(\"oh\")", result);
+    }
+
+    [Fact]
+    public void Convert_NestedMemberExpression_DirectLambda()
+    {
+        // Arrange
+        Expression<Func<Store, bool>> expr = s => s.Company!.Name == "Acme";
+
+        // Act
+        var result = ExpressionToStringConverter.Convert(expr.Body);
+
+        // Assert
+        Assert.Equal("(Company.Name == \"Acme\")", result);
+    }
 }
