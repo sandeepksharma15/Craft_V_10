@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>
