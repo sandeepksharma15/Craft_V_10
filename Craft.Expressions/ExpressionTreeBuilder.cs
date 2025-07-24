@@ -7,26 +7,15 @@ internal class ExpressionTreeBuilder<T>
 {
     public Expression Build(AstNode node, ParameterExpression param)
     {
-        switch (node)
+        return node switch
         {
-            case BinaryAstNode binary:
-                return BuildBinary(binary, param);
-
-            case UnaryAstNode unary:
-                return BuildUnary(unary, param);
-
-            case MemberAstNode member:
-                return BuildMember(member, param);
-
-            case ConstantAstNode constant:
-                return BuildConstant(constant);
-
-            case MethodCallAstNode methodCall:
-                return BuildMethodCall(methodCall, param);
-
-            default:
-                throw new NotSupportedException($"AST node type '{node.GetType().Name}' is not supported.");
-        }
+            BinaryAstNode binary => BuildBinary(binary, param),
+            UnaryAstNode unary => BuildUnary(unary, param),
+            MemberAstNode member => BuildMember(member, param),
+            ConstantAstNode constant => BuildConstant(constant),
+            MethodCallAstNode methodCall => BuildMethodCall(methodCall, param),
+            _ => throw new NotSupportedException($"AST node type '{node.GetType().Name}' is not supported."),
+        };
     }
 
     private Expression BuildBinary(BinaryAstNode node, ParameterExpression param)
@@ -59,7 +48,7 @@ internal class ExpressionTreeBuilder<T>
         };
     }
 
-    private Expression BuildMember(MemberAstNode node, ParameterExpression param)
+    private static Expression BuildMember(MemberAstNode node, ParameterExpression param)
     {
         Expression expr = param;
 
@@ -86,7 +75,7 @@ internal class ExpressionTreeBuilder<T>
         return expr;
     }
 
-    private Expression BuildConstant(ConstantAstNode node)
+    private static Expression BuildConstant(ConstantAstNode node)
     {
         // Try to infer type from value
         object? value = node.Value;

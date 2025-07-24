@@ -179,13 +179,13 @@ internal class ExpressionStringParser
                 var methodName = memberPath.Last();
                 AstNode? target = memberPath.Count == 1
                     ? null
-                    : new MemberAstNode(memberPath.Take(memberPath.Count - 1).ToArray());
+                    : new MemberAstNode([.. memberPath.Take(memberPath.Count - 1)]);
 
-                return new MethodCallAstNode(target ?? new MemberAstNode(new[] { methodName }), methodName, args);
+                return new MethodCallAstNode(target ?? new MemberAstNode([methodName]), methodName, args);
             }
 
             // Member access
-            return new MemberAstNode(memberPath.ToArray());
+            return new MemberAstNode([.. memberPath]);
         }
 
         // String literal
