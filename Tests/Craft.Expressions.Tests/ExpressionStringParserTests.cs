@@ -1,6 +1,4 @@
-﻿using Craft.Expressions.Ast;
-
-namespace Craft.Expressions.Tests;
+﻿namespace Craft.Expressions.Tests;
 
 public class ExpressionStringParserTests
 {

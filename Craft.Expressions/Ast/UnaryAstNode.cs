@@ -1,4 +1,4 @@
-﻿namespace Craft.Expressions.Ast;
+﻿namespace Craft.Expressions;
 
 public class UnaryAstNode : AstNode
 {

@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Craft.Expressions.Ast;
 
 namespace Craft.Expressions.Tests;
 

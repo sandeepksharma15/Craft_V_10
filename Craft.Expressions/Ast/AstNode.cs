@@ -1,3 +1,3 @@
-﻿namespace Craft.Expressions.Ast;
+﻿namespace Craft.Expressions;
 
 public abstract class AstNode { }

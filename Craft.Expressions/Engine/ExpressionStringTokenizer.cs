@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Craft.Expressions.Tokens;
 
 namespace Craft.Expressions;
 
@@ -67,9 +66,7 @@ internal class ExpressionStringTokenizer
                         pos += 2;
                     }
                     else
-                    {
                         yield return new Token(TokenType.Operator, "!", pos++);
-                    }
                     break;
 
                 case '=':
@@ -79,9 +76,7 @@ internal class ExpressionStringTokenizer
                         pos += 2;
                     }
                     else
-                    {
                         throw new InvalidOperationException($"Unexpected '=' at position {pos}");
-                    }
                     break;
 
                 case '>':
@@ -91,9 +86,7 @@ internal class ExpressionStringTokenizer
                         pos += 2;
                     }
                     else
-                    {
                         yield return new Token(TokenType.Operator, ">", pos++);
-                    }
                     break;
 
                 case '<':
@@ -103,9 +96,7 @@ internal class ExpressionStringTokenizer
                         pos += 2;
                     }
                     else
-                    {
                         yield return new Token(TokenType.Operator, "<", pos++);
-                    }
                     break;
 
                 case '&':
@@ -115,9 +106,7 @@ internal class ExpressionStringTokenizer
                         pos += 2;
                     }
                     else
-                    {
                         throw new InvalidOperationException($"Unexpected '&' at position {pos}");
-                    }
                     break;
 
                 case '|':
@@ -127,9 +116,7 @@ internal class ExpressionStringTokenizer
                         pos += 2;
                     }
                     else
-                    {
                         throw new InvalidOperationException($"Unexpected '|' at position {pos}");
-                    }
                     break;
 
                 default:
@@ -165,7 +152,6 @@ internal class ExpressionStringTokenizer
         var sb = new StringBuilder();
 
         while (pos < input.Length)
-        {
             if (input[pos] == '\\' && pos + 1 < input.Length)
             {
                 sb.Append(input[pos + 1]);
@@ -181,7 +167,6 @@ internal class ExpressionStringTokenizer
                 sb.Append(input[pos]);
                 pos++;
             }
-        }
 
         return new Token(TokenType.StringLiteral, sb.ToString(), start);
     }
@@ -191,7 +176,7 @@ internal class ExpressionStringTokenizer
         int start = pos;
         bool hasDot = false;
 
-        while (pos < input.Length && (char.IsDigit(input[pos]) || (!hasDot && input[pos] == '.')))
+        while (pos < input.Length && (char.IsDigit(input[pos]) || !hasDot && input[pos] == '.'))
         {
             if (input[pos] == '.')
                 hasDot = true;

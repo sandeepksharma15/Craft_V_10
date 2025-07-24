@@ -1,7 +1,4 @@
-﻿using Craft.Expressions.Ast;
-using Craft.Expressions.Tokens;
-
-namespace Craft.Expressions;
+﻿namespace Craft.Expressions;
 
 internal class ExpressionStringParser
 {
@@ -162,7 +159,6 @@ internal class ExpressionStringParser
 
                 var args = new List<AstNode>();
                 if (_current.Type != TokenType.CloseParen)
-                {
                     while (true)
                     {
                         args.Add(ParseExpression());
@@ -172,7 +168,6 @@ internal class ExpressionStringParser
                         else
                             break;
                     }
-                }
 
                 if (_current.Type != TokenType.CloseParen)
                     throw new InvalidOperationException($"Expected ')', got {_current.Value}");

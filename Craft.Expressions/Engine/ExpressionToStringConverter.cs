@@ -1,24 +1,20 @@
 ﻿using System.Linq.Expressions;
 
+namespace Craft.Expressions;
+
 internal static class ExpressionToStringConverter
 {
     public static string Convert(Expression expr)
     {
-        switch (expr)
+        return expr switch
         {
-            case BinaryExpression binary:
-                return $"({Convert(binary.Left)} {GetOperator(binary.NodeType)} {Convert(binary.Right)})";
-            case UnaryExpression unary:
-                return $"{GetOperator(unary.NodeType)}{Convert(unary.Operand)}";
-            case MemberExpression member:
-                return SerializeMember(member);
-            case ConstantExpression constant:
-                return SerializeConstant(constant?.Value!);
-            case MethodCallExpression methodCall:
-                return SerializeMethodCall(methodCall);
-            default:
-                throw new NotSupportedException($"Expression type '{expr.NodeType}' is not supported.");
-        }
+            BinaryExpression binary => $"({Convert(binary.Left)} {GetOperator(binary.NodeType)} {Convert(binary.Right)})",
+            UnaryExpression unary => $"{GetOperator(unary.NodeType)}{Convert(unary.Operand)}",
+            MemberExpression member => SerializeMember(member),
+            ConstantExpression constant => SerializeConstant(constant?.Value!),
+            MethodCallExpression methodCall => SerializeMethodCall(methodCall),
+            _ => throw new NotSupportedException($"Expression type '{expr.NodeType}' is not supported."),
+        };
     }
 
     private static string SerializeMember(MemberExpression member)

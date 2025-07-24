@@ -1,4 +1,4 @@
-﻿namespace Craft.Expressions.Tokens;
+﻿namespace Craft.Expressions;
 
 public enum TokenType
 {
