@@ -1,4 +1,6 @@
-﻿namespace Craft.Expressions.Tests;
+﻿using Craft.Expressions.Tokens;
+
+namespace Craft.Expressions.Tests;
 
 public class ExpressionStringTokenizerTests
 {

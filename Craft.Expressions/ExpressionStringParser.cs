@@ -1,4 +1,7 @@
-﻿namespace Craft.Expressions;
+﻿using Craft.Expressions.Ast;
+using Craft.Expressions.Tokens;
+
+namespace Craft.Expressions;
 
 internal class ExpressionStringParser
 {
