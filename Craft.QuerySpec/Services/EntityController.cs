@@ -5,6 +5,7 @@ using Craft.Controllers.Controllers;
 using Craft.Core;
 using Craft.Domain;
 using Craft.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +19,9 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         where DataTransferT : class, IModel<TKey>, new()
 {
     [HttpPost("delete")]
-    public virtual async Task<ActionResult> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult> DeleteAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
@@ -37,7 +40,9 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("getall")]
-    public virtual async Task<ActionResult<List<T>>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<List<T>>> GetAllAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
@@ -54,7 +59,10 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("getallselect")]
-    public virtual async Task<ActionResult<List<TResult>>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default) where TResult : class, new()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<List<TResult>>> GetAllAsync<TResult>([FromBody] IQuery<T, TResult> query, 
+        CancellationToken cancellationToken = default) where TResult : class, new()
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
@@ -70,7 +78,10 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("find")]
-    public virtual async Task<ActionResult<T>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<T>> GetAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
@@ -89,8 +100,11 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("selectone")]
-    public virtual async Task<ActionResult<TResult>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
-            where TResult : class, new()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<TResult>> GetAsync<TResult>([FromBody] IQuery<T, TResult> query, 
+        CancellationToken cancellationToken = default) where TResult : class, new()
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
@@ -109,7 +123,9 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("filtercount")]
-    public virtual async Task<ActionResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<long>> GetCountAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
@@ -126,6 +142,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<PageResponse<T>>> GetPagedListAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
@@ -143,8 +161,10 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 
     [HttpPost("select")]
-    public virtual async Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
-            where TResult : class, new()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>([FromBody] IQuery<T, TResult> query, 
+        CancellationToken cancellationToken = default) where TResult : class, new()
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
