@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text;
 using Craft.Core;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace Craft.QuerySpec.Tests.Services;
 
 public class HttpServiceTests

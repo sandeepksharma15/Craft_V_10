@@ -88,7 +88,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        if (list.Count == 0)
+        if (list is null || list.Count == 0)
             return null;
 
         if (list.Count > 1)
@@ -192,7 +192,6 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
-
 
         return await _dbSet
             .WithQuery(query)

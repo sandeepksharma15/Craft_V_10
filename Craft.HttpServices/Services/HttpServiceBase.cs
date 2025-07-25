@@ -66,7 +66,63 @@ public abstract class HttpServiceBase
         Func<HttpContent, CancellationToken, Task<TResult?>> parser,
         CancellationToken cancellationToken)
     {
-        return HandleHttpOperationAsync(_ => sendRequest(), async (response, ct) => await parser(response.Content, ct), cancellationToken);
+        // Defensive: Check for null delegates
+        if (sendRequest == null)
+        {
+            var result = new HttpServiceResult<TResult?>
+            {
+                Success = false,
+                Errors = ["sendRequest delegate is null."]
+            };
+
+            return Task.FromResult(result);
+        }
+
+        if (parser == null)
+        {
+            var result = new HttpServiceResult<TResult?>
+            {
+                Success = false,
+                Errors = ["parser delegate is null."]
+            };
+
+            return Task.FromResult(result);
+        }
+
+        // Debug: Mark method entry
+        // System.Diagnostics.Debug.WriteLine("SendAndParseAsync started.");
+
+        try
+        {
+            return HandleHttpOperationAsync(
+                _ => sendRequest(),
+                async (response, ct) =>
+                {
+                    if (response?.Content == null)
+                    {
+                        // Defensive: Null content
+                        return default;
+                    }
+
+                    return await parser(response.Content, ct);
+                },
+                cancellationToken
+            );
+        }
+        catch (Exception ex)
+        {
+            // Debug: Log exception
+            // System.Diagnostics.Debug.WriteLine($"SendAndParseAsync exception: {ex}");
+            var result = new HttpServiceResult<TResult?>
+            {
+                Success = false,
+                Errors = [$"Exception in SendAndParseAsync: {ex.Message}"]
+            };
+
+            return Task.FromResult(result);
+        }
+        // Debug: Mark method exit (not reached if exception thrown)
+        // System.Diagnostics.Debug.WriteLine("SendAndParseAsync completed.");
     }
 
     protected static Task<HttpServiceResult<bool>> SendAndParseNoContentAsync(
