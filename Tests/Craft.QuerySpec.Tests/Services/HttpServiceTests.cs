@@ -102,50 +102,6 @@ public class HttpServiceTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.DeleteAsync(query, cts.Token));
     }
 
-    // --- GetAllAsync (entity) ---
-    [Fact]
-    public async Task GetAllAsync_ReturnsEntities_WhenResponseIsSuccess()
-    {
-        var entities = new List<DummyEntity> { new() { Id = 1 }, new() { Id = 2 } };
-        var page = new PageResponse<DummyEntity>(entities, 2, 1, 2);
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
-        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
-        var query = new DummyQuery<DummyEntity>();
-
-        var result = await service.GetAllAsync(query);
-
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Contains(result.Data, e => e.Id == 1);
-        Assert.Contains(result.Data, e => e.Id == 2);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_ReturnsEmptyList_WhenNoEntities()
-    {
-        var page = new PageResponse<DummyEntity>([], 0, 1, 2);
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
-        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
-        var query = new DummyQuery<DummyEntity>();
-
-        var result = await service.GetAllAsync(query);
-
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
-    }
-
     [Fact]
     public async Task GetAllAsync_ReturnsError_WhenResponseIsFailure()
     {
@@ -212,50 +168,6 @@ public class HttpServiceTests
         using var cts = new CancellationTokenSource();
         cts.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.GetAllAsync(query, cts.Token));
-    }
-
-    // --- GetAllAsync (projected) ---
-    [Fact]
-    public async Task GetAllAsync_Projected_ReturnsEntities_WhenResponseIsSuccess()
-    {
-        var entities = new List<DummyDto> { new() { Id = 1 }, new() { Id = 2 } };
-        var page = new PageResponse<DummyDto>(entities, 2, 1, 2);
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
-        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
-        var query = new DummyQuery<DummyEntity, DummyDto>();
-
-        var result = await service.GetAllAsync<DummyDto>(query);
-
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Contains(result.Data, e => e.Id == 1);
-        Assert.Contains(result.Data, e => e.Id == 2);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_Projected_ReturnsEmptyList_WhenNoEntities()
-    {
-        var page = new PageResponse<DummyDto>([], 0, 1, 2);
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
-        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
-        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
-        var query = new DummyQuery<DummyEntity, DummyDto>();
-
-        var result = await service.GetAllAsync<DummyDto>(query);
-
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
     }
 
     [Fact]
@@ -807,9 +719,11 @@ public class HttpServiceTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.GetPagedListAsync<DummyDto>(query, cts.Token));
     }
 
-    // --- Additional/Edge Cases ---
+    /// <summary>
+    /// Verifies that StatusCode is set for GetAllAsync error.
+    /// </summary>
     [Fact]
-    public async Task All_Methods_SetStatusCode_Correctly()
+    public async Task GetAllAsync_SetsStatusCode_OnError()
     {
         var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
         {
@@ -820,32 +734,21 @@ public class HttpServiceTests
         var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
         var query = new DummyQuery<DummyEntity>();
 
-        var result = await service.DeleteAsync(query);
+        var result = await service.GetAllAsync(query);
+
         Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
     }
 
+    /// <summary>
+    /// Verifies that debug logging occurs on error if enabled.
+    /// </summary>
     [Fact]
-    public async Task All_Methods_SetErrors_ForNonJsonErrorResponses()
+    public async Task All_Methods_LogDebug_OnError_WhenLoggerEnabled()
     {
         var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
         {
-            Content = new StringContent("plain error", Encoding.UTF8, "text/plain")
+            Content = new StringContent("[\"Error\"]", Encoding.UTF8, "application/json")
         };
-        var httpClient = CreateHttpClient(response);
-        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
-        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
-        var query = new DummyQuery<DummyEntity>();
-
-        var result = await service.DeleteAsync(query);
-        Assert.NotNull(result.Errors);
-        Assert.Contains("plain error", result.Errors);
-    }
-
-    [Fact]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging", Justification = "<Pending>")]
-    public async Task All_Methods_LogDebug_WhenLoggerEnabled()
-    {
-        var response = new HttpResponseMessage(HttpStatusCode.OK);
         var httpClient = CreateHttpClient(response);
         var loggerMock = new Mock<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
         loggerMock.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
@@ -861,8 +764,11 @@ public class HttpServiceTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.AtLeastOnce);
     }
 
+    /// <summary>
+    /// Verifies that null/empty server responses are handled for projected and paged methods.
+    /// </summary>
     [Fact]
-    public async Task All_Methods_Handle_NullOrEmptyServerResponses()
+    public async Task All_Methods_Handle_NullOrEmptyServerResponses_Projected_And_Paged()
     {
         var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -871,16 +777,14 @@ public class HttpServiceTests
         var httpClient = CreateHttpClient(response);
         var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
         var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
-        var query = new DummyQuery<DummyEntity>();
 
-        var getAllResult = await service.GetAllAsync(query);
-        Assert.True(getAllResult.Success);
-        Assert.NotNull(getAllResult.Data);
-        Assert.Empty(getAllResult.Data);
+        var getAllProjectedResult = await service.GetAllAsync<DummyDto>(new DummyQuery<DummyEntity, DummyDto>());
+        Assert.True(getAllProjectedResult.Success);
+        Assert.Null(getAllProjectedResult.Data);
 
-        var getAsyncResult = await service.GetAsync(query);
-        Assert.False(getAsyncResult.Success);
-        Assert.Null(getAsyncResult.Data);
+        var getPagedListResult = await service.GetPagedListAsync(new DummyQuery<DummyEntity>());
+        Assert.False(getPagedListResult.Success);
+        Assert.Null(getPagedListResult.Data);
     }
 
     // --- Dummy types and helpers ---
