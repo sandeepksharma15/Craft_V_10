@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Craft.Controllers.Controllers;
+﻿using Craft.Controllers.Controllers;
 using Craft.Core;
 using Craft.Domain;
-using Craft.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,7 +14,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         where T : class, IEntity<TKey>, new()
         where DataTransferT : class, IModel<TKey>, new()
 {
-    [HttpPost("delete")]
+    [HttpPost("deletebyquery")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult> DeleteAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
@@ -39,7 +35,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("getall")]
+    [HttpPost("searchall")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<List<T>>> GetAllAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
@@ -58,7 +54,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("getallselect")]
+    [HttpPost("searchallselect")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<List<TResult>>> GetAllAsync<TResult>([FromBody] IQuery<T, TResult> query, 
@@ -77,7 +73,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("find")]
+    [HttpPost("queryone")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -99,7 +95,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("selectone")]
+    [HttpPost("queryoneselect")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -122,7 +118,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("filtercount")]
+    [HttpPost("countbyquery")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<long>> GetCountAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
@@ -141,7 +137,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("search")]
+    [HttpPost("querypaged")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<PageResponse<T>>> GetPagedListAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
@@ -160,7 +156,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
     }
 
-    [HttpPost("select")]
+    [HttpPost("querypagedselect")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>([FromBody] IQuery<T, TResult> query, 
