@@ -200,7 +200,7 @@ public class ExpressionToStringConverterTests
         var nameExpr = Expression.Property(TestEntityParam, nameof(TestEntity.Name));
         var containsExpr = Expression.Call(
             nameExpr,
-            typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!,
+            typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!,
             Expression.Constant("oh")
         );
 
@@ -218,7 +218,7 @@ public class ExpressionToStringConverterTests
         var nameExpr = Expression.Property(TestEntityParam, nameof(TestEntity.Name));
         var startsWithExpr = Expression.Call(
             nameExpr,
-            typeof(string).GetMethod(nameof(string.StartsWith), new[] { typeof(string) })!,
+            typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])!,
             Expression.Constant("J")
         );
 
@@ -236,7 +236,7 @@ public class ExpressionToStringConverterTests
         var nameExpr = Expression.Property(TestEntityParam, nameof(TestEntity.Name));
         var endsWithExpr = Expression.Call(
             nameExpr,
-            typeof(string).GetMethod(nameof(string.EndsWith), new[] { typeof(string) })!,
+            typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])!,
             Expression.Constant("n")
         );
 

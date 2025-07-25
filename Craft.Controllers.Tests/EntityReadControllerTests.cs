@@ -156,7 +156,7 @@ public class EntityReadControllerTests
     public async Task GetPagedListAsync_ReturnsOk_WithPageResponse()
     {
         // Arrange
-        var pageResponse = new PageResponse<TestEntity>(new List<TestEntity> { new() { Id = 1, Name = "A" } }, 1, 1, 10);
+        var pageResponse = new PageResponse<TestEntity>([new() { Id = 1, Name = "A" }], 1, 1, 10);
         _repositoryMock.Setup(r => r.GetPagedListAsync(1, 10, false, It.IsAny<CancellationToken>())).ReturnsAsync(pageResponse);
 
         // Act
