@@ -41,7 +41,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing list of entities or errors.</returns>
-    Task<HttpServiceResult<List<T>>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<HttpServiceResult<List<T>?>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a list of all the entities that meet the criteria by the given <paramref name="query"/>
@@ -49,7 +49,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing list of projected entities or errors.</returns>
-    Task<HttpServiceResult<List<TResult>>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    Task<HttpServiceResult<List<TResult>?>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new();
 
     /// <summary>

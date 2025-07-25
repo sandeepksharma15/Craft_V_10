@@ -29,29 +29,28 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
 
         return await SendAndParseNoContentAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/delete"), query, cancellationToken),
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/deletebyquery"), query, cancellationToken),
             cancellationToken
         );
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<List<T>>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    public virtual async Task<HttpServiceResult<List<T>?>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
-        query.SetPage(1, int.MaxValue);
-        return await GetAllFromPagedAsync<T, PageResponse<T>>(
-            ct => GetPagedListAsync(query, ct)!,
-            paged => paged?.Items?.ToList() ?? [],
+        return await SendAndParseAsync(
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/searchall"), query, cancellationToken),
+            (content, ct) => content.ReadFromJsonAsync<List<T>>(cancellationToken: ct),
             cancellationToken
         );
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<List<TResult>>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    public virtual async Task<HttpServiceResult<List<TResult>?>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
@@ -59,26 +58,9 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
 
-        query.SetPage(1, int.MaxValue);
-
-        return await GetAllFromPagedAsync<TResult, PageResponse<TResult>>(
-            ct => GetPagedListAsync(query, ct)!,
-            paged => {
-                // Defensive: If paged is null or paged.Items is null or empty, return empty list
-                if (paged == null || paged.Items == null)
-                    return [];
-
-                if (paged.Items is ICollection<TResult> items && items.Count == 0)
-                    return [];
-
-                // If it's not a collection, enumerate and check count
-                var list = paged.Items.ToList();
-
-                if (list.Count == 0)
-                    return [];
-
-                return list;
-            },
+        return await SendAndParseAsync(
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/searchallselect"), query, cancellationToken),
+            (content, ct) => content.ReadFromJsonAsync<List<TResult>>(cancellationToken: ct),
             cancellationToken
         );
     }
@@ -92,7 +74,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/find"), query, cancellationToken),
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/queryone"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
             cancellationToken
         );
@@ -108,7 +90,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/findone"), query, cancellationToken),
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/queryoneselect"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<TResult>(cancellationToken: ct),
             cancellationToken
         );
@@ -123,7 +105,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/filtercount"), query, cancellationToken),
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/countbyquery"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<long>(cancellationToken: ct),
             cancellationToken
         );
@@ -138,7 +120,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
 
         return await SendAndParseAsync<PageResponse<T>?>(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/search"), query, cancellationToken),
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/querypaged"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<PageResponse<T>>(cancellationToken: ct),
             cancellationToken
         );
@@ -154,7 +136,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync<{typeof(TResult).Name}>\"]");
 
         return await SendAndParseAsync<PageResponse<TResult>?>(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/select"), query, cancellationToken),
+            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/querypagedselect"), query, cancellationToken),
             (content, ct) => content.ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: ct),
             cancellationToken
         );
