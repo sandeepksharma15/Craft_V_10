@@ -14,24 +14,21 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
         where DataTransferT : class, IModel<TKey>, new()
 
 {
-    protected readonly ILogger<EntityReadController<T, DataTransferT, TKey>> _logger = logger;
-    protected readonly IReadRepository<T, TKey> _repository = repository;
-
     [HttpGet("{includeDetails:bool}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<IAsyncEnumerable<T>>> GetAllAsync(bool includeDetails, CancellationToken cancellationToken = default)
     {
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         try
         {
-            return Ok(await _repository.GetAllAsync(includeDetails, cancellationToken));
+            return Ok(await repository.GetAllAsync(includeDetails, cancellationToken));
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex.Message);
+            logger.LogCritical(ex.Message);
             return Problem(ex.Message);
         }
     }
@@ -41,18 +38,18 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<T>> GetAsync(TKey id, bool includeDetails, CancellationToken cancellationToken = default)
     {
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"] Id: [\"{id}\"]");
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"] Id: [\"{id}\"]");
 
         try
         {
-            T? entity = await _repository.GetAsync(id, includeDetails, cancellationToken);
+            T? entity = await repository.GetAsync(id, includeDetails, cancellationToken);
 
             return entity == null ? NotFound() : Ok(entity);
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex.Message);
+            logger.LogCritical(ex.Message);
             return Problem(ex.Message);
         }
     }
@@ -63,16 +60,16 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<long>> GetCountAsync(CancellationToken cancellationToken = default)
     {
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
         try
         {
-            return Ok(await _repository.GetCountAsync(cancellationToken));
+            return Ok(await repository.GetCountAsync(cancellationToken));
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex.Message);
+            logger.LogCritical(ex.Message);
             return Problem(ex.Message);
         }
     }
@@ -84,13 +81,16 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     public virtual async Task<ActionResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"] Page: [{page}] PageSize: [{pageSize}] IncludeDetails: [{includeDetails}]");
+
         try
         {
-            return Ok(await _repository.GetPagedListAsync(page, pageSize, includeDetails, cancellationToken));
+            return Ok(await repository.GetPagedListAsync(page, pageSize, includeDetails, cancellationToken));
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex.Message);
+            logger.LogCritical(ex.Message);
             return Problem(ex.Message);
         }
     }
