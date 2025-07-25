@@ -2,7 +2,9 @@
 
 namespace Craft.TestDataStore.Models;
 
-public class TestEntity : BaseEntity
+// Implements IEntity<int> directly for test compatibility
+public class TestEntity : IEntity<int>
 {
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 }
