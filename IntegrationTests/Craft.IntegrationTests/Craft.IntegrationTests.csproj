@@ -15,15 +15,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-	  <PackageReference Include="Moq" Version="4.20.72" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Craft.Controllers\Craft.Controllers.csproj" />
-    <ProjectReference Include="..\..\Craft.Domain\Craft.Domain.csproj" />
     <ProjectReference Include="..\..\Craft.HttpServices\Craft.HttpServices.csproj" />
     <ProjectReference Include="..\..\Craft.QuerySpec\Craft.QuerySpec.csproj" />
     <ProjectReference Include="..\..\Craft.Repositories\Craft.Repositories.csproj" />
+    <ProjectReference Include="..\..\Tests\Craft.TestDataStore\Craft.TestDataStore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

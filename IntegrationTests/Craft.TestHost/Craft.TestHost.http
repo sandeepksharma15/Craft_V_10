@@ -1,0 +1,6 @@
+@Craft.TestHost_HostAddress = http://localhost:5245
+
+GET {{Craft.TestHost_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
