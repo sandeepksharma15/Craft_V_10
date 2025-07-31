@@ -6,5 +6,5 @@ public interface ITenantStrategy
 {
     int Priority => 0;
 
-    Task<string> GetIdentifierAsync(HttpContext context);
+    Task<string?> GetIdentifierAsync(HttpContext context);
 }
