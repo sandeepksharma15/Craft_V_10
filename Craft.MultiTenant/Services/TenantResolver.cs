@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace Craft.MultiTenant.Services;
+namespace Craft.MultiTenant;
 
 public class TenantResolver<T> : ITenantResolver<T>, ITenantResolver where T : class, ITenant, IEntity, new()
 {
