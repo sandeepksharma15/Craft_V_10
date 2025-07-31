@@ -743,6 +743,7 @@ public class HttpServiceTests
     /// Verifies that debug logging occurs on error if enabled.
     /// </summary>
     [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging", Justification = "<Pending>")]
     public async Task All_Methods_LogDebug_OnError_WhenLoggerEnabled()
     {
         var response = new HttpResponseMessage(HttpStatusCode.BadRequest)

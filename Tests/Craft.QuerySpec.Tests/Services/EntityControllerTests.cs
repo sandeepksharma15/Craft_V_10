@@ -286,7 +286,7 @@ public class EntityControllerTests
     public async Task GetPagedListAsync_ReturnsOk_WithPageResponse()
     {
         // Arrange
-        var page = new PageResponse<TestEntity>(new List<TestEntity> { new() { Id = 1, Name = "A" } }, 1, 1, 10);
+        var page = new PageResponse<TestEntity>([new() { Id = 1, Name = "A" }], 1, 1, 10);
         _repoMock.Setup(r => r.GetPagedListAsync(_query, _cancellationToken)).ReturnsAsync(page);
 
         // Act
@@ -315,7 +315,7 @@ public class EntityControllerTests
     public async Task GetPagedListAsync_Select_ReturnsOk_WithPageResponse()
     {
         // Arrange
-        var page = new PageResponse<TestModel>(new List<TestModel> { new() { Id = 1, Name = "A" } }, 1, 1, 10);
+        var page = new PageResponse<TestModel>([new() { Id = 1, Name = "A" }], 1, 1, 10);
         _repoMock.Setup(r => r.GetPagedListAsync(_querySelect, _cancellationToken)).ReturnsAsync(page);
 
         // Act
