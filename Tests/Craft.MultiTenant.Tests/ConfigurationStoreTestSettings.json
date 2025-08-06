@@ -1,0 +1,22 @@
+﻿{
+  "MultiTenancy:ConfigurationStore": {
+    "Defaults": {
+      "ConnectionString": "Datasource=sample.db"
+    },
+    "Tenants": [
+      {
+        "Id": "1",
+        "Identifier": "initech",
+        "Name": "Initech",
+        "Type": "2"
+      },
+      {
+        "Id": "2",
+        "Identifier": "lol",
+        "Name": "LOL",
+        "ConnectionString": "Datasource=lol.db",
+        "Type": "1"
+      }
+    ]
+  }
+}
