@@ -64,11 +64,9 @@ public class TenantResolver<T> : ITenantResolver<T>, ITenantResolver where T : c
                     {
                         if (_logger.IsEnabled(LogLevel.Debug))
                             _logger.LogDebug("Tenant \"{Tenant}\" found in store {Store} for identifier \"{Identifier}\"",
-                                                                tenant?.Name, store.GetType().Name, identifier);
+                            tenant?.Name, store.GetType().Name, identifier);
 
-                        result = new TenantContext<T>(tenant,
-                            (ITenantStore<T>)new TenantStore<T>(store, store.GetType()),
-                            (ITenantStrategy)new TenantStrategy(strategy, strategy.GetType()));
+                        result = new TenantContext<T>(tenant, store, strategy);
 
                         await _options.CurrentValue.Events.OnTenantResolved(new ResolvedContext(
                                 context, tenant, strategy.GetType(), store.GetType()));
