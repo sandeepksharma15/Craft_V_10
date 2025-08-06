@@ -97,7 +97,7 @@ public class Tenant<TKey> : BaseEntity<TKey>, ITenant<TKey>
             : throw new Exception("Subscription cannot be backdated");
 }
 
-public class Tenant : Tenant<KeyType>, ITenant
+public class Tenant : Tenant<KeyType>, ITenant, IEntity
 {
     public Tenant() { }
 
