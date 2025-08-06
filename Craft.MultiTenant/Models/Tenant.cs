@@ -27,7 +27,7 @@ public class Tenant<TKey> : BaseEntity<TKey>, ITenant<TKey>
     public string DbProvider { get; set; } = string.Empty;
 
     [MaxLength(IdentifierSize)]
-    public string Identifier { get; set; } = string.Empty;
+    public string Identifier { get; set; } = null!;
 
     public bool IsActive { get; set; }
 
@@ -97,7 +97,7 @@ public class Tenant<TKey> : BaseEntity<TKey>, ITenant<TKey>
             : throw new Exception("Subscription cannot be backdated");
 }
 
-public class Tenant : Tenant<KeyType>, ITenant, IEntity
+public class Tenant : Tenant<KeyType>, ITenant
 {
     public Tenant() { }
 
