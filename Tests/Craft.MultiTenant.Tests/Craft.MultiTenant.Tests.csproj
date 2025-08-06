@@ -24,6 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+    <ProjectReference Include="..\..\Craft.Repositories\Craft.Repositories.csproj" />
+    <ProjectReference Include="..\..\Craft.Utilities\Craft.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
