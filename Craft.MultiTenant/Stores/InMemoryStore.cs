@@ -44,7 +44,7 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
         }
     }
 
-    public async Task<T> AddAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public async Task<T?> AddAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         if (entity.Id == default)
             entity.Id = _tenantMap?.IsEmpty != false ? 1 : _tenantMap.Values.Max(ti => ti.Id) + 1;
@@ -54,7 +54,7 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
         return await Task.FromResult(entity);
     }
 
-    public async Task<T> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public async Task<T?> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         if (!_tenantMap.TryRemove(entity.Identifier, out var removed))
             throw new MultiTenantException($"Problem deleting the Tenant: {entity.Identifier}");
@@ -103,46 +103,6 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
     }
 
     #region CRUD Members Not Implemented
-
-    public Task<List<T>> AddRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<T>> DeleteRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IDbContext> GetDbContextAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<DbSet<T>> GetDbSetAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<PageResponse<T>> GetPagedListAsync(int currentPage, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public int SaveChanges()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<T>> UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
 
     #endregion
 }

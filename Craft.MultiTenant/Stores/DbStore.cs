@@ -11,7 +11,7 @@ public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantSto
 {
     internal readonly TStoreDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
-    public virtual async Task<T> AddAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public virtual async Task<T?> AddAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         var result = await _dbContext
             .Tenants
@@ -39,7 +39,7 @@ public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantSto
         return [.. entities];
     }
 
-    public virtual async Task<T> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public virtual async Task<T?> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         var existing = await _dbContext
             .Tenants

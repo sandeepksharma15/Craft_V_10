@@ -1,8 +1,4 @@
-﻿using Craft.Core;
-using Craft.Data.Abstractions;
-using Craft.Domain;
-using Craft.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Craft.Domain;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.MultiTenant.Stores;
@@ -21,7 +17,7 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         _store = store;
     }
 
-    public async Task<T> AddAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public async Task<T?> AddAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         ArgumentNullException.ThrowIfNull(entity.Identifier, nameof(entity.Identifier));
@@ -41,7 +37,7 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         return await _store.AddAsync(entity, autoSave, cancellationToken);
     }
 
-    public async Task<T> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    public async Task<T?> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         ArgumentNullException.ThrowIfNull(entity.Identifier, nameof(entity.Identifier));
@@ -125,6 +121,11 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
     public Task<long> GetCountAsync(CancellationToken cancellationToken = default) 
         => _store.GetCountAsync(cancellationToken);
 
+    public Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<T> UpdateAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -159,53 +160,4 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
 
         return entity;
     }
-
-    #region CRUD Members Not Implemented
-
-    public Task<List<T>> AddRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<T>> DeleteRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IDbContext> GetDbContextAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<DbSet<T>> GetDbSetAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<PageResponse<T>> GetPagedListAsync(int currentPage, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public int SaveChanges()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<T>> UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    #endregion
 }
