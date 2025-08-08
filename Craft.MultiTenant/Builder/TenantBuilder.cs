@@ -171,7 +171,7 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
 
     public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime, params object[] parameters)
                                                                                 where TStore : ITenantStore<T>
-    => WithStore(lifetime, sp => ActivatorUtilities.CreateInstance<TStore>(sp, parameters));
+        => WithStore(lifetime, sp => ActivatorUtilities.CreateInstance<TStore>(sp, parameters));
 
     public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime, Func<IServiceProvider, TStore> factory)
         where TStore : ITenantStore<T>

@@ -1,9 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Craft.Core;
-using Craft.Data.Abstractions;
 using Craft.Domain;
-using Craft.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 

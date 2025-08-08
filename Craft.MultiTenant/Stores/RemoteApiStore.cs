@@ -1,8 +1,4 @@
-﻿using Craft.Core;
-using Craft.Data.Abstractions;
-using Craft.Domain;
-using Craft.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Craft.Domain;
 
 namespace Craft.MultiTenant.Stores;
 

@@ -1,24 +1,20 @@
-﻿using Craft.Core;
-using Craft.Data.Abstractions;
-using Craft.Domain;
-using Craft.Repositories;
+﻿using Craft.Domain;
 using Craft.Utilities.CacheService;
-using Microsoft.EntityFrameworkCore;
 
 namespace Craft.MultiTenant;
 
-public class CacheStore(ICacheService cacheService, IChangeRepository<Tenant> tenantRepository)
+public class CacheStore(ICacheService cacheService, ITenantStore<Tenant> tenantRepository)
     : CacheStore<Tenant>(cacheService, tenantRepository), ITenantStore
 {
 }
 
-public class CacheStore<T>(ICacheService cacheService, IChangeRepository<T> tenantRepository)
+public class CacheStore<T>(ICacheService cacheService, ITenantStore<T> tenantRepository)
     : ITenantStore<T> where T : class, ITenant, IEntity, new()
 {
     private const string _cacheKey = "_TENANT_STORE";
 
     private readonly ICacheService _cacheService = cacheService;
-    private readonly IChangeRepository<T> _tenantRepository = tenantRepository;
+    private readonly ITenantStore<T> _tenantRepository = tenantRepository;
 
     private async Task<IReadOnlyList<T>?> GetTenantList()
     {

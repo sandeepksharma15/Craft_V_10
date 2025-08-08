@@ -416,12 +416,16 @@ public class BuilderTests
     public void AddCacheStore_RegistersCacheStore()
     {
         var services = new ServiceCollection();
+
         // Register a dummy ICacheService
-        services.AddSingleton<Craft.Utilities.CacheService.ICacheService, DummyCacheService>();
-        // Register a dummy IChangeRepository<Tenant>
-        services.AddSingleton<Craft.Repositories.IChangeRepository<Tenant>, DummyTenantRepository>();
+        services.AddSingleton<ICacheService, DummyCacheService>();
+
+        // Register a dummy ITenantStore<Tenant>
+        services.AddSingleton<ITenantStore<Tenant>, DummyTenantRepository>();
+
         var builder = new TenantBuilder<Tenant>(services);
         builder.WithCacheStore();
+
         var sp = services.BuildServiceProvider();
         Assert.NotNull(sp.GetRequiredService<ITenantStore<Tenant>>());
     }
@@ -446,45 +450,21 @@ public class BuilderTests
         }
     }
 
-    private class DummyTenantRepository : IChangeRepository<Tenant>
+    private class DummyTenantRepository : ITenantStore<Tenant>
     {
         public Task<IReadOnlyList<Tenant>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Tenant>>([]);
         public Task<Tenant?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
         public Task<long> GetCountAsync(CancellationToken cancellationToken = default) => Task.FromResult(0L);
-        public Task<Tenant> AddAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult<Tenant>(null!);
+
+        public Task<Tenant?> AddAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
+        public Task<Tenant?> DeleteAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
+        public Task<Tenant> UpdateAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult<Tenant>(null!);
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
-        public static Task<Tenant?> GetByIdentifierAsync(string identifier, bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
+        public Task<Tenant?> GetByIdentifierAsync(string identifier, bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
-        public static Task<Tenant?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
-        public Task<Tenant> DeleteAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult<Tenant>(null!);
-        public Task<Tenant> UpdateAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult(entity)!;
-        public Task<List<Tenant>> AddRangeAsync(IEnumerable<Tenant> entities, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult(new List<Tenant>());
-        public Task<List<Tenant>> DeleteRangeAsync(IEnumerable<Tenant> entities, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult(new List<Tenant>());
-        public Task<List<Tenant>> UpdateRangeAsync(IEnumerable<Tenant> entities, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult(new List<Tenant>());
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
-        public static Task<PageResponse<Tenant>> GetPagedListAsync(int currentPage, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult(new PageResponse<Tenant>([], 0, currentPage, pageSize));
-        public static Task<object> GetDbContextAsync() => Task.FromResult<object>(null!);
-        public static Task<object> GetDbSetAsync() => Task.FromResult<object>(null!);
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(0);
-        public int SaveChanges() => 0;
-
-        Task<PageResponse<Tenant>> IReadRepository<Tenant, long>.GetPagedListAsync(int currentPage, int pageSize, bool includeDetails, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IDbContext> IBaseRepository<Tenant, long>.GetDbContextAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<DbSet<Tenant>> IBaseRepository<Tenant, long>.GetDbSetAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Tenant?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
     }
 
     private class TestStore<T> : ITenantStore<T> where T : class, ITenant, IEntity, new()
