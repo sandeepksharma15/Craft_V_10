@@ -52,6 +52,7 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
 
     public TenantBuilder<T> WithCacheStore()
     {
+        // Use the new overload to let DI resolve dependencies
         return WithStore<CacheStore<T>>(ServiceLifetime.Singleton);
     }
 
@@ -169,8 +170,16 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
         return WithStrategy<StaticStrategy>(ServiceLifetime.Singleton, [identifier]);
     }
 
+    // New overload: Registers TStore directly, letting DI resolve dependencies
+    public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime)
+        where TStore : ITenantStore<T>
+    {
+        _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<T>), typeof(TStore), lifetime));
+        return this;
+    }
+
     public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime, params object[] parameters)
-                                                                                where TStore : ITenantStore<T>
+        where TStore : ITenantStore<T>
         => WithStore(lifetime, sp => ActivatorUtilities.CreateInstance<TStore>(sp, parameters));
 
     public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime, Func<IServiceProvider, TStore> factory)

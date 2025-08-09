@@ -420,14 +420,21 @@ public class BuilderTests
         // Register a dummy ICacheService
         services.AddSingleton<ICacheService, DummyCacheService>();
 
-        // Register a dummy ITenantStore<Tenant>
-        services.AddSingleton<ITenantStore<Tenant>, DummyTenantRepository>();
+        // Register the inner store as a concrete type
+        services.AddSingleton<DummyTenantRepository>();
 
-        var builder = new TenantBuilder<Tenant>(services);
-        builder.WithCacheStore();
+        // Register the cache decorator as the only ITenantStore<Tenant>
+        services.AddSingleton<ITenantStore<Tenant>>(sp =>
+            new CacheStore<Tenant>(
+                sp.GetRequiredService<ICacheService>(),
+                sp.GetRequiredService<DummyTenantRepository>()
+            )
+        );
 
         var sp = services.BuildServiceProvider();
-        Assert.NotNull(sp.GetRequiredService<ITenantStore<Tenant>>());
+        var store = sp.GetRequiredService<ITenantStore<Tenant>>();
+        Assert.NotNull(store);
+        Assert.IsType<CacheStore<Tenant>>(store);
     }
 
     // Dummy implementations for test DI
