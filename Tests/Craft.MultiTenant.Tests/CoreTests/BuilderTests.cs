@@ -1,10 +1,6 @@
-﻿using Craft.Core;
-using Craft.Data;
-using Craft.Domain;
+﻿using Craft.Domain;
 using Craft.MultiTenant.Stores;
-using Craft.Repositories;
 using Craft.Utilities.CacheService;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
