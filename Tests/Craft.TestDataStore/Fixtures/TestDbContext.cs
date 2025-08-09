@@ -1,4 +1,4 @@
-﻿using Craft.Data;
+﻿using Craft.Core;
 using Craft.TestDataStore.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

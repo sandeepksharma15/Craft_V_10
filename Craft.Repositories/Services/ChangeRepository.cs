@@ -1,4 +1,4 @@
-﻿using Craft.Data;
+﻿using Craft.Core;
 using Craft.Domain;
 using Craft.Repositories.Services;
 using Microsoft.EntityFrameworkCore;

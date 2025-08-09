@@ -114,8 +114,8 @@ public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantSto
             .LongCountAsync(cancellationToken);
     }
 
-    public virtual Task<DbContext> GetDbContextAsync() 
-        => Task.FromResult((DbContext)_dbContext);
+    public virtual Task<IDbContext> GetDbContextAsync()
+        => Task.FromResult((IDbContext)_dbContext);
 
     public virtual Task<DbSet<T>> GetDbSetAsync()
         => Task.FromResult(_dbContext.Tenants);
@@ -137,7 +137,7 @@ public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantSto
     public virtual int SaveChanges()
         => _dbContext.SaveChanges();
 
-    public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) 
+    public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
     public virtual async Task<T> UpdateAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
