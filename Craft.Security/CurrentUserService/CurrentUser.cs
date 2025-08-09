@@ -50,9 +50,9 @@ public class CurrentUser<TKey> : ICurrentUser<TKey>
 
     public string? GetTenant() => IsAuthenticated() ? _user?.GetTenant() : string.Empty;
 
-    public IEnumerable<Claim> GetUserClaims() 
-        => IsAuthenticated() 
-            ? _user?.Claims ?? [] 
+    public IEnumerable<Claim> GetUserClaims()
+        => IsAuthenticated()
+            ? _user?.Claims ?? []
             : [];
 
     public bool IsAuthenticated() => _user?.Identity?.IsAuthenticated is true;

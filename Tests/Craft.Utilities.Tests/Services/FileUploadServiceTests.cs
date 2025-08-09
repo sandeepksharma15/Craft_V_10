@@ -1,7 +1,7 @@
 ﻿using System.Text;
+using Craft.Utilities.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Moq;
-using Craft.Utilities.Services;
 
 namespace Craft.Utilities.Tests.Services;
 
@@ -72,7 +72,7 @@ public class FileUploadServiceTests
             // Act
             await FileUploadService.UploadFileAsync(tempFile, mockFile.Object, p => lastProgress = p, 10);
             var written = await File.ReadAllBytesAsync(tempFile);
-        
+
             // Assert
             Assert.Equal(fileContent, written);
             Assert.Equal(100, lastProgress);

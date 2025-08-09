@@ -105,4 +105,5 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
 }
 
 public class InMemoryStore(IOptions<InMemoryStoreOptions<Tenant>> options)
-    : InMemoryStore<Tenant>(options) { }
+    : InMemoryStore<Tenant>(options)
+{ }

@@ -1,6 +1,4 @@
-﻿using System;
-using Craft.Utilities.Builders;
-using Xunit;
+﻿using Craft.Utilities.Builders;
 
 namespace Craft.Utilities.Tests.Builders;
 

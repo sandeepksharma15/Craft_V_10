@@ -51,7 +51,7 @@ internal class ExpressionStringTokenizer
                     yield return new Token(TokenType.Comma, ",", pos++);
                     break;
 
-                case '(': 
+                case '(':
                     yield return new Token(TokenType.OpenParen, "(", pos++);
                     break;
 

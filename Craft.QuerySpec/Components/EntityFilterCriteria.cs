@@ -35,9 +35,9 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     public EntityFilterCriteria([NotNull] Expression<Func<T, bool>> filter)
     {
         ArgumentNullException.ThrowIfNull(filter, nameof(filter));
-        
+
         ValidateExpression(filter);
-        
+
         Filter = filter;
         _filterFunc = new Lazy<Func<T, bool>>(CompileExpression, LazyThreadSafetyMode.ExecutionAndPublication);
         _hashCode = ComputeHashCode(filter);
@@ -57,7 +57,7 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     public bool Matches([NotNull] T entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-        
+
         try
         {
             return FilterFunc.Invoke(entity);
@@ -83,7 +83,7 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
-        
+
         return string.Equals(Filter.ToString(), other.Filter.ToString(), StringComparison.Ordinal);
     }
 

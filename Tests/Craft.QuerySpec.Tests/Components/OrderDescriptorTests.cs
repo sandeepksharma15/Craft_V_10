@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using static Craft.QuerySpec.Tests.Converters.OrderDescriptorJsonConverterTests;
 
 namespace Craft.QuerySpec.Tests.Components;
 

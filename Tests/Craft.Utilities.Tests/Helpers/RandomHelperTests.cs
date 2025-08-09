@@ -108,7 +108,7 @@ public class RandomHelperTests
         // Act
         var r1 = RandomHelper.GenerateRandomizedList(input);
         var r2 = RandomHelper.GenerateRandomizedList(input);
-        
+
         // Assert
         Assert.False(r1.SequenceEqual(r2));
     }

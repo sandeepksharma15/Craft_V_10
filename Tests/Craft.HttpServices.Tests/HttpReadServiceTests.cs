@@ -2,12 +2,11 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Craft.Core;
-using Craft.HttpServices.Services;
 using Craft.Domain;
+using Craft.HttpServices.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
-using Craft.Core.Common;
 
 namespace Craft.HtppServices.Tests;
 

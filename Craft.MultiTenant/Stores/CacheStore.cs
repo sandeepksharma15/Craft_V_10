@@ -31,19 +31,19 @@ public class CacheStore<T>(ICacheService cacheService, ITenantStore<T> tenantRep
         return tenants;
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default) 
+    public async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
         => await GetTenantList() ?? [];
 
-    public async Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default) 
+    public async Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
         => (await GetTenantList())?.ToList()?.Find(t => t.Id == id);
 
-    public async Task<T?> GetByIdentifierAsync(string identifier, bool includeDetails = false, CancellationToken cancellationToken = default) 
+    public async Task<T?> GetByIdentifierAsync(string identifier, bool includeDetails = false, CancellationToken cancellationToken = default)
         => (await GetTenantList())?.ToList()?.Find(t => t.Identifier == identifier);
 
-    public async Task<long> GetCountAsync(CancellationToken cancellationToken = default) 
+    public async Task<long> GetCountAsync(CancellationToken cancellationToken = default)
         => (await GetTenantList())?.Count ?? 0;
 
-    public async Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default) 
+    public async Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
         => (await GetTenantList())?.ToList()?.Find(t => t.Type == TenantType.Host);
 
     #region CRUD Operations Not Implemented

@@ -1,7 +1,4 @@
-﻿using Xunit;
-using Craft.Security;
-
-namespace Craft.Security.Tests.Models;
+﻿namespace Craft.Security.Tests.Models;
 
 public class PasswordForgotRequestTests
 {

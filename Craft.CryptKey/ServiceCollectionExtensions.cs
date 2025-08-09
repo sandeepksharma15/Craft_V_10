@@ -6,7 +6,7 @@ namespace Craft.Domain.HashIdentityKey;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddHashKeys(this IServiceCollection services, 
+    public static IServiceCollection AddHashKeys(this IServiceCollection services,
         Action<HashKeyOptions> configureOptions = null!)
     {
         services.Configure(configureOptions ?? (_ => { }));

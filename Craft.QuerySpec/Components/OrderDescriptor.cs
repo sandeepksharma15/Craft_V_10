@@ -7,7 +7,7 @@ public sealed class OrderDescriptor<T> where T : class
 {
     public LambdaExpression OrderItem { get; internal set; }
     public OrderTypeEnum OrderType { get; internal set; }
-    
+
     public OrderDescriptor(LambdaExpression orderItem, OrderTypeEnum orderType = OrderTypeEnum.OrderBy)
     {
         OrderItem = orderItem;

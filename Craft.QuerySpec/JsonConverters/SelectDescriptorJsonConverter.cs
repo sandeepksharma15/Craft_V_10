@@ -81,7 +81,7 @@ public class SelectDescriptorJsonConverter<T, TResult> : JsonConverter<SelectDes
     /// </summary>
     private static void SetProperty(object obj, string propertyName, object? value)
     {
-        var prop = obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) 
+        var prop = obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException($"Property '{propertyName}' not found on type '{obj.GetType().Name}'.");
 
         prop.SetValue(obj, value);

@@ -1,6 +1,4 @@
 ﻿using Craft.Domain;
-using Xunit;
-using System.Collections.Generic;
 
 namespace Craft.Auditing.Tests.Helpers;
 

@@ -35,7 +35,7 @@ public class KeySafeService : IKeySafeService
         if (string.IsNullOrEmpty(plainText))
             throw new ArgumentException("Plain text cannot be null or empty.", nameof(plainText));
 
-        if (key ==null ||  key.Length != 32)
+        if (key == null || key.Length != 32)
             throw new ArgumentException("Encryption Key must be 32 bytes for AES-256.", nameof(key));
 
         if (iv == null || iv.Length != 16)

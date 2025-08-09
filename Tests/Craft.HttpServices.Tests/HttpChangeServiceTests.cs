@@ -1,7 +1,7 @@
-﻿using Moq;
-using System.Net;
-using Microsoft.Extensions.Logging;
+﻿using System.Net;
 using Craft.HttpServices.Services;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Moq.Protected;
 
 namespace Craft.HtppServices.Tests;

@@ -80,4 +80,5 @@ public class RemoteApiStore<T> : ITenantStore<T> where T : class, ITenant, IEnti
 }
 
 public class RemoteApiStore(RemoteApiStoreClient<Tenant> client, string endpointTemplate)
-    : RemoteApiStore<Tenant>(client, endpointTemplate) { }
+    : RemoteApiStore<Tenant>(client, endpointTemplate)
+{ }

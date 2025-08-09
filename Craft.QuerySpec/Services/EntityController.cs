@@ -57,7 +57,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     [HttpPost("searchallselect")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public virtual async Task<ActionResult<List<TResult>>> GetAllAsync<TResult>([FromBody] IQuery<T, TResult> query, 
+    public virtual async Task<ActionResult<List<TResult>>> GetAllAsync<TResult>([FromBody] IQuery<T, TResult> query,
         CancellationToken cancellationToken = default) where TResult : class, new()
     {
         if (logger.IsEnabled(LogLevel.Debug))
@@ -99,7 +99,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public virtual async Task<ActionResult<TResult>> GetAsync<TResult>([FromBody] IQuery<T, TResult> query, 
+    public virtual async Task<ActionResult<TResult>> GetAsync<TResult>([FromBody] IQuery<T, TResult> query,
         CancellationToken cancellationToken = default) where TResult : class, new()
     {
         if (logger.IsEnabled(LogLevel.Debug))
@@ -159,7 +159,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     [HttpPost("querypagedselect")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public virtual async Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>([FromBody] IQuery<T, TResult> query, 
+    public virtual async Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>([FromBody] IQuery<T, TResult> query,
         CancellationToken cancellationToken = default) where TResult : class, new()
     {
         if (logger.IsEnabled(LogLevel.Debug))

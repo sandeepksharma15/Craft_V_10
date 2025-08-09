@@ -1,5 +1,3 @@
-using System;
-
 namespace Craft.Utilities.Passwords;
 
 public class PasswordGeneratorService : IPasswordGeneratorService

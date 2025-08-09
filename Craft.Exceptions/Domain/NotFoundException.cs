@@ -11,7 +11,7 @@ public class NotFoundException : CraftException
 
     public NotFoundException(string message, Exception innerException) : base(message, innerException) { }
 
-    public NotFoundException(string message, List<string> errors = default!, 
+    public NotFoundException(string message, List<string> errors = default!,
         HttpStatusCode statusCode = HttpStatusCode.NotFound) : base(message, errors, statusCode) { }
 
     public NotFoundException(string name, object key)

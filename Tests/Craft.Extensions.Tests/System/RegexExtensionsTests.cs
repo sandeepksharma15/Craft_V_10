@@ -30,8 +30,8 @@ public class RegexExtensionsTests
     public void RegexMatch_ShouldReturnExpectedResult(string? input, string? pattern, bool expectedResult)
     {
         // Arrange
-        Regex? regex = pattern != null 
-            ? new Regex(pattern) 
+        Regex? regex = pattern != null
+            ? new Regex(pattern)
             : null;
 
         // Act

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Craft.Controllers.Controllers;
+﻿using Craft.Controllers.Controllers;
 using Craft.Domain;
 using Craft.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
 
 namespace Craft.Controllers.Tests;
 

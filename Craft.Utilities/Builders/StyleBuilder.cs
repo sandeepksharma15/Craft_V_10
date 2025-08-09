@@ -16,7 +16,7 @@ public struct StyleBuilder
     /// </summary>
     /// <param name="prop"></param>
     /// <param name="value"></param>
-    public static StyleBuilder Default(string prop, string value) 
+    public static StyleBuilder Default(string prop, string value)
         => new(prop, value);
 
     /// <summary>
@@ -24,13 +24,13 @@ public struct StyleBuilder
     /// </summary>
     /// <param name="prop"></param>
     /// <param name="value"></param>
-    public static StyleBuilder Default(string style) 
+    public static StyleBuilder Default(string style)
         => Empty().AddStyle(style);
 
     /// <summary>
     /// Creates a StyleBuilder used to define conditional in-line style used in a component. Call Build() to return the completed style as a string.
     /// </summary>
-    public static StyleBuilder Empty() 
+    public static StyleBuilder Empty()
         => new();
 
     /// <summary>
@@ -38,16 +38,16 @@ public struct StyleBuilder
     /// </summary>
     /// <param name="prop"></param>
     /// <param name="value"></param>
-    public StyleBuilder(string prop, string value) 
+    public StyleBuilder(string prop, string value)
         => stringBuffer = $"{prop}:{value};";
 
     /// <summary>
     /// Adds a conditional in-line style to the builder with space separator and closing semicolon.
     /// </summary>
     /// <param name="style"></param>
-    public StyleBuilder AddStyle(string style) 
-        => !string.IsNullOrWhiteSpace(style) 
-            ? AddRaw($"{style};") 
+    public StyleBuilder AddStyle(string style)
+        => !string.IsNullOrWhiteSpace(style)
+            ? AddRaw($"{style};")
             : this;
 
     /// <summary>
@@ -68,7 +68,7 @@ public struct StyleBuilder
     /// <param name="prop"></param>
     /// <param name="value">Style to add</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(string prop, string value) 
+    public StyleBuilder AddStyle(string prop, string value)
         => AddRaw($"{prop}:{value};");
 
     /// <summary>
@@ -78,7 +78,7 @@ public struct StyleBuilder
     /// <param name="value">Style to conditionally add.</param>
     /// <param name="when">Condition in which the style is added.</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(string prop, string value, bool when = true) 
+    public StyleBuilder AddStyle(string prop, string value, bool when = true)
         => when
             ? AddStyle(prop, value)
             : this;
@@ -90,7 +90,7 @@ public struct StyleBuilder
     /// <param name="value">Style to conditionally add.</param>
     /// <param name="when">Condition in which the style is added.</param>
     /// <returns></returns>
-    public StyleBuilder AddStyle(string prop, Func<string> value, bool when = true) 
+    public StyleBuilder AddStyle(string prop, Func<string> value, bool when = true)
         => when
             ? AddStyle(prop, value())
             : this;
@@ -102,7 +102,7 @@ public struct StyleBuilder
     /// <param name="value">Style to conditionally add.</param>
     /// <param name="when">Condition in which the style is added.</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(string prop, string value, Func<bool> when = null!) 
+    public StyleBuilder AddStyle(string prop, string value, Func<bool> when = null!)
         => AddStyle(prop, value, when());
 
     /// <summary>
@@ -112,7 +112,7 @@ public struct StyleBuilder
     /// <param name="value">Style to conditionally add.</param>
     /// <param name="when">Condition in which the style is added.</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(string prop, Func<string> value, Func<bool> when = null!) 
+    public StyleBuilder AddStyle(string prop, Func<string> value, Func<bool> when = null!)
         => AddStyle(prop, value(), when());
 
     /// <summary>
@@ -120,7 +120,7 @@ public struct StyleBuilder
     /// </summary>
     /// <param name="builder">Style Builder to conditionally add.</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(StyleBuilder builder) 
+    public StyleBuilder AddStyle(StyleBuilder builder)
         => AddRaw(builder.Build());
 
     /// <summary>
@@ -129,7 +129,7 @@ public struct StyleBuilder
     /// <param name="builder">Style Builder to conditionally add.</param>
     /// <param name="when">Condition in which the style is added.</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(StyleBuilder builder, bool when = true) 
+    public StyleBuilder AddStyle(StyleBuilder builder, bool when = true)
         => when
             ? AddRaw(builder.Build())
             : this;
@@ -140,7 +140,7 @@ public struct StyleBuilder
     /// <param name="builder">Style Builder to conditionally add.</param>
     /// <param name="when">Condition in which the styles are added.</param>
     /// <returns>StyleBuilder</returns>
-    public StyleBuilder AddStyle(StyleBuilder builder, Func<bool> when = null!) 
+    public StyleBuilder AddStyle(StyleBuilder builder, Func<bool> when = null!)
         => AddStyle(builder, when());
 
     /// <summary>
@@ -166,10 +166,10 @@ public struct StyleBuilder
     /// <param name="additionalAttributes">Additional Attribute splat parameters</param>
     /// <returns>StyleBuilder</returns>
     public StyleBuilder AddStyleFromAttributes(IReadOnlyDictionary<string, object> additionalAttributes) =>
-        additionalAttributes == null 
-            ? this 
-            : additionalAttributes.TryGetValue("style", out var c) 
-                ? AddRaw(c?.ToString() ?? string.Empty) 
+        additionalAttributes == null
+            ? this
+            : additionalAttributes.TryGetValue("style", out var c)
+                ? AddRaw(c?.ToString() ?? string.Empty)
                 : this;
 
 
@@ -178,8 +178,8 @@ public struct StyleBuilder
     /// </summary>
     /// <returns>string</returns>
     public readonly string Build()
-        => stringBuffer != null 
-            ? stringBuffer.Trim() 
+        => stringBuffer != null
+            ? stringBuffer.Trim()
             : string.Empty;
 
     public override readonly string ToString()

@@ -4,7 +4,7 @@
 /// supporting conditional addition of classes.
 /// </summary>  
 /// The original code is from https://github.com/EdCharbeneau/BlazorComponentUtilities
- 
+
 using System.Text;
 
 namespace Craft.Utilities.Builders;
@@ -49,11 +49,11 @@ public readonly struct CssBuilder(string value)
     }
 
     public readonly string Build()
-        => stringBuffer != null 
-            ? stringBuffer.ToString().Trim() 
+        => stringBuffer != null
+            ? stringBuffer.ToString().Trim()
             : string.Empty;
 
-    public override readonly string ToString() 
+    public override readonly string ToString()
         => Build();
 
 }
@@ -63,8 +63,8 @@ public static class CssBuilderExtensions
     extension(CssBuilder cssBuilder)
     {
         public string? NullIfEmpty()
-            => string.IsNullOrWhiteSpace(cssBuilder.Build()) 
-                ? null 
+            => string.IsNullOrWhiteSpace(cssBuilder.Build())
+                ? null
                 : cssBuilder.Build();
     }
 }

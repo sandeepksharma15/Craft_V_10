@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Text.Json;
 using Craft.TestDataStore.Models;
 
 namespace Craft.QuerySpec.Tests.Builders;

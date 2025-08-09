@@ -1,5 +1,4 @@
-﻿using Craft.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Auditing.Tests.Contracts;
 
@@ -86,7 +85,7 @@ public class ContractTest
         var context = new TestAuditTrailContext();
         var entity = new TestHasAuditTrail { AuditTrails = context.AuditTrails };
 
-        var auditTrail = new AuditTrail { Id = 1, TableName="Test" };
+        var auditTrail = new AuditTrail { Id = 1, TableName = "Test" };
 
         // Act
         entity.AuditTrails.Add(auditTrail);

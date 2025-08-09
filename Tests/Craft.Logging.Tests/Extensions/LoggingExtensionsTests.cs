@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Craft.Logging.Extensions;
+﻿using Craft.Logging.Extensions;
+using Microsoft.AspNetCore.Builder;
 
 namespace Craft.Logging.Tests.Extensions;
 

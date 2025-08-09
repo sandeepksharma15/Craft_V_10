@@ -158,7 +158,7 @@ public class TypeTests
     // Nullable non-integral
     [InlineData(typeof(bool?), false)]
     [InlineData(typeof(DateTime?), false)]
-    
+
     // Null type
     [InlineData(null, false)]
     public void IsIntegral_ReturnsExpected(Type? type, bool expected)

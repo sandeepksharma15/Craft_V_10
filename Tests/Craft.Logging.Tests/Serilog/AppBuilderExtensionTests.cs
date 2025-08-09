@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using ApplicationBuilderExtensions = Craft.Logging.Serilog.ApplicationBuilderExtensions;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using ApplicationBuilderExtensions = Craft.Logging.Serilog.ApplicationBuilderExtensions;
 
 namespace Craft.Logging.Tests.Serilog;
 

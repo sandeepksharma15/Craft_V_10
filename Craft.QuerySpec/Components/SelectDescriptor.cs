@@ -90,7 +90,7 @@ public sealed class SelectDescriptor<T, TResult> where T : class where TResult :
     public SelectDescriptor(string assignorPropName, string assigneePropName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(assignorPropName, nameof(assignorPropName));
-        ArgumentException.ThrowIfNullOrWhiteSpace(assigneePropName, nameof(assigneePropName));  
+        ArgumentException.ThrowIfNullOrWhiteSpace(assigneePropName, nameof(assigneePropName));
 
         Assignor = assignorPropName.CreateMemberExpression<T>(); ;
         Assignee = assigneePropName.CreateMemberExpression<TResult>();

@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Craft.Logging.Serilog;
+﻿using Craft.Logging.Serilog;
+using Microsoft.AspNetCore.Http;
 
 namespace Craft.Logging.Tests.Serilog;
 
@@ -14,9 +14,9 @@ public class SerilogMiddlewareTests
 
         // Act
         // Create a RequestDelegate that sets a flag when called
-        Task next(HttpContext ctx) 
-        { 
-            called = true; return Task.CompletedTask; 
+        Task next(HttpContext ctx)
+        {
+            called = true; return Task.CompletedTask;
         }
 
         var middleware = new SerilogMiddleware(next);
@@ -38,9 +38,9 @@ public class SerilogMiddlewareTests
         var called = false;
 
         // Act
-        Task next(HttpContext ctx) 
-        { 
-            called = true; return Task.CompletedTask; 
+        Task next(HttpContext ctx)
+        {
+            called = true; return Task.CompletedTask;
         }
 
         var middleware = new SerilogMiddleware(next);
@@ -59,9 +59,9 @@ public class SerilogMiddlewareTests
         var context = new DefaultHttpContext();
         var called = false;
 
-        Task next(HttpContext ctx) 
-        { 
-            called = true; return Task.CompletedTask; 
+        Task next(HttpContext ctx)
+        {
+            called = true; return Task.CompletedTask;
         }
 
         var middleware = new SerilogMiddleware(next);
@@ -83,9 +83,9 @@ public class SerilogMiddlewareTests
         context.Request.Headers["_CLIENT_ID_"] = "";
         var called = false;
 
-        Task next(HttpContext ctx) 
-        { 
-            called = true; return Task.CompletedTask; 
+        Task next(HttpContext ctx)
+        {
+            called = true; return Task.CompletedTask;
         }
 
         var middleware = new SerilogMiddleware(next);
@@ -105,9 +105,9 @@ public class SerilogMiddlewareTests
         var context = new DefaultHttpContext();
         var called = false;
 
-        Task next(HttpContext ctx) 
-        { 
-            called = true; return Task.CompletedTask; 
+        Task next(HttpContext ctx)
+        {
+            called = true; return Task.CompletedTask;
         }
 
         var middleware = new SerilogMiddleware(next);

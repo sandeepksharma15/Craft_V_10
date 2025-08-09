@@ -84,7 +84,7 @@ public static class ServiceProviderExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        var instance = services.GetSingletonInstanceOrNull<T>() 
+        var instance = services.GetSingletonInstanceOrNull<T>()
             ?? throw new InvalidOperationException($"Could not find singleton service: {typeof(T).FullName}");
 
         return instance;

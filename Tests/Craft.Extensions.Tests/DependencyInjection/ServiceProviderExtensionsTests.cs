@@ -71,7 +71,7 @@ public class ServiceProviderExtensionsTests
 
         // Assert
         Assert.Contains(services, d => d.ImplementationType == typeof(TestService1) && d.ServiceType == typeof(ITestService));
-        Assert.Contains(services,d => d.ImplementationType == typeof(TestService2) && d.ServiceType == typeof(ITestService));
+        Assert.Contains(services, d => d.ImplementationType == typeof(TestService2) && d.ServiceType == typeof(ITestService));
     }
 
     [Fact]

@@ -37,7 +37,7 @@ public interface IReadRepository<T, TKey> : IBaseRepository<T, TKey> where T : c
     /// <param name="includeDetails">Set true to include all children of this entity</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Paginated list of entities</returns>
-    Task<PageResponse<T>> GetPagedListAsync(int currentPage, int pageSize, bool includeDetails = false, 
+    Task<PageResponse<T>> GetPagedListAsync(int currentPage, int pageSize, bool includeDetails = false,
         CancellationToken cancellationToken = default);
 }
 

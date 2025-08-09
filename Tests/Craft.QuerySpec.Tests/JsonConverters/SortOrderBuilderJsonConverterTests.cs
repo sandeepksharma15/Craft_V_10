@@ -1,9 +1,5 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.IO;
 using Craft.TestDataStore.Models;
-using Craft.QuerySpec;
-using Xunit;
 
 namespace Craft.QuerySpec.Tests.Builders;
 

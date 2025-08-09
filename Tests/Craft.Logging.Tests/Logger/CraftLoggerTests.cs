@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using Serilog;
-using Serilog.Events;
 using Craft.Logging.Logger;
+using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 
 namespace Craft.Logging.Tests.Logger;
 

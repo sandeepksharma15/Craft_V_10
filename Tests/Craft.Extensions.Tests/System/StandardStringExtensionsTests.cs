@@ -61,7 +61,7 @@ public class StandardStringExtensionsTests
         string? result = input!.GetStringAfterLastDelimiter(delimiter);
 
         // Assert
-        Assert.Equal(expected, result); 
+        Assert.Equal(expected, result);
     }
 
     [Theory]

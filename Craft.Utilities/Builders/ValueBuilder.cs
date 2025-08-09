@@ -19,14 +19,14 @@ public class ValueBuilder
     /// <param name="value"></param>
     /// <param name="when"></param>
     /// <returns></returns>
-    public ValueBuilder AddValue(string value, bool when = true) 
-        => when 
-            ? AddRaw($"{value} ") 
+    public ValueBuilder AddValue(string value, bool when = true)
+        => when
+            ? AddRaw($"{value} ")
             : this;
 
-    public ValueBuilder AddValue(Func<string> value, bool when = true) 
-        => when 
-            ? AddRaw($"{value()} ") 
+    public ValueBuilder AddValue(Func<string> value, bool when = true)
+        => when
+            ? AddRaw($"{value()} ")
             : this;
 
     private ValueBuilder AddRaw(string style)
@@ -37,7 +37,7 @@ public class ValueBuilder
     }
 
     public override string ToString()
-        => stringBuffer != null 
-            ? stringBuffer.Trim() 
+        => stringBuffer != null
+            ? stringBuffer.Trim()
             : string.Empty;
 }

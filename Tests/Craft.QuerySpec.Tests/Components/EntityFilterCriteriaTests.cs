@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
-using System.Text.Json;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Craft.QuerySpec.Tests.Components;
 
@@ -58,9 +58,9 @@ public class EntityFilterCriteriaTests
     public void Constructor_WithNullFilter_ThrowsArgumentNullException()
     {
         // Arrange, Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => 
+        var exception = Assert.Throws<ArgumentNullException>(() =>
             new EntityFilterCriteria<TestEntity>(null!));
-        
+
         Assert.Equal("filter", exception.ParamName);
     }
 
@@ -124,9 +124,9 @@ public class EntityFilterCriteriaTests
     public void Constructor_ValidatesExpressionDuringConstruction()
     {
         // Arrange - Create a valid expression that we know will compile successfully
-        Expression<Func<TestEntity, bool>> expression = x => 
-            x.Name != null && 
-            x.Name.Length > 2 && 
+        Expression<Func<TestEntity, bool>> expression = x =>
+            x.Name != null &&
+            x.Name.Length > 2 &&
             x.Age >= 0 &&
             (x.IsActive || x.Name.StartsWith("temp"));
 
@@ -137,7 +137,7 @@ public class EntityFilterCriteriaTests
         Assert.NotNull(criteria);
         Assert.NotNull(criteria.Filter);
         Assert.Equal(expression.ToString(), criteria.Filter.ToString());
-        
+
         // Verify the expression can actually be compiled and used
         var testEntity = new TestEntity { Name = "test", Age = 25, IsActive = true };
         Assert.True(criteria.Matches(testEntity));
@@ -273,10 +273,10 @@ public class EntityFilterCriteriaTests
     public void Matches_WithComplexLogic_WorksCorrectly()
     {
         // Arrange
-        Expression<Func<TestEntity, bool>> expression = x => 
-            (x.Age >= 18 && x.Age <= 65) && 
+        Expression<Func<TestEntity, bool>> expression = x =>
+            (x.Age >= 18 && x.Age <= 65) &&
             (x.Name.Length > 3 || x.IsActive);
-        
+
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
 
         // Act & Assert
@@ -381,7 +381,7 @@ public class EntityFilterCriteriaTests
         Expression<Func<TestEntity, bool>> leftExpression = leftFilter switch
         {
             "Name == \"John\"" => x => x.Name == "John",
-            "Name == \"Jane\"" => x => x.Name == "Jane", 
+            "Name == \"Jane\"" => x => x.Name == "Jane",
             "Age > 18" => x => x.Age > 18,
             "Age >= 18" => x => x.Age >= 18,
             "Name.Length > 5" => x => x.Name.Length > 5,
@@ -410,7 +410,7 @@ public class EntityFilterCriteriaTests
 
         // Assert
         Assert.Equal(expectedEqual, actualEqual);
-        
+
         // Verify the expressions contain the expected patterns
         Assert.Contains(leftFilter.Split(' ')[0], leftCriteria.Filter.ToString()); // Property name
         Assert.Contains(rightFilter.Split(' ')[0], rightCriteria.Filter.ToString()); // Property name
@@ -638,7 +638,7 @@ public class EntityFilterCriteriaTests
         const string invalidJson = "{\"Filter\": {"; // Missing closing brace
 
         // Act & Assert
-        Assert.Throws<JsonException>(() => 
+        Assert.Throws<JsonException>(() =>
             JsonSerializer.Deserialize<EntityFilterCriteria<TestEntity>>(invalidJson, _jsonOptions));
     }
 
@@ -649,7 +649,7 @@ public class EntityFilterCriteriaTests
         const string json = "{\"InvalidProperty\": \"Name == 'John'\"}";
 
         // Act & Assert
-        Assert.Throws<JsonException>(() => 
+        Assert.Throws<JsonException>(() =>
             JsonSerializer.Deserialize<EntityFilterCriteria<TestEntity>>(json, _jsonOptions));
     }
 
@@ -660,7 +660,7 @@ public class EntityFilterCriteriaTests
         const string json = "{\"Filter\":\"\"}";
 
         // Act & Assert
-        Assert.Throws<JsonException>(() => 
+        Assert.Throws<JsonException>(() =>
             JsonSerializer.Deserialize<EntityFilterCriteria<TestEntity>>(json, _jsonOptions));
     }
 
@@ -671,7 +671,7 @@ public class EntityFilterCriteriaTests
         const string json = "{\"Filter\":\"   \"}";
 
         // Act & Assert
-        Assert.Throws<JsonException>(() => 
+        Assert.Throws<JsonException>(() =>
             JsonSerializer.Deserialize<EntityFilterCriteria<TestEntity>>(json, _jsonOptions));
     }
 
@@ -679,7 +679,7 @@ public class EntityFilterCriteriaTests
     public void JsonDeserialization_NullJsonString_ThrowsJsonException()
     {
         // Act & Assert
-        Assert.Throws<JsonException>(() => 
+        Assert.Throws<JsonException>(() =>
             JsonSerializer.Deserialize<EntityFilterCriteria<TestEntity>>("\"null\"", _jsonOptions));
     }
 
@@ -755,7 +755,7 @@ public class EntityFilterCriteriaTests
         stopwatch.Stop();
 
         // Assert - Should complete in reasonable time (less than 1 second for 1000 constructions)
-        Assert.True(stopwatch.ElapsedMilliseconds < 1000, 
+        Assert.True(stopwatch.ElapsedMilliseconds < 1000,
             $"Construction took too long: {stopwatch.ElapsedMilliseconds}ms");
     }
 
@@ -766,10 +766,10 @@ public class EntityFilterCriteriaTests
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "John" && x.Age > 18;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
         var entity = new TestEntity { Name = "John", Age = 25 };
-        
+
         // Warm up the filter compilation
         _ = criteria.FilterFunc;
-        
+
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         // Act
@@ -781,7 +781,7 @@ public class EntityFilterCriteriaTests
         stopwatch.Stop();
 
         // Assert - Should complete in reasonable time (less than 100ms for 10000 evaluations)
-        Assert.True(stopwatch.ElapsedMilliseconds < 100, 
+        Assert.True(stopwatch.ElapsedMilliseconds < 100,
             $"Matching took too long: {stopwatch.ElapsedMilliseconds}ms");
     }
 
@@ -845,9 +845,9 @@ public class EntityFilterCriteriaTests
     public void Constructor_WithVeryComplexExpression_HandlesCorrectly()
     {
         // Arrange
-        Expression<Func<ComplexTestEntity, bool>> expression = x => 
-            x.NullableAge.HasValue && 
-            x.NullableAge.Value > 18 && 
+        Expression<Func<ComplexTestEntity, bool>> expression = x =>
+            x.NullableAge.HasValue &&
+            x.NullableAge.Value > 18 &&
             x.NullableAge.Value < 65 &&
             x.CreatedDate > DateTime.MinValue &&
             x.CreatedDate < DateTime.MaxValue &&
@@ -898,15 +898,15 @@ public class EntityFilterCriteriaTests
         // Arrange - Create expressions with different parameter names but same logic
         var parameter1 = Expression.Parameter(typeof(TestEntity), "entity");
         var parameter2 = Expression.Parameter(typeof(TestEntity), "x");
-        
+
         var property1 = Expression.Property(parameter1, nameof(TestEntity.Name));
         var property2 = Expression.Property(parameter2, nameof(TestEntity.Name));
-        
+
         var constant = Expression.Constant("John");
-        
+
         var body1 = Expression.Equal(property1, constant);
         var body2 = Expression.Equal(property2, constant);
-        
+
         var expression1 = Expression.Lambda<Func<TestEntity, bool>>(body1, parameter1);
         var expression2 = Expression.Lambda<Func<TestEntity, bool>>(body2, parameter2);
 
@@ -952,9 +952,9 @@ public class EntityFilterCriteriaTests
             var invalidExpression = Expression.Lambda<Func<TestEntity, bool>>(body, parameter);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() => 
+            var exception = Assert.Throws<ArgumentException>(() =>
                 new EntityFilterCriteria<TestEntity>(invalidExpression));
-            
+
             Assert.Equal("filter", exception.ParamName);
             Assert.Contains("cannot be compiled", exception.Message);
         }

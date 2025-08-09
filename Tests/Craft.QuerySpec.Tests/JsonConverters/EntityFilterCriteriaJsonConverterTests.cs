@@ -33,14 +33,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "John";
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -59,7 +59,7 @@ public class EntityFilterCriteriaJsonConverterTests
         // Act
         _converter.Write(writer, null, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -74,9 +74,9 @@ public class EntityFilterCriteriaJsonConverterTests
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => 
+        var exception = Assert.Throws<ArgumentNullException>(() =>
             _converter.Write(null!, criteria, _jsonOptions));
-        
+
         Assert.Equal("writer", exception.ParamName);
     }
 
@@ -84,17 +84,17 @@ public class EntityFilterCriteriaJsonConverterTests
     public void Write_WithComplexExpression_CreatesValidJson()
     {
         // Arrange
-        Expression<Func<TestEntity, bool>> expression = x => 
+        Expression<Func<TestEntity, bool>> expression = x =>
             x.Age > 18 && x.Name.Contains("test") && x.IsActive;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -111,14 +111,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "John" && x.Age > 25;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -137,14 +137,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => x.Name == testValue;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -206,7 +206,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Expected StartObject token", exception.Message);
     }
@@ -229,7 +229,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Empty JSON object is not valid", exception.Message);
     }
@@ -252,7 +252,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Required property 'Filter' not found", exception.Message);
     }
@@ -275,7 +275,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Filter expression cannot be null", exception.Message);
     }
@@ -298,7 +298,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Filter expression must be a string", exception.Message);
     }
@@ -321,7 +321,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Filter expression cannot be empty or whitespace", exception.Message);
     }
@@ -344,7 +344,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Filter expression cannot be empty or whitespace", exception.Message);
     }
@@ -367,7 +367,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.Contains("Unable to parse filter expression", exception.Message);
     }
@@ -387,7 +387,7 @@ public class EntityFilterCriteriaJsonConverterTests
         Assert.NotNull(result);
         var matchingEntity = new TestEntity { Name = "John", Age = 25 };
         var nonMatchingEntity = new TestEntity { Name = "John", Age = 16 };
-        
+
         Assert.True(result.Matches(matchingEntity));
         Assert.False(result.Matches(nonMatchingEntity));
     }
@@ -461,7 +461,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
     }
 
@@ -483,7 +483,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         // Accept either .NET 6+ or older error message for incomplete JSON
         Assert.Contains("Expected depth to be zero at the end of t", exception.Message);
@@ -575,7 +575,7 @@ public class EntityFilterCriteriaJsonConverterTests
         {
             exception = ex;
         }
-        
+
         Assert.NotNull(exception);
         Assert.NotNull(exception.Message);
     }
@@ -586,17 +586,17 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange - Create a scenario that might cause serialization to fail
         // This is difficult to test directly since the SerializeFilterExpression method
         // is well-protected, but we can test the error handling path indirectly
-        
+
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "John";
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act - Normal case should work
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -620,11 +620,11 @@ public class EntityFilterCriteriaJsonConverterTests
 
         // Assert
         Assert.NotNull(deserializedCriteria);
-        
+
         var testEntity = new TestEntity { Name = "John", Age = 25 };
         Assert.True(originalCriteria.Matches(testEntity));
         Assert.True(deserializedCriteria.Matches(testEntity));
-        
+
         var nonMatchingEntity = new TestEntity { Name = "Jane", Age = 16 };
         Assert.False(originalCriteria.Matches(nonMatchingEntity));
         Assert.False(deserializedCriteria.Matches(nonMatchingEntity));
@@ -673,14 +673,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => true;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -729,16 +729,16 @@ public class EntityFilterCriteriaJsonConverterTests
     public void Write_WithLargeExpression_PerformsReasonably()
     {
         // Arrange
-        Expression<Func<TestEntity, bool>> expression = x => 
-            x.Name.Contains("test") && 
-            x.Age > 18 && 
-            x.Age < 100 && 
-            x.IsActive && 
+        Expression<Func<TestEntity, bool>> expression = x =>
+            x.Name.Contains("test") &&
+            x.Age > 18 &&
+            x.Age < 100 &&
+            x.IsActive &&
             !string.IsNullOrEmpty(x.Name) &&
             x.Name.Length > 3 &&
             x.Name.Length < 50;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
@@ -757,7 +757,7 @@ public class EntityFilterCriteriaJsonConverterTests
         stopwatch.Stop();
 
         // Assert
-        Assert.True(stopwatch.ElapsedMilliseconds < 1000, 
+        Assert.True(stopwatch.ElapsedMilliseconds < 1000,
             $"Serialization took too long: {stopwatch.ElapsedMilliseconds}ms");
     }
 
@@ -790,7 +790,7 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<ComplexTestEntity, bool>> expression = x => x.NullableAge.HasValue && x.NullableAge.Value > 18;
         var criteria = new EntityFilterCriteria<ComplexTestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
@@ -798,7 +798,7 @@ public class EntityFilterCriteriaJsonConverterTests
         var converterComplex = new EntityFilterCriteriaJsonConverter<ComplexTestEntity>();
         converterComplex.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -820,7 +820,7 @@ public class EntityFilterCriteriaJsonConverterTests
         Assert.NotNull(result);
         var matchingEntity = new TestEntity { Name = "John", Age = 25 };
         var nonMatchingEntity = new TestEntity { Name = "John", Age = 16 };
-        
+
         Assert.True(result.Matches(matchingEntity));
         Assert.False(result.Matches(nonMatchingEntity));
     }
@@ -831,14 +831,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => x.Name.StartsWith("Test") && x.Age > 21;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -887,19 +887,19 @@ public class EntityFilterCriteriaJsonConverterTests
     public void Write_WithComplexNestedExpression_SerializesCorrectly()
     {
         // Arrange
-        Expression<Func<TestEntity, bool>> expression = x => 
-            (x.Name.Contains("test") || x.Name.Contains("demo")) && 
-            x.Age >= 18 && x.Age <= 65 && 
+        Expression<Func<TestEntity, bool>> expression = x =>
+            (x.Name.Contains("test") || x.Name.Contains("demo")) &&
+            x.Age >= 18 && x.Age <= 65 &&
             x.IsActive;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -952,14 +952,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange - Test the regex pattern behavior
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "John" && x.Age > 18 && x.IsActive;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -976,19 +976,19 @@ public class EntityFilterCriteriaJsonConverterTests
     public void Write_WithMultipleParameterAccessors_RemovesAllCorrectly()
     {
         // Arrange - Test multiple parameter patterns
-        Expression<Func<TestEntity, bool>> expression = x => 
-            x.Name.StartsWith("Test") && 
+        Expression<Func<TestEntity, bool>> expression = x =>
+            x.Name.StartsWith("Test") &&
             x.Age.ToString().Contains("21") &&
             x.IsActive.ToString() == "True";
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert
@@ -1010,7 +1010,7 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "John";
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         // Act
         var json = JsonSerializer.Serialize(criteria, _jsonOptions);
 
@@ -1025,14 +1025,14 @@ public class EntityFilterCriteriaJsonConverterTests
         // Arrange - Test that the regex works as expected
         Expression<Func<TestEntity, bool>> expression = x => x.Name == "Test" && x.Age > 0;
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
-        
+
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         // Act
         _converter.Write(writer, criteria, _jsonOptions);
         writer.Flush();
-        
+
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         // Assert

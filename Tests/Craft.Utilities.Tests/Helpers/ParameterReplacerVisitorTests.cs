@@ -105,7 +105,8 @@ public class ParameterReplacerVisitorTests
         // Act & Assert
         var replaced = ParameterReplacerVisitor.Replace(expr.Body, oldParam, newParam);
         var lambda = Expression.Lambda<Func<int, Func<int, int>>>(replaced, newParam);
-        Assert.Throws<InvalidOperationException>(() => {
+        Assert.Throws<InvalidOperationException>(() =>
+        {
             var compiled = lambda.Compile();
             var inner = compiled(3);
             _ = inner(5);

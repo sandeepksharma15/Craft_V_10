@@ -15,6 +15,6 @@ public class GetPagedRequest<TKEY> : APIRequest<TKEY>
 
 public class GetPagedRequest : GetPagedRequest<KeyType>
 {
-    public GetPagedRequest(int currentPage = 1, int pageSize = 10, bool includeDetails = false) 
+    public GetPagedRequest(int currentPage = 1, int pageSize = 10, bool includeDetails = false)
         : base(currentPage, pageSize, includeDetails) { }
 }

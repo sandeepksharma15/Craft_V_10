@@ -118,7 +118,7 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         return result;
     }
 
-    public Task<long> GetCountAsync(CancellationToken cancellationToken = default) 
+    public Task<long> GetCountAsync(CancellationToken cancellationToken = default)
         => _store.GetCountAsync(cancellationToken);
 
     public Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)

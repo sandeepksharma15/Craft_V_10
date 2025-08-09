@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using Craft.QuerySpec;
-using Xunit;
+﻿using System.Linq.Expressions;
 
 namespace Craft.QuerySpec.Tests.Components;
 

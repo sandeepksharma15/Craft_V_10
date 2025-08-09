@@ -22,7 +22,7 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
 
     /// <summary>The JSON property name for the filter expression.</summary>
     private const string FilterPropertyName = "Filter";
-    
+
     /// <summary>Cached regex pattern for removing parameter accessors from expression strings.</summary>
     private static readonly Regex ParameterAccessorRegex = new(@"\((\w+)\.", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -116,10 +116,10 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
         try
         {
             writer.WriteStartObject();
-            
+
             var filterString = SerializeFilterExpression(value.Filter);
             writer.WriteString(FilterPropertyName, filterString);
-            
+
             writer.WriteEndObject();
         }
         catch (Exception ex) when (ex is not ArgumentNullException)
@@ -199,10 +199,10 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
         try
         {
             var expressionString = filterExpression.Body.ToString();
-            
+
             // Remove parameter accessor patterns (e.g., "(x." becomes "(")
             var cleanedExpression = ParameterAccessorRegex.Replace(expressionString, "(");
-            
+
             return cleanedExpression;
         }
         catch (Exception ex)
@@ -229,7 +229,7 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
                         depth++;
                     else if (reader.TokenType == JsonTokenType.EndObject)
                         depth--;
-while (depth > 0 && reader.Read());
+                while (depth > 0 && reader.Read());
                 break;
 
             case JsonTokenType.StartArray:
@@ -239,7 +239,7 @@ while (depth > 0 && reader.Read());
                         depth++;
                     else if (reader.TokenType == JsonTokenType.EndArray)
                         depth--;
-while (depth > 0 && reader.Read());
+                while (depth > 0 && reader.Read());
                 break;
 
             default:

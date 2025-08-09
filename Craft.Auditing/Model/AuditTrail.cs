@@ -120,7 +120,7 @@ public class AuditTrail : BaseEntity, IAuditTrail
 
             if (property.IsModified && !Equals(property.CurrentValue ?? string.Empty, property.OriginalValue ?? string.Empty))
             {
-                changedColumns.Add(dbColumnName ?? string.Empty );
+                changedColumns.Add(dbColumnName ?? string.Empty);
                 oldValues[propertyName] = property.OriginalValue ?? string.Empty;
                 newValues[propertyName] = property.CurrentValue ?? string.Empty;
             }

@@ -1,11 +1,11 @@
-﻿using Craft.Core;
+﻿using System.Linq.Expressions;
+using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec.Services;
 using Craft.TestDataStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Linq.Expressions;
 
 namespace Craft.QuerySpec.Tests.Services;
 

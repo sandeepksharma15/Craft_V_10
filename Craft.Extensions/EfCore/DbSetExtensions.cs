@@ -92,7 +92,7 @@ public static class DbSetExtensions
     /// <param name="navigationPropertyPath">An expression specifying the related entity to include.</param>
     /// <returns>The original queryable if <paramref name="condition"/> is <see langword="false"/>; otherwise, the queryable with
     /// the specified related entity included.</returns>
-    public static IQueryable<T> IncludeIf<T, TProperty>(this IQueryable<T> source, bool condition, 
+    public static IQueryable<T> IncludeIf<T, TProperty>(this IQueryable<T> source, bool condition,
         Expression<Func<T, TProperty>> navigationPropertyPath) where T : class
     {
         return condition ? source.Include(navigationPropertyPath) : source;

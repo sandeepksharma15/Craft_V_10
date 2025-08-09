@@ -16,7 +16,7 @@ public class FileUploadService
         long allowedSizeLimit = 10)
     {
         const int bufferSize = 16 * 1024; // 16 KB buffer size
-    
+
         byte[] buffer = new byte[bufferSize];
         long allowedFileSize = allowedSizeLimit * 1024 * 1024;
         long totalBytesRead = 0;
@@ -30,7 +30,7 @@ public class FileUploadService
 
         try
         {
-            using (var sourceStream = sourceFile.OpenReadStream( maxAllowedSize: allowedFileSize))
+            using (var sourceStream = sourceFile.OpenReadStream(maxAllowedSize: allowedFileSize))
             using (var destinationStream = new FileStream(destFilePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, useAsync: true))
             {
                 int bytesRead;

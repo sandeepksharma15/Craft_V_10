@@ -1,10 +1,9 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Craft.Core;
+using Craft.Core.Common;
 using Craft.Domain;
 using Microsoft.Extensions.Logging;
-using Craft.Core.Common;
-using Craft.Extensions.HttpResponse;
 
 namespace Craft.HttpServices.Services;
 
@@ -72,7 +71,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, 
+    public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize,
         bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));

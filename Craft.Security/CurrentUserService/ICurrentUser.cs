@@ -6,7 +6,7 @@ public interface ICurrentUser<TKey>
 {
     public TKey Id { get; }
 
-    public ClaimsPrincipal? GetUser(); 
+    public ClaimsPrincipal? GetUser();
 
     public string? Name { get; }
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Repositories;
 
-public interface IBaseRepository<T, TKey> : IRepository where T : class, IEntity<TKey>, new ()
+public interface IBaseRepository<T, TKey> : IRepository where T : class, IEntity<TKey>, new()
 {
     /// <summary>
     /// Returns the <see cref="DbContext"/> instance
@@ -31,4 +31,4 @@ public interface IBaseRepository<T, TKey> : IRepository where T : class, IEntity
     int SaveChanges();
 }
 
-public interface IBaseRepository<T> : IBaseRepository<T, KeyType> where T : class, IEntity, new ();
+public interface IBaseRepository<T> : IBaseRepository<T, KeyType> where T : class, IEntity, new();

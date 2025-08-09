@@ -1,5 +1,4 @@
 ﻿using Craft.TestDataStore.Models;
-using Xunit;
 
 namespace Craft.QuerySpec.Tests.Core;
 
