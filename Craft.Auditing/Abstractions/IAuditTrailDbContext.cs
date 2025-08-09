@@ -2,7 +2,7 @@
 
 namespace Craft.Auditing;
 
-public interface IHasAuditTrail
+public interface IAuditTrailDbContext
 {
     DbSet<AuditTrail> AuditTrails { get; set; }
 }

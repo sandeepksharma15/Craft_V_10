@@ -99,7 +99,7 @@ public class ContractTest
     }
 
     // Minimal DbContext for testing
-    private class TestAuditTrailContext : DbContext, IHasAuditTrail
+    private class TestAuditTrailContext : DbContext, IAuditTrailDbContext
     {
         public TestAuditTrailContext()
             : base(new DbContextOptionsBuilder<TestAuditTrailContext>()
@@ -111,7 +111,7 @@ public class ContractTest
     }
 
     // Test implementation of IHasAuditTrail
-    private class TestHasAuditTrail : IHasAuditTrail
+    private class TestHasAuditTrail : IAuditTrailDbContext
     {
         public DbSet<AuditTrail> AuditTrails { get; set; } = null!;
     }

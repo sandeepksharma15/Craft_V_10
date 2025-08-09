@@ -73,7 +73,7 @@ public class EfCoreStoreTests : TenantStoreTestBase, IDisposable
     }
 
     public class TestEfCoreStoreDbContext(DbContextOptions options) :
-        DbContext(options), ITenantStoreDbContext<Tenant>
+        DbContext(options), ITenantDbContext<Tenant>
     {
         public DbSet<Tenant> Tenants { get; set; } = null!; // Suppress CS8618 by using null-forgiving operator
     }

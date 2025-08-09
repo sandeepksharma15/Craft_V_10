@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Craft.MultiTenant.Stores;
 
 public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantStore<T>
-        where TStoreDbContext : DbContext, ITenantStoreDbContext<T>
+        where TStoreDbContext : DbContext, ITenantDbContext<T>
         where T : class, ITenant, IEntity, new()
 {
     internal readonly TStoreDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));

@@ -93,7 +93,7 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
     }
 
     public TenantBuilder<T> WithEfCoreStore<TEfCoreStoreDbContext>()
-        where TEfCoreStoreDbContext : DbContext, ITenantStoreDbContext<T>
+        where TEfCoreStoreDbContext : DbContext, ITenantDbContext<T>
     {
         _services.AddDbContext<TEfCoreStoreDbContext>();
         return WithStore<DbStore<TEfCoreStoreDbContext, T>>(ServiceLifetime.Scoped);

@@ -2,7 +2,7 @@
 
 namespace Craft.Data;
 
-public interface IDbSetup
+public interface IMultiTenantDbSetup
 {
     Task SetupAppDbAsync(ITenant tenant, CancellationToken cancellationToken);
 
