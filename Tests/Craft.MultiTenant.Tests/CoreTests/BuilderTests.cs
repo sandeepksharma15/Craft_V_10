@@ -1,5 +1,5 @@
 ﻿using Craft.Core;
-using Craft.Data.Abstractions;
+using Craft.Data;
 using Craft.Domain;
 using Craft.MultiTenant.Stores;
 using Craft.Repositories;

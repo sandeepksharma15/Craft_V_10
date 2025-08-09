@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Craft.Data.Abstractions;
+namespace Craft.Data;
 
 /// <summary>
 /// Represents a contract for a database context that provides access to entity sets,  change tracking, and database

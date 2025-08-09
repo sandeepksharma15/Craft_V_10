@@ -1,5 +1,4 @@
 ﻿using Craft.Core;
-using Craft.Data.Abstractions;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -115,8 +114,8 @@ public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantSto
             .LongCountAsync(cancellationToken);
     }
 
-    public virtual Task<IDbContext> GetDbContextAsync() 
-        => Task.FromResult((IDbContext)_dbContext);
+    public virtual Task<DbContext> GetDbContextAsync() 
+        => Task.FromResult((DbContext)_dbContext);
 
     public virtual Task<DbSet<T>> GetDbSetAsync()
         => Task.FromResult(_dbContext.Tenants);

@@ -1,5 +1,5 @@
 ﻿using Craft.Core;
-using Craft.Data.Abstractions;
+using Craft.Data;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

@@ -15,4 +15,8 @@
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.5.25277.114" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+	</ItemGroup>
+
 </Project>

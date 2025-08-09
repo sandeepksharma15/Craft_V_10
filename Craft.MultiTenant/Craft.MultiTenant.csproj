@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
-    <ProjectReference Include="..\Craft.Data\Craft.Data.csproj" />
     <ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
     <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
     <ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />

@@ -1,4 +1,4 @@
-﻿using Craft.Data.Abstractions;
+﻿using Craft.Data;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
