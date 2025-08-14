@@ -6,6 +6,7 @@ namespace Craft.KeySafe;
 public class KeySafeApp
 {
     private readonly IKeySafeService _keySafeService;
+
     public KeySafeApp(IKeySafeService? keySafeService = null)
     {
         _keySafeService = keySafeService ?? new KeySafeService();
