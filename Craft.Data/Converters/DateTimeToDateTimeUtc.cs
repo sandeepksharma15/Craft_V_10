@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Craft.Data.Converters;
+namespace Craft.Data;
 
 /// <summary>
 /// Value converter for ensuring all <see cref="DateTime"/> values are treated as UTC when stored or retrieved from the database.
