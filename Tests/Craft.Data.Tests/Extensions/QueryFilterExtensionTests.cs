@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Craft.Domain;
+using Craft.MultiTenant;
 using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -173,6 +174,160 @@ public class QueryFilterExtensionTests
         Assert.Single(nosoft);
     }
 
+    // 8) AddGlobalSoftDeleteFilter applies once and filters data
+    [Fact]
+    public void AddGlobalSoftDeleteFilter_Applies_And_DoesNot_Duplicate()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<SoftDeleteDbContext2>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        using var ctx = new SoftDeleteDbContext2(options);
+        ctx.Database.EnsureCreated();
+
+        // Seed
+        ctx.Companies!.Add(new Company { Id = 1, Name = "A", CountryId = 1, IsDeleted = false });
+        ctx.Companies!.Add(new Company { Id = 2, Name = "B", CountryId = 1, IsDeleted = true });
+        ctx.SaveChanges();
+
+        // Act
+        var visible = ctx.Companies!.AsNoTracking().OrderBy(x => x.Id).ToList();
+        var entityType = ctx.Model.FindEntityType(typeof(Company))!;
+        var filters = entityType.GetDeclaredQueryFilters();
+
+        // Assert: Only non-deleted visible, and exactly one named filter registered
+        Assert.Single(visible);
+        Assert.Single(filters);
+        Assert.Contains(filters, f => f.Key == QueryFilterExtension.SoftDeleteFilterName);
+    }
+
+    // 9) IncludeSoftDeleted returns deleted rows when soft-delete filter is active
+    [Fact]
+    public void IncludeSoftDeleted_Returns_Deleted_Rows()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<SoftDeleteDbContext2>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        using var ctx = new SoftDeleteDbContext2(options);
+        ctx.Database.EnsureCreated();
+        ctx.Companies!.Add(new Company { Id = 1, Name = "A", CountryId = 1, IsDeleted = false });
+        ctx.Companies!.Add(new Company { Id = 2, Name = "B", CountryId = 1, IsDeleted = true });
+        ctx.SaveChanges();
+
+        // Act
+        var onlyActive = ctx.Companies!.AsNoTracking().OrderBy(x => x.Id).ToList();
+        var withDeleted = QueryFilterExtension.IncludeSoftDeleted(ctx.Companies!.AsNoTracking()).OrderBy(x => x.Id).ToList();
+
+        // Assert
+        Assert.Single(onlyActive);
+        Assert.Equal(2, withDeleted.Count);
+        Assert.Equal(2, withDeleted[1].Id);
+    }
+
+    // 10) AddGlobalTenantFilter applies and filters by current tenant
+    [Fact]
+    public void AddGlobalTenantFilter_Applies_And_Filters_By_Tenant()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        var options = new DbContextOptionsBuilder<TenantFilterDbContext>().UseInMemoryDatabase(dbName).Options;
+        var currentTenant = new FakeCurrentTenant { Id = 1 };
+
+        using var ctx = new TenantFilterDbContext(options, currentTenant);
+        ctx.Database.EnsureCreated();
+        ctx.TenantEntities!.AddRange([
+            new TenantEntity { Id = 1, Name = "T1A", TenantId = 1 },
+            new TenantEntity { Id = 2, Name = "T1B", TenantId = 1 },
+            new TenantEntity { Id = 3, Name = "T2A", TenantId = 2 }
+        ]);
+        ctx.SaveChanges();
+
+        // Act
+        var visible = ctx.TenantEntities!.AsNoTracking().OrderBy(x => x.Id).ToList();
+        var entityType = ctx.Model.FindEntityType(typeof(TenantEntity))!;
+        var filters = entityType.GetDeclaredQueryFilters();
+
+        // Assert: Only tenant 1 visible, and one named tenant filter applied
+        Assert.Equal(2, visible.Count);
+        Assert.All(visible, v => Assert.Equal(1, v.TenantId));
+        Assert.Single(filters);
+        Assert.Contains(filters, f => f.Key == QueryFilterExtension.TenantFilterName);
+    }
+
+    // 11) IncludeAllTenants ignores tenant filter
+    [Fact]
+    public void IncludeAllTenants_Returns_All_Tenants()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        var options = new DbContextOptionsBuilder<TenantFilterDbContext>().UseInMemoryDatabase(dbName).Options;
+        var currentTenant = new FakeCurrentTenant { Id = 1 };
+
+        using var ctx = new TenantFilterDbContext(options, currentTenant);
+        ctx.Database.EnsureCreated();
+        ctx.TenantEntities!.AddRange([
+            new TenantEntity { Id = 1, Name = "T1A", TenantId = 1 },
+            new TenantEntity { Id = 2, Name = "T2A", TenantId = 2 }
+        ]);
+        ctx.SaveChanges();
+
+        // Act
+        var withFilter = ctx.TenantEntities!.AsNoTracking().ToList();
+        var allTenants = ctx.TenantEntities!.AsNoTracking().IncludeAllTenants().OrderBy(x => x.Id).ToList();
+
+        // Assert
+        Assert.Single(withFilter);
+        Assert.Equal(2, allTenants.Count);
+    }
+
+    // 12) IncludeAllTenantsAndSoftDelete ignores both filters
+    [Fact]
+    public void IncludeAllTenantsAndSoftDelete_Returns_All_Rows()
+    {
+        // Arrange
+        var dbName = Guid.NewGuid().ToString();
+        var options = new DbContextOptionsBuilder<TenantAndSoftDeleteDbContext>().UseInMemoryDatabase(dbName).Options;
+        var currentTenant = new FakeCurrentTenant { Id = 1 };
+
+        using var ctx = new TenantAndSoftDeleteDbContext(options, currentTenant);
+        ctx.Database.EnsureCreated();
+        ctx.TenantSoftDeleteEntities!.AddRange([
+            new TenantSoftDeleteEntity { Id = 1, Name = "A", TenantId = 1, IsDeleted = false },
+            new TenantSoftDeleteEntity { Id = 2, Name = "B", TenantId = 1, IsDeleted = true },
+            new TenantSoftDeleteEntity { Id = 3, Name = "C", TenantId = 2, IsDeleted = false },
+            new TenantSoftDeleteEntity { Id = 4, Name = "D", TenantId = 2, IsDeleted = true }
+        ]);
+        ctx.SaveChanges();
+
+        // Act
+        var withFilters = ctx.TenantSoftDeleteEntities!.AsNoTracking().OrderBy(x => x.Id).ToList();
+        var allIgnored = ctx.TenantSoftDeleteEntities!.AsNoTracking().IncludeAllTenantsAndSoftDelete().OrderBy(x => x.Id).ToList();
+
+        // Assert: With filters -> only tenant 1 and not deleted
+        Assert.Single(withFilters);
+        Assert.Equal(1, withFilters[0].Id);
+
+        // All ignored -> all 4
+        Assert.Equal(4, allIgnored.Count);
+        Assert.Equal(4, allIgnored[^1].Id);
+    }
+
+    // 13) Include* helpers throw on null query
+    [Fact]
+    public void IncludeSoftDeleted_Throws_On_Null_Query()
+    {
+        Assert.Null(QueryFilterExtension.IncludeSoftDeleted<Company>(null!));
+    }
+
+    [Fact]
+    public void IncludeAllTenants_Throws_On_Null_Query()
+    {
+        Assert.Null(QueryFilterExtension.IncludeAllTenants<TenantEntity>(null!));
+    }
+
+    [Fact]
+    public void IncludeAllTenantsAndSoftDelete_Throws_On_Null_Query()
+    {
+        Assert.Null(QueryFilterExtension.IncludeAllTenantsAndSoftDelete<TenantSoftDeleteEntity>(null!));
+    }
+
     // Test DbContexts
     private class NoFilterDbContext : DbContext
     {
@@ -224,6 +379,95 @@ public class QueryFilterExtensionTests
             // Register the same named filter twice; second call should be ignored for each entity
             modelBuilder.AddGlobalQueryFilter<ISoftDelete>(SoftDeleteFilterName, e => !e.IsDeleted);
             modelBuilder.AddGlobalQueryFilter<ISoftDelete>(SoftDeleteFilterName, e => !e.IsDeleted);
+        }
+    }
+
+    // DbContext using AddGlobalSoftDeleteFilter
+    private class SoftDeleteDbContext2 : DbContext
+    {
+        public SoftDeleteDbContext2(DbContextOptions<SoftDeleteDbContext2> options) : base(options) { }
+
+        public DbSet<Company>? Companies { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.AddGlobalSoftDeleteFilter();
+            // Call twice to ensure no-duplicate behavior
+            modelBuilder.AddGlobalSoftDeleteFilter();
+        }
+    }
+
+    // Tenant-only entity for tenant filter tests
+    private class TenantEntity : IHasTenant
+    {
+        public KeyType Id { get; set; }
+        public string? Name { get; set; }
+        public KeyType TenantId { get; set; }
+    }
+
+    // Tenant + SoftDelete entity for combined filter tests
+    private class TenantSoftDeleteEntity : IHasTenant, ISoftDelete
+    {
+        public KeyType Id { get; set; }
+        public string? Name { get; set; }
+        public KeyType TenantId { get; set; }
+        public bool IsDeleted { get; set; }
+    }
+
+    // Fake current tenant implementation
+    private class FakeCurrentTenant : ICurrentTenant
+    {
+        public KeyType Id { get; set; }
+        public string AdminEmail { get; set; } = string.Empty;
+        public string ConnectionString { get; set; } = string.Empty;
+        public string DbProvider { get; set; } = string.Empty;
+        public string Identifier { get; set; } = string.Empty;
+        public string LogoUri { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public TenantType Type { get; set; } = TenantType.Tenant;
+        public DateTime ValidUpTo { get; set; } = DateTime.UtcNow.AddMonths(1);
+        public bool IsDeleted { get; set; }
+        public string? ConcurrencyStamp { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    // DbContext using AddGlobalTenantFilter
+    private class TenantFilterDbContext : DbContext
+    {
+        private readonly ICurrentTenant currentTenant;
+
+        public TenantFilterDbContext(DbContextOptions<TenantFilterDbContext> options, ICurrentTenant currentTenant) : base(options)
+        {
+            this.currentTenant = currentTenant;
+        }
+
+        public DbSet<TenantEntity>? TenantEntities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.AddGlobalTenantFilter(currentTenant);
+        }
+    }
+
+    // DbContext with both tenant and soft-delete filters
+    private class TenantAndSoftDeleteDbContext : DbContext
+    {
+        private readonly ICurrentTenant currentTenant;
+
+        public TenantAndSoftDeleteDbContext(DbContextOptions<TenantAndSoftDeleteDbContext> options, ICurrentTenant currentTenant) : base(options)
+        {
+            this.currentTenant = currentTenant;
+        }
+
+        public DbSet<TenantSoftDeleteEntity>? TenantSoftDeleteEntities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.AddGlobalTenantFilter(currentTenant);
+            modelBuilder.AddGlobalSoftDeleteFilter();
         }
     }
 }

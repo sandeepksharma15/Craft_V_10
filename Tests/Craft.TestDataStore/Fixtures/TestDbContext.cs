@@ -12,6 +12,7 @@ public class TestDbContext : IdentityDbContext<TestUser, TestRole, int>, IDbCont
     public DbSet<Company>? Companies { get; set; }
     public DbSet<Country>? Countries { get; set; }
     public DbSet<Store>? Stores { get; set; }
+    public DbSet<TenantEntity>? TenantEntities { get; set; }
 
     public DbSet<NoSoftDeleteEntity>? NoSoftDeleteEntities { get; set; }
 
@@ -24,5 +25,6 @@ public class TestDbContext : IdentityDbContext<TestUser, TestRole, int>, IDbCont
         _ = builder.Entity<Country>().HasData(CountrySeed.Get());
         _ = builder.Entity<Company>().HasData(CompanySeed.Get());
         _ = builder.Entity<Store>().HasData(StoreSeed.Get());
+        _ = builder.Entity<TenantEntity>().HasData(TenantEntitySeed.Get());
     }
 }

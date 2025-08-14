@@ -73,27 +73,30 @@ public static class QueryFilterExtension
     /// <summary>
     /// Includes soft-deleted entities.
     /// </summary>
-    public static IQueryable<T> IncludeSoftDeleted<T>(this IQueryable<T> query) where T : class, ISoftDelete
+    public static IQueryable<T>? IncludeSoftDeleted<T>(this IQueryable<T> query) where T : class, ISoftDelete
     {
-        ArgumentNullException.ThrowIfNull(query);
+        if (query is null) return null;
+
         return query.IgnoreQueryFilters([SoftDeleteFilterName]);
     }
 
     /// <summary>
     /// Includes all tenants.
     /// </summary>
-    public static IQueryable<T> IncludeAllTenants<T>(this IQueryable<T> query) where T : class, IHasTenant
+    public static IQueryable<T>? IncludeAllTenants<T>(this IQueryable<T> query) where T : class, IHasTenant
     {
-        ArgumentNullException.ThrowIfNull(query);
+        if (query is null) return null;
+
         return query.IgnoreQueryFilters([TenantFilterName]);
     }
 
     /// <summary>
     /// Includes all tenants and soft-deleted entities.
     /// </summary>
-    public static IQueryable<T> IncludeAllTenantsAndSoftDelete<T>(this IQueryable<T> query) where T : class, IHasTenant, ISoftDelete
+    public static IQueryable<T>? IncludeAllTenantsAndSoftDelete<T>(this IQueryable<T> query) where T : class, IHasTenant, ISoftDelete
     {
-        ArgumentNullException.ThrowIfNull(query);
+        if (query is null) return null;
+
         return query.IgnoreQueryFilters([TenantFilterName, SoftDeleteFilterName]);
     }
 }
