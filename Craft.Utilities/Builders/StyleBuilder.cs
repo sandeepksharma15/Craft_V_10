@@ -188,11 +188,8 @@ public struct StyleBuilder
 
 public static class StyleBuilderExtensions
 {
-    extension(StyleBuilder styleBuilder)
-    {
-        public string? NullIfEmpty()
-            => string.IsNullOrWhiteSpace(styleBuilder.Build())
-                ? null
-                : styleBuilder.Build();
-    }
+    public static string? NullIfEmpty(this StyleBuilder styleBuilder)
+        => string.IsNullOrWhiteSpace(styleBuilder.Build())
+            ? null
+            : styleBuilder.Build();
 }

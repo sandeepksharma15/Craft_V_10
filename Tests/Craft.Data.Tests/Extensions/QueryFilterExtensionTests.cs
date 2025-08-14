@@ -213,12 +213,12 @@ public class QueryFilterExtensionTests
 
         // Act
         var onlyActive = ctx.Companies!.AsNoTracking().OrderBy(x => x.Id).ToList();
-        var withDeleted = QueryFilterExtension.IncludeSoftDeleted(ctx.Companies!.AsNoTracking()).OrderBy(x => x.Id).ToList();
+        var withDeleted = QueryFilterExtension.IncludeSoftDeleted(ctx.Companies!.AsNoTracking())?.OrderBy(x => x.Id).ToList();
 
         // Assert
         Assert.Single(onlyActive);
-        Assert.Equal(2, withDeleted.Count);
-        Assert.Equal(2, withDeleted[1].Id);
+        Assert.Equal(2, withDeleted?.Count);
+        Assert.Equal(2, withDeleted?[1].Id);
     }
 
     // 10) AddGlobalTenantFilter applies and filters by current tenant
@@ -270,11 +270,11 @@ public class QueryFilterExtensionTests
 
         // Act
         var withFilter = ctx.TenantEntities!.AsNoTracking().ToList();
-        var allTenants = ctx.TenantEntities!.AsNoTracking().IncludeAllTenants().OrderBy(x => x.Id).ToList();
+        var allTenants = ctx.TenantEntities!.AsNoTracking().IncludeAllTenants()?.OrderBy(x => x.Id).ToList();
 
         // Assert
         Assert.Single(withFilter);
-        Assert.Equal(2, allTenants.Count);
+        Assert.Equal(2, allTenants?.Count);
     }
 
     // 12) IncludeAllTenantsAndSoftDelete ignores both filters
@@ -298,15 +298,15 @@ public class QueryFilterExtensionTests
 
         // Act
         var withFilters = ctx.TenantSoftDeleteEntities!.AsNoTracking().OrderBy(x => x.Id).ToList();
-        var allIgnored = ctx.TenantSoftDeleteEntities!.AsNoTracking().IncludeAllTenantsAndSoftDelete().OrderBy(x => x.Id).ToList();
+        var allIgnored = ctx.TenantSoftDeleteEntities!.AsNoTracking().IncludeAllTenantsAndSoftDelete()?.OrderBy(x => x.Id).ToList();
 
         // Assert: With filters -> only tenant 1 and not deleted
         Assert.Single(withFilters);
         Assert.Equal(1, withFilters[0].Id);
 
         // All ignored -> all 4
-        Assert.Equal(4, allIgnored.Count);
-        Assert.Equal(4, allIgnored[^1].Id);
+        Assert.Equal(4, allIgnored?.Count);
+        Assert.Equal(4, allIgnored?[^1].Id);
     }
 
     // 13) Include* helpers throw on null query

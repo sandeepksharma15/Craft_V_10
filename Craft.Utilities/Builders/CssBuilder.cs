@@ -60,11 +60,8 @@ public readonly struct CssBuilder(string value)
 
 public static class CssBuilderExtensions
 {
-    extension(CssBuilder cssBuilder)
-    {
-        public string? NullIfEmpty()
-            => string.IsNullOrWhiteSpace(cssBuilder.Build())
-                ? null
-                : cssBuilder.Build();
-    }
+    public static string? NullIfEmpty(this CssBuilder cssBuilder)
+        => string.IsNullOrWhiteSpace(cssBuilder.Build())
+            ? null
+            : cssBuilder.Build();
 }

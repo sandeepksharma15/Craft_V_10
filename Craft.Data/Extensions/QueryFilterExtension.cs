@@ -14,7 +14,8 @@ public static class QueryFilterExtension
     /// <summary>
     /// Adds a global query filter to all entities in the model that implement the specified interface type.
     /// </summary>
-    public static ModelBuilder AddGlobalQueryFilter<T>(this ModelBuilder modelBuilder, string filterName, Expression<Func<T, bool>> filter)
+    public static ModelBuilder AddGlobalQueryFilter<T>(this ModelBuilder modelBuilder, string filterName, 
+        Expression<Func<T, bool>> filter)
     {
         if (typeof(T).IsInterface == false)
             throw new ArgumentException("Type argument must be an interface.", nameof(T));
@@ -73,7 +74,7 @@ public static class QueryFilterExtension
     /// <summary>
     /// Includes soft-deleted entities.
     /// </summary>
-    public static IQueryable<T>? IncludeSoftDeleted<T>(this IQueryable<T> query) where T : class, ISoftDelete
+    public static IQueryable<T>? IncludeSoftDeleted<T>(this IQueryable<T> query) where T : class, ISoftDelete, new()
     {
         if (query is null) return null;
 
@@ -83,7 +84,7 @@ public static class QueryFilterExtension
     /// <summary>
     /// Includes all tenants.
     /// </summary>
-    public static IQueryable<T>? IncludeAllTenants<T>(this IQueryable<T> query) where T : class, IHasTenant
+    public static IQueryable<T>? IncludeAllTenants<T>(this IQueryable<T> query) where T : class, IHasTenant, new()
     {
         if (query is null) return null;
 
@@ -93,7 +94,8 @@ public static class QueryFilterExtension
     /// <summary>
     /// Includes all tenants and soft-deleted entities.
     /// </summary>
-    public static IQueryable<T>? IncludeAllTenantsAndSoftDelete<T>(this IQueryable<T> query) where T : class, IHasTenant, ISoftDelete
+    public static IQueryable<T>? IncludeAllTenantsAndSoftDelete<T>(this IQueryable<T> query) 
+        where T : class, IHasTenant, ISoftDelete, new()
     {
         if (query is null) return null;
 
