@@ -21,7 +21,18 @@ public static class DbSetExtensions
 
         var model = dbSet.GetService<IModel>();
         var entityType = model.FindEntityType(typeof(T));
-        return entityType?.GetQueryFilter() as Expression<Func<T, bool>>;
+
+        // Use GetDeclaredQueryFilters() instead of the obsolete GetQueryFilter()
+        // GetDeclaredQueryFilters() returns IReadOnlyCollection<IQueryFilter>
+        // We return the first filter's expression if any exist
+        var declaredFilters = entityType?.GetDeclaredQueryFilters();
+
+        if (declaredFilters == null || declaredFilters.Count == 0)
+            return null;
+
+        return declaredFilters.FirstOrDefault() is { Expression: Expression<Func<T, bool>> expr } 
+            ? expr 
+            : null;
     }
 
     /// <summary>
@@ -34,6 +45,7 @@ public static class DbSetExtensions
     public static IQueryable<T> IncludeDetails<T>(this IQueryable<T> source, bool includeDetails) where T : class
     {
         ArgumentNullException.ThrowIfNull(source);
+
         return includeDetails ? source : source.IgnoreAutoIncludes();
     }
 
@@ -52,6 +64,7 @@ public static class DbSetExtensions
         ArgumentNullException.ThrowIfNull(condition);
 
         var queryFilter = dbSet.GetQueryFilter();
+
         if (queryFilter == null)
             return dbSet.IgnoreQueryFilters();
 
@@ -77,6 +90,7 @@ public static class DbSetExtensions
     public static IQueryable<T> ApplyQueryFilter<T>(this IQueryable<T> source, DbSet<T> dbSet) where T : class
     {
         var filter = dbSet.GetQueryFilter();
+
         return filter != null ? source.Where(filter) : source;
     }
 
