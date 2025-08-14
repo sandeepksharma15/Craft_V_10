@@ -5,7 +5,7 @@ namespace Craft.Exceptions.Security;
 public class ForbiddenException : CraftException
 {
     public ForbiddenException(string message)
-        : base(message, null, HttpStatusCode.Forbidden) { }
+        : base(message, (List<string>?)null, HttpStatusCode.Forbidden) { }
 
     public ForbiddenException() { }
 

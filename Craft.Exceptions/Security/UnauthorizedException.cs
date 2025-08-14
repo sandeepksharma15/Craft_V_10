@@ -5,7 +5,7 @@ namespace Craft.Exceptions.Security;
 public class UnauthorizedException : CraftException
 {
     public UnauthorizedException(string message)
-        : base(message, null, HttpStatusCode.Unauthorized) { }
+        : base(message, (List<string>?)null, HttpStatusCode.Unauthorized) { }
 
     public UnauthorizedException() { }
 

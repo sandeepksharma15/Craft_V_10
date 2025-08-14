@@ -5,7 +5,7 @@ namespace Craft.Exceptions;
 public class NotFoundException : CraftException
 {
     public NotFoundException(string message)
-        : base(message, null, HttpStatusCode.NotFound) { }
+        : base(message, (List<string>?)null, HttpStatusCode.NotFound) { }
 
     public NotFoundException() { }
 
