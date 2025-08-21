@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Craft.TestDataStore.Fixtures;
 
-public class TestDbContext : IdentityDbContext<TestUser, TestRole, int>, IDbContext
+public class TestDbContext : DbContext, IDbContext
 {
     public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
 
@@ -18,8 +18,6 @@ public class TestDbContext : IdentityDbContext<TestUser, TestRole, int>, IDbCont
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
-
         builder.Entity<Country>().Navigation(c => c.Companies).AutoInclude();
 
         _ = builder.Entity<Country>().HasData(CountrySeed.Get());
