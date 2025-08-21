@@ -11,11 +11,15 @@ public static class QueryFilterExtension
     public const string SoftDeleteFilterName = nameof(ISoftDelete);
     public const string TenantFilterName = nameof(IHasTenant);
 
+    // Cache filter name arrays to avoid repeated allocations
+    private static readonly string[] s_softDeleteOnly = [SoftDeleteFilterName];
+    private static readonly string[] s_tenantOnly = [TenantFilterName];
+    private static readonly string[] s_tenantAndSoftDelete = [TenantFilterName, SoftDeleteFilterName];
+
     /// <summary>
     /// Adds a global query filter to all entities in the model that implement the specified interface type.
     /// </summary>
-    public static ModelBuilder AddGlobalQueryFilter<T>(this ModelBuilder modelBuilder, string filterName, 
-        Expression<Func<T, bool>> filter)
+    public static ModelBuilder AddGlobalQueryFilter<T>(this ModelBuilder modelBuilder, string filterName, Expression<Func<T, bool>> filter)
     {
         if (typeof(T).IsInterface == false)
             throw new ArgumentException("Type argument must be an interface.", nameof(T));
@@ -33,23 +37,20 @@ public static class QueryFilterExtension
 
         foreach (var entity in entities)
         {
+            var builder = modelBuilder.Entity(entity);
+
             // Get existing named query filters
-            var declaredFilters = modelBuilder
-                .Entity(entity)
-                .Metadata
-                .GetDeclaredQueryFilters();
+            var declaredFilters = builder.Metadata.GetDeclaredQueryFilters();
 
             // Skip if a filter with the specified name already exists
             if (declaredFilters.Any(f => f.Key == filterName))
                 continue;
 
             var parameter = Expression.Parameter(entity, "e");
-            var filterBody = ReplacingExpressionVisitor.Replace(filter.Parameters.Single(), parameter, filter.Body);
+            var filterBody = ReplacingExpressionVisitor.Replace(filter.Parameters[0], parameter, filter.Body);
 
             // Apply the query filter
-            modelBuilder
-                .Entity(entity)
-                .HasQueryFilter(filterName, Expression.Lambda(filterBody, parameter));
+            builder.HasQueryFilter(filterName, Expression.Lambda(filterBody, parameter));
         }
 
         return modelBuilder;
@@ -59,46 +60,30 @@ public static class QueryFilterExtension
     /// Excludes entities where IsDeleted is true.
     /// </summary>
     public static ModelBuilder AddGlobalSoftDeleteFilter(this ModelBuilder modelBuilder)
-    {
-        return modelBuilder.AddGlobalQueryFilter<ISoftDelete>(SoftDeleteFilterName, e => !e.IsDeleted);
-    }
+        => modelBuilder.AddGlobalQueryFilter<ISoftDelete>(SoftDeleteFilterName, e => !e.IsDeleted);
 
     /// <summary>
     /// Includes only entities matching the current tenant's ID.
     /// </summary>
     public static ModelBuilder AddGlobalTenantFilter(this ModelBuilder modelBuilder, ICurrentTenant currentTenant)
-    {
-        return modelBuilder.AddGlobalQueryFilter<IHasTenant>(TenantFilterName, e => e.TenantId == currentTenant.Id);
-    }
+        => modelBuilder.AddGlobalQueryFilter<IHasTenant>(TenantFilterName, e => e.TenantId == currentTenant.Id);
 
     /// <summary>
     /// Includes soft-deleted entities.
     /// </summary>
-    public static IQueryable<T>? IncludeSoftDeleted<T>(this IQueryable<T> query) where T : class, ISoftDelete, new()
-    {
-        if (query is null) return null;
-
-        return query.IgnoreQueryFilters([SoftDeleteFilterName]);
-    }
+    public static IQueryable<T>? IncludeSoftDeleted<T>(this IQueryable<T> query) where T : class, ISoftDelete
+        => query?.IgnoreQueryFilters(s_softDeleteOnly);
 
     /// <summary>
     /// Includes all tenants.
     /// </summary>
-    public static IQueryable<T>? IncludeAllTenants<T>(this IQueryable<T> query) where T : class, IHasTenant, new()
-    {
-        if (query is null) return null;
-
-        return query.IgnoreQueryFilters([TenantFilterName]);
-    }
+    public static IQueryable<T>? IncludeAllTenants<T>(this IQueryable<T> query) where T : class, IHasTenant
+        => query?.IgnoreQueryFilters(s_tenantOnly);
 
     /// <summary>
     /// Includes all tenants and soft-deleted entities.
     /// </summary>
-    public static IQueryable<T>? IncludeAllTenantsAndSoftDelete<T>(this IQueryable<T> query) 
-        where T : class, IHasTenant, ISoftDelete, new()
-    {
-        if (query is null) return null;
-
-        return query.IgnoreQueryFilters([TenantFilterName, SoftDeleteFilterName]);
-    }
+    public static IQueryable<T>? IncludeAllTenantsAndSoftDelete<T>(this IQueryable<T> query)
+        where T : class, IHasTenant, ISoftDelete
+        => query?.IgnoreQueryFilters(s_tenantAndSoftDelete);
 }

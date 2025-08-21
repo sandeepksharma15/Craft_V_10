@@ -9,8 +9,8 @@ public class DatabaseOptions : IValidatableObject
     public int CommandTimeout { get; set; } = 30;
     public string ConnectionString { get; set; } = string.Empty;
     public string DbProvider { get; set; } = string.Empty;
-    public bool EnableDetailedErrors { get; set; }
-    public bool EnableSensitiveDataLogging { get; set; }
+    public bool EnableDetailedErrors { get; set; } = false;
+    public bool EnableSensitiveDataLogging { get; set; } = false;
     public int MaxRetryCount { get; set; } = 3;
     public int MaxRetryDelay { get; set; } = 15;
 
