@@ -2,8 +2,6 @@
 
 public class MySqlConnectionStringHandler : IConnectionStringHandler
 {
-    private const string HiddenValueDefault = "*******";
-
     public string Build(DatabaseOptions options)
     {
         throw new NotImplementedException();

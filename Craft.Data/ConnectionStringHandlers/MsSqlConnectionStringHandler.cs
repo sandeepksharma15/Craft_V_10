@@ -7,8 +7,6 @@ namespace Craft.Data;
 /// </summary>
 public sealed class MsSqlConnectionStringHandler : IConnectionStringHandler
 {
-    private const string HiddenValueDefault = "*******";
-
     /// <summary>
     /// Builds a normalized SQL Server connection string applying the provided <see cref="DatabaseOptions"/>.
     /// </summary>
@@ -57,10 +55,10 @@ public sealed class MsSqlConnectionStringHandler : IConnectionStringHandler
             if (!builder.IntegratedSecurity)
             {
                 // Always mask the password (even if empty) to avoid revealing absence vs presence
-                builder.Password = HiddenValueDefault;
+                builder.Password = IConnectionStringHandler.HiddenValueDefault;
 
                 if (!string.IsNullOrEmpty(builder.UserID))
-                    builder.UserID = HiddenValueDefault;
+                    builder.UserID = IConnectionStringHandler.HiddenValueDefault;
             }
 
             return builder.ConnectionString;

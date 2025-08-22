@@ -7,8 +7,6 @@ namespace Craft.Data;
 /// </summary>
 public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
 {
-    private const string HiddenValueDefault = "*******";
-
     /// <summary>
     /// Builds a normalized PostgreSQL connection string using provided options.
     /// </summary>
@@ -53,10 +51,10 @@ public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
             var builder = new NpgsqlConnectionStringBuilder(connectionString);
 
             if (!string.IsNullOrEmpty(builder.Username))
-                builder.Username = HiddenValueDefault;
+                builder.Username = IConnectionStringHandler.HiddenValueDefault;
 
             // Always mask the password (even if empty) to avoid revealing absence vs presence
-            builder.Password = HiddenValueDefault;
+            builder.Password = IConnectionStringHandler.HiddenValueDefault;
 
             return builder.ConnectionString;
         }
