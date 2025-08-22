@@ -55,8 +55,8 @@ public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
             if (!string.IsNullOrEmpty(builder.Username))
                 builder.Username = HiddenValueDefault;
 
-            if (!string.IsNullOrEmpty(builder.Password))
-                builder.Password = HiddenValueDefault;
+            // Always mask the password (even if empty) to avoid revealing absence vs presence
+            builder.Password = HiddenValueDefault;
 
             return builder.ConnectionString;
         }
