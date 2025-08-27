@@ -430,6 +430,7 @@ public class QueryFilterExtensionTests
         public bool IsDeleted { get; set; }
         public string? ConcurrencyStamp { get; set; }
         public bool IsActive { get; set; } = true;
+        public TenantDbType DbType { get; set; }
     }
 
     // DbContext using AddGlobalTenantFilter

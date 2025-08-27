@@ -42,6 +42,8 @@ public class Tenant<TKey> : BaseEntity<TKey>, ITenant<TKey>
 
     public DateTime ValidUpTo { get; set; } = DateTime.UtcNow.AddMonths(1);
 
+    public TenantDbType DbType { get; set; } = TenantDbType.Shared;
+
     public Tenant() { }
 
     public Tenant(TKey id, string name, string connectionString, string identifier, string adminEmail)

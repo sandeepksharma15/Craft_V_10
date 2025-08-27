@@ -1,9 +1,9 @@
-﻿using Craft.MultiTenant;
+﻿using Craft.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Data;
 
-public interface IDbContextFactory
+public interface IDbContextFactory<T> where T : DbContext, IDbContext
 {
-    DbContext CreateDbContext(ITenant currentTenant);
+    T CreateDbContext();
 }

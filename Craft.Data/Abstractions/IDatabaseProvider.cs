@@ -4,6 +4,11 @@ namespace Craft.Data;
 
 public interface IDatabaseProvider
 {
-    void Configure(DbContextOptionsBuilder optionsBuilder, string connectionString);
+    public const string MsSqlMigrationAssembly = "Migrators.MSSQL";
+    public const string PostgreSqlMigrationAssembly = "Migrators.PostgreSQL";
+    // public const string MySqlMigrationAssembly = "Migrators.MySQL";
+
+    bool CanHandle(string dbProvider);
+    void Configure(DbContextOptionsBuilder builder, string connectionString, DatabaseOptions options);
     bool ValidateConnection(string connectionString);
 }
