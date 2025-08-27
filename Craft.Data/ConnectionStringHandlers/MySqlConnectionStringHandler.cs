@@ -2,7 +2,7 @@
 
 public class MySqlConnectionStringHandler : IConnectionStringHandler
 {
-    public string Build(DatabaseOptions options)
+    public string Build(string connectionString)
     {
         throw new NotImplementedException();
     }

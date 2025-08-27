@@ -7,7 +7,7 @@ public interface IConnectionStringHandler
     /// </summary>
     public const string HiddenValueDefault = "*******";
 
-    string Build(DatabaseOptions options);
+    string Build(string connectionString);
     bool Validate(string connectionString);
     string Mask(string connectionString);
 }

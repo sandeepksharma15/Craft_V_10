@@ -14,26 +14,21 @@ public sealed class MsSqlConnectionStringHandler : IConnectionStringHandler
     /// <returns>The normalized connection string.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="options"/> is null.</exception>
     /// <exception cref="ArgumentException">Thrown when the base connection string is null/empty or invalid.</exception>
-    public string Build(DatabaseOptions options)
+    public string Build(string connectionString)
     {
-        ArgumentNullException.ThrowIfNull(options);
-        ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString, nameof(options));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString, nameof(connectionString));
 
         SqlConnectionStringBuilder builder;
 
         try
         {
-            builder = new SqlConnectionStringBuilder(options.ConnectionString);
+            builder = new SqlConnectionStringBuilder(connectionString);
         }
         catch (Exception ex)
         {
             // Surface a meaningful exception instead of letting low-level parsing bubble up unhandled.
-            throw new ArgumentException("Invalid SQL Server connection string provided in DatabaseOptions.", nameof(options), ex);
+            throw new ArgumentException("Invalid SQL Server connection string provided", nameof(connectionString), ex);
         }
-
-        // Only override when a positive timeout is supplied (0 can mean use default driver value)
-        if (options.CommandTimeout > 0)
-            builder.ConnectTimeout = options.CommandTimeout;
 
         return builder.ConnectionString;
     }

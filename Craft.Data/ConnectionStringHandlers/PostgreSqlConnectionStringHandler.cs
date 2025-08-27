@@ -14,25 +14,20 @@ public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
     /// <returns>Normalized connection string.</returns>
     /// <exception cref="ArgumentNullException">Thrown when options is null.</exception>
     /// <exception cref="ArgumentException">Thrown when connection string is null/empty or invalid.</exception>
-    public string Build(DatabaseOptions options)
+    public string Build(string connectionString)
     {
-        ArgumentNullException.ThrowIfNull(options, nameof(options));
-        ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString, nameof(options));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString, nameof(connectionString));
 
         NpgsqlConnectionStringBuilder builder;
 
         try
         {
-            builder = new NpgsqlConnectionStringBuilder(options.ConnectionString);
+            builder = new NpgsqlConnectionStringBuilder(connectionString);
         }
         catch (Exception ex)
         {
-            throw new ArgumentException("Invalid PostgreSQL connection string provided in DatabaseOptions.", nameof(options), ex);
+            throw new ArgumentException("Invalid PostgreSQL connection string provided", nameof(connectionString), ex);
         }
-
-        // Only set when a positive timeout is provided (seconds). 0 lets provider default stand.
-        if (options.CommandTimeout > 0)
-            builder.Timeout = options.CommandTimeout;
 
         return builder.ConnectionString;
     }

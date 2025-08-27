@@ -10,96 +10,37 @@ public class MsSqlConnectionStringHandlerTests
     // ---------- Build tests ----------
 
     [Fact]
-    public void Build_Should_Set_ConnectTimeout_When_Not_Present_And_CommandTimeout_Positive()
+    public void Build_Should_Return_Normalized_ConnectionString()
     {
         // Arrange
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Server=.;Database=TestDb;Integrated Security=true;",
-            CommandTimeout = 77
-        };
+        var input = "Server=.;Database=TestDb;Integrated Security=true;";
 
         // Act
-        var result = _sut.Build(options);
+        var result = _sut.Build(input);
 
         // Assert
         var builder = new SqlConnectionStringBuilder(result);
-        Assert.Equal(77, builder.ConnectTimeout);
         Assert.Equal(".", builder.DataSource);
         Assert.Equal("TestDb", builder.InitialCatalog);
+        // Re-building from builder should produce identical string (normalization check)
+        Assert.Equal(builder.ConnectionString, result);
     }
 
     [Fact]
-    public void Build_Should_Override_Existing_ConnectTimeout_When_CommandTimeout_Positive()
+    public void Build_Should_Throw_ArgumentException_When_Invalid_ConnectionString()
     {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Server=.;Database=TestDb;Connect Timeout=5;Integrated Security=true;",
-            CommandTimeout = 123
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new SqlConnectionStringBuilder(result);
-        Assert.Equal(123, builder.ConnectTimeout);
+        var input = "Server==;Database";
+        var ex = Assert.Throws<ArgumentException>(() => _sut.Build(input));
+        Assert.Contains("Invalid SQL Server connection string", ex.Message);
     }
-
-    [Fact]
-    public void Build_Should_Not_Change_Timeout_When_CommandTimeout_Is_Zero()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Server=.;Database=TestDb;Connect Timeout=42;Integrated Security=true;",
-            CommandTimeout = 0
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new SqlConnectionStringBuilder(result);
-        Assert.Equal(42, builder.ConnectTimeout);
-    }
-
-    [Fact]
-    public void Build_Should_Not_Change_Timeout_When_CommandTimeout_Is_Negative()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Server=.;Database=TestDb;Connect Timeout=31;Integrated Security=true;",
-            CommandTimeout = -10
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new SqlConnectionStringBuilder(result);
-        Assert.Equal(31, builder.ConnectTimeout);
-    }
-
-    [Fact]
-    public void Build_Should_Throw_ArgumentNullException_When_Options_Null()
-        => Assert.Throws<ArgumentNullException>(() => _sut.Build(null!));
 
     [Theory]
+    [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("\t")]
-    public void Build_Should_Throw_ArgumentException_When_ConnectionString_NullOrWhitespace(string cs)
-    {
-        var options = new DatabaseOptions { ConnectionString = cs, CommandTimeout = 10 };
-        Assert.Throws<ArgumentException>(() => _sut.Build(options));
-    }
-
-    [Fact]
-    public void Build_Should_Throw_ArgumentException_When_Invalid_Base_ConnectionString()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Server==;Database",
-            CommandTimeout = 10
-        };
-
-        var ex = Assert.Throws<ArgumentException>(() => _sut.Build(options));
-        Assert.Contains("Invalid SQL Server connection string", ex.Message);
-    }
+    public void Build_Should_Throw_ArgumentException_When_NullOrWhitespace(string? cs)
+        => Assert.ThrowsAny<ArgumentException>(() => _sut.Build(cs!));
 
     // ---------- Mask tests ----------
 

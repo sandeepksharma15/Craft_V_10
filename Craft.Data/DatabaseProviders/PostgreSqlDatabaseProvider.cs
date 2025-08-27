@@ -2,7 +2,7 @@
 
 namespace Craft.Data;
 
-public class NpgsqlDatabaseProvider : IDatabaseProvider
+public class PostgreSqlDatabaseProvider : IDatabaseProvider
 {
     public bool CanHandle(string dbProvider) =>
         dbProvider.Equals(DbProviderKeys.Npgsql, StringComparison.OrdinalIgnoreCase);

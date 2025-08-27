@@ -256,7 +256,7 @@ public class TenantDbContextFactoryTests
         var (nonMatchMock, nonMatchCalls) = CreateProviderMock("mssql"); // will not match npgsql
         var (matchMock, matchCalls) = CreateProviderMock("npgsql");
 
-        var sut = CreateFactory(tenant, new[] { nonMatchMock.Object, matchMock.Object }, dbOptions);
+        var sut = CreateFactory(tenant, [nonMatchMock.Object, matchMock.Object], dbOptions);
 
         // Act
         _ = sut.CreateDbContext();

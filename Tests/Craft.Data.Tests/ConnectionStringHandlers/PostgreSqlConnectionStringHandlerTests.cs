@@ -11,112 +11,38 @@ public class PostgreSqlConnectionStringHandlerTests
     // ---------- Build tests ----------
 
     [Fact]
-    public void Build_Should_Set_Timeout_When_Not_Present_And_CommandTimeout_Positive()
+    public void Build_Should_Return_Normalized_ConnectionString()
     {
         // Arrange
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Host=localhost;Database=TestDb;Username=app;Password=secret;",
-            CommandTimeout = 77
-        };
+        var input = "Host=localhost;Database=TestDb;Username=app;Password=secret;";
 
         // Act
-        var result = _sut.Build(options);
+        var result = _sut.Build(input);
 
         // Assert
         var builder = new NpgsqlConnectionStringBuilder(result);
-        Assert.Equal(77, builder.Timeout);
         Assert.Equal("localhost", builder.Host);
         Assert.Equal("TestDb", builder.Database);
+        Assert.Equal("app", builder.Username);
+        Assert.Equal("secret", builder.Password);
+        Assert.Equal(builder.ConnectionString, result);
     }
 
     [Fact]
-    public void Build_Should_Override_Existing_Timeout_When_CommandTimeout_Positive()
+    public void Build_Should_Throw_ArgumentException_When_Invalid_ConnectionString()
     {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Host=localhost;Database=TestDb;Timeout=5;Username=app;Password=secret;",
-            CommandTimeout = 123
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new NpgsqlConnectionStringBuilder(result);
-        Assert.Equal(123, builder.Timeout);
+        var input = "Host==localhost;Database";
+        var ex = Assert.Throws<ArgumentException>(() => _sut.Build(input));
+        Assert.Contains("Invalid PostgreSQL connection string", ex.Message);
     }
-
-    [Fact]
-    public void Build_Should_Not_Change_Timeout_When_CommandTimeout_Is_Zero()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Host=localhost;Database=TestDb;Timeout=42;Username=app;Password=secret;",
-            CommandTimeout = 0
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new NpgsqlConnectionStringBuilder(result);
-        Assert.Equal(42, builder.Timeout);
-    }
-
-    [Fact]
-    public void Build_Should_Not_Change_Timeout_When_CommandTimeout_Is_Negative()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Host=localhost;Database=TestDb;Timeout=31;Username=app;Password=secret;",
-            CommandTimeout = -10
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new NpgsqlConnectionStringBuilder(result);
-        Assert.Equal(31, builder.Timeout);
-    }
-
-    [Fact]
-    public void Build_Should_Leave_Timeout_Default_When_Not_In_Base_And_CommandTimeout_NonPositive()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Host=localhost;Database=TestDb;Username=app;Password=secret;",
-            CommandTimeout = 0
-        };
-
-        var result = _sut.Build(options);
-
-        var builder = new NpgsqlConnectionStringBuilder(result);
-        // Npgsql default is 15 seconds (at time of writing); ensure not overridden to 0
-        Assert.Equal(15, builder.Timeout);
-    }
-
-    [Fact]
-    public void Build_Should_Throw_ArgumentNullException_When_Options_Null()
-        => Assert.Throws<ArgumentNullException>(() => _sut.Build(null!));
 
     [Theory]
+    [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("\t")]
-    public void Build_Should_Throw_ArgumentException_When_ConnectionString_NullOrWhitespace(string cs)
-    {
-        var options = new DatabaseOptions { ConnectionString = cs, CommandTimeout = 10 };
-        Assert.Throws<ArgumentException>(() => _sut.Build(options));
-    }
-
-    [Fact]
-    public void Build_Should_Throw_ArgumentException_When_Invalid_Base_ConnectionString()
-    {
-        var options = new DatabaseOptions
-        {
-            ConnectionString = "Host==localhost;Database",
-            CommandTimeout = 10
-        };
-
-        var ex = Assert.Throws<ArgumentException>(() => _sut.Build(options));
-        Assert.Contains("Invalid PostgreSQL connection string", ex.Message);
-    }
+    public void Build_Should_Throw_ArgumentException_When_NullOrWhitespace(string? cs)
+        => Assert.ThrowsAny<ArgumentException>(() => _sut.Build(cs!));
 
     // ---------- Mask tests ----------
 
@@ -136,7 +62,6 @@ public class PostgreSqlConnectionStringHandlerTests
         var cs = "Host=localhost;Database=TestDb;Password=SecretPwd;";
         var masked = _sut.Mask(cs);
         var builder = new NpgsqlConnectionStringBuilder(masked);
-        // Username not set originally so should still be empty / not masked
         Assert.True(string.IsNullOrEmpty(builder.Username));
         Assert.Equal(Mask, builder.Password);
     }

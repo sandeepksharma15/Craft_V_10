@@ -7,7 +7,7 @@ namespace Craft.Data.Tests.DabaseProviders;
 
 public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderTests.PostgreSqlContainerFixture>
 {
-    private readonly NpgsqlDatabaseProvider _sut = new();
+    private readonly PostgreSqlDatabaseProvider _sut = new();
     private readonly PostgreSqlContainerFixture _fixture;
 
     public NpgsqlDatabaseProviderTests(PostgreSqlContainerFixture fixture) => _fixture = fixture;

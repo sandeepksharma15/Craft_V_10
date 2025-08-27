@@ -1,16 +1,12 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace Craft.Data;
+﻿namespace Craft.Data;
 
 public class ConnectionStringService
 {
     private readonly IDictionary<string, IConnectionStringHandler> _handlers = new Dictionary<string, IConnectionStringHandler>();
-    private readonly DatabaseOptions _dbOptions;
 
-    public ConnectionStringService(IEnumerable<IConnectionStringHandler> handlers, IOptions<DatabaseOptions> dbOptions)
+    public ConnectionStringService(IEnumerable<IConnectionStringHandler> handlers)
     {
         _handlers = handlers.ToDictionary(h => h.GetType().Name.Replace("ConnectionStringHandler", ""), StringComparer.OrdinalIgnoreCase);
-        _dbOptions = dbOptions.Value;
     }
 
     private IConnectionStringHandler ResolveHandler(string dbProvider)
@@ -21,9 +17,9 @@ public class ConnectionStringService
         return handler;
     }
 
-    public string Build() => ResolveHandler(_dbOptions.DbProvider).Build(_dbOptions);
+    public string Build(string connectionString, string dbProvider = "postgresql") => ResolveHandler(dbProvider).Build(connectionString);
 
-    public bool Validate() => ResolveHandler(_dbOptions.DbProvider).Validate(_dbOptions.ConnectionString);
+    public bool Validate(string connectionString, string dbProvider = "postgresql") => ResolveHandler(dbProvider).Validate(connectionString);
 
-    public string Mask() => ResolveHandler(_dbOptions.DbProvider).Mask(_dbOptions.ConnectionString);
+    public string Mask(string connectionString, string dbProvider = "postgresql") => ResolveHandler(dbProvider).Mask(connectionString);
 }
