@@ -21,4 +21,8 @@
 	  <ProjectReference Include="..\Craft.MultiTenant\Craft.MultiTenant.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
 </Project>
