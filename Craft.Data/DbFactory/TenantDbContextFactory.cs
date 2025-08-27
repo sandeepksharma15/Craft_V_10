@@ -6,71 +6,101 @@ using Microsoft.Extensions.Options;
 
 namespace Craft.Data;
 
+/// <summary>
+/// Factory that creates a <see cref="DbContext"/> instance honoring the current tenant's database strategy.
+/// Supports Shared, PerTenant and Hybrid strategies and falls back to shared defaults when multi-tenancy is disabled.
+/// </summary>
+/// <typeparam name="T">Concrete DbContext type.</typeparam>
 public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContext, IDbContext
 {
-    private readonly ICurrentTenant _currentTenant;
-    private readonly IEnumerable<IDatabaseProvider> _providers;
-    private readonly IServiceProvider _sp;
-    private readonly DatabaseOptions _dbOptions;
+    private readonly ICurrentTenant _currentTenant;                // Current resolved tenant (may be a lightweight proxy)
+    private readonly IEnumerable<IDatabaseProvider> _providers;    // Registered database providers
+    private readonly IServiceProvider _sp;                         // Root service provider for context construction
+    private readonly DatabaseOptions _dbOptions;                   // Default / shared database options
+    private readonly MultiTenantOptions _multiTenantOptions;       // Multi-tenant feature options
 
-    public TenantDbContextFactory(ICurrentTenant currentTenant, IEnumerable<IDatabaseProvider> providers, IServiceProvider sp, IOptions<DatabaseOptions> defaults)
+    public TenantDbContextFactory(ICurrentTenant currentTenant, IEnumerable<IDatabaseProvider> providers,
+        IServiceProvider sp, IOptions<DatabaseOptions> dbOptions, IOptions<MultiTenantOptions> multiTenantOptions)
     {
         _currentTenant = currentTenant;
         _providers = providers;
         _sp = sp;
-        _dbOptions = defaults.Value;
+        _dbOptions = dbOptions.Value;
+        _multiTenantOptions = multiTenantOptions.Value;
     }
 
+    /// <summary>
+    /// Creates a DbContext configured for the current tenant (or shared defaults if multi-tenancy disabled).
+    /// </summary>
     public T CreateDbContext()
     {
-        string connectionString;
-        string dbProvider;
+        var target = DetermineTarget();
 
-        // Helper local function to pick provider honoring fallback to defaults when tenant value missing/blank
-        string ResolveTenantProvider(string? tenantProvider) => string.IsNullOrWhiteSpace(tenantProvider)
-            ? _dbOptions.DbProvider
-            : tenantProvider;
+        // Build DbContextOptions for the selected provider/connection
+        var options = BuildOptions(target.ConnectionString, target.ProviderKey);
 
-        switch (_currentTenant.DbType)
+        // IMPORTANT: pass the configured options instance so provider configuration is honored
+        return ActivatorUtilities.CreateInstance<T>(_sp, options);
+    }
+
+    #region Target Resolution
+
+    private (string ConnectionString, string ProviderKey) DetermineTarget()
+    {
+        // Multi-tenancy disabled OR no tenant context -> always use shared defaults.
+        if (_multiTenantOptions.IsEnabled == false || _currentTenant == null)
+            return (_dbOptions.ConnectionString, _dbOptions.DbProvider);
+
+        return _currentTenant.DbType switch
         {
-            case TenantDbType.Shared:
-                connectionString = _dbOptions.ConnectionString;
-                dbProvider = _dbOptions.DbProvider;
-                break;
+            TenantDbType.Shared => (_dbOptions.ConnectionString, _dbOptions.DbProvider),
+            TenantDbType.PerTenant => ResolvePerTenant(),
+            TenantDbType.Hybrid => ResolveHybrid(),
+            _ => throw new InvalidOperationException($"Unsupported DbType: {_currentTenant.DbType}")
+        };
+    }
 
-            case TenantDbType.PerTenant:
-                if (string.IsNullOrEmpty(_currentTenant.ConnectionString))
-                    throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
+    private (string ConnectionString, string ProviderKey) ResolvePerTenant()
+    {
+        if (string.IsNullOrEmpty(_currentTenant.ConnectionString))
+            throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
 
-                connectionString = _currentTenant.ConnectionString;
-                dbProvider = ResolveTenantProvider(_currentTenant.DbProvider);
-                break;
+        return (_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
+    }
 
-            case TenantDbType.Hybrid:
-                if (string.IsNullOrEmpty(_currentTenant.ConnectionString) == false)
-                {
-                    // Tenant Has Own DB
-                    connectionString = _currentTenant.ConnectionString;
-                    dbProvider = ResolveTenantProvider(_currentTenant.DbProvider);
-                }
-                else
-                {
-                    // Uses Shared DB
-                    connectionString = _dbOptions.ConnectionString;
-                    dbProvider = _dbOptions.DbProvider;
-                }
-                break;
+    private (string ConnectionString, string ProviderKey) ResolveHybrid()
+    {
+        // Own DB when a connection string is provided, else shared defaults
+        if (!string.IsNullOrEmpty(_currentTenant.ConnectionString))
+            return (_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
 
-            default:
-                throw new InvalidOperationException($"Unsupported DbType: {_currentTenant.DbType}");
-        }
+        return (_dbOptions.ConnectionString, _dbOptions.DbProvider);
+    }
 
-        var provider = _providers.FirstOrDefault(p => p.CanHandle(dbProvider))
-                ?? throw new NotSupportedException($"Provider '{dbProvider}' not supported");
+    private string NormalizeProvider(string? tenantProvider) => string.IsNullOrWhiteSpace(tenantProvider)
+        ? _dbOptions.DbProvider
+        : tenantProvider;
+
+    #endregion
+
+    #region Provider Configuration
+
+    private DbContextOptions<T> BuildOptions(string connectionString, string providerKey)
+    {
+        var provider = _providers.FirstOrDefault(p => p.CanHandle(providerKey))
+            ?? throw new NotSupportedException($"Provider '{providerKey}' not supported");
 
         var builder = new DbContextOptionsBuilder<T>();
         provider.Configure(builder, connectionString, _dbOptions);
 
-        return ActivatorUtilities.CreateInstance<T>(_sp);
+        // Optional additional standard flags from options
+        if (_dbOptions.EnableDetailedErrors)
+            builder.EnableDetailedErrors();
+        if (_dbOptions.EnableSensitiveDataLogging)
+            builder.EnableSensitiveDataLogging();
+
+        return builder.Options;
     }
+
+    #endregion
 }

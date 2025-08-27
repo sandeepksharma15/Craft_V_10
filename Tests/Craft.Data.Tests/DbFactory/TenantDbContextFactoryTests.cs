@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Craft.Core; // For IDbContext
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -18,21 +20,42 @@ public class TenantDbContextFactoryTests
     // Simple current tenant implementation (ICurrentTenant inherits ITenant)
     private sealed class TestCurrentTenant : Tenant, ICurrentTenant { }
 
-    // Simple dummy DbContext so that ActivatorUtilities can construct it (parameterless ctor)
-    private sealed class DummyDbContext : DbContext, IDbContext { }
+    // Dummy DbContext that accepts configured options so we can inspect them
+    private sealed class DummyDbContext : DbContext, IDbContext
+    {
+        public DummyDbContext(DbContextOptions<DummyDbContext> options) : base(options) { }
+    }
+
+    // Test database provider that uses EF Core InMemory provider and captures invocation data
+    private sealed class InMemoryTestDatabaseProvider : IDatabaseProvider
+    {
+        public string? LastConnectionString { get; private set; }
+        public DatabaseOptions? LastOptions { get; private set; }
+        public bool CanHandle(string dbProvider) => string.Equals(dbProvider, "inmem", StringComparison.OrdinalIgnoreCase);
+        public void Configure(DbContextOptionsBuilder builder, string connectionString, DatabaseOptions options)
+        {
+            LastConnectionString = connectionString;
+            LastOptions = options;
+            builder.UseInMemoryDatabase(connectionString); // connectionString doubles as store name
+        }
+        public bool ValidateConnection(string connectionString) => true;
+    }
 
     private static TenantDbContextFactory<DummyDbContext> CreateFactory(
         TestCurrentTenant tenant,
         IEnumerable<IDatabaseProvider> providers,
-        DatabaseOptions dbOptions)
+        DatabaseOptions dbOptions,
+        MultiTenantOptions? mtOptions = null)
     {
+        mtOptions ??= new MultiTenantOptions { IsEnabled = true };
+
         var services = new ServiceCollection();
-        // Register any dependencies required to create DummyDbContext (none -> parameterless)
         services.AddTransient<DummyDbContext>();
         services.AddSingleton<IOptions<DatabaseOptions>>(Options.Create(dbOptions));
+        services.AddSingleton<IOptions<MultiTenantOptions>>(Options.Create(mtOptions));
         var sp = services.BuildServiceProvider();
 
-        return new TenantDbContextFactory<DummyDbContext>(tenant, providers, sp, Options.Create(dbOptions));
+        return new TenantDbContextFactory<DummyDbContext>(tenant, providers, sp, Options.Create(dbOptions), Options.Create(mtOptions));
     }
 
     private static (Mock<IDatabaseProvider> providerMock, List<(DbContextOptionsBuilder builder, string cs, DatabaseOptions opts)> calls)
@@ -73,6 +96,23 @@ public class TenantDbContextFactoryTests
         Assert.Equal("SHARED_CS", call.cs);
         Assert.Same(dbOptions, call.opts);
         providerMock.Verify(p => p.Configure(It.IsAny<DbContextOptionsBuilder>(), "SHARED_CS", dbOptions), Times.Once);
+    }
+
+    [Fact]
+    public void CreateDbContext_MultiTenancyDisabled_Uses_Defaults()
+    {
+        // Arrange
+        var tenant = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: "npgsql");
+        var dbOptions = new DatabaseOptions { ConnectionString = "DEFAULT_SHARED", DbProvider = "mssql" };
+        var (providerMock, calls) = CreateProviderMock("mssql");
+        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions, new MultiTenantOptions { IsEnabled = false });
+
+        // Act
+        _ = sut.CreateDbContext();
+
+        // Assert
+        Assert.Single(calls);
+        Assert.Equal("DEFAULT_SHARED", calls[0].cs); // Should ignore tenant specific when disabled
     }
 
     #endregion
@@ -225,6 +265,43 @@ public class TenantDbContextFactoryTests
         Assert.Empty(nonMatchCalls); // configure never called
         Assert.Single(matchCalls);
         matchMock.Verify(p => p.CanHandle("npgsql"), Times.AtLeastOnce);
+    }
+
+    #endregion
+
+    #region Options Application
+
+    [Fact]
+    public void CreateDbContext_Applies_Provider_And_Options_Flags()
+    {
+        // Arrange shared tenant scenario
+        var tenant = BuildTenant(TenantDbType.Shared);
+        var dbOptions = new DatabaseOptions
+        {
+            ConnectionString = "InMemDb-Test",
+            DbProvider = "inmem",
+            EnableDetailedErrors = true,
+            EnableSensitiveDataLogging = true
+        };
+        var testProvider = new InMemoryTestDatabaseProvider();
+        var sut = CreateFactory(tenant, [testProvider], dbOptions);
+
+        // Act
+        var ctx = sut.CreateDbContext();
+
+        // Assert provider configure invoked with connection string
+        Assert.Equal("InMemDb-Test", testProvider.LastConnectionString);
+        Assert.Same(dbOptions, testProvider.LastOptions);
+
+        // Assert provider extension present (InMemory)
+        var dbContextOptions = ctx.GetService<IDbContextOptions>();
+        var inMemExt = dbContextOptions.FindExtension<InMemoryOptionsExtension>();
+        Assert.NotNull(inMemExt);
+        Assert.Equal("InMemDb-Test", inMemExt?.StoreName);
+
+        // Retrieve CoreOptionsExtension to ensure options were built (presence implies builder executed)
+        var coreExt = dbContextOptions.FindExtension<CoreOptionsExtension>();
+        Assert.NotNull(coreExt);
     }
 
     #endregion
