@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Craft.Data.DbFactory;
+namespace Craft.Data;
+
 public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContext, IDbContext
 {
     private readonly ICurrentTenant _currentTenant;
@@ -25,6 +26,11 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
         string connectionString;
         string dbProvider;
 
+        // Helper local function to pick provider honoring fallback to defaults when tenant value missing/blank
+        string ResolveTenantProvider(string? tenantProvider) => string.IsNullOrWhiteSpace(tenantProvider)
+            ? _dbOptions.DbProvider
+            : tenantProvider;
+
         switch (_currentTenant.DbType)
         {
             case TenantDbType.Shared:
@@ -37,7 +43,7 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
                     throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
 
                 connectionString = _currentTenant.ConnectionString;
-                dbProvider = _currentTenant.DbProvider ?? _dbOptions.DbProvider;
+                dbProvider = ResolveTenantProvider(_currentTenant.DbProvider);
                 break;
 
             case TenantDbType.Hybrid:
@@ -45,11 +51,11 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
                 {
                     // Tenant Has Own DB
                     connectionString = _currentTenant.ConnectionString;
-                    dbProvider = _currentTenant.DbProvider ?? _dbOptions.DbProvider;
+                    dbProvider = ResolveTenantProvider(_currentTenant.DbProvider);
                 }
                 else
                 {
-                    // Uses Shae DB
+                    // Uses Shared DB
                     connectionString = _dbOptions.ConnectionString;
                     dbProvider = _dbOptions.DbProvider;
                 }
@@ -59,9 +65,8 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
                 throw new InvalidOperationException($"Unsupported DbType: {_currentTenant.DbType}");
         }
 
-
         var provider = _providers.FirstOrDefault(p => p.CanHandle(dbProvider))
-                ?? throw new NotSupportedException($"Provider '{_dbOptions.DbProvider}' not supported");
+                ?? throw new NotSupportedException($"Provider '{dbProvider}' not supported");
 
         var builder = new DbContextOptionsBuilder<T>();
         provider.Configure(builder, connectionString, _dbOptions);
