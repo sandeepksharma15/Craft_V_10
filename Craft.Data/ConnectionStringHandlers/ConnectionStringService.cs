@@ -17,9 +17,12 @@ public class ConnectionStringService
         return handler;
     }
 
-    public string Build(string connectionString, string dbProvider = "postgresql") => ResolveHandler(dbProvider).Build(connectionString);
+    public string Build(string connectionString, string dbProvider = "postgresql") 
+        => ResolveHandler(dbProvider).Build(connectionString);
 
-    public bool Validate(string connectionString, string dbProvider = "postgresql") => ResolveHandler(dbProvider).Validate(connectionString);
+    public bool Validate(string connectionString, string dbProvider = "postgresql") 
+        => ResolveHandler(dbProvider).Validate(connectionString);
 
-    public string Mask(string connectionString, string dbProvider = "postgresql") => ResolveHandler(dbProvider).Mask(connectionString);
+    public string Mask(string connectionString, string dbProvider = "postgresql") 
+        => ResolveHandler(dbProvider).Mask(connectionString);
 }
