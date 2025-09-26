@@ -67,7 +67,15 @@ public class SqlServerDatabaseProviderTests
         // Assert
         using var ctx = new TestDbContext(builder.Options);
         Assert.Contains("SqlServer", ctx.Database.ProviderName, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(connectionString, ctx.Database.GetDbConnection().ConnectionString);
+
+        // Compare key properties only; provider may append additional parameters like Application Name
+        var expected = new SqlConnectionStringBuilder(connectionString);
+        var actual = new SqlConnectionStringBuilder(ctx.Database.GetDbConnection().ConnectionString);
+        Assert.Equal(expected.DataSource, actual.DataSource);
+        Assert.Equal(expected.InitialCatalog, actual.InitialCatalog);
+        Assert.Equal(expected.IntegratedSecurity, actual.IntegratedSecurity);
+        Assert.Equal(expected.Encrypt, actual.Encrypt);
+
         Assert.Equal(options.CommandTimeout, ctx.Database.GetCommandTimeout());
 
         // Reflection: ensure migration assembly value set
