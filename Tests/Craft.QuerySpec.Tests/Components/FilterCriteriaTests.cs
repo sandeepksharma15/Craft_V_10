@@ -60,13 +60,9 @@ public class FilterCriteriaTests
     [InlineData("   ")]
     public void Constructor_ThrowsIfNameNullOrWhitespace(string? name)
     {
-        ArgumentException? ex;
-
-        if (name is null)
-            ex = Assert.Throws<ArgumentNullException>(() => new FilterCriteria(typeof(string), name!, "abc"));
-        else
-            ex = Assert.Throws<ArgumentException>(() => new FilterCriteria(typeof(string), name!, "abc"));
-
+        ArgumentException? ex = name is null
+            ? Assert.Throws<ArgumentNullException>(() => new FilterCriteria(typeof(string), name!, "abc"))
+            : Assert.Throws<ArgumentException>(() => new FilterCriteria(typeof(string), name!, "abc"));
         Assert.Equal("name", ex.ParamName);
     }
 

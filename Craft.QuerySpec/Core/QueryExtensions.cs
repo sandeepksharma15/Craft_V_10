@@ -69,8 +69,6 @@ public static class QueryExtensions
 
     public static bool IsWithoutOrder<T>(this IQuery<T>? query) where T : class
     {
-        if (query is null) return true;
-
-        return query.SortOrderBuilder is null || query.SortOrderBuilder.OrderDescriptorList.Count == 0;
+        return query is null || query.SortOrderBuilder is null || query.SortOrderBuilder.OrderDescriptorList.Count == 0;
     }
 }

@@ -50,6 +50,7 @@ public abstract class HttpServiceBase
             result.Errors = [ex.Message];
             result.Success = false;
         }
+
         return result;
     }
 
@@ -158,6 +159,7 @@ public abstract class HttpServiceBase
             result.Errors = [ex.Message];
             result.Success = false;
         }
+
         return result;
     }
 }

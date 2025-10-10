@@ -29,11 +29,8 @@ public sealed class ParameterReplacerVisitor : ExpressionVisitor
         ArgumentNullException.ThrowIfNull(expression);
         ArgumentNullException.ThrowIfNull(oldParameter);
         ArgumentNullException.ThrowIfNull(newExpression);
-        if (oldParameter.Type != newExpression.Type)
-        {
-            throw new ArgumentException("The type of the new expression must match the type of the old parameter.");
-        }
-
-        return new ParameterReplacerVisitor(oldParameter, newExpression).Visit(expression);
+        return oldParameter.Type != newExpression.Type
+            ? throw new ArgumentException("The type of the new expression must match the type of the old parameter.")
+            : new ParameterReplacerVisitor(oldParameter, newExpression).Visit(expression);
     }
 }

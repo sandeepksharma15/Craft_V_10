@@ -66,6 +66,7 @@ public class AuditTrail : BaseEntity, IAuditTrail
                     ChangeType = EntityChangeType.Updated;
                     ExtractUpdatedValues(entity, keyValues, oldValues, newValues, changedColumns);
                 }
+
                 break;
 
             default:
@@ -138,15 +139,8 @@ public class AuditTrail : BaseEntity, IAuditTrail
 
     private static string? SerializeOrNull<T>(T value)
     {
-        if (value is ICollection<object> collection && collection.Count == 0)
-            return null;
-
-        if (value is IDictionary<string, object> dict && dict.Count == 0)
-            return null;
-
-        if (value is null)
-            return null;
-
-        return JsonSerializer.Serialize(value);
+        return value is ICollection<object> collection && collection.Count == 0
+            ? null
+            : value is IDictionary<string, object> dict && dict.Count == 0 ? null : value is null ? null : JsonSerializer.Serialize(value);
     }
 }

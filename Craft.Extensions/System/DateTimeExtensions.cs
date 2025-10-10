@@ -14,13 +14,13 @@ public static class DateTimeExtensions
     /// Determines if the specified DayOfWeek is a weekday (Monday through Friday).
     /// </summary>
     public static bool IsWeekday(this DayOfWeek dayOfWeek)
-        => dayOfWeek >= DayOfWeek.Monday && dayOfWeek <= DayOfWeek.Friday;
+        => dayOfWeek is >= DayOfWeek.Monday and <= DayOfWeek.Friday;
 
     /// <summary>
     /// Determines if the specified DayOfWeek is a weekend (Saturday or Sunday).
     /// </summary>
     public static bool IsWeekend(this DayOfWeek dayOfWeek)
-        => dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday;
+        => dayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
 
     /// <summary>
     /// Sets the DateTimeKind of a nullable DateTime to Utc, if it has a value.

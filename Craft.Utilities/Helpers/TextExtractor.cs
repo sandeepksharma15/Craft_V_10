@@ -11,7 +11,7 @@ public static class TextExtractor
 
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
 
-        if (extension != ".pdf" && extension != ".doc" && extension != ".docx")
+        if (extension is not ".pdf" and not ".doc" and not ".docx")
             throw new NotSupportedException("Only PDF, DOC and DOCX files are supported");
 
         if (!File.Exists(fileName))

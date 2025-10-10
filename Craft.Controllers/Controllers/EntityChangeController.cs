@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.Controllers.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
 public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepository<T, TKey> repository, ILogger<EntityChangeController<T, DataTransferT, TKey>> logger)

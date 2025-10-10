@@ -72,6 +72,7 @@ internal class ExpressionTreeBuilder<T>
 
             throw new InvalidOperationException($"Member '{member}' not found on type '{expr.Type.Name}'.");
         }
+
         return expr;
     }
 
@@ -83,11 +84,11 @@ internal class ExpressionTreeBuilder<T>
         if (value is string s)
         {
             // Try to parse as number or bool if possible
-            if (int.TryParse(s, out var i)) return Expression.Constant(i);
-            if (double.TryParse(s, out var d)) return Expression.Constant(d);
-            if (bool.TryParse(s, out var b)) return Expression.Constant(b);
-
-            return Expression.Constant(s);
+            return int.TryParse(s, out var i)
+                ? Expression.Constant(i)
+                : double.TryParse(s, out var d)
+                ? Expression.Constant(d)
+                : bool.TryParse(s, out var b) ? Expression.Constant(b) : Expression.Constant(s);
         }
 
         return Expression.Constant(value, value?.GetType() ?? typeof(object));
@@ -95,13 +96,7 @@ internal class ExpressionTreeBuilder<T>
 
     private Expression BuildMethodCall(MethodCallAstNode node, ParameterExpression param)
     {
-        Expression target;
-
-        if (node.Target != null)
-            target = Build(node.Target, param);
-        else
-            throw new InvalidOperationException("Method call must have a target.");
-
+        Expression target = node.Target != null ? Build(node.Target, param) : throw new InvalidOperationException("Method call must have a target.");
         var argExprs = node.Arguments.Select(arg => Build(arg, param)).ToArray();
         var argTypes = argExprs.Select(a => a.Type).ToArray();
 

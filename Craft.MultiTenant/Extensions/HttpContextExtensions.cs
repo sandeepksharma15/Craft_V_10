@@ -15,10 +15,9 @@ public static class HttpContextExtensions
 
         var context = services.GetRequiredService<ITenantContextAccessor<T>>();
 
-        if (context?.TenantContext is not TenantContext<T> tenantContext || tenantContext is null)
-            throw new InvalidOperationException($"TenantContext<{typeof(T).Name}> is not available in the current HttpContext.");
-
-        return tenantContext;
+        return context?.TenantContext is not TenantContext<T> tenantContext || tenantContext is null
+            ? throw new InvalidOperationException($"TenantContext<{typeof(T).Name}> is not available in the current HttpContext.")
+            : tenantContext;
     }
 
     public static ITenantContext GetTenantContext(this HttpContext httpContext)

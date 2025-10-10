@@ -11,18 +11,17 @@ public class ConnectionStringService
 
     private IConnectionStringHandler ResolveHandler(string dbProvider)
     {
-        if (!_handlers.TryGetValue(dbProvider, out var handler))
-            throw new NotSupportedException($"Provider '{dbProvider}' is not supported.");
-
-        return handler;
+        return !_handlers.TryGetValue(dbProvider, out var handler)
+            ? throw new NotSupportedException($"Provider '{dbProvider}' is not supported.")
+            : handler;
     }
 
-    public string Build(string connectionString, string dbProvider = "postgresql") 
+    public string Build(string connectionString, string dbProvider = "postgresql")
         => ResolveHandler(dbProvider).Build(connectionString);
 
-    public bool Validate(string connectionString, string dbProvider = "postgresql") 
+    public bool Validate(string connectionString, string dbProvider = "postgresql")
         => ResolveHandler(dbProvider).Validate(connectionString);
 
-    public string Mask(string connectionString, string dbProvider = "postgresql") 
+    public string Mask(string connectionString, string dbProvider = "postgresql")
         => ResolveHandler(dbProvider).Mask(connectionString);
 }

@@ -249,7 +249,7 @@ public class ObjectTests
     public void ToValue_Should_Convert_Boxed_Value_Type()
     {
         // Arrange
-        object obj = (object)42;
+        object obj = 42;
 
         // Act
         var result = obj.ToValue<int>();

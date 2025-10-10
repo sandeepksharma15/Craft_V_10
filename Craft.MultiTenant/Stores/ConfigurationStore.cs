@@ -69,20 +69,16 @@ public class ConfigurationStore<T> : ITenantStore<T> where T : class, ITenant, I
 
     public async Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
-        if (id == default)
-            throw new ArgumentNullException(nameof(id));
-
-        return await Task.FromResult(_tenantMap?.SingleOrDefault(kv => kv.Value.Id == id).Value);
+        return id == default
+            ? throw new ArgumentNullException(nameof(id))
+            : await Task.FromResult(_tenantMap?.SingleOrDefault(kv => kv.Value.Id == id).Value);
     }
 
     public async Task<T?> GetByIdentifierAsync(string identifier, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
-        if (_tenantMap is null)
-            return null;
-
-        return await Task.FromResult(_tenantMap.TryGetValue(identifier, out var result) ? result : null);
+        return _tenantMap is null ? null : await Task.FromResult(_tenantMap.TryGetValue(identifier, out var result) ? result : null);
     }
 
     public async Task<long> GetCountAsync(CancellationToken cancellationToken = default)

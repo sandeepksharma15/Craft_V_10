@@ -53,7 +53,7 @@ public class SqlLikeSearchInfoTests
     [Fact]
     public void Ctor_ExpressionOverload_NullExpression_Throws()
     {
-        Assert.Throws<ArgumentNullException>(() => new SqlLikeSearchInfo<TestEntity>((Expression<Func<TestEntity, object>>)null!, "abc"));
+        Assert.Throws<ArgumentNullException>(() => new SqlLikeSearchInfo<TestEntity>(null!, "abc"));
     }
 
     [Fact]

@@ -51,6 +51,7 @@ public static class PasswordGenerator
             int k = GetRandomInt(n + 1);
             (characters[n], characters[k]) = (characters[k], characters[n]);
         }
+
         return new string(characters);
     }
 }

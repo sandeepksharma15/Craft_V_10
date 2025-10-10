@@ -126,7 +126,7 @@ public class CssBuilderTests
         var cssBuilder = new CssBuilder("value");
 
         // Act
-        var result = cssBuilder.AddClass("newClass", (Func<bool>?)null!).Build();
+        var result = cssBuilder.AddClass("newClass", null!).Build();
 
         // Assert
         Assert.Equal("value", result);
@@ -277,7 +277,7 @@ public class CssBuilderTests
         var cssBuilder = new CssBuilder("value");
 
         // Act
-        var result = cssBuilder.AddClass(() => "newClass", (Func<bool>?)null!).Build();
+        var result = cssBuilder.AddClass(() => "newClass", null!).Build();
 
         // Assert
         Assert.Equal("value", result);
@@ -319,7 +319,7 @@ public class CssBuilderTests
         var otherBuilder = new CssBuilder("otherClass");
 
         // Act
-        var result = cssBuilder.AddClass(otherBuilder, (Func<bool>?)null!).Build();
+        var result = cssBuilder.AddClass(otherBuilder, null!).Build();
 
         // Assert
         Assert.Equal("value", result);

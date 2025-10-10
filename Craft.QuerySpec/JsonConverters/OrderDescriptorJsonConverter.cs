@@ -57,10 +57,9 @@ public sealed class OrderDescriptorJsonConverter<T> : JsonConverter<OrderDescrip
             }
         }
 
-        if (orderItem == null)
-            throw new JsonException("Missing required property 'OrderItem'.");
-
-        return new OrderDescriptor<T>(orderItem, orderType);
+        return orderItem == null
+            ? throw new JsonException("Missing required property 'OrderItem'.")
+            : new OrderDescriptor<T>(orderItem, orderType);
     }
 
     public override void Write(Utf8JsonWriter writer, OrderDescriptor<T> value, JsonSerializerOptions options)

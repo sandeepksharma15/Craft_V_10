@@ -11,9 +11,9 @@ public abstract class CraftException : Exception
 
     protected CraftException(string message) : base(message) { }
 
-    protected CraftException(string message, Exception innerException, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) 
-        : base(message, innerException) 
-    { 
+    protected CraftException(string message, Exception innerException, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
+        : base(message, innerException)
+    {
         StatusCode = statusCode;
     }
 

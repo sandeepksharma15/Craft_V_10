@@ -104,10 +104,9 @@ public static class ExpressionBuilder
     // Creates the body of the filter expression for the given property, type, value, and comparison.
     private static Expression CreateExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
-        if (dataType == typeof(string))
-            return CreateStringExpressionBody(leftExpression, dataType, value, comparison);
-        else
-            return CreateNonStringExpressionBody(leftExpression, value, comparison);
+        return dataType == typeof(string)
+            ? CreateStringExpressionBody(leftExpression, dataType, value, comparison)
+            : CreateNonStringExpressionBody(leftExpression, value, comparison);
     }
 
     // Creates the body of the filter expression for non-string types.

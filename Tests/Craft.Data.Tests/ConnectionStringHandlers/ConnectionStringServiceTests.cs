@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Xunit;
-
-namespace Craft.Data.Tests.ConnectionStringHandlers;
+﻿namespace Craft.Data.Tests.ConnectionStringHandlers;
 
 /// <summary>
 /// Unit tests for <see cref="ConnectionStringService"/> ensuring full coverage of delegation logic

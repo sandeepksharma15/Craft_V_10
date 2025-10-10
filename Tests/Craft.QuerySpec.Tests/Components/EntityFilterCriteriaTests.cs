@@ -91,6 +91,7 @@ public class EntityFilterCriteriaTests
         {
             thrown = ex;
         }
+
         Assert.NotNull(thrown);
         Assert.IsType<InvalidOperationException>(thrown);
         Assert.Contains("Equal is not defined", thrown.Message);
@@ -341,7 +342,7 @@ public class EntityFilterCriteriaTests
         var criteria = new EntityFilterCriteria<TestEntity>(expression);
 
         // Act & Assert
-        Assert.False(criteria.Equals((EntityFilterCriteria<TestEntity>?)null));
+        Assert.False(criteria.Equals(null));
         Assert.False(criteria.Equals((object?)null));
     }
 

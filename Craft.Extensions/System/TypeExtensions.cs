@@ -104,9 +104,7 @@ public static class TypeExtensions
     /// <returns>True if the attribute is present; otherwise, false.</returns>
     public static bool HasAttribute<T>(this Type type) where T : Attribute
     {
-        if (type is null) return false;
-
-        return type.GetCustomAttributes(typeof(T), true).Length > 0;
+        return type is not null && type.GetCustomAttributes(typeof(T), true).Length > 0;
     }
 
     /// <summary>
@@ -117,10 +115,7 @@ public static class TypeExtensions
     /// <returns>True if the derived type implements the interface; otherwise, false.</returns>
     public static bool HasImplementedInterface(this Type? derivedType, Type? baseType)
     {
-        if (derivedType == null || baseType?.IsInterface != true)
-            return false;
-
-        return derivedType.GetInterfaces().Contains(baseType);
+        return derivedType != null && (baseType?.IsInterface) == true && derivedType.GetInterfaces().Contains(baseType);
     }
 
     /// <summary>
@@ -139,10 +134,7 @@ public static class TypeExtensions
             return derivedClassType.GetInterfaces().Contains(baseClassType);
 
         // Check if the base type of the derived class is not null
-        if (derivedClassType?.BaseType != null)
-            return derivedClassType.BaseType.IsDerivedFromClass(baseClassType);
-
-        return false;
+        return derivedClassType?.BaseType != null && derivedClassType.BaseType.IsDerivedFromClass(baseClassType);
     }
 
     /// <summary>

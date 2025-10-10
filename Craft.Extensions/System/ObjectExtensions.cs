@@ -17,10 +17,7 @@ public static class ObjectExtensions
     /// </summary>
     public static T If<T>(this T obj, bool condition, Func<T, T> func)
     {
-        if (condition && func is not null)
-            return func(obj);
-
-        return obj;
+        return condition && func is not null ? func(obj) : obj;
     }
 
     /// <summary>
@@ -42,18 +39,11 @@ public static class ObjectExtensions
     /// </summary>
     public static T ToValue<T>(this object obj) where T : struct
     {
-        if (obj is null)
-            return default;
-
-        if (typeof(T) == typeof(Guid))
-        {
-            if (Guid.TryParse(obj.ToString(), out var guid))
-                return (T)(object)guid;
-
-            return default;
-        }
-
-        return obj is IConvertible convertible
+        return obj is null
+            ? default
+            : typeof(T) == typeof(Guid)
+            ? Guid.TryParse(obj.ToString(), out var guid) ? (T)(object)guid : default
+            : obj is IConvertible convertible
             ? (T)Convert.ChangeType(convertible, typeof(T), CultureInfo.CurrentCulture)
             : default;
     }

@@ -14,9 +14,7 @@ public static class UrlValidations
     /// <returns>True if the URL is valid; otherwise, false.</returns>
     public static bool IsValidUrl(string url)
     {
-        if (string.IsNullOrWhiteSpace(url)) return false;
-
-        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
+        return !string.IsNullOrWhiteSpace(url) && Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
             && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
 

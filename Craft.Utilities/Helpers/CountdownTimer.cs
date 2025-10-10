@@ -121,6 +121,7 @@ public class CountdownTimer : IDisposable
                 _running = false;
             }
         }
+
         _disposed = true;
     }
 }

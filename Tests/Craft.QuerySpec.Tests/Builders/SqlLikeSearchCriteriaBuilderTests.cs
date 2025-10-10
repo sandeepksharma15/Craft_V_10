@@ -124,7 +124,7 @@ public class SqlLikeSearchCriteriaBuilderTests
     public void Add_NullSearchInfo_ThrowsArgumentNullException()
     {
         var builder = new SqlLikeSearchCriteriaBuilder<Company>();
-        Assert.Throws<ArgumentNullException>(() => builder.Add((SqlLikeSearchInfo<Company>)null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(null!));
     }
 
     [Fact]

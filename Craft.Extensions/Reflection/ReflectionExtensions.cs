@@ -146,13 +146,11 @@ public static class ReflectionExtensions
 
     private static MemberExpression GetMemberExpression(Expression body)
     {
-        if (body is MemberExpression memberExpr)
-            return memberExpr;
-
-        if (body is UnaryExpression unary && unary.Operand is MemberExpression member)
-            return member;
-
-        throw new ArgumentException("Invalid expression. Expected a property access expression.");
+        return body is MemberExpression memberExpr
+            ? memberExpr
+            : body is UnaryExpression unary && unary.Operand is MemberExpression member
+            ? member
+            : throw new ArgumentException("Invalid expression. Expected a property access expression.");
     }
 
     private static object CloneObject(object input, Type type, Dictionary<object, object> visited)

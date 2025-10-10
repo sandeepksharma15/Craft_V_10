@@ -106,10 +106,7 @@ public static class OtherStringExtensions
 
         int index = str.IndexOf(search, comparisonType);
 
-        if (index < 0)
-            return str;
-
-        return string.Concat(str.AsSpan(0, index), replace, str.AsSpan(index + search.Length));
+        return index < 0 ? str : string.Concat(str.AsSpan(0, index), replace, str.AsSpan(index + search.Length));
     }
 
     /// <summary>

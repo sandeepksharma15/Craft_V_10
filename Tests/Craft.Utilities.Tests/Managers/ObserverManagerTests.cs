@@ -83,10 +83,7 @@ public class ObserverManagerTests
         // Act
         static Task NotificationAsync(string observer)
         {
-            if (observer == observer2)
-                throw new Exception("Notification failed");
-
-            return Task.CompletedTask;
+            return observer == observer2 ? throw new Exception("Notification failed") : Task.CompletedTask;
         }
 
         await observerManager.NotifyAsync(NotificationAsync);

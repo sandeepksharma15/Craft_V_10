@@ -32,10 +32,7 @@ public static class EntityHelper
 
         // Different tenants may have an entity with same Id.
         // Check tenant IDs if applicable
-        if (entity1 is IHasTenant tenant1 && entity2 is IHasTenant tenant2)
-            return tenant1.TenantId == tenant2.TenantId;
-
-        return true;
+        return entity1 is not IHasTenant tenant1 || entity2 is not IHasTenant tenant2 || tenant1.TenantId == tenant2.TenantId;
     }
 
     /// <summary>
@@ -59,13 +56,9 @@ public static class EntityHelper
             return true;
 
         // Workaround for EF Core since it sets int/long to min value when attaching to dbcontext
-        if (typeof(TKey) == typeof(int))
-            return Convert.ToInt32(entity.Id) <= 0;
-
-        if (typeof(TKey) == typeof(long))
-            return Convert.ToInt64(entity.Id) <= 0;
-
-        return false;
+        return typeof(TKey) == typeof(int)
+            ? Convert.ToInt32(entity.Id) <= 0
+            : typeof(TKey) == typeof(long) && Convert.ToInt64(entity.Id) <= 0;
     }
 
     /// <summary>

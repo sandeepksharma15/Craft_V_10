@@ -35,16 +35,13 @@ public class ConcreteMapperTests : BaseMapperTests<TestEntity, TestDto, TestVm, 
 {
     protected override TClass CreateInstance<TClass>()
     {
-        if (typeof(TClass) == typeof(TestEntity))
-            return (TClass)(object)new TestEntity { Id = 1, Name = "Entity" };
-
-        if (typeof(TClass) == typeof(TestDto))
-            return (TClass)(object)new TestDto { Id = 1, Name = "DTO" };
-
-        if (typeof(TClass) == typeof(TestVm))
-            return (TClass)(object)new TestVm { Id = 1, Name = "VM" };
-
-        throw new InvalidOperationException($"Unsupported type: {typeof(TClass).Name}");
+        return typeof(TClass) == typeof(TestEntity)
+            ? (TClass)(object)new TestEntity { Id = 1, Name = "Entity" }
+            : typeof(TClass) == typeof(TestDto)
+            ? (TClass)(object)new TestDto { Id = 1, Name = "DTO" }
+            : typeof(TClass) == typeof(TestVm)
+            ? (TClass)(object)new TestVm { Id = 1, Name = "VM" }
+            : throw new InvalidOperationException($"Unsupported type: {typeof(TClass).Name}");
     }
 }
 

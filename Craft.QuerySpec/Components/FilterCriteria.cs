@@ -104,10 +104,9 @@ public sealed record FilterCriteria
     {
         ArgumentNullException.ThrowIfNull(whereExpr, nameof(whereExpr));
 
-        if (IsValidExpression(whereExpr))
-            return ParseExpression(whereExpr);
-
-        throw new ArgumentException("Invalid expression format. Only simple binary expressions are supported.", nameof(whereExpr));
+        return IsValidExpression(whereExpr)
+            ? ParseExpression(whereExpr)
+            : throw new ArgumentException("Invalid expression format. Only simple binary expressions are supported.", nameof(whereExpr));
     }
 
     /// <summary>

@@ -19,13 +19,11 @@ internal static class ExpressionToStringConverter
 
     private static string SerializeMember(MemberExpression member)
     {
-        if (member.Expression is MemberExpression inner)
-            return $"{SerializeMember(inner)}.{member.Member.Name}";
-
-        if (member.Expression is ParameterExpression)
-            return member.Member.Name;
-
-        throw new NotSupportedException("Only member access on the parameter or its properties is supported.");
+        return member.Expression is MemberExpression inner
+            ? $"{SerializeMember(inner)}.{member.Member.Name}"
+            : member.Expression is ParameterExpression
+            ? member.Member.Name
+            : throw new NotSupportedException("Only member access on the parameter or its properties is supported.");
     }
 
     private static string SerializeConstant(object value)

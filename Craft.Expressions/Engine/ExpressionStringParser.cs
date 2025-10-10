@@ -13,18 +13,14 @@ internal class ExpressionStringParser
 
         var expr = ParseExpression();
 
-        if (_current.Type != TokenType.EndOfInput)
-            throw new InvalidOperationException($"Unexpected token at end: {_current.Value}");
-
-        return expr;
+        return _current.Type != TokenType.EndOfInput
+            ? throw new InvalidOperationException($"Unexpected token at end: {_current.Value}")
+            : expr;
     }
 
     private void MoveNext()
     {
-        if (_tokens.MoveNext())
-            _current = _tokens.Current;
-        else
-            _current = new Token(TokenType.EndOfInput, string.Empty, -1);
+        _current = _tokens.MoveNext() ? _tokens.Current : new Token(TokenType.EndOfInput, string.Empty, -1);
     }
 
     // ParseExpression: handles '||'
@@ -42,6 +38,7 @@ internal class ExpressionStringParser
 
             left = new BinaryAstNode(op, left, right);
         }
+
         return left;
     }
 
@@ -60,6 +57,7 @@ internal class ExpressionStringParser
 
             left = new BinaryAstNode(op, left, right);
         }
+
         return left;
     }
 
@@ -78,6 +76,7 @@ internal class ExpressionStringParser
 
             left = new BinaryAstNode(op, left, right);
         }
+
         return left;
     }
 
@@ -97,6 +96,7 @@ internal class ExpressionStringParser
 
             left = new BinaryAstNode(op, left, right);
         }
+
         return left;
     }
 
@@ -113,6 +113,7 @@ internal class ExpressionStringParser
 
             return new UnaryAstNode(op, operand);
         }
+
         return ParsePrimary();
     }
 

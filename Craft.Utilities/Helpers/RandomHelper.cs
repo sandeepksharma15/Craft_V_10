@@ -67,10 +67,9 @@ public static class RandomHelper
     /// <param name="objs">List of object to select a random one</param>
     public static T GetRandomOf<T>(params T[] objs)
     {
-        if (objs is null || objs.Length == 0)
-            throw new ArgumentException("Value cannot be an empty collection.", nameof(objs));
-
-        return objs[GetRandom(0, objs.Length)];
+        return objs is null || objs.Length == 0
+            ? throw new ArgumentException("Value cannot be an empty collection.", nameof(objs))
+            : objs[GetRandom(0, objs.Length)];
     }
 
     /// <summary>
@@ -80,9 +79,8 @@ public static class RandomHelper
     /// <param name="list">List of object to select a random one</param>
     public static T GetRandomOfList<T>(IList<T> list)
     {
-        if (list is null || list.Count == 0)
-            throw new ArgumentException("Value cannot be an empty collection.", nameof(list));
-
-        return list[GetRandom(0, list.Count)];
+        return list is null || list.Count == 0
+            ? throw new ArgumentException("Value cannot be an empty collection.", nameof(list))
+            : list[GetRandom(0, list.Count)];
     }
 }

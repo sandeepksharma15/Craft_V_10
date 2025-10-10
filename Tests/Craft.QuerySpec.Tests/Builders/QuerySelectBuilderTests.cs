@@ -130,7 +130,7 @@ public class QuerySelectBuilderTests
         Expression<Func<TestEntity, object>> assignor = x => x.Name;
         Expression<Func<TestResult, object>> assignee = x => x.Name;
         // Act
-        builder.Add((LambdaExpression)assignor, (LambdaExpression)assignee);
+        builder.Add(assignor, (LambdaExpression)assignee);
         // Assert
         Assert.Single(builder.SelectDescriptorList);
     }
@@ -213,7 +213,7 @@ public class QuerySelectBuilderTests
         var builder = new QuerySelectBuilder<TestEntity, TestResult>();
         Expression<Func<TestResult, object>> assignee = x => x.Name;
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => builder.Add((Expression<Func<TestEntity, object>>)null!, assignee));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(null!, assignee));
     }
 
     [Fact]
@@ -223,7 +223,7 @@ public class QuerySelectBuilderTests
         var builder = new QuerySelectBuilder<TestEntity, TestResult>();
         Expression<Func<TestEntity, object>> assignor = x => x.Name;
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => builder.Add(assignor, (Expression<Func<TestResult, object>>)null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(assignor, null!));
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class QuerySelectBuilderTests
         var builder = new QuerySelectBuilder<TestEntity, TestResult>();
         Expression<Func<TestResult, object>> assignee = x => x.Name;
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => builder.Add((LambdaExpression)null!, (LambdaExpression)assignee));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(null!, (LambdaExpression)assignee));
     }
 
     [Fact]
@@ -252,7 +252,7 @@ public class QuerySelectBuilderTests
         var builder = new QuerySelectBuilder<TestEntity, TestResult>();
         Expression<Func<TestEntity, object>> assignor = x => x.Name;
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => builder.Add((LambdaExpression)assignor, (LambdaExpression)null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(assignor, (LambdaExpression)null!));
     }
 
     [Fact]

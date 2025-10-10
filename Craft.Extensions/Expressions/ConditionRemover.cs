@@ -124,6 +124,7 @@ public static class ConditionRemover
                 if (IsEquivalentCondition(node.Right, _conditionToRemove))
                     return node.Left;
             }
+
             return base.VisitBinary(node);
         }
     }
@@ -148,6 +149,7 @@ public static class ConditionRemover
                 if (IsEquivalentCondition(node.Right, _oldCondition))
                     return Expression.MakeBinary(node.NodeType, node.Left, _newCondition);
             }
+
             return base.VisitBinary(node);
         }
     }

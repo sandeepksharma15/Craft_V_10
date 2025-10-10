@@ -59,6 +59,7 @@ public class SelectDescriptorJsonConverter<T, TResult> : JsonConverter<SelectDes
                 }
             }
         }
+
         return selectInfo;
     }
 

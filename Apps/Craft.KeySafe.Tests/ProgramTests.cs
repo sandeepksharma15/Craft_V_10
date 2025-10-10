@@ -73,6 +73,7 @@ public class ProgramTests
             try { action(); }
             finally { Console.SetOut(originalOut); }
         }
+
         return sb.ToString();
     }
 

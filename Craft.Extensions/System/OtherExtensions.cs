@@ -42,6 +42,7 @@ public static class OtherExtensions
                 throw new FormatException($"Failed to parse hex string at position {i * 2}: '{code}'");
             bytes[i] = result;
         }
+
         return bytes;
     }
 

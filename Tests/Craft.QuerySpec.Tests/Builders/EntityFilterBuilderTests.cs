@@ -36,7 +36,7 @@ public class EntityFilterBuilderTests
     public void Add_ByExpression_ThrowsOnNull()
     {
         var builder = new EntityFilterBuilder<TestEntity>();
-        Assert.Throws<ArgumentNullException>(() => builder.Add((Expression<Func<TestEntity, bool>>)null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(null!));
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public class EntityFilterBuilderTests
     public void Remove_ByExpression_ThrowsOnNull()
     {
         var builder = new EntityFilterBuilder<TestEntity>();
-        Assert.Throws<ArgumentNullException>(() => builder.Remove((Expression<Func<TestEntity, bool>>)null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Remove(null!));
     }
 
     [Fact]

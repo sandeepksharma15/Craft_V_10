@@ -1,6 +1,4 @@
-﻿using Craft.Data;
-
-namespace Craft.Data.Tests.Converters;
+﻿namespace Craft.Data.Tests.Converters;
 
 public class DateTimeToDateTimeUtcTests
 {
@@ -72,7 +70,7 @@ public class DateTimeToDateTimeUtcTests
         var minValue = DateTime.MinValue;
 
         // Act
-        var result = Assert.IsType < DateTime >(converter.ConvertToProvider(minValue));
+        var result = Assert.IsType<DateTime>(converter.ConvertToProvider(minValue));
 
         // Assert
         Assert.Equal(DateTimeKind.Utc, result.Kind);

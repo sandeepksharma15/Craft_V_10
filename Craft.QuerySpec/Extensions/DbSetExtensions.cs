@@ -12,9 +12,9 @@ public static class DbSetExtensions
 
         var result = await queryable.ToListSafeAsync(cancellationToken);
 
-        if (result.Count == 0) return [];
-
-        return query?.PostProcessingAction == null
+        return result.Count == 0
+            ? []
+            : query?.PostProcessingAction == null
             ? result
             : query.PostProcessingAction(result);
     }
@@ -26,9 +26,9 @@ public static class DbSetExtensions
 
         var result = await queryable.ToListSafeAsync(cancellationToken);
 
-        if (result.Count == 0) return [];
-
-        return query.PostProcessingAction == null
+        return result.Count == 0
+            ? []
+            : query.PostProcessingAction == null
             ? result
             : [.. query.PostProcessingAction(result)];
     }

@@ -84,13 +84,10 @@ public static class ExpressionExtensions
             _ => throw new InvalidOperationException()
         };
 
-        if (!typeof(TResult).IsAssignableFrom(memberType))
-        {
-            throw new InvalidOperationException(
-                $"Member '{propertyOrFieldName}' type '{memberType}' cannot be assigned to '{typeof(TResult)}'.");
-        }
-
-        return Expression.Lambda<Func<T, TResult>>(memberAccess, parameter);
+        return !typeof(TResult).IsAssignableFrom(memberType)
+            ? throw new InvalidOperationException(
+                $"Member '{propertyOrFieldName}' type '{memberType}' cannot be assigned to '{typeof(TResult)}'.")
+            : Expression.Lambda<Func<T, TResult>>(memberAccess, parameter);
     }
 
     /// <summary>
@@ -129,13 +126,10 @@ public static class ExpressionExtensions
             _ => throw new InvalidOperationException()
         };
 
-        if (!typeof(TResult).IsAssignableFrom(memberType))
-        {
-            throw new InvalidOperationException(
-                $"Member '{memberName}' type '{memberType}' cannot be assigned to '{typeof(TResult)}'.");
-        }
-
-        return Expression.Lambda<Func<TResult>>(memberAccess);
+        return !typeof(TResult).IsAssignableFrom(memberType)
+            ? throw new InvalidOperationException(
+                $"Member '{memberName}' type '{memberType}' cannot be assigned to '{typeof(TResult)}'.")
+            : Expression.Lambda<Func<TResult>>(memberAccess);
     }
 
     /// <summary>

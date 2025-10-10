@@ -22,10 +22,9 @@ public class ClaimStrategy(string tenantKey = TenantConstants.TenantToken,
             AuthenticationScheme? authScheme;
 
             var schemeProvider = context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
-            if (_authenticationScheme is null)
-                authScheme = await schemeProvider?.GetDefaultAuthenticateSchemeAsync()!;
-            else
-                authScheme = (await schemeProvider?.GetAllSchemesAsync()!)?.FirstOrDefault(x => x.Name == _authenticationScheme)!;
+            authScheme = _authenticationScheme is null
+                ? await schemeProvider?.GetDefaultAuthenticateSchemeAsync()!
+                : (await schemeProvider?.GetAllSchemesAsync()!)?.FirstOrDefault(x => x.Name == _authenticationScheme)!;
 
             if (authScheme is null)
                 return null;

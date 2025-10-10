@@ -153,6 +153,7 @@ public class QueryJsonConverter<T, TResult> : JsonConverter<Query<T, TResult>>, 
                 writer.WritePropertyName(nameof(value.QuerySelectBuilder));
                 JsonSerializer.Serialize(writer, value.QuerySelectBuilder, localOptions);
             }
+
             writer.WriteEndObject();
         }
         catch (Exception ex)

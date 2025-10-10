@@ -41,7 +41,7 @@ public class Query<T> : IQuery<T> where T : class
         get => field;
         set
         {
-            if (value is not null && value < 0)
+            if (value is not null and < 0)
                 throw new ArgumentOutOfRangeException(nameof(Skip), "Skip cannot be negative.");
             field = value;
         }
@@ -52,7 +52,7 @@ public class Query<T> : IQuery<T> where T : class
         get => field;
         set
         {
-            if (value is not null && value <= 0)
+            if (value is not null and <= 0)
                 throw new ArgumentOutOfRangeException(nameof(Take), "Take cannot be negative or zero");
             field = value;
         }

@@ -14,9 +14,6 @@ public class BasePathStrategy : ITenantStrategy
             .Value?
             .Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
-        if (pathSegments is null || pathSegments.Length == 0)
-            return Task.FromResult<string?>(null);
-
-        return Task.FromResult<string?>(pathSegments[0]);
+        return pathSegments is null || pathSegments.Length == 0 ? Task.FromResult<string?>(null) : Task.FromResult<string?>(pathSegments[0]);
     }
 }

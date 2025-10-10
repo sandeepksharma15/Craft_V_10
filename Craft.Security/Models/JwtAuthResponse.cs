@@ -29,9 +29,7 @@ public record JwtAuthResponse(
 
     public static JwtAuthResponse GetAuthResult(object jsonData)
     {
-        if (jsonData == null) return Empty;
-
-        return GetAuthResult(jsonData.ToString()!);
+        return jsonData == null ? Empty : GetAuthResult(jsonData.ToString()!);
     }
 
     public RefreshTokenRequest ToRefreshTokenRequest(string ipAddress)

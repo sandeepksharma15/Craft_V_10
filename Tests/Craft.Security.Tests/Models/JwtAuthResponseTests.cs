@@ -47,7 +47,7 @@ public class JwtAuthResponseTests
     [Fact]
     public void GetAuthResult_ReturnsEmpty_OnNullOrEmptyJson()
     {
-        Assert.True(JwtAuthResponse.GetAuthResult((string)null!).IsEmpty);
+        Assert.True(JwtAuthResponse.GetAuthResult(null!).IsEmpty);
         Assert.True(JwtAuthResponse.GetAuthResult("").IsEmpty);
     }
 

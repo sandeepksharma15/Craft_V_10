@@ -136,12 +136,9 @@ internal class ExpressionStringTokenizer
 
         string ident = input[start..pos];
 
-        if (ident == "true" || ident == "false")
-            return new Token(TokenType.BooleanLiteral, ident, start);
-        else if (ident == "null")
-            return new Token(TokenType.NullLiteral, ident, start);
-        else
-            return new Token(TokenType.Identifier, ident, start);
+        return ident is "true" or "false"
+            ? new Token(TokenType.BooleanLiteral, ident, start)
+            : ident == "null" ? new Token(TokenType.NullLiteral, ident, start) : new Token(TokenType.Identifier, ident, start);
     }
 
     private static Token TokenizeStringLiteral(string input, ref int pos)

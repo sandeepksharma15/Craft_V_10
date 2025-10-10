@@ -27,11 +27,10 @@ public static class DbSetExtensions
         // We return the first filter's expression if any exist
         var declaredFilters = entityType?.GetDeclaredQueryFilters();
 
-        if (declaredFilters == null || declaredFilters.Count == 0)
-            return null;
-
-        return declaredFilters.FirstOrDefault() is { Expression: Expression<Func<T, bool>> expr } 
-            ? expr 
+        return declaredFilters == null || declaredFilters.Count == 0
+            ? null
+            : declaredFilters.FirstOrDefault() is { Expression: Expression<Func<T, bool>> expr }
+            ? expr
             : null;
     }
 

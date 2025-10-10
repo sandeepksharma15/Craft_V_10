@@ -59,13 +59,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        if (list.Count == 0)
-            return null;
-
-        if (list.Count > 1)
-            throw new InvalidOperationException("Sequence contains more than one matching element.");
-
-        return list[0];
+        return list.Count == 0
+            ? null
+            : list.Count > 1 ? throw new InvalidOperationException("Sequence contains more than one matching element.") : list[0];
     }
 
     /// <inheritdoc />
@@ -87,13 +83,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        if (list is null || list.Count == 0)
-            return null;
-
-        if (list.Count > 1)
-            throw new InvalidOperationException("Sequence contains more than one matching element.");
-
-        return list[0];
+        return list is null || list.Count == 0
+            ? null
+            : list.Count > 1 ? throw new InvalidOperationException("Sequence contains more than one matching element.") : list[0];
     }
 
     /// <inheritdoc />
@@ -118,9 +110,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
 
-        if (query.Take is null || query.Take <= 0)
+        if (query.Take is null or <= 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Page size (Take) must be set and greater than zero.");
-        if (query.Skip is null || query.Skip < 0)
+        if (query.Skip is null or < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
         var items = await _dbSet.WithQuery(query)
@@ -148,9 +140,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
 
-        if (query.Take is null || query.Take <= 0)
+        if (query.Take is null or <= 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Page size (Take) must be set and greater than zero.");
-        if (query.Skip is null || query.Skip < 0)
+        if (query.Skip is null or < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
         var items = await _dbSet

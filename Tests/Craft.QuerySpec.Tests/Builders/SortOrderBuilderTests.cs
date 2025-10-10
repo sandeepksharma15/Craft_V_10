@@ -187,7 +187,7 @@ public class SortOrderBuilderTests
         var builder = new SortOrderBuilder<Company>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => builder.Add((OrderDescriptor<Company>)null!));
+        Assert.Throws<ArgumentNullException>(() => builder.Add(null!));
     }
 
     [Fact]

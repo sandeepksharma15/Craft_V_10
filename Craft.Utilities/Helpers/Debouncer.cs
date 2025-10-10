@@ -29,6 +29,7 @@ public class Debouncer : IDisposable
                 {
                     DisposeTimer();
                 }
+
                 try
                 {
                     await action();
@@ -67,6 +68,7 @@ public class Debouncer : IDisposable
                     DisposeTimer();
                     _lastActionTime = DateTime.UtcNow;
                 }
+
                 try
                 {
                     await action();

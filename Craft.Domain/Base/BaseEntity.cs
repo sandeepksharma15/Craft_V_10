@@ -44,10 +44,7 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
         if (GetType() != obj.GetType()) return false;
 
         // Different tenants may have an entity with same Id.
-        if (this is IHasTenant self && obj is IHasTenant other && self.TenantId != other.TenantId)
-            return false;
-
-        return Equals(Id, ((BaseEntity<TKey>)obj).Id);
+        return (this is not IHasTenant self || obj is not IHasTenant other || self.TenantId == other.TenantId) && Equals(Id, ((BaseEntity<TKey>)obj).Id);
     }
 
     public override int GetHashCode()

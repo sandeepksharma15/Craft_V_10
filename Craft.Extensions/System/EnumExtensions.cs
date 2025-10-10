@@ -180,10 +180,9 @@ public static class EnumExtensions
     /// </summary>
     public static bool Contains<T>(this string value, T flags) where T : struct, Enum
     {
-        if (flags.TryGetSingleName(out var flagValue) && flagValue != null)
-            return value.Contains(flagValue, StringComparison.InvariantCultureIgnoreCase);
-
-        return flags
+        return flags.TryGetSingleName(out var flagValue) && flagValue != null
+            ? value.Contains(flagValue, StringComparison.InvariantCultureIgnoreCase)
+            : flags
             .GetFlags()
             .Any(item => value.Contains(item.ToStringInvariant(), StringComparison.InvariantCultureIgnoreCase));
     }

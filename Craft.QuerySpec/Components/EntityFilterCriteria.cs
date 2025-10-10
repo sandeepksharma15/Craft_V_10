@@ -81,10 +81,7 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     /// </remarks>
     public bool Equals(EntityFilterCriteria<T>? other)
     {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
-
-        return string.Equals(Filter.ToString(), other.Filter.ToString(), StringComparison.Ordinal);
+        return other is not null && (ReferenceEquals(this, other) || string.Equals(Filter.ToString(), other.Filter.ToString(), StringComparison.Ordinal));
     }
 
     /// <summary>
@@ -118,8 +115,7 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     /// <returns><c>true</c> if the instances are equal; otherwise, <c>false</c>.</returns>
     public static bool operator ==(EntityFilterCriteria<T>? left, EntityFilterCriteria<T>? right)
     {
-        if (left is null) return right is null;
-        return left.Equals(right);
+        return left is null ? right is null : left.Equals(right);
     }
 
     /// <summary>

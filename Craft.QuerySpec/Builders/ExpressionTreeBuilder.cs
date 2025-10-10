@@ -331,10 +331,10 @@ public static class ExpressionTreeBuilder
     private static bool IsExpectedParsingException(Exception ex)
     {
         return ex is FormatException
-            || ex is InvalidCastException
-            || ex is OverflowException
-            || ex is ArgumentException
-            || ex is InvalidOperationException;
+            or InvalidCastException
+            or OverflowException
+            or ArgumentException
+            or InvalidOperationException;
     }
 
     /// <summary>
@@ -372,10 +372,9 @@ public static class ExpressionTreeBuilder
             var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
             // Handle string types directly
-            if (underlyingType == typeof(string))
-                return value;
-
-            return Convert.ChangeType(value, underlyingType, System.Globalization.CultureInfo.InvariantCulture);
+            return underlyingType == typeof(string)
+                ? value
+                : Convert.ChangeType(value, underlyingType, System.Globalization.CultureInfo.InvariantCulture);
         }
         catch (Exception ex) when (IsExpectedParsingException(ex))
         {
@@ -402,10 +401,7 @@ public static class ExpressionTreeBuilder
 
             inner = TrimAllOuterBracketsAndWhitespace(inner);
 
-            if (IsInvalidQuery(inner) || inner == q)
-                return null;
-
-            return BuildBinaryTreeExpressionWorker(type, inner, parameterExpression);
+            return IsInvalidQuery(inner) || inner == q ? null : BuildBinaryTreeExpressionWorker(type, inner, parameterExpression);
         }
 
         // Handle binary operations
@@ -447,17 +443,13 @@ public static class ExpressionTreeBuilder
 
         // Handle evaluation expressions
         var evalMatch = GetCachedRegexMatch(q, EvalPattern);
-        if (evalMatch.Success)
-        {
-            return SendToEvaluation(type,
+        return evalMatch.Success
+            ? SendToEvaluation(type,
                 evalMatch.Groups[LeftOperand].Value,
                 evalMatch.Groups[EvaluatorFirst].Value,
                 evalMatch.Groups[RightOperand].Value,
-                parameterExpression);
-        }
-
-        return null;
-
+                parameterExpression)
+            : null;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static string GetValueOrDefault(string source, string defaultValue)
             => source.IsNonEmpty() ? source : defaultValue;
@@ -485,6 +477,7 @@ public static class ExpressionTreeBuilder
             if (match.Success)
                 return match;
         }
+
         return null;
     }
 
@@ -498,13 +491,12 @@ public static class ExpressionTreeBuilder
 
         var fieldNameProperty = fieldName.Split('.');
 
-        if (fieldNameProperty.Length != 2)
-            return null;
-
-        return props
+        return fieldNameProperty.Length != 2
+            ? null
+            : (props
             .Find(fieldNameProperty[0], ignoreCase: true)?
             .GetChildProperties()
-            .Find(fieldNameProperty[1], ignoreCase: true);
+            .Find(fieldNameProperty[1], ignoreCase: true));
     }
 
     /// <summary>

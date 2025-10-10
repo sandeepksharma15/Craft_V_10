@@ -31,10 +31,9 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         // Check that there is only one host tenant
         var host = await GetHostAsync(false, cancellationToken);
 
-        if (host is not null && entity.Type == TenantType.Host)
-            throw new MultiTenantException("There is already a host tenant.");
-
-        return await _store.AddAsync(entity, autoSave, cancellationToken);
+        return host is not null && entity.Type == TenantType.Host
+            ? throw new MultiTenantException("There is already a host tenant.")
+            : await _store.AddAsync(entity, autoSave, cancellationToken);
     }
 
     public async Task<T?> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)

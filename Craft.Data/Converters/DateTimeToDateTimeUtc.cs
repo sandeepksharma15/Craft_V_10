@@ -15,8 +15,8 @@ public class DateTimeToDateTimeUtc : ValueConverter<DateTime, DateTime>
     /// It can be used in scenarios where consistent handling of UTC <see cref="DateTime"/> values is required.
     /// </remarks>
 
-        // Convert to UTC kind when saving to the database; return as-is when reading from the database.
-    public DateTimeToDateTimeUtc() : base(dateTime => 
+    // Convert to UTC kind when saving to the database; return as-is when reading from the database.
+    public DateTimeToDateTimeUtc() : base(dateTime =>
         DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), dateTime => dateTime)
     {
     }

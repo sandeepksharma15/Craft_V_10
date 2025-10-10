@@ -30,18 +30,14 @@ public static class KeyTypeExtensions
     // New overloads using DI-registered IHashKeys
     public static string ToHashKey(this KeyType keyType, IHashKeys hashKeys)
     {
-        if (typeof(KeyType).IsIntegral() && keyType < 0)
-            throw new ArgumentException("KeyType cannot be negative");
-
-        return hashKeys.EncodeLong(keyType);
+        return typeof(KeyType).IsIntegral() && keyType < 0
+            ? throw new ArgumentException("KeyType cannot be negative")
+            : hashKeys.EncodeLong(keyType);
     }
 
     public static KeyType ToKeyType(this string hashKey, IHashKeys hashKeys)
     {
-        if (hashKey.IsNullOrEmpty())
-            throw new ArgumentException("HashKey cannot be null or empty");
-
-        return hashKeys.DecodeLong(hashKey)[0];
+        return hashKey.IsNullOrEmpty() ? throw new ArgumentException("HashKey cannot be null or empty") : hashKeys.DecodeLong(hashKey)[0];
     }
 
     // Optional: Overloads using IServiceProvider for convenience

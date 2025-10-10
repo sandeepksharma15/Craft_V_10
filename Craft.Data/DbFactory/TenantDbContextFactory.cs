@@ -62,10 +62,9 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
 
     private (string ConnectionString, string ProviderKey) ResolvePerTenant()
     {
-        if (string.IsNullOrEmpty(_currentTenant.ConnectionString))
-            throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
-
-        return (_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
+        return string.IsNullOrEmpty(_currentTenant.ConnectionString)
+            ? throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.")
+            : ((string ConnectionString, string ProviderKey))(_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
     }
 
     private (string ConnectionString, string ProviderKey) ResolveHybrid()

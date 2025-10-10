@@ -53,10 +53,9 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
 
     public async Task<T?> DeleteAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
     {
-        if (!_tenantMap.TryRemove(entity.Identifier, out var removed))
-            throw new MultiTenantException($"Problem deleting the Tenant: {entity.Identifier}");
-
-        return await Task.FromResult(removed);
+        return !_tenantMap.TryRemove(entity.Identifier, out var removed)
+            ? throw new MultiTenantException($"Problem deleting the Tenant: {entity.Identifier}")
+            : await Task.FromResult(removed);
     }
 
     public async Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
@@ -93,10 +92,9 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
             ? await GetAsync(entity.Id, false, cancellationToken)
             : null;
 
-        if (!_tenantMap.TryUpdate(existingTenantInfo?.Identifier!, entity, existingTenantInfo!))
-            throw new MultiTenantException($"Problem updating the Tenant: {entity.Identifier}");
-
-        return await Task.FromResult(entity);
+        return !_tenantMap.TryUpdate(existingTenantInfo?.Identifier!, entity, existingTenantInfo!)
+            ? throw new MultiTenantException($"Problem updating the Tenant: {entity.Identifier}")
+            : await Task.FromResult(entity);
     }
 
     #region CRUD Members Not Implemented

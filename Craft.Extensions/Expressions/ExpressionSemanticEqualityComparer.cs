@@ -86,9 +86,9 @@ public sealed class ExpressionSemanticEqualityComparer : IEqualityComparer<Expre
             => expr is ConstantExpression ce && ce.Type == typeof(bool) && (bool)ce.Value! == value;
 
         private static bool IsCommutative(ExpressionType nodeType)
-            => nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual
-               || nodeType == ExpressionType.And || nodeType == ExpressionType.Or
-               || nodeType == ExpressionType.Add || nodeType == ExpressionType.Multiply;
+            => nodeType is ExpressionType.Equal or ExpressionType.NotEqual
+               or ExpressionType.And or ExpressionType.Or
+               or ExpressionType.Add or ExpressionType.Multiply;
     }
 }
 
@@ -111,13 +111,9 @@ internal static class ExpressionComparer
 
         public override Expression? Visit(Expression? node)
         {
-            if (node == null || _y == null)
-                return node == _y ? node : null;
-
-            if (node.NodeType != _y.NodeType || node.Type != _y.Type)
-                return null;
-
-            return base.Visit(node);
+            return node == null || _y == null
+                ? node == _y ? node : null
+                : node.NodeType != _y.NodeType || node.Type != _y.Type ? null : base.Visit(node);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -202,12 +198,12 @@ internal static class ExpressionComparer
 
         private static bool IsCommutative(ExpressionType nodeType)
         {
-            return nodeType == ExpressionType.Equal ||
-                   nodeType == ExpressionType.NotEqual ||
-                   nodeType == ExpressionType.Add ||
-                   nodeType == ExpressionType.Multiply ||
-                   nodeType == ExpressionType.And ||
-                   nodeType == ExpressionType.Or;
+            return nodeType is ExpressionType.Equal or
+                   ExpressionType.NotEqual or
+                   ExpressionType.Add or
+                   ExpressionType.Multiply or
+                   ExpressionType.And or
+                   ExpressionType.Or;
         }
     }
 }
