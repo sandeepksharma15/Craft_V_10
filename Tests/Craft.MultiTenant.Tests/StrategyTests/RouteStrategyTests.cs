@@ -3,45 +3,53 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Craft.MultiTenant.Tests.StrategyTests;
 
 public class RouteStrategyTests
 {
-    private static IWebHostBuilder GetTestHostBuilder(string identifier, string routePattern)
+    private static IHost CreateTestHost(string identifier, string routePattern)
     {
-        return new WebHostBuilder()
-            .ConfigureServices(services =>
+        var hostBuilder = Host.CreateDefaultBuilder()
+            .ConfigureWebHostDefaults(webBuilder =>
             {
-                services.AddMultiTenant<Tenant>().WithRouteStrategy().WithInMemoryStore();
-                services.AddMvc();
-            })
-            .Configure(app =>
-            {
-                app.UseRouting();
-                app.UseMultiTenant();
-                app.UseEndpoints(endpoints =>
+                webBuilder.UseTestServer();
+                webBuilder.ConfigureServices(services =>
                 {
-                    endpoints.Map(routePattern, async context =>
-                    {
-                        string? identifier = null;
-                        try
-                        {
-                            var tenantContext = context.GetTenantContext<Tenant>();
-                            identifier = tenantContext?.Tenant?.Identifier;
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            // TenantContext is not available, leave identifier as null
-                        }
-                        await context.Response.WriteAsync(identifier ?? "");
-                    });
+                    services.AddMultiTenant<Tenant>().WithRouteStrategy().WithInMemoryStore();
+                    services.AddMvc();
                 });
+                webBuilder.Configure(app =>
+                {
+                    app.UseRouting();
+                    app.UseMultiTenant();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.Map(routePattern, async context =>
+                        {
+                            string? tenantIdentifier = null;
 
-                var store = app.ApplicationServices.GetRequiredService<ITenantStore<Tenant>>();
+                            try
+                            {
+                                var tenantContext = context.GetTenantContext<Tenant>();
+                                tenantIdentifier = tenantContext?.Tenant?.Identifier;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                // TenantContext is not available, leave identifier as null
+                            }
 
-                store.AddAsync(new Tenant { Id = 1, Identifier = identifier }).Wait();
+                            await context.Response.WriteAsync(tenantIdentifier ?? "");
+                        });
+                    });
+
+                    var store = app.ApplicationServices.GetRequiredService<ITenantStore<Tenant>>();
+                    store.AddAsync(new Tenant { Id = 1, Identifier = identifier }).Wait();
+                });
             });
+
+        return hostBuilder.Start();
     }
 
     [Theory]
@@ -49,31 +57,30 @@ public class RouteStrategyTests
     [InlineData("/", "initech", "")]
     public async Task ReturnExpectedIdentifier(string path, string identifier, string expected)
     {
-        // Use the correct route parameter name for RouteStrategy (default is __TENANT__)
-        IWebHostBuilder hostBuilder = GetTestHostBuilder(identifier, "{__TENANT__?}");
+        // Arrange: Use the correct route parameter name for RouteStrategy (default is __TENANT__)
+        using var host = CreateTestHost(identifier, "{__TENANT__?}");
+        var server = host.GetTestServer();
+        var client = server.CreateClient();
 
-        using (var server = new TestServer(hostBuilder))
-        {
-            var client = server.CreateClient();
-#pragma warning disable CA2234 // Pass system uri objects instead of strings
-            var response = await client.GetStringAsync(path);
-#pragma warning restore CA2234 // Pass system uri objects instead of strings
-            Assert.Equal(expected, response);
-        }
+        // Act
+        var response = await client.GetStringAsync(path);
+
+        // Assert
+        Assert.Equal(expected, response);
     }
 
     [Fact]
     public async Task ReturnNullIfNoRouteParamMatch()
     {
-        IWebHostBuilder hostBuilder = GetTestHostBuilder("test_tenant", "{controller}");
+        // Arrange
+        using var host = CreateTestHost("test_tenant", "{controller}");
+        var server = host.GetTestServer();
+        var client = server.CreateClient();
 
-        using (var server = new TestServer(hostBuilder))
-        {
-            var client = server.CreateClient();
-#pragma warning disable CA2234 // Pass system uri objects instead of strings
-            var response = await client.GetStringAsync("/test_tenant");
-#pragma warning restore CA2234 // Pass system uri objects instead of strings
-            Assert.Equal("", response);
-        }
+        // Act
+        var response = await client.GetStringAsync("/test_tenant");
+
+        // Assert
+        Assert.Equal("", response);
     }
 }
