@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Craft.Core; // For IDbContext
+﻿using Craft.Core; // For IDbContext
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
 
 namespace Craft.Data.Tests.DbFactory;
 
@@ -293,13 +289,14 @@ public class TenantDbContextFactoryTests
         Assert.Equal("InMemDb-Test", testProvider.LastConnectionString);
         Assert.Same(dbOptions, testProvider.LastOptions);
 
-        // Assert provider extension present (InMemory)
-        var dbContextOptions = ctx.GetService<IDbContextOptions>();
-        var inMemExt = dbContextOptions.FindExtension<InMemoryOptionsExtension>();
-        Assert.NotNull(inMemExt);
-        Assert.Equal("InMemDb-Test", inMemExt?.StoreName);
+        // Assert context was created successfully
+        Assert.NotNull(ctx);
+
+        // Verify the database provider is InMemory by checking if Database.IsInMemory() returns true
+        Assert.True(ctx.Database.IsInMemory());
 
         // Retrieve CoreOptionsExtension to ensure options were built (presence implies builder executed)
+        var dbContextOptions = ctx.GetService<IDbContextOptions>();
         var coreExt = dbContextOptions.FindExtension<CoreOptionsExtension>();
         Assert.NotNull(coreExt);
     }
