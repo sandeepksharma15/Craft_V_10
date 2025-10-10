@@ -63,7 +63,7 @@ public class RouteStrategyTests
         var client = server.CreateClient();
 
         // Act
-        var response = await client.GetStringAsync(path);
+        var response = await client.GetStringAsync(new Uri(path, UriKind.Relative));
 
         // Assert
         Assert.Equal(expected, response);
@@ -78,7 +78,7 @@ public class RouteStrategyTests
         var client = server.CreateClient();
 
         // Act
-        var response = await client.GetStringAsync("/test_tenant");
+        var response = await client.GetStringAsync(new Uri("/test_tenant", UriKind.Relative));
 
         // Assert
         Assert.Equal("", response);

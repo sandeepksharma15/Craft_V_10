@@ -3,63 +3,72 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Craft.MultiTenant.Tests.StrategyTests;
 
 public class SessionStrategyTests
 {
-    private static IWebHostBuilder GetTestHostBuilder(string identifier, string sessionKey)
+    private static IHost CreateTestHost(string identifier, string sessionKey)
     {
-        return new WebHostBuilder()
-            .ConfigureServices(services =>
+        var hostBuilder = Host.CreateDefaultBuilder()
+            .ConfigureWebHostDefaults(webBuilder =>
             {
-                services.AddDistributedMemoryCache();
-                services.AddSession(options =>
+                webBuilder.UseTestServer();
+                webBuilder.ConfigureServices(services =>
                 {
-                    options.IdleTimeout = TimeSpan.FromSeconds(10);
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.IsEssential = true;
-                });
+                    services.AddDistributedMemoryCache();
+                    services.AddSession(options =>
+                    {
+                        options.IdleTimeout = TimeSpan.FromSeconds(10);
+                        options.Cookie.HttpOnly = true;
+                        options.Cookie.IsEssential = true;
+                    });
 
-                services.AddMultiTenant<Tenant>()
-                    .WithSessionStrategy(sessionKey)
-                    .WithInMemoryStore();
-                services.AddMvc();
-            })
-            .Configure(app =>
-            {
-                app.UseSession();
-                app.UseMultiTenant();
-                app.Run(async context =>
+                    services.AddMultiTenant<Tenant>()
+                        .WithSessionStrategy(sessionKey)
+                        .WithInMemoryStore();
+                    services.AddMvc();
+                });
+                webBuilder.Configure(app =>
                 {
-                    context.Session.SetString(sessionKey, identifier);
-                    string? resolvedIdentifier = null;
-                    try
+                    app.UseSession();
+                    app.UseMultiTenant();
+                    app.Run(async context =>
                     {
-                        var tenantContext = context.GetTenantContext<Tenant>();
-                        resolvedIdentifier = tenantContext?.Tenant?.Identifier;
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        // TenantContext is not available, leave resolvedIdentifier as null
-                    }
-                    await context.Response.WriteAsync(resolvedIdentifier ?? "");
+                        context.Session.SetString(sessionKey, identifier);
+                        string? resolvedIdentifier = null;
+
+                        try
+                        {
+                            var tenantContext = context.GetTenantContext<Tenant>();
+                            resolvedIdentifier = tenantContext?.Tenant?.Identifier;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // TenantContext is not available, leave resolvedIdentifier as null
+                        }
+
+                        await context.Response.WriteAsync(resolvedIdentifier ?? "");
+                    });
                 });
             });
+
+        return hostBuilder.Start();
     }
 
     [Fact]
     public async Task ReturnNullIfNoSessionValue()
     {
-        var hostBuilder = GetTestHostBuilder("test_tenant", "__TENANT__");
+        // Arrange
+        using var host = CreateTestHost("test_tenant", "__TENANT__");
+        var server = host.GetTestServer();
+        var client = server.CreateClient();
 
-        using (var server = new TestServer(hostBuilder))
-        {
-            var client = server.CreateClient();
-#pragma warning disable CA2234 // Pass system uri objects instead of strings
-            var response = await client.GetStringAsync("/test_tenant");
-#pragma warning restore CA2234 // Pass system uri objects instead of strings
-            Assert.Equal("", response);
-        }
+        // Act
+        var response = await client.GetStringAsync(new Uri("/test_tenant", UriKind.Relative));
+
+        // Assert
+        Assert.Equal("", response);
     }
 }
