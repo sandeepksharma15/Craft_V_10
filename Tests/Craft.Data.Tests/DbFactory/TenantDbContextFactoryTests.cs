@@ -3,6 +3,7 @@ using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -49,9 +50,18 @@ public class TenantDbContextFactoryTests
         services.AddTransient<DummyDbContext>();
         services.AddSingleton<IOptions<DatabaseOptions>>(Options.Create(dbOptions));
         services.AddSingleton<IOptions<MultiTenantOptions>>(Options.Create(mtOptions));
+        services.AddLogging();
         var sp = services.BuildServiceProvider();
 
-        return new TenantDbContextFactory<DummyDbContext>(tenant, providers, sp, Options.Create(dbOptions), Options.Create(mtOptions));
+        var logger = sp.GetRequiredService<ILogger<TenantDbContextFactory<DummyDbContext>>>();
+
+        return new TenantDbContextFactory<DummyDbContext>(
+            tenant, 
+            providers, 
+            sp, 
+            Options.Create(dbOptions), 
+            Options.Create(mtOptions),
+            logger);
     }
 
     private static (Mock<IDatabaseProvider> providerMock, List<(DbContextOptionsBuilder builder, string cs, DatabaseOptions opts)> calls)
