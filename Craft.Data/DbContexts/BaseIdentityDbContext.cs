@@ -1,24 +1,37 @@
-﻿using Craft.Core;
+using Craft.Core;
 using Craft.MultiTenant;
 using Craft.Security;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.Data;
 
 /// <summary>
-/// Base DbContext with pluggable feature support.
-/// Provides convention configuration, model building hooks, and save pipeline integration.
+/// Base IdentityDbContext with pluggable feature support and ASP.NET Core Identity integration.
+/// Provides convention configuration, model building hooks, and save pipeline integration for Identity-based applications.
 /// </summary>
 /// <typeparam name="TContext">The concrete DbContext type.</typeparam>
-public abstract class BaseDbContext<TContext> : DbContext, IDbContext where TContext : DbContext
+/// <typeparam name="TUser">The user entity type (must inherit from CraftUser).</typeparam>
+/// <typeparam name="TRole">The role entity type (must inherit from CraftRole).</typeparam>
+/// <typeparam name="TKey">The type of the primary key for identity entities.</typeparam>
+public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : IdentityDbContext<TUser, TRole, TKey>, IDbContext
+    where TContext : DbContext
+    where TUser : CraftUser<TKey>
+    where TRole : CraftRole<TKey>
+    where TKey : IEquatable<TKey>
 {
     private readonly ITenant _currentTenant;
     private readonly ICurrentUser _currentUser;
     private readonly ILoggerFactory? _loggerFactory;
 
-    protected BaseDbContext(DbContextOptions<TContext> options, ITenant currentTenant, ICurrentUser currentUser,
-        ILoggerFactory? loggerFactory = null) : base(options)
+    protected BaseIdentityDbContext(
+        DbContextOptions options,
+        ITenant currentTenant,
+        ICurrentUser currentUser,
+        ILoggerFactory? loggerFactory = null)
+        : base(options)
     {
         _currentTenant = currentTenant;
         _currentUser = currentUser;
@@ -30,6 +43,16 @@ public abstract class BaseDbContext<TContext> : DbContext, IDbContext where TCon
     /// Consumers can populate this in their constructor to enable features.
     /// </summary>
     protected DbContextFeatureCollection Features { get; } = [];
+
+    /// <summary>
+    /// LoginHistory DbSet for tracking user login activity.
+    /// </summary>
+    public DbSet<LoginHistory<TKey>> LoginHistories { get; set; } = null!;
+
+    /// <summary>
+    /// RefreshToken DbSet for JWT token refresh management.
+    /// </summary>
+    public DbSet<RefreshToken<TKey>> RefreshTokens { get; set; } = null!;
 
     /// <summary>
     /// Configure provider-specific conventions. Sealed to ensure UTC DateTime conversion
@@ -103,9 +126,11 @@ public abstract class BaseDbContext<TContext> : DbContext, IDbContext where TCon
     /// </summary>
     private void RegisterFeatureDbSets(ModelBuilder modelBuilder)
     {
-        // Register the entity type with EF Core
         foreach (var entityType in Features.GetRequiredDbSetTypes())
+        {
+            // Register the entity type with EF Core
             modelBuilder.Model.AddEntityType(entityType);
+        }
     }
 
     /// <summary>
@@ -124,5 +149,27 @@ public abstract class BaseDbContext<TContext> : DbContext, IDbContext where TCon
     {
         Features.BeforeSaveChanges(this, _currentUser.GetId());
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    // IDbContext interface implementations (inherited from DbContext)
+    int IDbContext.SaveChanges() => SaveChanges();
+
+    Task<int> IDbContext.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
+}
+
+/// <summary>
+/// Base IdentityDbContext with default CraftUser, CraftRole, and KeyType.
+/// </summary>
+/// <typeparam name="TContext">The concrete DbContext type.</typeparam>
+public abstract class BaseIdentityDbContext<TContext> : BaseIdentityDbContext<TContext, CraftUser, CraftRole, KeyType>
+    where TContext : DbContext
+{
+    protected BaseIdentityDbContext(
+        DbContextOptions options,
+        ITenant currentTenant,
+        ICurrentUser currentUser,
+        ILoggerFactory? loggerFactory = null)
+        : base(options, currentTenant, currentUser, loggerFactory)
+    {
     }
 }
