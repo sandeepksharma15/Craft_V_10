@@ -66,7 +66,7 @@ public class MultiTenancyFeatureTests
         
         // Verify the model has the query filter applied
         var entityType = context.Model.FindEntityType(typeof(TestEntity));
-        var queryFilter = entityType?.GetQueryFilter();
+        var queryFilter = entityType?.GetDeclaredQueryFilters();
         Assert.NotNull(queryFilter); // Ensure filter is applied
         
         // Add test data for multiple tenants

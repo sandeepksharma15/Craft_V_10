@@ -115,19 +115,18 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
     {
         if (string.IsNullOrEmpty(_currentTenant.ConnectionString))
         {
-            _logger.LogError(
-                "Tenant {TenantIdentifier} is configured as PerTenant but has no connection string defined.",
-                _currentTenant.Identifier);
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError(
+                    "Tenant {TenantIdentifier} is configured as PerTenant but has no connection string defined.",
+                    _currentTenant.Identifier);
 
             throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
         }
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
             _logger.LogDebug(
                 "Tenant {TenantIdentifier} uses dedicated database (PerTenant strategy).",
                 _currentTenant.Identifier);
-        }
 
         return (_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
     }
@@ -179,21 +178,20 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
 
         if (provider == null)
         {
-            _logger.LogError(
-                "No database provider found for key: {ProviderKey}. Available providers: {AvailableProviders}",
-                providerKey,
-                string.Join(", ", _providers.Select(p => p.GetType().Name)));
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError(
+                    "No database provider found for key: {ProviderKey}. Available providers: {AvailableProviders}",
+                    providerKey,
+                    string.Join(", ", _providers.Select(p => p.GetType().Name)));
 
             throw new NotSupportedException($"Provider '{providerKey}' not supported");
         }
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
             _logger.LogDebug(
                 "Using database provider: {ProviderType} for key: {ProviderKey}",
                 provider.GetType().Name,
                 providerKey);
-        }
 
         var builder = new DbContextOptionsBuilder<T>();
         provider.Configure(builder, connectionString, _dbOptions);

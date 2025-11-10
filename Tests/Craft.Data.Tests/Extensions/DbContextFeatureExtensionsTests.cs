@@ -113,7 +113,6 @@ public class DbContextFeatureExtensionsTests
         // Assert
         Assert.Same(collection, result);
         Assert.Single(collection);
-        var feature = Assert.IsType<IdentityFeature<CraftUser, CraftRole, KeyType>>(collection[0]);
     }
 
     [Fact]

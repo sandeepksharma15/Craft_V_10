@@ -77,7 +77,7 @@ public class TenantDbContextFactoryTests
         return (mock, calls);
     }
 
-    private static TestCurrentTenant BuildTenant(TenantDbType dbType, int? shard = null, string? cs = null, string? provider = null) =>
+    private static TestCurrentTenant BuildTenant(TenantDbType dbType, string? cs = null, string? provider = null) =>
         new() { DbType = dbType, ConnectionString = cs ?? string.Empty, DbProvider = provider ?? string.Empty };
 
     #endregion

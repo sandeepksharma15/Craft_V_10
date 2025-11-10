@@ -65,7 +65,7 @@ public class DbContextFeatureCollectionTests
     {
         // Arrange
         var conventionSet = new ConventionSet();
-        var builder = new ModelConfigurationBuilder(conventionSet, null);
+        var builder = new ModelConfigurationBuilder(conventionSet, null!);
         var feature1 = new Mock<IDbContextFeature>();
         var feature2 = new Mock<IDbContextFeature>();
         
@@ -85,7 +85,7 @@ public class DbContextFeatureCollectionTests
     {
         // Arrange
         var conventionSet = new ConventionSet();
-        var builder = new ModelConfigurationBuilder(conventionSet, null);
+        var builder = new ModelConfigurationBuilder(conventionSet, null!);
         var collection = new DbContextFeatureCollection();
 
         // Act & Assert

@@ -189,8 +189,8 @@ public class IdentityFeatureTests
         Assert.Equal($"{prefix}LoginHistory", loginHistoryEntity.GetTableName());
         
         var indexes = loginHistoryEntity.GetIndexes().ToList();
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(LoginHistory<KeyType>.UserId)));
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(LoginHistory<KeyType>.LastLoginOn)));
+        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(LoginHistory<>.UserId)));
+        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(LoginHistory<>.LastLoginOn)));
     }
 
     [Fact]
@@ -212,9 +212,9 @@ public class IdentityFeatureTests
         Assert.Equal($"{prefix}RefreshTokens", refreshTokenEntity.GetTableName());
         
         var indexes = refreshTokenEntity.GetIndexes().ToList();
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<KeyType>.UserId)));
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<KeyType>.Token)));
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<KeyType>.ExpiryTime)));
+        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<>.UserId)));
+        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<>.Token)));
+        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<>.ExpiryTime)));
     }
 
     [Fact]
