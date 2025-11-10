@@ -47,6 +47,15 @@ public static class DbContextFeatureExtensions
     }
 
     /// <summary>
+    /// Adds version tracking functionality to the DbContext.
+    /// Automatically sets initial version and increments version on modifications for entities implementing IHasVersion.
+    /// </summary>
+    public static DbContextFeatureCollection AddVersionTracking(this DbContextFeatureCollection features)
+    {
+        return features.AddFeature<VersionTrackingFeature>();
+    }
+
+    /// <summary>
     /// Adds ASP.NET Core Identity configuration with custom table naming.
     /// Configures Identity tables with the specified prefix (default: "Id_").
     /// </summary>
@@ -75,18 +84,19 @@ public static class DbContextFeatureExtensions
     }
 
     /// <summary>
-    /// Adds all common features: AuditTrail, SoftDelete, and Concurrency.
+    /// Adds all common features: AuditTrail, SoftDelete, Concurrency, and VersionTracking.
     /// </summary>
     public static DbContextFeatureCollection AddCommonFeatures(this DbContextFeatureCollection features)
     {
         return features
             .AddAuditTrail()
             .AddSoftDelete()
-            .AddConcurrency();
+            .AddConcurrency()
+            .AddVersionTracking();
     }
 
     /// <summary>
-    /// Adds all features including multi-tenancy: AuditTrail, SoftDelete, Concurrency, and MultiTenancy.
+    /// Adds all features including multi-tenancy: AuditTrail, SoftDelete, Concurrency, VersionTracking, and MultiTenancy.
     /// </summary>
     public static DbContextFeatureCollection AddAllFeatures(
         this DbContextFeatureCollection features,
@@ -96,6 +106,7 @@ public static class DbContextFeatureExtensions
             .AddAuditTrail()
             .AddSoftDelete()
             .AddConcurrency()
+            .AddVersionTracking()
             .AddMultiTenancy(currentTenant);
     }
 }

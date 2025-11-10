@@ -1,7 +1,5 @@
 ﻿using Craft.Auditing;
-using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Craft.Data.DbContextFeatures;
 
@@ -40,13 +38,19 @@ public class AuditTrailFeature : IDbContextFeature, IDbSetProvider
     /// <summary>
     /// Creates audit trail entries for all auditable entities before save.
     /// </summary>
+    /// <remarks>
+    /// This feature focuses solely on audit trail creation.
+    /// For concurrency stamp management, use <see cref="ConcurrencyFeature"/>.
+    /// For version tracking, use <see cref="VersionTrackingFeature"/>.
+    /// </remarks>
     public void OnBeforeSaveChanges(DbContext context, KeyType userId)
     {
         // Get auditable entity types
         var auditableTypes = AuditingHelpers.GetAuditableBaseEntityTypes();
 
-        // Get all changed entries
+        // Get all changed entries for auditable entities
         var entries = context.ChangeTracker.Entries()
+            .Where(e => e.Entity is not AuditTrail) // Prevent self-auditing
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
             .Where(e => auditableTypes.Contains(e.Entity.GetType().Name))
             .ToList();
@@ -55,8 +59,6 @@ public class AuditTrailFeature : IDbContextFeature, IDbSetProvider
         foreach (var entry in entries)
         {
             var auditTrail = new AuditTrail(entry, userId);
-
-            // Add audit trail to context
             context.Set<AuditTrail>().Add(auditTrail);
         }
     }

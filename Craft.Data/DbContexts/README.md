@@ -250,6 +250,12 @@ public class AppDbContext : BaseDbContext<AppDbContext>
 - Configures `ConcurrencyStamp` as concurrency token
 - Works with entities implementing `IHasConcurrency`
 
+### VersionTrackingFeature
+- Sets initial version to 1 on entity creation
+- Automatically increments version on modifications
+- Works with entities implementing `IHasVersion`
+- Useful for optimistic concurrency and change tracking
+
 ### IdentityFeature
 - Configures ASP.NET Core Identity tables with custom naming
 - Default table prefix: `Id_` (Users, Roles, UserRoles, etc.)
