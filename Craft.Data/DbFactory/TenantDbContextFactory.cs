@@ -25,12 +25,8 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
     private readonly MultiTenantOptions _multiTenantOptions;       // Multi-tenant feature options
     private readonly ILogger<TenantDbContextFactory<T>> _logger;   // Logger for diagnostics
 
-    public TenantDbContextFactory(
-        ICurrentTenant currentTenant, 
-        IEnumerable<IDatabaseProvider> providers,
-        IServiceProvider sp, 
-        IOptions<DatabaseOptions> dbOptions, 
-        IOptions<MultiTenantOptions> multiTenantOptions,
+    public TenantDbContextFactory(ICurrentTenant currentTenant, IEnumerable<IDatabaseProvider> providers,
+        IServiceProvider sp, IOptions<DatabaseOptions> dbOptions, IOptions<MultiTenantOptions> multiTenantOptions,
         ILogger<TenantDbContextFactory<T>> logger)
     {
         _currentTenant = currentTenant;

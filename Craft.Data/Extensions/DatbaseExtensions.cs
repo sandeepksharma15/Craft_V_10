@@ -1,8 +1,6 @@
-﻿using Craft.MultiTenant;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Craft.Data;
 
@@ -30,7 +28,7 @@ public static class DatabaseExtensions
         services.AddSingleton<IDatabaseProvider, PostgreSqlDatabaseProvider>();
 
         // Register connection string handlers
-        services.AddSingleton<IConnectionStringHandler, MsSqlConnectionStringHandler>();
+        services.AddSingleton<IConnectionStringHandler, SqlServerConnectionStringHandler>();
         services.AddSingleton<IConnectionStringHandler, PostgreSqlConnectionStringHandler>();
         services.AddSingleton<ConnectionStringService>();
 

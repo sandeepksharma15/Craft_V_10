@@ -16,10 +16,7 @@ public class MultiTenancyFeature : IDbContextFeature
     /// Initializes a new instance of the MultiTenancyFeature with the current tenant.
     /// </summary>
     /// <param name="currentTenant">The current tenant context.</param>
-    public MultiTenancyFeature(ITenant currentTenant)
-    {
-        _currentTenant = currentTenant;
-    }
+    public MultiTenancyFeature(ITenant currentTenant) => _currentTenant = currentTenant;
 
     /// <summary>
     /// Applies global query filter to include only current tenant's data.

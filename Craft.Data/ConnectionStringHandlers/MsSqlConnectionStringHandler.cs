@@ -5,7 +5,7 @@ namespace Craft.Data;
 /// <summary>
 /// Handles build, validation and masking operations for Microsoft SQL Server connection strings.
 /// </summary>
-public sealed class MsSqlConnectionStringHandler : IConnectionStringHandler
+public sealed class SqlServerConnectionStringHandler : IConnectionStringHandler
 {
     /// <summary>
     /// Builds a normalized SQL Server connection string applying the provided <see cref="DatabaseOptions"/>.

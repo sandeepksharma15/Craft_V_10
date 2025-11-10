@@ -5,7 +5,7 @@ namespace Craft.Data.Tests.ConnectionStringHandlers;
 public class MsSqlConnectionStringHandlerTests
 {
     private const string Mask = "*******";
-    private readonly MsSqlConnectionStringHandler _sut = new();
+    private readonly SqlServerConnectionStringHandler _sut = new();
 
     // ---------- Build tests ----------
 

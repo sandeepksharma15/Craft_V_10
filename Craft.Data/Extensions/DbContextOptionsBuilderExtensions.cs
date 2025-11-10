@@ -19,12 +19,8 @@ public static class DbContextOptionsBuilderExtensions
     /// <returns>The configured DbContextOptionsBuilder for chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when builder, dbProvider, or connectionString is null.</exception>
     /// <exception cref="NotSupportedException">Thrown when the specified database provider is not supported.</exception>
-    public static DbContextOptionsBuilder UseDatabase(
-        this DbContextOptionsBuilder builder,
-        string dbProvider,
-        string connectionString,
-        DatabaseOptions options,
-        IServiceProvider? serviceProvider = null)
+    public static DbContextOptionsBuilder UseDatabase(this DbContextOptionsBuilder builder, string dbProvider,
+        string connectionString, DatabaseOptions options, IServiceProvider? serviceProvider = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(dbProvider);
@@ -74,13 +70,8 @@ public static class DbContextOptionsBuilderExtensions
     /// <param name="commandTimeout">Command timeout in seconds.</param>
     /// <param name="serviceProvider">Optional service provider to resolve database providers.</param>
     /// <returns>The configured DbContextOptionsBuilder for chaining.</returns>
-    public static DbContextOptionsBuilder UseDatabase(
-        this DbContextOptionsBuilder builder,
-        string dbProvider,
-        string connectionString,
-        int maxRetryCount = 3,
-        int maxRetryDelay = 15,
-        int commandTimeout = 30,
+    public static DbContextOptionsBuilder UseDatabase(this DbContextOptionsBuilder builder, string dbProvider,
+        string connectionString, int maxRetryCount = 3, int maxRetryDelay = 15, int commandTimeout = 30,
         IServiceProvider? serviceProvider = null)
     {
         var options = new DatabaseOptions
@@ -105,12 +96,8 @@ public static class DbContextOptionsBuilderExtensions
     /// <param name="options">Database configuration options.</param>
     /// <param name="serviceProvider">Optional service provider to resolve database providers.</param>
     /// <returns>The configured DbContextOptionsBuilder for chaining.</returns>
-    public static DbContextOptionsBuilder<TContext> UseDatabase<TContext>(
-        this DbContextOptionsBuilder<TContext> builder,
-        string dbProvider,
-        string connectionString,
-        DatabaseOptions options,
-        IServiceProvider? serviceProvider = null)
+    public static DbContextOptionsBuilder<TContext> UseDatabase<TContext>(this DbContextOptionsBuilder<TContext> builder,
+        string dbProvider, string connectionString, DatabaseOptions options, IServiceProvider? serviceProvider = null)
         where TContext : DbContext
     {
         UseDatabase((DbContextOptionsBuilder)builder, dbProvider, connectionString, options, serviceProvider);
@@ -129,14 +116,9 @@ public static class DbContextOptionsBuilderExtensions
     /// <param name="commandTimeout">Command timeout in seconds.</param>
     /// <param name="serviceProvider">Optional service provider to resolve database providers.</param>
     /// <returns>The configured DbContextOptionsBuilder for chaining.</returns>
-    public static DbContextOptionsBuilder<TContext> UseDatabase<TContext>(
-        this DbContextOptionsBuilder<TContext> builder,
-        string dbProvider,
-        string connectionString,
-        int maxRetryCount = 3,
-        int maxRetryDelay = 15,
-        int commandTimeout = 30,
-        IServiceProvider? serviceProvider = null)
+    public static DbContextOptionsBuilder<TContext> UseDatabase<TContext>(this DbContextOptionsBuilder<TContext> builder,
+        string dbProvider, string connectionString, int maxRetryCount = 3, int maxRetryDelay = 15,
+        int commandTimeout = 30, IServiceProvider? serviceProvider = null)
         where TContext : DbContext
     {
         UseDatabase((DbContextOptionsBuilder)builder, dbProvider, connectionString, maxRetryCount, maxRetryDelay, commandTimeout, serviceProvider);

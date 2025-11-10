@@ -22,10 +22,7 @@ public class IdentityFeature<TUser, TRole, TKey> : IDbContextFeature, IDbSetProv
     /// Initializes a new instance of IdentityFeature with custom table prefix.
     /// </summary>
     /// <param name="tablePrefix">Prefix for Identity tables (default: "Id_").</param>
-    public IdentityFeature(string tablePrefix = "Id_")
-    {
-        _tablePrefix = tablePrefix;
-    }
+    public IdentityFeature(string tablePrefix = "Id_") => _tablePrefix = tablePrefix;
 
     /// <summary>
     /// This feature doesn't require a single DbSet as it configures multiple Identity entities.

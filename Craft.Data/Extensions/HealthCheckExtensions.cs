@@ -18,16 +18,13 @@ public static class HealthCheckExtensions
     /// <param name="failureStatus">The health status to report on failure (default: Unhealthy).</param>
     /// <param name="tags">Optional tags for categorizing the health check.</param>
     /// <returns>The health checks builder for chaining.</returns>
-    public static IHealthChecksBuilder AddDatabaseHealthCheck<TContext>(
-        this IHealthChecksBuilder builder,
-        string name = "database",
-        HealthStatus failureStatus = HealthStatus.Unhealthy,
-        IEnumerable<string>? tags = null)
+    public static IHealthChecksBuilder AddDatabaseHealthCheck<TContext>(this IHealthChecksBuilder builder,
+        string name = "database", HealthStatus failureStatus = HealthStatus.Unhealthy, IEnumerable<string>? tags = null)
         where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        tags ??= new[] { "db", "ready" };
+        tags ??= ["db", "ready"];
 
         return builder.AddDbContextCheck<TContext>(name, failureStatus, tags);
     }
@@ -42,26 +39,17 @@ public static class HealthCheckExtensions
     /// <param name="tags">Optional tags for categorizing the health check.</param>
     /// <param name="timeout">Optional timeout for the health check.</param>
     /// <returns>The health checks builder for chaining.</returns>
-    public static IHealthChecksBuilder AddSqlServerHealthCheck(
-        this IHealthChecksBuilder builder,
-        string connectionString,
-        string name = "sqlserver",
-        HealthStatus failureStatus = HealthStatus.Unhealthy,
-        IEnumerable<string>? tags = null,
-        TimeSpan? timeout = null)
+    public static IHealthChecksBuilder AddSqlServerHealthCheck(this IHealthChecksBuilder builder,
+        string connectionString, string name = "sqlserver", HealthStatus failureStatus = HealthStatus.Unhealthy,
+        IEnumerable<string>? tags = null, TimeSpan? timeout = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        tags ??= new[] { "db", "sqlserver", "ready" };
+        tags ??= ["db", "sqlserver", "ready"];
 
-        return builder.AddSqlServer(
-            connectionString,
-            healthQuery: "SELECT 1;",
-            failureStatus: failureStatus,
-            name: name,
-            tags: tags,
-            timeout: timeout);
+        return builder.AddSqlServer(connectionString, healthQuery: "SELECT 1;", failureStatus: failureStatus, name: name, 
+            tags: tags, timeout: timeout);
     }
 
     /// <summary>
@@ -74,26 +62,17 @@ public static class HealthCheckExtensions
     /// <param name="tags">Optional tags for categorizing the health check.</param>
     /// <param name="timeout">Optional timeout for the health check.</param>
     /// <returns>The health checks builder for chaining.</returns>
-    public static IHealthChecksBuilder AddPostgreSqlHealthCheck(
-        this IHealthChecksBuilder builder,
-        string connectionString,
-        string name = "postgresql",
-        HealthStatus failureStatus = HealthStatus.Unhealthy,
-        IEnumerable<string>? tags = null,
-        TimeSpan? timeout = null)
+    public static IHealthChecksBuilder AddPostgreSqlHealthCheck(this IHealthChecksBuilder builder,
+        string connectionString, string name = "postgresql", HealthStatus failureStatus = HealthStatus.Unhealthy,
+        IEnumerable<string>? tags = null, TimeSpan? timeout = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        tags ??= new[] { "db", "postgresql", "ready" };
+        tags ??= ["db", "postgresql", "ready"];
 
-        return builder.AddNpgSql(
-            connectionString,
-            healthQuery: "SELECT 1;",
-            failureStatus: failureStatus,
-            name: name,
-            tags: tags,
-            timeout: timeout);
+        return builder.AddNpgSql(connectionString, healthQuery: "SELECT 1;", failureStatus: failureStatus, name: name,
+            tags: tags, timeout: timeout);
     }
 
     /// <summary>
@@ -107,35 +86,22 @@ public static class HealthCheckExtensions
     /// <param name="tags">Optional tags for categorizing the health check.</param>
     /// <param name="timeout">Optional timeout for the health check.</param>
     /// <returns>The health checks builder for chaining.</returns>
-    public static IHealthChecksBuilder AddDatabaseConnectionHealthCheck(
-        this IHealthChecksBuilder builder,
-        string connectionString,
-        string dbProvider,
-        string name = "database-connection",
-        HealthStatus failureStatus = HealthStatus.Unhealthy,
-        IEnumerable<string>? tags = null,
-        TimeSpan? timeout = null)
+    public static IHealthChecksBuilder AddDatabaseConnectionHealthCheck(this IHealthChecksBuilder builder,
+        string connectionString, string dbProvider, string name = "database-connection",
+        HealthStatus failureStatus = HealthStatus.Unhealthy, IEnumerable<string>? tags = null, TimeSpan? timeout = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(dbProvider);
 
-        tags ??= new[] { "db", "ready" };
+        tags ??= ["db", "ready"];
 
         return dbProvider.ToLowerInvariant() switch
         {
-            DbProviderKeys.SqlServer => builder.AddSqlServerHealthCheck(
-                connectionString,
-                name,
-                failureStatus,
-                tags,
+            DbProviderKeys.SqlServer => builder.AddSqlServerHealthCheck(connectionString, name, failureStatus, tags,
                 timeout),
 
-            DbProviderKeys.Npgsql => builder.AddPostgreSqlHealthCheck(
-                connectionString,
-                name,
-                failureStatus,
-                tags,
+            DbProviderKeys.Npgsql => builder.AddPostgreSqlHealthCheck(connectionString, name, failureStatus, tags,
                 timeout),
 
             _ => throw new NotSupportedException($"Health check for provider '{dbProvider}' is not supported.")
@@ -152,23 +118,14 @@ public static class HealthCheckExtensions
     /// <param name="tags">Optional tags for categorizing the health check.</param>
     /// <param name="timeout">Optional timeout for the health check.</param>
     /// <returns>The health checks builder for chaining.</returns>
-    public static IHealthChecksBuilder AddDatabaseHealthCheck(
-        this IHealthChecksBuilder builder,
-        DatabaseOptions options,
-        string name = "database",
-        HealthStatus failureStatus = HealthStatus.Unhealthy,
-        IEnumerable<string>? tags = null,
+    public static IHealthChecksBuilder AddDatabaseHealthCheck(this IHealthChecksBuilder builder, DatabaseOptions options,
+        string name = "database", HealthStatus failureStatus = HealthStatus.Unhealthy, IEnumerable<string>? tags = null,
         TimeSpan? timeout = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(options);
 
-        return builder.AddDatabaseConnectionHealthCheck(
-            options.ConnectionString,
-            options.DbProvider,
-            name,
-            failureStatus,
-            tags,
-            timeout);
+        return builder.AddDatabaseConnectionHealthCheck(options.ConnectionString, options.DbProvider, name,
+            failureStatus, tags, timeout);
     }
 }

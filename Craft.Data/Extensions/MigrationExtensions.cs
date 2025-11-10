@@ -18,9 +18,7 @@ public static class MigrationExtensions
     /// <param name="app">The web application.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
-    public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(
-        this WebApplication app,
-        CancellationToken cancellationToken = default)
+    public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(this WebApplication app, CancellationToken cancellationToken = default)
         where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(app);
@@ -59,6 +57,7 @@ public static class MigrationExtensions
 
             // Run custom seeders
             var seederRunner = scope.ServiceProvider.GetService<CustomSeederRunner>();
+
             if (seederRunner != null)
             {
                 logger.LogInformation("Running custom seeders");
@@ -89,9 +88,7 @@ public static class MigrationExtensions
     /// <param name="app">The web application.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
-    public static async Task<WebApplication> EnsureDatabaseCreatedAsync<TContext>(
-        this WebApplication app,
-        CancellationToken cancellationToken = default)
+    public static async Task<WebApplication> EnsureDatabaseCreatedAsync<TContext>(this WebApplication app, CancellationToken cancellationToken = default)
         where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(app);
@@ -130,9 +127,7 @@ public static class MigrationExtensions
     /// <param name="app">The web application.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
-    public static async Task<WebApplication> DeleteDatabaseAsync<TContext>(
-        this WebApplication app,
-        CancellationToken cancellationToken = default)
+    public static async Task<WebApplication> DeleteDatabaseAsync<TContext>(this WebApplication app, CancellationToken cancellationToken = default)
         where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(app);
@@ -170,9 +165,7 @@ public static class MigrationExtensions
     /// <param name="app">The web application.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
-    public static async Task<WebApplication> RunSeedersAsync(
-        this WebApplication app,
-        CancellationToken cancellationToken = default)
+    public static async Task<WebApplication> RunSeedersAsync(this WebApplication app, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(app);
 

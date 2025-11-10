@@ -26,12 +26,8 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
     private readonly ICurrentUser _currentUser;
     private readonly ILoggerFactory? _loggerFactory;
 
-    protected BaseIdentityDbContext(
-        DbContextOptions options,
-        ITenant currentTenant,
-        ICurrentUser currentUser,
-        ILoggerFactory? loggerFactory = null)
-        : base(options)
+    protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser,
+        ILoggerFactory? loggerFactory = null) : base(options)
     {
         _currentTenant = currentTenant;
         _currentUser = currentUser;
@@ -164,12 +160,6 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
 public abstract class BaseIdentityDbContext<TContext> : BaseIdentityDbContext<TContext, CraftUser, CraftRole, KeyType>
     where TContext : DbContext
 {
-    protected BaseIdentityDbContext(
-        DbContextOptions options,
-        ITenant currentTenant,
-        ICurrentUser currentUser,
-        ILoggerFactory? loggerFactory = null)
-        : base(options, currentTenant, currentUser, loggerFactory)
-    {
-    }
+    protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser,
+        ILoggerFactory? loggerFactory = null) : base(options, currentTenant, currentUser, loggerFactory) { }
 }
