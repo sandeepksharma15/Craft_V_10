@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using MsOptions = Microsoft.Extensions.Options.Options;
 
 namespace Craft.Data.Tests.DbFactory;
 
@@ -48,8 +49,8 @@ public class TenantDbContextFactoryTests
 
         var services = new ServiceCollection();
         services.AddTransient<DummyDbContext>();
-        services.AddSingleton<IOptions<DatabaseOptions>>(Options.Create(dbOptions));
-        services.AddSingleton<IOptions<MultiTenantOptions>>(Options.Create(mtOptions));
+        services.AddSingleton<IOptions<DatabaseOptions>>(MsOptions.Create(dbOptions));
+        services.AddSingleton<IOptions<MultiTenantOptions>>(MsOptions.Create(mtOptions));
         services.AddLogging();
         var sp = services.BuildServiceProvider();
 
@@ -59,8 +60,8 @@ public class TenantDbContextFactoryTests
             tenant, 
             providers, 
             sp, 
-            Options.Create(dbOptions), 
-            Options.Create(mtOptions),
+            MsOptions.Create(dbOptions), 
+            MsOptions.Create(mtOptions),
             logger);
     }
 
@@ -76,7 +77,7 @@ public class TenantDbContextFactoryTests
         return (mock, calls);
     }
 
-    private static TestCurrentTenant BuildTenant(TenantDbType dbType, string? cs = null, string? provider = null) =>
+    private static TestCurrentTenant BuildTenant(TenantDbType dbType, int? shard = null, string? cs = null, string? provider = null) =>
         new() { DbType = dbType, ConnectionString = cs ?? string.Empty, DbProvider = provider ?? string.Empty };
 
     #endregion
