@@ -44,6 +44,7 @@ public static class EmailServiceExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddLogging();
         services.AddMemoryCache();
 
         services.TryAddSingleton<IEmailQueue, InMemoryEmailQueue>();
@@ -91,6 +92,7 @@ public static class EmailServiceExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddLogging();
         services.AddMemoryCache();
 
         services.TryAddSingleton<IEmailQueue, InMemoryEmailQueue>();
@@ -101,11 +103,6 @@ public static class EmailServiceExtensions
         services.TryAddSingleton<IEmailProviderFactory, EmailProviderFactory>();
 
         services.TryAddScoped<IMailService, MailService>();
-
-        var sp = services.BuildServiceProvider();
-        var options = sp.GetService<Microsoft.Extensions.Options.IOptions<EmailOptions>>()?.Value;
-        if (options?.EnableQueue == true)
-            services.AddHostedService<EmailQueueProcessor>();
 
         return services;
     }
