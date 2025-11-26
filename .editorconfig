@@ -331,6 +331,7 @@ dotnet_diagnostic.CA1816.severity =none
 dotnet_diagnostic.CA1819.severity =none
 dotnet_diagnostic.CA1859.severity =none
 dotnet_diagnostic.CA1861.severity =none
+dotnet_diagnostic.CA1873.severity =none
 dotnet_diagnostic.CA2254.severity =none
 
 dotnet_diagnostic.SYSLIB1045.severity =none
