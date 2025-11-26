@@ -1,6 +1,6 @@
 ﻿using Craft.Domain;
+using Craft.Infrastructure.Cache;
 using Craft.MultiTenant.Stores;
-using Craft.Utilities.CacheService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

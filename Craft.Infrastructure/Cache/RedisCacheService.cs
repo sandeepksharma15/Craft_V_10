@@ -1,4 +1,4 @@
-﻿namespace Craft.Utilities.CacheService;
+﻿namespace Craft.Infrastructure.Cache;
 
 public class RedisCacheService : ICacheService
 {
