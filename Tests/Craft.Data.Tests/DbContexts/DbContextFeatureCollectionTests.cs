@@ -61,6 +61,7 @@ public class DbContextFeatureCollectionTests
     #region ApplyConventions Tests
 
     [Fact]
+#pragma warning disable EF1001
     public void ApplyConventions_Should_Call_ConfigureConventions_On_All_Features()
     {
         // Arrange
@@ -91,6 +92,7 @@ public class DbContextFeatureCollectionTests
         // Act & Assert
         collection.ApplyConventions(builder);
     }
+#pragma warning restore EF1001
 
     #endregion
 
