@@ -26,15 +26,19 @@
 
 ### 2. Service Registration (Program.cs)
 ```csharp
-// API Controllers with validation
-builder.Services.AddApiControllers(builder.Configuration);
+using Craft.Infrastructure.RequestMiddleware;  // Single namespace for all!
 
 // Exception handling (includes custom ProblemDetails factory)
 builder.Services.AddExceptionHandling(builder.Configuration);
 
+// API Controllers with validation (uses the factory)
+builder.Services.AddApiControllers(builder.Configuration);
+
 // Optional detailed logging
 builder.Services.AddDetailedLogging(builder.Configuration);
 ```
+
+**Note:** `AddApiControllers` has moved to `RequestMiddleware` namespace for better organization. Old namespace still works but is deprecated.
 
 **Note:** `AddExceptionHandling` automatically registers:
 - `GlobalExceptionHandler` for exception handling
