@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Craft.Security.Tokens;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.Security;
 
@@ -16,6 +17,13 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICurrentUserProvider, UiUserProvider>();
         services.AddScoped<ICurrentUser, CurrentUser>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCraftSecurity(this IServiceCollection services)
+    {
+        services.AddScoped<ITokenManager, TokenManager>();
 
         return services;
     }

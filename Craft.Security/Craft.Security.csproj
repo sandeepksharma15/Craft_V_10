@@ -22,6 +22,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Craft.Auditing\Craft.Auditing.csproj" />
+		<ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
 		<ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
 	</ItemGroup>
 
