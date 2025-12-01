@@ -22,12 +22,8 @@ public static class FileUploadServiceExtensions
     /// builder.Services.AddFileUploadServices(builder.Configuration);
     /// </code>
     /// </example>
-    public static IServiceCollection AddFileUploadServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        return services.AddFileUploadServices(configuration.GetSection(FileUploadOptions.SectionName));
-    }
+    public static IServiceCollection AddFileUploadServices(this IServiceCollection services, IConfiguration configuration) 
+        => services.AddFileUploadServices(configuration.GetSection(FileUploadOptions.SectionName));
 
     /// <summary>
     /// Adds file upload services to the service collection with a configuration section.
@@ -35,9 +31,7 @@ public static class FileUploadServiceExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configurationSection">The configuration section containing FileUploadOptions.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddFileUploadServices(
-        this IServiceCollection services,
-        IConfigurationSection configurationSection)
+    public static IServiceCollection AddFileUploadServices(this IServiceCollection services, IConfigurationSection configurationSection)
     {
         services.AddOptions<FileUploadOptions>()
             .Bind(configurationSection)
@@ -50,6 +44,7 @@ public static class FileUploadServiceExtensions
         services.TryAddScoped<IFileUploadService, FileUploadService>();
 
         var options = configurationSection.Get<FileUploadOptions>();
+
         if (options?.UseTimeLimitedTokens == true)
             services.TryAddSingleton<IFileAccessTokenService, FileAccessTokenService>();
 
@@ -72,9 +67,7 @@ public static class FileUploadServiceExtensions
     /// });
     /// </code>
     /// </example>
-    public static IServiceCollection AddFileUploadServices(
-        this IServiceCollection services,
-        Action<FileUploadOptions> configureOptions)
+    public static IServiceCollection AddFileUploadServices(this IServiceCollection services, Action<FileUploadOptions> configureOptions)
     {
         services.AddOptions<FileUploadOptions>()
             .Configure(configureOptions)

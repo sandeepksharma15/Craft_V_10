@@ -16,11 +16,7 @@ public interface IFileUploadService
     /// <param name="contentType">The content type / MIME type of the file.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of the upload operation.</returns>
-    Task<FileUploadResult> UploadAsync(
-        byte[] data,
-        string fileName,
-        UploadType uploadType,
-        string? contentType = null,
+    Task<FileUploadResult> UploadAsync(byte[] data, string fileName, UploadType uploadType, string? contentType = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -32,11 +28,7 @@ public interface IFileUploadService
     /// <param name="contentType">The content type / MIME type of the file.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of the upload operation.</returns>
-    Task<FileUploadResult> UploadAsync(
-        Stream stream,
-        string fileName,
-        UploadType uploadType,
-        string? contentType = null,
+    Task<FileUploadResult> UploadAsync(Stream stream, string fileName, UploadType uploadType, string? contentType = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -47,11 +39,8 @@ public interface IFileUploadService
     /// <param name="progressCallback">Optional callback to report upload progress (0-100).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of the upload operation.</returns>
-    Task<FileUploadResult> UploadBrowserFileAsync(
-        IBrowserFile browserFile,
-        UploadType uploadType,
-        Action<int>? progressCallback = null,
-        CancellationToken cancellationToken = default);
+    Task<FileUploadResult> UploadBrowserFileAsync(IBrowserFile browserFile, UploadType uploadType,
+        Action<int>? progressCallback = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the full physical path for a file (local storage only).

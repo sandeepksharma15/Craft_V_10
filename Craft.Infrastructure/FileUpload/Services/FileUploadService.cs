@@ -18,15 +18,10 @@ public class FileUploadService : IFileUploadService
     private readonly object? _currentUser;
     private readonly ILogger<FileUploadService> _logger;
 
-    public FileUploadService(
-        IOptions<FileUploadOptions> options,
-        IFileStorageProvider storageProvider,
-        ILogger<FileUploadService> logger,
-        IVirusScanner? virusScanner = null,
-        IThumbnailGenerator? thumbnailGenerator = null,
-        IFileAccessTokenService? tokenService = null,
-        object? tenant = null,
-        object? currentUser = null)
+    public FileUploadService(IOptions<FileUploadOptions> options, IFileStorageProvider storageProvider,
+        ILogger<FileUploadService> logger, IVirusScanner? virusScanner = null,
+        IThumbnailGenerator? thumbnailGenerator = null, IFileAccessTokenService? tokenService = null,
+        object? tenant = null, object? currentUser = null)
     {
         _options = options.Value;
         _storageProvider = storageProvider;
@@ -38,12 +33,8 @@ public class FileUploadService : IFileUploadService
         _currentUser = currentUser;
     }
 
-    public async Task<FileUploadResult> UploadAsync(
-        byte[] data,
-        string fileName,
-        UploadType uploadType,
-        string? contentType = null,
-        CancellationToken cancellationToken = default)
+    public async Task<FileUploadResult> UploadAsync(byte[] data, string fileName, UploadType uploadType,
+        string? contentType = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
@@ -52,12 +43,8 @@ public class FileUploadService : IFileUploadService
         return await UploadAsync(stream, fileName, uploadType, contentType, cancellationToken);
     }
 
-    public async Task<FileUploadResult> UploadAsync(
-        Stream stream,
-        string fileName,
-        UploadType uploadType,
-        string? contentType = null,
-        CancellationToken cancellationToken = default)
+    public async Task<FileUploadResult> UploadAsync(Stream stream, string fileName, UploadType uploadType,
+        string? contentType = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
@@ -155,11 +142,8 @@ public class FileUploadService : IFileUploadService
         }
     }
 
-    public async Task<FileUploadResult> UploadBrowserFileAsync(
-        IBrowserFile browserFile,
-        UploadType uploadType,
-        Action<int>? progressCallback = null,
-        CancellationToken cancellationToken = default)
+    public async Task<FileUploadResult> UploadBrowserFileAsync(IBrowserFile browserFile, UploadType uploadType,
+        Action<int>? progressCallback = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(browserFile);
 

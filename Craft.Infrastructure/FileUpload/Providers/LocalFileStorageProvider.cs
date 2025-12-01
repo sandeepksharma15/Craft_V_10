@@ -13,18 +13,13 @@ public class LocalFileStorageProvider : IFileStorageProvider
 
     public string Name => "local";
 
-    public LocalFileStorageProvider(
-        IOptions<FileUploadOptions> options,
-        ILogger<LocalFileStorageProvider> logger)
+    public LocalFileStorageProvider(IOptions<FileUploadOptions> options, ILogger<LocalFileStorageProvider> logger)
     {
         _options = options.Value;
         _logger = logger;
     }
 
-    public async Task<string> UploadAsync(
-        Stream stream,
-        string fileName,
-        string folderPath,
+    public async Task<string> UploadAsync(Stream stream, string fileName, string folderPath,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -51,13 +46,8 @@ public class LocalFileStorageProvider : IFileStorageProvider
         try
         {
             const int bufferSize = 81920;
-            await using var fileStream = new FileStream(
-                fullPath,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                bufferSize,
-                useAsync: true);
+            await using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None,
+                bufferSize, useAsync: true);
 
             await stream.CopyToAsync(fileStream, bufferSize, cancellationToken);
 
