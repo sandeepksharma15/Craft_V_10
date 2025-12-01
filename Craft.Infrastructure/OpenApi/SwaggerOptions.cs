@@ -96,7 +96,7 @@ public class SwaggerOptions : IValidatableObject
     /// <summary>
     /// Gets or sets UI customization options.
     /// </summary>
-    public SwaggerUIOptions UI { get; set; } = new();
+    public SwaggerCustomUIOptions UI { get; set; } = new();
 
     /// <summary>
     /// Gets or sets documentation enhancement options.
@@ -228,7 +228,7 @@ public class OAuth2Options
     /// <summary>
     /// Gets or sets the OAuth2 scopes.
     /// </summary>
-    public Dictionary<string, string> Scopes { get; set; } = new();
+    public Dictionary<string, string> Scopes { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the OAuth2 client ID.
@@ -244,7 +244,7 @@ public class OAuth2Options
 /// <summary>
 /// Swagger UI customization options.
 /// </summary>
-public class SwaggerUIOptions
+public class SwaggerCustomUIOptions
 {
     /// <summary>
     /// Gets or sets the document title.
@@ -363,5 +363,5 @@ public class DocumentationOptions
     /// <summary>
     /// Gets or sets tag descriptions.
     /// </summary>
-    public Dictionary<string, string> TagDescriptions { get; set; } = new();
+    public Dictionary<string, string> TagDescriptions { get; set; } = [];
 }

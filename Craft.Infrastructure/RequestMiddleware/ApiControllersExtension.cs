@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Craft.Infrastructure.RequestMiddleware;
 
@@ -12,12 +13,12 @@ namespace Craft.Infrastructure.RequestMiddleware;
 public static class ApiControllersExtension
 {
     /// <summary>
-    /// Adds API controllers with custom model validation response formatting.
+    /// Adds API controllers with custom model validation response formatting using configuration.
     /// Uses RFC 7807 ProblemDetails format for validation errors.
     /// Integrates with CraftProblemDetailsFactory for automatic enrichment.
     /// </summary>
     /// <param name="services">The service collection.</param>
-    /// <param name="configuration">Optional configuration to customize validation status code. If not provided, defaults to 422.</param>
+    /// <param name="configuration">The configuration containing RequestMiddlewareSettings.</param>
     /// <returns>The service collection for chaining.</returns>
     /// <remarks>
     /// <para>
@@ -36,7 +37,7 @@ public static class ApiControllersExtension
     /// </list>
     /// </para>
     /// <para>
-    /// The validation status code is determined by <c>RequestMiddlewareSettings:ModelValidationStatusCode</c>:
+    /// The validation status code is determined by RequestMiddlewareSettings.ModelValidationStatusCode:
     /// <list type="bullet">
     /// <item>422 (Unprocessable Entity) - Semantic, RFC 4918 compliant (default)</item>
     /// <item>400 (Bad Request) - Traditional approach</item>
@@ -54,7 +55,11 @@ public static class ApiControllersExtension
     /// <code>
     /// {
     ///   "RequestMiddlewareSettings": {
-    ///     "ModelValidationStatusCode": 422
+    ///     "ModelValidationStatusCode": 422,
+    ///     "ExceptionHandling": {
+    ///       "IncludeDiagnostics": true,
+    ///       "IncludeValidationDetails": true
+    ///     }
     ///   }
     /// }
     /// </code>
@@ -79,34 +84,33 @@ public static class ApiControllersExtension
     /// }
     /// </code>
     /// </example>
-    public static IServiceCollection AddApiControllers(this IServiceCollection services, IConfiguration? configuration = null)
+    public static IServiceCollection AddApiControllers(this IServiceCollection services, IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        // Register RequestMiddlewareSettings if not already registered
+        services.Configure<RequestMiddlewareSettings>(
+            configuration.GetSection(nameof(RequestMiddlewareSettings)));
+
         services
             .AddControllers()
             .ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
                 {
-                    // Get the factory - it will handle status code configuration and enrichment
                     var problemDetailsFactory = context.HttpContext.RequestServices
                         .GetRequiredService<ProblemDetailsFactory>();
 
-                    // Create ValidationProblemDetails
-                    // The CraftProblemDetailsFactory automatically:
-                    // - Sets status code from RequestMiddlewareSettings.ModelValidationStatusCode
-                    // - Sets appropriate title based on status code
-                    // - Sets RFC-compliant type URL
-                    // - Enriches with diagnostic extensions (correlationId, timestamp, user context, etc.)
                     var problemDetails = problemDetailsFactory.CreateValidationProblemDetails(
                         context.HttpContext,
                         context.ModelState);
 
-                    // Set detail message if not already set by custom validation
+                    // Set default detail message if not provided
                     if (string.IsNullOrEmpty(problemDetails.Detail))
                         problemDetails.Detail = "One or more validation errors occurred. See the errors property for details.";
 
-                    // Return appropriate result based on status code
-                    // The status was set by CraftProblemDetailsFactory based on configuration
+                    // Create appropriate result based on status code
                     ObjectResult result = problemDetails.Status == 422
                         ? new UnprocessableEntityObjectResult(problemDetails)
                         : new BadRequestObjectResult(problemDetails);
@@ -116,7 +120,61 @@ public static class ApiControllersExtension
                     return result;
                 };
             });
-        
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds API controllers with custom model validation response formatting.
+    /// Uses RFC 7807 ProblemDetails format for validation errors with default configuration.
+    /// Integrates with CraftProblemDetailsFactory for automatic enrichment.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    /// <remarks>
+    /// <para>
+    /// This overload uses default settings (422 status code for validation errors).
+    /// For custom configuration, use the overload that accepts IConfiguration.
+    /// </para>
+    /// <para>
+    /// <strong>Usage:</strong>
+    /// <code>
+    /// builder.Services.AddApiControllers();
+    /// </code>
+    /// </para>
+    /// </remarks>
+    public static IServiceCollection AddApiControllers(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services
+            .AddControllers()
+            .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetailsFactory = context.HttpContext.RequestServices
+                        .GetRequiredService<ProblemDetailsFactory>();
+
+                    var problemDetails = problemDetailsFactory.CreateValidationProblemDetails(
+                        context.HttpContext,
+                        context.ModelState);
+
+                    // Set default detail message if not provided
+                    if (string.IsNullOrEmpty(problemDetails.Detail))
+                        problemDetails.Detail = "One or more validation errors occurred. See the errors property for details.";
+
+                    // Create appropriate result based on status code
+                    ObjectResult result = problemDetails.Status == 422
+                        ? new UnprocessableEntityObjectResult(problemDetails)
+                        : new BadRequestObjectResult(problemDetails);
+
+                    result.ContentTypes.Add("application/problem+json");
+
+                    return result;
+                };
+            });
+
         return services;
     }
 }

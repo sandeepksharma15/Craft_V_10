@@ -410,7 +410,7 @@ public class SwaggerUIOptionsTests
     public void Default_Values_Should_Be_Set_Correctly()
     {
         // Arrange & Act
-        var options = new SwaggerUIOptions();
+        var options = new SwaggerCustomUIOptions();
 
         // Assert
         Assert.Equal("API Documentation", options.DocumentTitle);
@@ -431,7 +431,7 @@ public class SwaggerUIOptionsTests
     public void SwaggerUIOptions_Should_Validate_DefaultModelsExpandDepth_Range(int depth)
     {
         // Arrange
-        var options = new SwaggerUIOptions
+        var options = new SwaggerCustomUIOptions
         {
             DefaultModelsExpandDepth = depth
         };
@@ -443,14 +443,14 @@ public class SwaggerUIOptionsTests
 
         // Assert
         Assert.False(isValid);
-        Assert.Contains(results, r => r.MemberNames.Contains(nameof(SwaggerUIOptions.DefaultModelsExpandDepth)));
+        Assert.Contains(results, r => r.MemberNames.Contains(nameof(SwaggerCustomUIOptions.DefaultModelsExpandDepth)));
     }
 
     [Fact]
     public void SwaggerUIOptions_Properties_Can_Be_Set()
     {
         // Arrange
-        var options = new SwaggerUIOptions
+        var options = new SwaggerCustomUIOptions
         {
             DocumentTitle = "Custom API Docs",
             HeadContent = "<meta name='custom' content='value'>",

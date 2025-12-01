@@ -363,7 +363,7 @@ public static class OpenApiExtensions
         }
     }
 
-    private static void ConfigureSwaggerUI(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions uiOptions, SwaggerOptions options)
+    private static void ConfigureSwaggerUI(SwaggerUIOptions uiOptions, SwaggerOptions options)
     {
         var ui = options.UI;
 
@@ -441,15 +441,12 @@ public static class OpenApiExtensions
     {
         private readonly Dictionary<string, string> _tagDescriptions;
 
-        public TagDescriptionDocumentFilter(Dictionary<string, string> tagDescriptions)
-        {
-            _tagDescriptions = tagDescriptions ?? new Dictionary<string, string>();
-        }
+        public TagDescriptionDocumentFilter(Dictionary<string, string> tagDescriptions) 
+            => _tagDescriptions = tagDescriptions ?? [];
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            if (swaggerDoc.Tags == null)
-                swaggerDoc.Tags = new List<OpenApiTag>();
+            swaggerDoc.Tags ??= [];
 
             foreach (var tagDescription in _tagDescriptions)
             {
