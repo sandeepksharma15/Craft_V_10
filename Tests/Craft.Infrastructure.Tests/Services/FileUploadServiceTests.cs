@@ -3,7 +3,7 @@ using Craft.Utilities.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Moq;
 
-namespace Craft.Infrastructure.Tests.Services;
+namespace Craft.Utilities.Tests.Services;
 
 public class FileUploadServiceTests
 {

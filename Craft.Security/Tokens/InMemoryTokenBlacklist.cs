@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.Security.Tokens;
@@ -76,8 +78,7 @@ public class InMemoryTokenBlacklist : ITokenBlacklist
 
     private static string ComputeTokenHash(string token)
     {
-        using var sha256 = System.Security.Cryptography.SHA256.Create();
-        var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(token));
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(token));
         return Convert.ToBase64String(hash);
     }
 }

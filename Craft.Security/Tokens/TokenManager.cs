@@ -124,8 +124,7 @@ public class TokenManager : ITokenManager, IScopedDependency
     /// <inheritdoc/>
     public RefreshToken GetRefreshToken(CraftUser user)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
 
         var now = _timeProvider.GetUtcNow();
 
@@ -180,7 +179,7 @@ public class TokenManager : ITokenManager, IScopedDependency
     public IEnumerable<Claim> GetTokenClaims(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
-            return Enumerable.Empty<Claim>();
+            return [];
 
         try
         {
@@ -191,7 +190,7 @@ public class TokenManager : ITokenManager, IScopedDependency
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "Failed to extract claims from token");
-            return Enumerable.Empty<Claim>();
+            return [];
         }
     }
 

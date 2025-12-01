@@ -310,11 +310,11 @@ public class MemoryCacheServiceTests
                 return entryMock.Object;
             });
 
-        Func<Task<string>> valueFactory = () =>
+        Task<string> valueFactory()
         {
             factoryCalled = true;
             return Task.FromResult(expectedValue);
-        };
+        }
 
         // Act
         var result = await _cacheService.GetOrSetAsync(cacheKey, valueFactory);
@@ -338,11 +338,11 @@ public class MemoryCacheServiceTests
             .Setup(x => x.TryGetValue(cacheKey, out outValue))
             .Returns(true);
 
-        Func<Task<string>> valueFactory = () =>
+        Task<string> valueFactory()
         {
             factoryCalled = true;
             return Task.FromResult(factoryValue);
-        };
+        }
 
         // Act
         var result = await _cacheService.GetOrSetAsync(cacheKey, valueFactory);
@@ -370,7 +370,7 @@ public class MemoryCacheServiceTests
                 return entryMock.Object;
             });
 
-        Func<Task<TestClass>> valueFactory = () => Task.FromResult(expectedObject);
+        Task<TestClass> valueFactory() => Task.FromResult(expectedObject);
 
         // Act
         var result = await _cacheService.GetOrSetAsync(cacheKey, valueFactory);
@@ -399,7 +399,7 @@ public class MemoryCacheServiceTests
                 return entryMock.Object;
             });
 
-        Func<Task<string?>> valueFactory = () => Task.FromResult<string?>(null);
+        static Task<string?> valueFactory() => Task.FromResult<string?>(null);
 
         // Act
         var result = await _cacheService.GetOrSetAsync(cacheKey, valueFactory);
@@ -428,12 +428,12 @@ public class MemoryCacheServiceTests
                 return entryMock.Object;
             });
 
-        Func<Task<string>> valueFactory = async () =>
+        async Task<string> valueFactory()
         {
             await Task.Delay(10);
             factoryExecuted = true;
             return expectedValue;
-        };
+        }
 
         // Act
         var result = await _cacheService.GetOrSetAsync(cacheKey, valueFactory);
@@ -462,7 +462,7 @@ public class MemoryCacheServiceTests
                 return entryMock.Object;
             });
 
-        Func<Task<int>> valueFactory = () => Task.FromResult(expectedValue);
+        Task<int> valueFactory() => Task.FromResult(expectedValue);
 
         // Act
         var result = await _cacheService.GetOrSetAsync(key, valueFactory);
@@ -556,7 +556,7 @@ public class MemoryCacheServiceTests
                 return entryMock.Object;
             });
 
-        Func<Task<string>> valueFactory = () => Task.FromResult(expectedValue);
+        static Task<string> valueFactory() => Task.FromResult(expectedValue);
 
         // Act
         await _cacheService.GetOrSetAsync(cacheKey, valueFactory);

@@ -22,10 +22,8 @@ public static class JwtExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        var jwtSettings = config.GetSection($"SecuritySettings:{nameof(JwtSettings)}").Get<JwtSettings>();
-
-        if (jwtSettings is null)
-            throw new InvalidOperationException("JwtSettings configuration is missing or invalid");
+        var jwtSettings = config.GetSection($"SecuritySettings:{nameof(JwtSettings)}").Get<JwtSettings>()
+            ?? throw new InvalidOperationException("JwtSettings configuration is missing or invalid");
 
         services.AddAuthentication(options =>
         {
