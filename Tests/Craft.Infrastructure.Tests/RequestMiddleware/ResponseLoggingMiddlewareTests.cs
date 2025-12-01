@@ -56,13 +56,13 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.ContentType = "application/json";
             ctx.Response.StatusCode = 200;
             await ctx.Response.WriteAsync("{\"message\":\"success\"}");
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -87,12 +87,12 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Request.Path = "/health";
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.StatusCode = 200;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -118,12 +118,12 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.ContentType = "application/json";
             await ctx.Response.WriteAsync("{\"access_token\":\"secret-token\"}");
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -166,12 +166,12 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.ContentType = "application/json";
             await ctx.Response.WriteAsync("{\"data\":\"test\"}");
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -196,13 +196,13 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.StatusCode = 400;
             ctx.Response.ContentType = "application/json";
             await ctx.Response.WriteAsync("{\"error\":\"Bad request\"}");
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -227,13 +227,13 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.ContentType = "application/pdf";
             byte[] pdfHeader = [0x25, 0x50, 0x44, 0x46]; // PDF header
             await ctx.Response.Body.WriteAsync(pdfHeader.AsMemory());
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -260,12 +260,12 @@ public class ResponseLoggingMiddlewareTests
         var largeResponse = new string('X', 5000); // Larger than MaxResponseBodyLength (4096)
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.ContentType = "application/json";
             await ctx.Response.WriteAsync(largeResponse);
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -301,12 +301,12 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.ContentType = "application/json";
             await ctx.Response.WriteAsync("{\"data\":\"test\"}");
-        };
+        }
 
         // Act
         await middleware.InvokeAsync(_httpContext, next);
@@ -341,12 +341,12 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             ctx.Response.StatusCode = 204; // No Content
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -372,11 +372,11 @@ public class ResponseLoggingMiddlewareTests
         _httpContext.Items["CorrelationId"] = "test-correlation-id";
 
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             await ctx.Response.WriteAsync("test");
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
