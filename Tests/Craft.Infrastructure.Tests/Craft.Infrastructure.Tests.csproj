@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Craft.Infrastructure\Craft.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Craft.Utilities\Craft.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
