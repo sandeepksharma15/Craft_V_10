@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
+using Craft.Infrastructure.OpenApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,15 +32,13 @@ public static class OpenApiExtensions
     /// builder.Services.AddOpenApiDocumentation(builder.Configuration);
     /// </code>
     /// </example>
-    public static IServiceCollection AddOpenApiDocumentation(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
         
         return services.AddOpenApiDocumentation(
-            configuration.GetSection(Craft.Infrastructure.OpenApi.SwaggerOptions.SectionName));
+            configuration.GetSection(SwaggerOptions.SectionName));
     }
 
     /// <summary>
@@ -49,19 +47,17 @@ public static class OpenApiExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configurationSection">The configuration section containing SwaggerOptions.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddOpenApiDocumentation(
-        this IServiceCollection services,
-        IConfigurationSection configurationSection)
+    public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfigurationSection configurationSection)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configurationSection);
 
-        services.AddOptions<Craft.Infrastructure.OpenApi.SwaggerOptions>()
+        services.AddOptions<SwaggerOptions>()
             .Bind(configurationSection)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        var options = configurationSection.Get<Craft.Infrastructure.OpenApi.SwaggerOptions>();
+        var options = configurationSection.Get<SwaggerOptions>();
 
         if (options?.Enable != true)
             return services;
@@ -94,19 +90,17 @@ public static class OpenApiExtensions
     /// });
     /// </code>
     /// </example>
-    public static IServiceCollection AddOpenApiDocumentation(
-        this IServiceCollection services,
-        Action<Craft.Infrastructure.OpenApi.SwaggerOptions> configureOptions)
+    public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, Action<SwaggerOptions> configureOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configureOptions);
 
-        services.AddOptions<Craft.Infrastructure.OpenApi.SwaggerOptions>()
+        services.AddOptions<SwaggerOptions>()
             .Configure(configureOptions)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        var options = new Craft.Infrastructure.OpenApi.SwaggerOptions();
+        var options = new SwaggerOptions();
         configureOptions(options);
 
         if (!options.Enable)
@@ -138,20 +132,18 @@ public static class OpenApiExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        var options = app.Services.GetService<IOptions<Craft.Infrastructure.OpenApi.SwaggerOptions>>()?.Value;
+        var options = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
 
         if (options?.Enable != true)
             return app;
 
-        var logger = app.Services.GetService<ILogger<Craft.Infrastructure.OpenApi.SwaggerOptions>>();
+        var logger = app.Services.GetService<ILogger<SwaggerOptions>>();
 
         var shouldEnable = ShouldEnableSwagger(app.Environment, options);
 
         if (!shouldEnable)
         {
-            logger?.LogInformation(
-                "Swagger/OpenAPI is disabled in {Environment} environment",
-                app.Environment.EnvironmentName);
+            logger?.LogInformation("Swagger/OpenAPI is disabled in {Environment} environment", app.Environment.EnvironmentName);
             return app;
         }
 
@@ -174,9 +166,7 @@ public static class OpenApiExtensions
 
     #region Private Helper Methods
 
-    private static bool ShouldEnableSwagger(
-        IWebHostEnvironment environment,
-        Craft.Infrastructure.OpenApi.SwaggerOptions options)
+    private static bool ShouldEnableSwagger(IWebHostEnvironment environment, SwaggerOptions options)
     {
         if (environment.IsDevelopment() || environment.IsStaging())
             return true;
@@ -184,9 +174,7 @@ public static class OpenApiExtensions
         return options.EnableInProduction && environment.IsProduction();
     }
 
-    private static void ConfigureSwaggerDoc(
-        SwaggerGenOptions swaggerOptions,
-        Craft.Infrastructure.OpenApi.SwaggerOptions options)
+    private static void ConfigureSwaggerDoc(SwaggerGenOptions swaggerOptions, SwaggerOptions options)
     {
         var openApiInfo = new OpenApiInfo
         {
@@ -246,9 +234,7 @@ public static class OpenApiExtensions
         }
     }
 
-    private static void ConfigureDocumentation(
-        SwaggerGenOptions swaggerOptions,
-        Craft.Infrastructure.OpenApi.SwaggerOptions options)
+    private static void ConfigureDocumentation(SwaggerGenOptions swaggerOptions, SwaggerOptions options)
     {
         var docOptions = options.Documentation;
 
@@ -272,9 +258,7 @@ public static class OpenApiExtensions
         }
     }
 
-    private static void ConfigureSecurity(
-        SwaggerGenOptions swaggerOptions,
-        Craft.Infrastructure.OpenApi.SecurityOptions securityOptions)
+    private static void ConfigureSecurity(SwaggerGenOptions swaggerOptions, SecurityOptions securityOptions)
     {
         if (securityOptions.EnableJwtBearer)
         {
@@ -352,9 +336,7 @@ public static class OpenApiExtensions
         }
     }
 
-    private static void ConfigureXmlComments(
-        SwaggerGenOptions swaggerOptions,
-        Craft.Infrastructure.OpenApi.SwaggerOptions options)
+    private static void ConfigureXmlComments(SwaggerGenOptions swaggerOptions, SwaggerOptions options)
     {
         if (!options.IncludeXmlComments)
             return;
@@ -381,9 +363,7 @@ public static class OpenApiExtensions
         }
     }
 
-    private static void ConfigureSwaggerUI(
-        SwaggerUIOptions uiOptions,
-        Craft.Infrastructure.OpenApi.SwaggerOptions options)
+    private static void ConfigureSwaggerUI(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions uiOptions, SwaggerOptions options)
     {
         var ui = options.UI;
 
