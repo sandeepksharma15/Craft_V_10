@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 
-namespace Craft.Utilities.Services;
+namespace Craft.Infrastructure.FileUpload;
 
 public class FileUploadService
 {

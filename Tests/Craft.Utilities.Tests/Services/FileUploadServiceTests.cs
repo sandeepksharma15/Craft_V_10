@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Craft.Utilities.Services;
+using Craft.Infrastructure.FileUpload;
 using Microsoft.AspNetCore.Components.Forms;
 using Moq;
 
