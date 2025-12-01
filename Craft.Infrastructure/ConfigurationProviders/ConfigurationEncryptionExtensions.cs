@@ -24,9 +24,7 @@ public static class ConfigurationEncryptionExtensions
     /// Requires AES_ENCRYPTION_KEY and AES_ENCRYPTION_IV environment variables to be set.
     /// Call this method AFTER adding all your configuration sources.
     /// </remarks>
-    public static IConfigurationBuilder AddDecryption(
-        this IConfigurationBuilder builder,
-        string encryptionPrefix = DefaultEncryptionPrefix)
+    public static IConfigurationBuilder AddDecryption(this IConfigurationBuilder builder, string encryptionPrefix = DefaultEncryptionPrefix)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -52,9 +50,7 @@ public static class ConfigurationEncryptionExtensions
     /// <param name="loggerFactory">Factory to create logger for diagnostics.</param>
     /// <param name="encryptionPrefix">The prefix that identifies encrypted values (default: "ENC:").</param>
     /// <returns>The configuration builder for chaining.</returns>
-    public static IConfigurationBuilder AddDecryption(
-        this IConfigurationBuilder builder,
-        ILoggerFactory loggerFactory,
+    public static IConfigurationBuilder AddDecryption(this IConfigurationBuilder builder, ILoggerFactory loggerFactory,
         string encryptionPrefix = DefaultEncryptionPrefix)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -87,9 +83,7 @@ public static class ConfigurationEncryptionExtensions
     /// This decrypts string properties at the options class level, working even if
     /// the configuration provider doesn't support decryption.
     /// </remarks>
-    public static IServiceCollection AddOptionsDecryption<TOptions>(
-        this IServiceCollection services,
-        string encryptionPrefix = DefaultEncryptionPrefix)
+    public static IServiceCollection AddOptionsDecryption<TOptions>(this IServiceCollection services, string encryptionPrefix = DefaultEncryptionPrefix)
         where TOptions : class
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -116,9 +110,7 @@ public static class ConfigurationEncryptionExtensions
     /// This is a post-processing approach that modifies configuration after it's loaded.
     /// Use this if you can't use the ConfigurationProvider approach.
     /// </remarks>
-    public static IConfigurationRoot DecryptConfiguration(
-        this IConfigurationRoot configuration,
-        string encryptionPrefix = DefaultEncryptionPrefix)
+    public static IConfigurationRoot DecryptConfiguration(this IConfigurationRoot configuration, string encryptionPrefix = DefaultEncryptionPrefix)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
@@ -136,9 +128,7 @@ public static class ConfigurationEncryptionExtensions
     /// <param name="logger">Logger for diagnostics.</param>
     /// <param name="encryptionPrefix">The prefix that identifies encrypted values (default: "ENC:").</param>
     /// <returns>The same configuration root for chaining.</returns>
-    public static IConfigurationRoot DecryptConfiguration(
-        this IConfigurationRoot configuration,
-        ILogger logger,
+    public static IConfigurationRoot DecryptConfiguration(this IConfigurationRoot configuration, ILogger logger,
         string encryptionPrefix = DefaultEncryptionPrefix)
     {
         ArgumentNullException.ThrowIfNull(configuration);
@@ -150,11 +140,8 @@ public static class ConfigurationEncryptionExtensions
         return configuration;
     }
 
-    private static void DecryptConfigurationRecursive(
-        IConfiguration configuration,
-        IKeySafeService keySafeService,
-        string encryptionPrefix,
-        ILogger? logger = null)
+    private static void DecryptConfigurationRecursive(IConfiguration configuration, IKeySafeService keySafeService,
+        string encryptionPrefix, ILogger? logger = null)
     {
         foreach (var child in configuration.GetChildren())
         {

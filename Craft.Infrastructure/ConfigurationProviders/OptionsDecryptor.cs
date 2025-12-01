@@ -15,10 +15,7 @@ internal class OptionsDecryptor<TOptions> : IPostConfigureOptions<TOptions> wher
     private readonly string _encryptionPrefix;
     private readonly ILogger? _logger;
 
-    public OptionsDecryptor(
-        IKeySafeService keySafeService,
-        string encryptionPrefix,
-        ILogger? logger = null)
+    public OptionsDecryptor(IKeySafeService keySafeService, string encryptionPrefix, ILogger? logger = null)
     {
         _keySafeService = keySafeService ?? throw new ArgumentNullException(nameof(keySafeService));
         _encryptionPrefix = encryptionPrefix;
@@ -52,19 +49,15 @@ internal class OptionsDecryptor<TOptions> : IPostConfigureOptions<TOptions> wher
             {
                 var encryptedValue = value[_encryptionPrefix.Length..];
                 var decryptedValue = _keySafeService.Decrypt(encryptedValue);
+
                 property.SetValue(options, decryptedValue);
                 
-                _logger?.LogDebug(
-                    "Successfully decrypted property {Property} on {OptionsType}",
-                    property.Name,
+                _logger?.LogDebug("Successfully decrypted property {Property} on {OptionsType}", property.Name,
                     typeof(TOptions).Name);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(
-                    ex,
-                    "Failed to decrypt property {Property} on {OptionsType}",
-                    property.Name,
+                _logger?.LogError(ex, "Failed to decrypt property {Property} on {OptionsType}", property.Name,
                     typeof(TOptions).Name);
             }
         }

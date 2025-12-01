@@ -1,6 +1,7 @@
 using Craft.Utilities.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 
 namespace Craft.Infrastructure.ConfigurationProviders;
@@ -27,16 +28,15 @@ public class DecryptedConfigurationProvider : ConfigurationProvider
     /// <param name="keySafeService">The encryption/decryption service.</param>
     /// <param name="encryptionPrefix">The prefix that identifies encrypted values (default: "ENC:").</param>
     /// <param name="logger">Optional logger for diagnostics.</param>
-    public DecryptedConfigurationProvider(
-        IConfigurationProvider innerProvider,
-        IKeySafeService keySafeService,
-        string encryptionPrefix = "ENC:",
-        ILogger<DecryptedConfigurationProvider>? logger = null)
+    public DecryptedConfigurationProvider(IConfigurationProvider innerProvider, IKeySafeService keySafeService,
+        string encryptionPrefix = "ENC:", ILogger<DecryptedConfigurationProvider>? logger = null)
     {
         _innerProvider = innerProvider ?? throw new ArgumentNullException(nameof(innerProvider));
         _keySafeService = keySafeService ?? throw new ArgumentNullException(nameof(keySafeService));
+
         _encryptionPrefix = encryptionPrefix;
-        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DecryptedConfigurationProvider>.Instance;
+
+        _logger = logger ?? NullLogger<DecryptedConfigurationProvider>.Instance;
     }
 
     /// <summary>
@@ -51,28 +51,20 @@ public class DecryptedConfigurationProvider : ConfigurationProvider
     /// <summary>
     /// Attempts to get a configuration value by key, decrypting if necessary.
     /// </summary>
-    public override bool TryGet(string key, out string? value)
-    {
-        return Data.TryGetValue(key, out value);
-    }
+    public override bool TryGet(string key, out string? value) 
+        => Data.TryGetValue(key, out value);
 
     /// <summary>
     /// Sets a configuration value.
     /// </summary>
-    public override void Set(string key, string? value)
-    {
-        Data[key] = value;
-    }
+    public override void Set(string key, string? value) 
+        => Data[key] = value;
 
     /// <summary>
     /// Gets the child keys for a given parent key.
     /// </summary>
-    public override IEnumerable<string> GetChildKeys(
-        IEnumerable<string> earlierKeys,
-        string? parentPath)
-    {
-        return _innerProvider.GetChildKeys(earlierKeys, parentPath);
-    }
+    public override IEnumerable<string> GetChildKeys(IEnumerable<string> earlierKeys, string? parentPath) 
+        => _innerProvider.GetChildKeys(earlierKeys, parentPath);
 
     private void LoadDecryptedData()
     {
@@ -110,7 +102,9 @@ public class DecryptedConfigurationProvider : ConfigurationProvider
     private static IEnumerable<string> GetAllKeys(IConfigurationProvider provider)
     {
         var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         CollectKeys(provider, null, keys);
+
         return keys;
     }
 
@@ -128,10 +122,8 @@ public class DecryptedConfigurationProvider : ConfigurationProvider
             
             // Check if this key has a value (leaf node) or children
             if (provider.TryGet(fullKey, out _))
-            {
                 // It's a leaf node with a value
                 continue;
-            }
             
             // Recursively collect child keys
             CollectKeys(provider, fullKey, keys);

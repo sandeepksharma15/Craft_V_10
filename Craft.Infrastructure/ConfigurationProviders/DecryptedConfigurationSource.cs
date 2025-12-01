@@ -21,14 +21,12 @@ public class DecryptedConfigurationSource : IConfigurationSource
     /// <param name="keySafeService">The encryption/decryption service.</param>
     /// <param name="encryptionPrefix">The prefix that identifies encrypted values (default: "ENC:").</param>
     /// <param name="logger">Optional logger for diagnostics.</param>
-    public DecryptedConfigurationSource(
-        IConfigurationSource innerSource,
-        IKeySafeService keySafeService,
-        string encryptionPrefix = "ENC:",
-        ILogger<DecryptedConfigurationProvider>? logger = null)
+    public DecryptedConfigurationSource(IConfigurationSource innerSource, IKeySafeService keySafeService,
+        string encryptionPrefix = "ENC:", ILogger<DecryptedConfigurationProvider>? logger = null)
     {
         _innerSource = innerSource ?? throw new ArgumentNullException(nameof(innerSource));
         _keySafeService = keySafeService ?? throw new ArgumentNullException(nameof(keySafeService));
+
         _encryptionPrefix = encryptionPrefix;
         _logger = logger;
     }
@@ -39,6 +37,7 @@ public class DecryptedConfigurationSource : IConfigurationSource
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
         var innerProvider = _innerSource.Build(builder);
+
         return new DecryptedConfigurationProvider(innerProvider, _keySafeService, _encryptionPrefix, _logger);
     }
 }
