@@ -399,7 +399,8 @@ public class ApiControllersExtensionTests
 
         services.AddSingleton(settings);
         services.AddSingleton(currentUserMock.Object);
-        services.AddTransient<ProblemDetailsFactory, CraftProblemDetailsFactory>();
+        services.AddSingleton<ProblemDetailsFactory>(sp => 
+            new CraftProblemDetailsFactory(settings, currentUserMock.Object));
     }
 
     private static ActionContext CreateActionContext(IServiceProvider serviceProvider, string? correlationId = null)

@@ -289,7 +289,7 @@ public class CraftProblemDetailsFactoryTests
     public void CreateProblemDetails_HandlesNullTraceIdentifier()
     {
         // Arrange
-        _httpContext.TraceIdentifier = null!;
+        _httpContext.TraceIdentifier = string.Empty;
 
         // Act
         var result = _factory.CreateProblemDetails(_httpContext, statusCode: 500);

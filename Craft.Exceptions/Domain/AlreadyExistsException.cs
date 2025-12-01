@@ -16,5 +16,5 @@ public class AlreadyExistsException : CraftException
         HttpStatusCode statusCode = HttpStatusCode.UnprocessableEntity) : base(message, errors, statusCode) { }
 
     public AlreadyExistsException(string name, object key)
-        : base($"Entity \"{name}\" ({key}) already exists") { }
+        : base($"Entity \"{name}\" ({key}) already exists", (List<string>?)null, HttpStatusCode.UnprocessableEntity) { }
 }

@@ -57,5 +57,6 @@ public class AlreadyExistsExceptionTests
 
         // Assert
         Assert.Equal("Entity \"User\" (123) already exists", ex.Message);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, ex.StatusCode);
     }
 }

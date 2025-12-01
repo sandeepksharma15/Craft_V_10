@@ -79,8 +79,8 @@ public class CraftProblemDetailsFactory(IOptions<RequestMiddlewareSettings> sett
         // Add timestamp
         problemDetails.Extensions["timestamp"] = DateTimeOffset.UtcNow;
 
-        // Add request ID (trace identifier)
-        if (!string.IsNullOrEmpty(httpContext.TraceIdentifier))
+        // Add request ID (trace identifier) - only if not null or empty
+        if (!string.IsNullOrWhiteSpace(httpContext.TraceIdentifier))
             problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
 
         // Add user context if authenticated

@@ -31,18 +31,22 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOpt
         var errorId = Guid.NewGuid().ToString();
         var originalException = exception;
 
-        var correlationId = context.Items["CorrelationId"]?.ToString() ?? errorId;
+        // Try to get correlation ID from context items, use errorId as fallback
+        var correlationId = context.Items.TryGetValue("CorrelationId", out var correlationIdValue)
+            ? correlationIdValue?.ToString() ?? errorId
+            : errorId;
 
         var unwrappedException = UnwrapException(exception);
         var statusCode = DetermineStatusCode(unwrappedException);
 
-        LogException(context, unwrappedException, originalException, errorId, statusCode);
-
+        // Check if response has already started before logging
         if (context.Response.HasStarted)
         {
             _logger.LogWarning("Cannot write error response for {ErrorId}. Response has already started.", errorId);
             return true;
         }
+
+        LogException(context, unwrappedException, originalException, errorId, statusCode);
 
         var problemDetails = CreateProblemDetails(context, unwrappedException, originalException, statusCode, errorId,
             correlationId);

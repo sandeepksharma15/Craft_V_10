@@ -58,5 +58,6 @@ public class NotFoundExceptionTests
 
         // Assert
         Assert.Equal("Entity \"User\" (123) was not found.", ex.Message);
+        Assert.Equal(HttpStatusCode.NotFound, ex.StatusCode);
     }
 }

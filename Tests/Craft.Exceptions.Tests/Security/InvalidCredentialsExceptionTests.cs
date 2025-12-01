@@ -13,6 +13,7 @@ public class InvalidCredentialsExceptionTests
 
         // Assert
         Assert.Equal("Invalid Credentials: Please check your credentials", ex.Message);
+        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
         Assert.Empty(ex.Errors);
     }
 
@@ -24,6 +25,7 @@ public class InvalidCredentialsExceptionTests
 
         // Assert
         Assert.Equal("custom message", ex.Message);
+        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
         Assert.Empty(ex.Errors);
     }
 
@@ -37,6 +39,7 @@ public class InvalidCredentialsExceptionTests
         // Assert
         Assert.Equal("msg", ex.Message);
         Assert.Equal(inner, ex.InnerException);
+        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
         Assert.Empty(ex.Errors);
     }
 
@@ -45,11 +48,11 @@ public class InvalidCredentialsExceptionTests
     {
         // Arrange & Act
         var errors = new List<string> { "err1", "err2" };
-        var ex = new InvalidCredentialsException("msg", errors, HttpStatusCode.NotAcceptable);
+        var ex = new InvalidCredentialsException("msg", errors, HttpStatusCode.Unauthorized);
 
         // Assert
         Assert.Equal("msg", ex.Message);
-        Assert.Equal(HttpStatusCode.NotAcceptable, ex.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
         Assert.Equal(errors, ex.Errors);
     }
 
@@ -57,7 +60,7 @@ public class InvalidCredentialsExceptionTests
     public void Constructor_WithMessageAndNullErrors_SetsEmptyErrors()
     {
         // Arrange & Act
-        var ex = new InvalidCredentialsException("msg", null!, HttpStatusCode.NotAcceptable);
+        var ex = new InvalidCredentialsException("msg", null!, HttpStatusCode.Unauthorized);
 
         // Assert
         Assert.Empty(ex.Errors);

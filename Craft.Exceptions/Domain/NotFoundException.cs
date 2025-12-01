@@ -15,5 +15,5 @@ public class NotFoundException : CraftException
         HttpStatusCode statusCode = HttpStatusCode.NotFound) : base(message, errors, statusCode) { }
 
     public NotFoundException(string name, object key)
-        : base($"Entity \"{name}\" ({key}) was not found.") { }
+        : base($"Entity \"{name}\" ({key}) was not found.", (List<string>?)null, HttpStatusCode.NotFound) { }
 }
