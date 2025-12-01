@@ -58,13 +58,13 @@ public class FileAccessTokenServiceTests
     }
 
     [Fact]
-    public void ValidateToken_ExpiredToken_ReturnsFalse()
+    public async Task ValidateToken_ExpiredToken_ReturnsFalse()
     {
         // Arrange
         var fileId = "file123";
         var (token, _) = _tokenService.GenerateToken(fileId, -1);
 
-        Task.Delay(100).Wait();
+        await Task.Delay(100);
 
         // Act
         var isValid = _tokenService.ValidateToken(token, fileId);
@@ -94,7 +94,7 @@ public class FileAccessTokenServiceTests
         var fileId = "file123";
         var (token, _) = _tokenService.GenerateToken(fileId, 60);
         
-        var tamperedToken = token.Substring(0, token.Length - 5) + "XXXXX";
+        var tamperedToken = string.Concat(token.AsSpan(0, token.Length - 5), "XXXXX");
 
         // Act
         var isValid = _tokenService.ValidateToken(tamperedToken, fileId);
@@ -131,14 +131,14 @@ public class FileAccessTokenServiceTests
     }
 
     [Fact]
-    public void GenerateToken_DifferentTokensForSameFileId()
+    public async Task GenerateToken_DifferentTokensForSameFileId()
     {
         // Arrange
         var fileId = "file123";
 
         // Act
         var (token1, _) = _tokenService.GenerateToken(fileId, 60);
-        Task.Delay(10).Wait();
+        await Task.Delay(10);
         var (token2, _) = _tokenService.GenerateToken(fileId, 60);
 
         // Assert

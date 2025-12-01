@@ -62,7 +62,7 @@ public class LocalFileStorageProviderTests : IDisposable
 
         // Assert
         Assert.NotEqual(result1, result2);
-        Assert.True(result2.Contains(" (1)"));
+        Assert.Contains(" (1)", result2);
     }
 
     [Fact]
