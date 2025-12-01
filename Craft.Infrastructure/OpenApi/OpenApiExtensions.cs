@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -269,18 +269,16 @@ public static class OpenApiExtensions
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
-                BearerFormat = DefaultSecuritySchemeFormat,
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = securityOptions.JwtBearerSchemeName
-                }
+                BearerFormat = DefaultSecuritySchemeFormat
             };
 
             swaggerOptions.AddSecurityDefinition(securityOptions.JwtBearerSchemeName, jwtScheme);
-            swaggerOptions.AddSecurityRequirement(new OpenApiSecurityRequirement
+            swaggerOptions.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
             {
-                { jwtScheme, Array.Empty<string>() }
+                {
+                    new OpenApiSecuritySchemeReference(securityOptions.JwtBearerSchemeName),
+                    new List<string>()
+                }
             });
         }
 
@@ -292,18 +290,16 @@ public static class OpenApiExtensions
                 Description = securityOptions.ApiKeyDescription,
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey,
-                Scheme = "ApiKeyScheme",
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = securityOptions.ApiKeySchemeName
-                }
+                Scheme = "ApiKeyScheme"
             };
 
             swaggerOptions.AddSecurityDefinition(securityOptions.ApiKeySchemeName, apiKeyScheme);
-            swaggerOptions.AddSecurityRequirement(new OpenApiSecurityRequirement
+            swaggerOptions.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
             {
-                { apiKeyScheme, Array.Empty<string>() }
+                {
+                    new OpenApiSecuritySchemeReference(securityOptions.ApiKeySchemeName),
+                    new List<string>()
+                }
             });
         }
 
@@ -320,18 +316,16 @@ public static class OpenApiExtensions
                         TokenUrl = new Uri(securityOptions.OAuth2.TokenUrl),
                         Scopes = securityOptions.OAuth2.Scopes
                     }
-                },
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "oauth2"
                 }
             };
 
             swaggerOptions.AddSecurityDefinition("oauth2", oauth2Scheme);
-            swaggerOptions.AddSecurityRequirement(new OpenApiSecurityRequirement
+            swaggerOptions.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
             {
-                { oauth2Scheme, securityOptions.OAuth2.Scopes.Keys.ToArray() }
+                {
+                    new OpenApiSecuritySchemeReference("oauth2"),
+                    securityOptions.OAuth2.Scopes.Keys.ToList()
+                }
             });
         }
     }
@@ -446,12 +440,13 @@ public static class OpenApiExtensions
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            swaggerDoc.Tags ??= [];
+            if (swaggerDoc?.Tags == null)
+                return;
 
             foreach (var tagDescription in _tagDescriptions)
             {
                 var existingTag = swaggerDoc.Tags.FirstOrDefault(t =>
-                    t.Name.Equals(tagDescription.Key, StringComparison.OrdinalIgnoreCase));
+                    t.Name?.Equals(tagDescription.Key, StringComparison.OrdinalIgnoreCase) == true);
 
                 if (existingTag != null)
                 {
