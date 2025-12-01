@@ -261,6 +261,7 @@ public class CorsExtensionsTests
     public void AddCorsPolicy_Should_Register_Cors_Services()
     {
         var services = new ServiceCollection();
+        services.AddLogging(); // Required for CorsService
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
