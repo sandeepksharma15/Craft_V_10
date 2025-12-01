@@ -2,7 +2,11 @@
 
 namespace Craft.Infrastructure.FileUpload;
 
-public class FileUploadService
+/// <summary>
+/// Legacy static file upload helper for Blazor. Use IFileUploadService instead.
+/// </summary>
+[Obsolete("Use IFileUploadService.UploadBrowserFileAsync instead. This class will be removed in a future version.")]
+public static class BrowserFileUploadHelper
 {
     /// <summary>
     /// Uploads a file to the specified destination file path.

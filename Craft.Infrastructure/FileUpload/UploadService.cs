@@ -1,5 +1,9 @@
 ﻿namespace Craft.Infrastructure.FileUpload;
 
+/// <summary>
+/// Legacy file upload service. Use FileUploadService instead.
+/// </summary>
+[Obsolete("Use FileUploadService instead. This class will be removed in a future version.")]
 public class UploadService : IUploadService
 {
     private const string numberPattern = " ({0})";

@@ -5,13 +5,13 @@ using Moq;
 
 namespace Craft.Utilities.Tests.Services;
 
-public class FileUploadServiceTests
+public class BrowserFileUploadHelperTests
 {
     [Fact]
     public async Task UploadFileAsync_ThrowsArgumentNullException_WhenSourceFileIsNull()
     {
         // Arrange & Act & Assert
-        await Assert.ThrowsAsync<NullReferenceException>(() => FileUploadService.UploadFileAsync("somefile.txt", null!));
+        await Assert.ThrowsAsync<NullReferenceException>(() => BrowserFileUploadHelper.UploadFileAsync("somefile.txt", null!));
     }
 
     [Fact]
@@ -22,8 +22,8 @@ public class FileUploadServiceTests
         mockFile.Setup(f => f.Size).Returns(1);
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => FileUploadService.UploadFileAsync(null, mockFile.Object));
-        await Assert.ThrowsAsync<ArgumentException>(() => FileUploadService.UploadFileAsync(" ", mockFile.Object));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => BrowserFileUploadHelper.UploadFileAsync(null, mockFile.Object));
+        await Assert.ThrowsAsync<ArgumentException>(() => BrowserFileUploadHelper.UploadFileAsync(" ", mockFile.Object));
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class FileUploadServiceTests
         mockFile.Setup(f => f.Size).Returns(11 * 1024 * 1024); // 11 MB
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => FileUploadService.UploadFileAsync("file.txt", mockFile.Object, null, 10));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => BrowserFileUploadHelper.UploadFileAsync("file.txt", mockFile.Object, null, 10));
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class FileUploadServiceTests
             .Throws(new Exception("stream error"));
 
         // Act & Assert
-        await Assert.ThrowsAsync<IOException>(() => FileUploadService.UploadFileAsync("file.txt", mockFile.Object));
+        await Assert.ThrowsAsync<IOException>(() => BrowserFileUploadHelper.UploadFileAsync("file.txt", mockFile.Object));
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class FileUploadServiceTests
         try
         {
             // Act
-            await FileUploadService.UploadFileAsync(tempFile, mockFile.Object, p => lastProgress = p, 10);
+            await BrowserFileUploadHelper.UploadFileAsync(tempFile, mockFile.Object, p => lastProgress = p, 10);
             var written = await File.ReadAllBytesAsync(tempFile);
 
             // Assert
