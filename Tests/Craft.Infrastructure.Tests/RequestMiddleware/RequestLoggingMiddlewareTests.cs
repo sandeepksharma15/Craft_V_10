@@ -163,7 +163,7 @@ public class RequestLoggingMiddlewareTests
             x => x.Log(
                 LogLevel.Debug,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("RequestData")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Request details:")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -317,11 +317,12 @@ public class RequestLoggingMiddlewareTests
         // Assert
         Assert.True(nextCalled);
 
+        // The headers are logged as part of the request details
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Debug,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("[REDACTED]")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Request details:")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);

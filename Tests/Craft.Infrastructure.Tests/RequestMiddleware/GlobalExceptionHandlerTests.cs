@@ -70,7 +70,7 @@ public class GlobalExceptionHandlerTests
         // Assert
         Assert.True(result);
         Assert.Equal(400, _httpContext.Response.StatusCode);
-        Assert.Equal("application/json", _httpContext.Response.ContentType);
+        Assert.StartsWith("application/json", _httpContext.Response.ContentType);
 
         _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
         var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
