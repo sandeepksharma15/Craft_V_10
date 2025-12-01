@@ -20,7 +20,7 @@ public class GlobalExceptionHandlerTests
     private readonly Mock<ILogger<GlobalExceptionHandler>> _loggerMock;
     private readonly Mock<IWebHostEnvironment> _environmentMock;
     private readonly Mock<ICurrentUser<Guid>> _currentUserMock;
-    private readonly IOptions<SystemSettings> _settings;
+    private readonly IOptions<RequestMiddlewareSettings> _settings;
     private readonly GlobalExceptionHandler _handler;
     private readonly DefaultHttpContext _httpContext;
 
@@ -30,7 +30,7 @@ public class GlobalExceptionHandlerTests
         _environmentMock = new Mock<IWebHostEnvironment>();
         _currentUserMock = new Mock<ICurrentUser<Guid>>();
 
-        _settings = Options.Create(new SystemSettings
+        _settings = Options.Create(new RequestMiddlewareSettings
         {
             ExceptionHandling = new ExceptionHandlingSettings
             {
@@ -192,7 +192,7 @@ public class GlobalExceptionHandlerTests
         // Arrange
         _environmentMock.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        var settings = Options.Create(new SystemSettings
+        var settings = Options.Create(new RequestMiddlewareSettings
         {
             ExceptionHandling = new ExceptionHandlingSettings
             {

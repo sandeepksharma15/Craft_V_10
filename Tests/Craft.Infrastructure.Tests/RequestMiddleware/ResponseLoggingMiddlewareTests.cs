@@ -13,7 +13,7 @@ public class ResponseLoggingMiddlewareTests
 {
     private readonly Mock<ILogger<ResponseLoggingMiddleware>> _loggerMock;
     private readonly Mock<ICurrentUser<Guid>> _currentUserMock;
-    private readonly IOptions<SystemSettings> _settings;
+    private readonly IOptions<RequestMiddlewareSettings> _settings;
     private readonly ResponseLoggingMiddleware _middleware;
     private readonly DefaultHttpContext _httpContext;
 
@@ -22,7 +22,7 @@ public class ResponseLoggingMiddlewareTests
         _loggerMock = new Mock<ILogger<ResponseLoggingMiddleware>>();
         _currentUserMock = new Mock<ICurrentUser<Guid>>();
 
-        _settings = Options.Create(new SystemSettings
+        _settings = Options.Create(new RequestMiddlewareSettings
         {
             Logging = new LoggingSettings
             {
@@ -287,7 +287,7 @@ public class ResponseLoggingMiddlewareTests
     public async Task InvokeAsync_DisableResponseBodyLogging_OnlyLogsMetadata()
     {
         // Arrange
-        var settings = Options.Create(new SystemSettings
+        var settings = Options.Create(new RequestMiddlewareSettings
         {
             Logging = new LoggingSettings
             {

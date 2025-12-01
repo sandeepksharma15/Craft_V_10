@@ -9,9 +9,7 @@ namespace Craft.Infrastructure.RequestMiddleware;
 /// <summary>
 /// Middleware for detailed request logging with configurable sensitivity filtering.
 /// </summary>
-public class RequestLoggingMiddleware(
-    ILogger<RequestLoggingMiddleware> logger,
-    IOptions<SystemSettings> settings) : IMiddleware
+public class RequestLoggingMiddleware(ILogger<RequestLoggingMiddleware> logger, IOptions<RequestMiddlewareSettings> settings) : IMiddleware
 {
     private readonly ILogger<RequestLoggingMiddleware> _logger = logger;
     private readonly LoggingSettings _loggingSettings = settings.Value.Logging;
@@ -37,13 +35,8 @@ public class RequestLoggingMiddleware(
         {
             var elapsedMs = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;
 
-            _logger.LogInformation(
-                "Request completed | Method: {Method} | Path: {Path} | StatusCode: {StatusCode} | Duration: {Duration}ms | CorrelationId: {CorrelationId}",
-                context.Request.Method,
-                context.Request.Path,
-                context.Response.StatusCode,
-                elapsedMs,
-                correlationId);
+            _logger.LogInformation("Request completed | Method: {Method} | Path: {Path} | StatusCode: {StatusCode} | Duration: {Duration}ms | CorrelationId: {CorrelationId}",
+                context.Request.Method, context.Request.Path, context.Response.StatusCode, elapsedMs, correlationId);
         }
     }
 
@@ -54,23 +47,20 @@ public class RequestLoggingMiddleware(
         var logData = new
         {
             CorrelationId = correlationId,
-            Method = request.Method,
+            request.Method,
             Path = request.Path.ToString(),
             QueryString = request.QueryString.ToString(),
-            Scheme = request.Scheme,
+            request.Scheme,
             Host = request.Host.ToString(),
-            Protocol = request.Protocol,
-            ContentType = request.ContentType,
-            ContentLength = request.ContentLength,
+            request.Protocol,
+            request.ContentType,
+            request.ContentLength,
             Headers = _loggingSettings.LogHeaders ? FilterHeaders(request.Headers) : null,
             Body = await GetRequestBodyAsync(context)
         };
 
-        _logger.LogInformation(
-            "Incoming request | {Method} {Path} | CorrelationId: {CorrelationId}",
-            request.Method,
-            request.Path,
-            correlationId);
+        _logger.LogInformation("Incoming request | {Method} {Path} | CorrelationId: {CorrelationId}", request.Method,
+            request.Path, correlationId);
 
         _logger.LogDebug("Request details: {@RequestData}", logData);
     }
@@ -97,12 +87,8 @@ public class RequestLoggingMiddleware(
         {
             request.EnableBuffering();
 
-            using var reader = new StreamReader(
-                request.Body,
-                Encoding.UTF8,
-                detectEncodingFromByteOrderMarks: false,
-                bufferSize: 4096,
-                leaveOpen: true);
+            using var reader = new StreamReader(request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false,
+                bufferSize: 4096, leaveOpen: true);
 
             var body = await reader.ReadToEndAsync();
 

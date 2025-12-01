@@ -9,9 +9,7 @@ namespace Craft.Infrastructure.RequestMiddleware;
 /// <summary>
 /// Middleware for detailed response logging with proper stream buffering.
 /// </summary>
-public class ResponseLoggingMiddleware(
-    ILogger<ResponseLoggingMiddleware> logger,
-    IOptions<SystemSettings> settings,
+public class ResponseLoggingMiddleware(ILogger<ResponseLoggingMiddleware> logger, IOptions<RequestMiddlewareSettings> settings,
     ICurrentUser<Guid> currentUser) : IMiddleware
 {
     private readonly ILogger<ResponseLoggingMiddleware> _logger = logger;
@@ -108,9 +106,9 @@ public class ResponseLoggingMiddleware(
         var logData = new
         {
             CorrelationId = correlationId,
-            StatusCode = context.Response.StatusCode,
-            ContentType = context.Response.ContentType,
-            ContentLength = context.Response.ContentLength,
+            context.Response.StatusCode,
+            context.Response.ContentType,
+            context.Response.ContentLength,
             Headers = _loggingSettings.LogHeaders ? FilterHeaders(context.Response.Headers) : null,
             Body = responseBody,
             User = new
@@ -123,13 +121,9 @@ public class ResponseLoggingMiddleware(
 
         var logLevel = context.Response.StatusCode >= 400 ? LogLevel.Warning : LogLevel.Information;
 
-        _logger.Log(
-            logLevel,
+        _logger.Log(logLevel,
             "Response sent | StatusCode: {StatusCode} | Path: {Path} | User: {UserEmail} | CorrelationId: {CorrelationId}",
-            context.Response.StatusCode,
-            context.Request.Path,
-            userEmail,
-            correlationId);
+            context.Response.StatusCode, context.Request.Path, userEmail, correlationId);
 
         _logger.LogDebug("Response details: {@ResponseData}", logData);
     }
@@ -141,13 +135,9 @@ public class ResponseLoggingMiddleware(
 
         var logLevel = context.Response.StatusCode >= 400 ? LogLevel.Warning : LogLevel.Information;
 
-        _logger.Log(
-            logLevel,
+        _logger.Log(logLevel,
             "Response sent | StatusCode: {StatusCode} | Path: {Path} | User: {UserEmail} | CorrelationId: {CorrelationId}",
-            context.Response.StatusCode,
-            context.Request.Path,
-            userEmail,
-            correlationId);
+            context.Response.StatusCode, context.Request.Path, userEmail, correlationId);
     }
 
     private Dictionary<string, string> FilterHeaders(IHeaderDictionary headers)

@@ -11,7 +11,7 @@ namespace Craft.Infrastructure.Tests.RequestMiddleware;
 public class RequestLoggingMiddlewareTests
 {
     private readonly Mock<ILogger<RequestLoggingMiddleware>> _loggerMock;
-    private readonly IOptions<SystemSettings> _settings;
+    private readonly IOptions<RequestMiddlewareSettings> _settings;
     private readonly RequestLoggingMiddleware _middleware;
     private readonly DefaultHttpContext _httpContext;
 
@@ -19,7 +19,7 @@ public class RequestLoggingMiddlewareTests
     {
         _loggerMock = new Mock<ILogger<RequestLoggingMiddleware>>();
 
-        _settings = Options.Create(new SystemSettings
+        _settings = Options.Create(new RequestMiddlewareSettings
         {
             Logging = new LoggingSettings
             {
@@ -263,7 +263,7 @@ public class RequestLoggingMiddlewareTests
     public async Task InvokeAsync_DisablePerformanceMetrics_DoesNotLogDuration()
     {
         // Arrange
-        var settings = Options.Create(new SystemSettings
+        var settings = Options.Create(new RequestMiddlewareSettings
         {
             Logging = new LoggingSettings
             {

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using Craft.Exceptions;
 using Craft.Security;
 using Microsoft.AspNetCore.Diagnostics;
@@ -16,20 +15,15 @@ namespace Craft.Infrastructure.RequestMiddleware;
 /// Global exception handler that implements IExceptionHandler for centralized error handling.
 /// Uses RFC 7807 ProblemDetails format for standardized error responses.
 /// </summary>
-public class GlobalExceptionHandler(
-    ILogger<GlobalExceptionHandler> logger,
-    IOptions<SystemSettings> settings,
-    IWebHostEnvironment environment,
-    ICurrentUser<Guid> currentUser) : IExceptionHandler
+public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOptions<RequestMiddlewareSettings> settings,
+    IWebHostEnvironment environment, ICurrentUser<Guid> currentUser) : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger = logger;
-    private readonly SystemSettings _settings = settings.Value;
+    private readonly RequestMiddlewareSettings _settings = settings.Value;
     private readonly IWebHostEnvironment _environment = environment;
     private readonly ICurrentUser<Guid> _currentUser = currentUser;
 
-    public async ValueTask<bool> TryHandleAsync(
-        HttpContext context,
-        Exception exception,
+    public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception,
         CancellationToken cancellationToken)
     {
         var errorId = Guid.NewGuid().ToString();
@@ -44,18 +38,11 @@ public class GlobalExceptionHandler(
 
         if (context.Response.HasStarted)
         {
-            _logger.LogWarning(
-                "Cannot write error response for {ErrorId}. Response has already started.",
-                errorId);
+            _logger.LogWarning("Cannot write error response for {ErrorId}. Response has already started.", errorId);
             return true;
         }
 
-        var problemDetails = CreateProblemDetails(
-            context,
-            unwrappedException,
-            originalException,
-            statusCode,
-            errorId,
+        var problemDetails = CreateProblemDetails(context, unwrappedException, originalException, statusCode, errorId,
             correlationId);
 
         context.Response.ContentType = "application/json";
@@ -96,13 +83,8 @@ public class GlobalExceptionHandler(
             _ => (int)HttpStatusCode.InternalServerError
         };
 
-    private ProblemDetails CreateProblemDetails(
-        HttpContext context,
-        Exception unwrappedException,
-        Exception originalException,
-        int statusCode,
-        string errorId,
-        string correlationId)
+    private ProblemDetails CreateProblemDetails(HttpContext context, Exception unwrappedException,
+        Exception originalException, int statusCode, string errorId, string correlationId)
     {
         var problemDetails = new ProblemDetails
         {
@@ -145,12 +127,8 @@ public class GlobalExceptionHandler(
         return problemDetails;
     }
 
-    private void LogException(
-        HttpContext context,
-        Exception unwrappedException,
-        Exception originalException,
-        string errorId,
-        int statusCode)
+    private void LogException(HttpContext context, Exception unwrappedException, Exception originalException,
+        string errorId, int statusCode)
     {
         var logLevel = statusCode >= 500 ? LogLevel.Error : LogLevel.Warning;
 
@@ -158,17 +136,9 @@ public class GlobalExceptionHandler(
         var userEmail = _currentUser.GetEmail() ?? "Anonymous";
         var tenant = _currentUser.GetTenant() ?? "N/A";
 
-        _logger.Log(
-            logLevel,
-            originalException,
+        _logger.Log(logLevel, originalException,
             "Request failed with status {StatusCode} | ErrorId: {ErrorId} | Path: {Path} | Method: {Method} | User: {UserEmail} ({UserId}) | Tenant: {Tenant} | Message: {Message}",
-            statusCode,
-            errorId,
-            context.Request.Path,
-            context.Request.Method,
-            userEmail,
-            userId,
-            tenant,
+            statusCode, errorId, context.Request.Path, context.Request.Method, userEmail, userId, tenant,
             unwrappedException.Message);
     }
 

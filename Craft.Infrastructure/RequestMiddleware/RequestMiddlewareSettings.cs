@@ -3,7 +3,7 @@
 /// <summary>
 /// Configuration settings for request/response middleware.
 /// </summary>
-public class SystemSettings
+public class RequestMiddlewareSettings
 {
     /// <summary>
     /// Enables global exception handling using IExceptionHandler.

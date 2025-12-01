@@ -10,15 +10,15 @@ namespace Craft.Infrastructure.RequestMiddleware;
 /// </summary>
 public static class InfrastructureExtensions
 {
-    private static SystemSettings GetSystemSettings(IConfiguration config) =>
-        config.GetSection(nameof(SystemSettings)).Get<SystemSettings>() ?? new SystemSettings();
+    private static RequestMiddlewareSettings GetSystemSettings(IConfiguration config) =>
+        config.GetSection(nameof(RequestMiddlewareSettings)).Get<RequestMiddlewareSettings>() ?? new RequestMiddlewareSettings();
 
     /// <summary>
     /// Registers exception handling services.
     /// </summary>
     public static IServiceCollection AddExceptionHandling(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<SystemSettings>(config.GetSection(nameof(SystemSettings)));
+        services.Configure<RequestMiddlewareSettings>(config.GetSection(nameof(RequestMiddlewareSettings)));
 
         var settings = GetSystemSettings(config);
 
@@ -35,7 +35,7 @@ public static class InfrastructureExtensions
     /// </summary>
     public static IServiceCollection AddDetailedLogging(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<SystemSettings>(config.GetSection(nameof(SystemSettings)));
+        services.Configure<RequestMiddlewareSettings>(config.GetSection(nameof(RequestMiddlewareSettings)));
 
         var settings = GetSystemSettings(config);
 

@@ -258,9 +258,7 @@ throw new CraftException(
 ## ?? Documentation Links
 
 - **Full Documentation:** [README.md](README.md)
-- **Migration Guide:** [MIGRATION.md](MIGRATION.md)
 - **Example Config:** [appsettings.example.json](appsettings.example.json)
-- **Change Log:** [CHANGES.md](CHANGES.md)
 
 ---
 
