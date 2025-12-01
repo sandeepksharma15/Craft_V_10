@@ -14,7 +14,7 @@ public static class InfrastructureExtensions
         config.GetSection(nameof(RequestMiddlewareSettings)).Get<RequestMiddlewareSettings>() ?? new RequestMiddlewareSettings();
 
     /// <summary>
-    /// Registers exception handling services.
+    /// Registers exception handling services with custom ProblemDetails factory.
     /// </summary>
     public static IServiceCollection AddExceptionHandling(this IServiceCollection services, IConfiguration config)
     {
@@ -25,6 +25,9 @@ public static class InfrastructureExtensions
         if (settings.EnableExceptionHandler)
             services.AddExceptionHandler<GlobalExceptionHandler>();
 
+        // Register custom ProblemDetails factory
+        services.AddTransient<Microsoft.AspNetCore.Mvc.Infrastructure.ProblemDetailsFactory, CraftProblemDetailsFactory>();
+        
         services.AddProblemDetails();
 
         return services;

@@ -29,13 +29,57 @@
 // API Controllers with validation
 builder.Services.AddApiControllers(builder.Configuration);
 
-// Exception handling
+// Exception handling (includes custom ProblemDetails factory)
 builder.Services.AddExceptionHandling(builder.Configuration);
-builder.Services.AddProblemDetails(); // Optional: enhanced ProblemDetails
 
 // Optional detailed logging
 builder.Services.AddDetailedLogging(builder.Configuration);
 ```
+
+**Note:** `AddExceptionHandling` automatically registers:
+- `GlobalExceptionHandler` for exception handling
+- `CraftProblemDetailsFactory` for consistent error responses
+- Built-in `ProblemDetails` services
+
+---
+
+## ?? CraftProblemDetailsFactory
+
+The custom `ProblemDetailsFactory` automatically enriches all error responses:
+
+### Automatic Enhancements
+```json
+{
+  "type": "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Resource not found",
+  "instance": "/api/users/123",
+  
+  // Automatically added by CraftProblemDetailsFactory
+  "correlationId": "abc-123-xyz",     // Request correlation
+  "traceId": "0HN1234567890",         // ASP.NET Core trace ID
+  "timestamp": "2024-01-15T10:30:00Z", // UTC timestamp
+  "path": "/api/users/123",            // Request path
+  "method": "GET",                     // HTTP method
+  "userId": "user-guid",               // If authenticated
+  "userEmail": "user@example.com",     // If authenticated
+  "tenant": "tenant-001"               // If available
+}
+```
+
+### Benefits
+? **Consistent Format** - All errors follow the same structure  
+? **Automatic Enrichment** - No manual extension adding needed  
+? **Correlation Tracking** - Built-in request tracking  
+? **User Context** - Automatic user information  
+? **RFC Compliant** - Follows RFC 7807 & RFC 9110  
+
+### Works Everywhere
+- `GlobalExceptionHandler` - Exception responses
+- `AddApiControllers` - Model validation errors  
+- Custom controllers - Any ProblemDetails usage
+- ASP.NET Core built-ins - Problem() method
 
 ### 3. Middleware Pipeline (Program.cs)
 ```csharp
