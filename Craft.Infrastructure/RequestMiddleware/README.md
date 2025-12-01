@@ -1,20 +1,23 @@
 # Request Middleware
 
-Modern, scalable request/response middleware for ASP.NET Core applications with comprehensive logging and exception handling.
+Modern, comprehensive request/response middleware for ASP.NET Core (.NET 10) applications with advanced exception handling, logging, and diagnostics.
 
 ## Features
 
-? **Global Exception Handling** - RFC 7807 ProblemDetails format  
+? **Modern Exception Handling** - `IExceptionHandler` implementation with RFC 7807 & RFC 9110 compliance  
+? **Comprehensive CraftException Support** - Automatic handling of all custom exception types  
+? **Validation Error Formatting** - Rich `ValidationProblemDetails` with structured errors  
 ? **Correlation ID Tracking** - Track requests across distributed systems  
-? **Performance Metrics** - Request duration tracking  
+? **Performance Metrics** - Request duration tracking and slow request detection  
 ? **Sensitive Data Redaction** - Configurable PII and security filtering  
 ? **Configurable Logging** - Fine-grained control over what gets logged  
-? **Multi-Tenant Support** - Automatic tenant context in logs  
+? **Multi-Tenant Support** - Automatic tenant context in logs and error responses  
 ? **User Context** - Captures user ID, email, and tenant information  
+? **Development Diagnostics** - Stack traces and inner exception details in development mode
 
-## Configuration
+## Quick Start
 
-Add to your `appsettings.json`:
+### 1. Add to `appsettings.json`
 
 ```json
 {

@@ -21,6 +21,13 @@ public class RequestMiddlewareSettings
     public bool EnableDetailedLogging { get; set; } = false;
 
     /// <summary>
+    /// HTTP status code to return for model validation errors.
+    /// Default is 422 (Unprocessable Entity) which is semantically correct for validation failures.
+    /// Set to 400 for traditional Bad Request behavior.
+    /// </summary>
+    public int ModelValidationStatusCode { get; set; } = 422;
+
+    /// <summary>
     /// Configuration for request/response logging behavior.
     /// </summary>
     public LoggingSettings Logging { get; set; } = new();
@@ -89,21 +96,30 @@ public class ExceptionHandlingSettings
 {
     /// <summary>
     /// Include exception stack trace in development environment.
+    /// Only applies when environment is Development.
     /// </summary>
     public bool IncludeStackTrace { get; set; } = false;
 
     /// <summary>
-    /// Include inner exception details.
+    /// Include inner exception details when unwrapping exceptions.
     /// </summary>
     public bool IncludeInnerException { get; set; } = true;
 
     /// <summary>
     /// Use RFC 7807 ProblemDetails format for error responses.
+    /// Should always be true for standards compliance.
     /// </summary>
     public bool UseProblemDetails { get; set; } = true;
 
     /// <summary>
-    /// Include additional diagnostic information (source, error ID).
+    /// Include additional diagnostic information (errorId, correlationId, timestamp, user info).
+    /// Recommended for production debugging.
     /// </summary>
     public bool IncludeDiagnostics { get; set; } = true;
+
+    /// <summary>
+    /// Include detailed validation errors in ValidationProblemDetails.
+    /// When true, ModelValidationException will return structured validation errors.
+    /// </summary>
+    public bool IncludeValidationDetails { get; set; } = true;
 }

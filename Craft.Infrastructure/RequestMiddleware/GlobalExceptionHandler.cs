@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Craft.Exceptions;
+using Craft.Exceptions.Security;
 using Craft.Security;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ namespace Craft.Infrastructure.RequestMiddleware;
 /// <summary>
 /// Global exception handler that implements IExceptionHandler for centralized error handling.
 /// Uses RFC 7807 ProblemDetails format for standardized error responses.
+/// Handles all CraftException types with proper status codes and validation error formatting.
 /// </summary>
 public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOptions<RequestMiddlewareSettings> settings,
     IWebHostEnvironment environment, ICurrentUser<Guid> currentUser) : IExceptionHandler
@@ -73,58 +75,106 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOpt
     private static int DetermineStatusCode(Exception exception) =>
         exception switch
         {
+            // CraftException types (uses StatusCode property from exception)
             CraftException craftEx => (int)craftEx.StatusCode,
+            
+            // Standard .NET exceptions
             KeyNotFoundException => (int)HttpStatusCode.NotFound,
             UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
+            ArgumentNullException => (int)HttpStatusCode.BadRequest,
             ArgumentException => (int)HttpStatusCode.BadRequest,
             InvalidOperationException => (int)HttpStatusCode.BadRequest,
             NotImplementedException => (int)HttpStatusCode.NotImplemented,
             TimeoutException => (int)HttpStatusCode.RequestTimeout,
+            OperationCanceledException => (int)HttpStatusCode.RequestTimeout,
+            
             _ => (int)HttpStatusCode.InternalServerError
         };
 
     private ProblemDetails CreateProblemDetails(HttpContext context, Exception unwrappedException,
         Exception originalException, int statusCode, string errorId, string correlationId)
     {
+        // Handle ModelValidationException specially with ValidationProblemDetails
+        if (unwrappedException is ModelValidationException validationException && validationException.ValidationErrors.Count > 0)
+            return CreateValidationProblemDetails(context, validationException, statusCode, errorId, correlationId, originalException);
+
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,
-            Title = GetErrorTitle(statusCode),
+            Title = GetErrorTitle(statusCode, unwrappedException),
             Detail = unwrappedException.Message.Trim(),
             Instance = context.Request.Path,
             Type = GetErrorTypeUrl(statusCode)
         };
 
-        if (_settings.ExceptionHandling.IncludeDiagnostics)
-        {
-            problemDetails.Extensions["errorId"] = errorId;
-            problemDetails.Extensions["correlationId"] = correlationId;
-            problemDetails.Extensions["timestamp"] = DateTimeOffset.UtcNow;
-
-            if (_currentUser.IsAuthenticated())
-            {
-                problemDetails.Extensions["userId"] = _currentUser.GetId();
-                problemDetails.Extensions["userEmail"] = _currentUser.GetEmail();
-
-                var tenant = _currentUser.GetTenant();
-                if (!string.IsNullOrEmpty(tenant))
-                    problemDetails.Extensions["tenant"] = tenant;
-            }
-        }
-
-        if (unwrappedException is CraftException craftException && craftException.Errors.Count > 0)
-            problemDetails.Extensions["errors"] = craftException.Errors;
-
-        if (_settings.ExceptionHandling.IncludeStackTrace && _environment.IsDevelopment())
-        {
-            problemDetails.Extensions["stackTrace"] = originalException.StackTrace;
-            problemDetails.Extensions["exceptionType"] = originalException.GetType().FullName;
-
-            if (_settings.ExceptionHandling.IncludeInnerException && originalException.InnerException != null)
-                problemDetails.Extensions["innerException"] = originalException.InnerException.Message;
-        }
+        AddDiagnosticExtensions(problemDetails, errorId, correlationId);
+        AddCraftExceptionErrors(problemDetails, unwrappedException);
+        AddDevelopmentExtensions(problemDetails, originalException);
 
         return problemDetails;
+    }
+
+    private ValidationProblemDetails CreateValidationProblemDetails(HttpContext context, ModelValidationException validationException,
+        int statusCode, string errorId, string correlationId, Exception originalException)
+    {
+        var problemDetails = new ValidationProblemDetails(validationException.ValidationErrors)
+        {
+            Status = statusCode,
+            Title = GetErrorTitle(statusCode, validationException),
+            Detail = validationException.Message.Trim(),
+            Instance = context.Request.Path,
+            Type = GetErrorTypeUrl(statusCode)
+        };
+
+        AddDiagnosticExtensions(problemDetails, errorId, correlationId);
+        
+        if (validationException.Errors.Count > 0)
+            problemDetails.Extensions["errors"] = validationException.Errors;
+
+        AddDevelopmentExtensions(problemDetails, originalException);
+
+        return problemDetails;
+    }
+
+    private void AddDiagnosticExtensions(ProblemDetails problemDetails, string errorId, string correlationId)
+    {
+        if (!_settings.ExceptionHandling.IncludeDiagnostics)
+            return;
+
+        problemDetails.Extensions["errorId"] = errorId;
+        problemDetails.Extensions["correlationId"] = correlationId;
+        problemDetails.Extensions["timestamp"] = DateTimeOffset.UtcNow;
+
+        if (_currentUser.IsAuthenticated())
+        {
+            problemDetails.Extensions["userId"] = _currentUser.GetId();
+            problemDetails.Extensions["userEmail"] = _currentUser.GetEmail();
+
+            var tenant = _currentUser.GetTenant();
+            if (!string.IsNullOrEmpty(tenant))
+                problemDetails.Extensions["tenant"] = tenant;
+        }
+    }
+
+    private static void AddCraftExceptionErrors(ProblemDetails problemDetails, Exception exception)
+    {
+        if (exception is CraftException { Errors.Count: > 0 } craftException)
+            problemDetails.Extensions["errors"] = craftException.Errors;
+    }
+
+    private void AddDevelopmentExtensions(ProblemDetails problemDetails, Exception originalException)
+    {
+        if (!_settings.ExceptionHandling.IncludeStackTrace || !_environment.IsDevelopment())
+            return;
+
+        problemDetails.Extensions["stackTrace"] = originalException.StackTrace;
+        problemDetails.Extensions["exceptionType"] = originalException.GetType().FullName;
+
+        if (_settings.ExceptionHandling.IncludeInnerException && originalException.InnerException != null)
+        {
+            problemDetails.Extensions["innerException"] = originalException.InnerException.Message;
+            problemDetails.Extensions["innerExceptionType"] = originalException.InnerException.GetType().FullName;
+        }
     }
 
     private void LogException(HttpContext context, Exception unwrappedException, Exception originalException,
@@ -142,7 +192,27 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOpt
             unwrappedException.Message);
     }
 
-    private static string GetErrorTitle(int statusCode) =>
+    private static string GetErrorTitle(int statusCode, Exception? exception = null)
+    {
+        // Use custom titles for specific exception types
+        if (exception != null)
+        {
+            return exception switch
+            {
+                ModelValidationException => "One or more validation errors occurred",
+                NotFoundException => "Resource not found",
+                AlreadyExistsException => "Resource already exists",
+                InvalidCredentialsException => "Invalid credentials",
+                UnauthorizedException => "Unauthorized access",
+                ForbiddenException => "Access forbidden",
+                _ => GetDefaultTitle(statusCode)
+            };
+        }
+
+        return GetDefaultTitle(statusCode);
+    }
+
+    private static string GetDefaultTitle(int statusCode) =>
         statusCode switch
         {
             400 => "Bad Request",
@@ -157,12 +227,27 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOpt
             501 => "Not Implemented",
             502 => "Bad Gateway",
             503 => "Service Unavailable",
+            504 => "Gateway Timeout",
             _ => "An error occurred"
         };
 
-    private static string GetErrorTypeUrl(int statusCode)
-    {
-        var section = statusCode >= 500 ? "6" : "5";
-        return $"https://datatracker.ietf.org/doc/html/rfc7231#section-6.{section}";
-    }
+    private static string GetErrorTypeUrl(int statusCode) =>
+        statusCode switch
+        {
+            400 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.1",
+            401 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.2",
+            403 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.4",
+            404 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.5",
+            408 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.9",
+            409 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.10",
+            422 => "https://datatracker.ietf.org/doc/html/rfc4918#section-11.2",
+            429 => "https://datatracker.ietf.org/doc/html/rfc6585#section-4",
+            500 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.6.1",
+            501 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.6.2",
+            502 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.6.3",
+            503 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.6.4",
+            504 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.6.5",
+            _ when statusCode >= 500 => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.6",
+            _ => "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5"
+        };
 }

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Craft.Exceptions;
+using Craft.Exceptions.Security;
 using Craft.Infrastructure.RequestMiddleware;
 using Craft.Security;
 using Microsoft.AspNetCore.Hosting;
@@ -310,6 +311,312 @@ public class GlobalExceptionHandlerTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ModelValidationException_ReturnsValidationProblemDetails()
+    {
+        // Arrange
+        var validationErrors = new Dictionary<string, string[]>
+        {
+            { "Email", ["Email is required", "Email is not valid"] },
+            { "Age", ["Age must be between 18 and 100"] }
+        };
+        var exception = new ModelValidationException("Validation failed", validationErrors);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(400, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("One or more validation errors occurred", titleProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("errors", out var errorsProperty));
+        Assert.True(errorsProperty.TryGetProperty("Email", out var emailErrors));
+        Assert.Equal(2, emailErrors.GetArrayLength());
+        Assert.True(errorsProperty.TryGetProperty("Age", out var ageErrors));
+        Assert.Equal(1, ageErrors.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_NotFoundException_Returns404WithCustomTitle()
+    {
+        // Arrange
+        var exception = new NotFoundException("User", 123);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(404, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Resource not found", titleProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
+        Assert.Contains("User", detailProperty.GetString());
+        Assert.Contains("123", detailProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_AlreadyExistsException_Returns422WithCustomTitle()
+    {
+        // Arrange
+        var exception = new AlreadyExistsException("Product", "ABC123");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(422, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Resource already exists", titleProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_InvalidCredentialsException_Returns401WithCustomTitle()
+    {
+        // Arrange
+        var exception = new InvalidCredentialsException("Invalid username or password");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(401, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Invalid credentials", titleProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ForbiddenException_Returns403WithCustomTitle()
+    {
+        // Arrange
+        var exception = new ForbiddenException("Access to this resource is forbidden");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(403, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Access forbidden", titleProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_UnauthorizedException_Returns401WithCustomTitle()
+    {
+        // Arrange
+        var exception = new UnauthorizedException("You must be authenticated to access this resource");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(401, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Unauthorized access", titleProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_OperationCanceledException_Returns408()
+    {
+        // Arrange
+        var exception = new OperationCanceledException("Request was cancelled");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(408, _httpContext.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ArgumentNullException_Returns400()
+    {
+        // Arrange
+        var exception = new ArgumentNullException("parameter", "Parameter cannot be null");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(400, _httpContext.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_NotImplementedException_Returns501()
+    {
+        // Arrange
+        var exception = new NotImplementedException("Feature not implemented");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(501, _httpContext.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_TimeoutException_Returns408()
+    {
+        // Arrange
+        var exception = new TimeoutException("Request timeout");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(408, _httpContext.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_VerifiesRFC9110TypeUrls()
+    {
+        // Arrange
+        var exception = new NotFoundException("Resource not found");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("type", out var typeProperty));
+        var typeUrl = typeProperty.GetString();
+        Assert.NotNull(typeUrl);
+        Assert.Contains("rfc9110", typeUrl);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_IncludesInnerExceptionType_InDevelopment()
+    {
+        // Arrange
+        _environmentMock.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        var settings = Options.Create(new RequestMiddlewareSettings
+        {
+            ExceptionHandling = new ExceptionHandlingSettings
+            {
+                IncludeDiagnostics = true,
+                IncludeStackTrace = true,
+                IncludeInnerException = true
+            }
+        });
+
+        var handler = new GlobalExceptionHandler(
+            _loggerMock.Object,
+            settings,
+            _environmentMock.Object,
+            _currentUserMock.Object);
+
+        var innerException = new InvalidOperationException("Inner error");
+        var exception = new Exception("Outer error", innerException);
+
+        // Act
+        var result = await handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("innerException", out var innerExProperty));
+        Assert.Equal("Inner error", innerExProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("innerExceptionType", out var innerTypeProperty));
+        Assert.Contains("InvalidOperationException", innerTypeProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ResponseStarted_ReturnsTrue()
+    {
+        // Arrange
+        var exception = new InvalidOperationException("Test error");
+        
+        // Simulate response started by writing to response
+        await _httpContext.Response.WriteAsync("Already started");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, t) => o.ToString()!.Contains("Response has already started")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_InstancePath_SetCorrectly()
+    {
+        // Arrange
+        _httpContext.Request.Path = "/api/users/123";
+        var exception = new NotFoundException("User not found");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("instance", out var instanceProperty));
+        Assert.Equal("/api/users/123", instanceProperty.GetString());
     }
 
     private class TestCraftException : CraftException
