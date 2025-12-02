@@ -1,9 +1,8 @@
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Craft.Exceptions;
 using Craft.Exceptions.Security;
-using Craft.Infrastructure.RequestMiddleware;
+using Craft.Middleware.RequestMiddleware;
 using Craft.Security;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,9 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
 
-namespace Craft.Infrastructure.Tests.RequestMiddleware;
+namespace Craft.Middleware.Tests.RequestMiddleware;
 
 public class GlobalExceptionHandlerTests
 {

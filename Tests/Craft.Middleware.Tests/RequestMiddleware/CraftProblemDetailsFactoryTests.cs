@@ -1,4 +1,4 @@
-using Craft.Infrastructure.RequestMiddleware;
+using Craft.Middleware.RequestMiddleware;
 using Craft.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
-namespace Craft.Infrastructure.Tests.RequestMiddleware;
+namespace Craft.Middleware.Tests.RequestMiddleware;
 
 public class CraftProblemDetailsFactoryTests
 {

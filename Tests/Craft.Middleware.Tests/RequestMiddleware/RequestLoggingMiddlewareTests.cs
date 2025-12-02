@@ -1,12 +1,11 @@
 using System.Text;
-using Craft.Infrastructure.RequestMiddleware;
+using Craft.Middleware.RequestMiddleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
 
-namespace Craft.Infrastructure.Tests.RequestMiddleware;
+namespace Craft.Middleware.Tests.RequestMiddleware;
 
 public class RequestLoggingMiddlewareTests
 {
