@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Craft.Infrastructure.FileUpload;
+namespace Craft.Files;
 
 public enum UploadType
 {

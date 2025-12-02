@@ -1,4 +1,4 @@
-namespace Craft.Infrastructure.FileUpload;
+namespace Craft.Files;
 
 /// <summary>
 /// Defines the contract for file storage providers.

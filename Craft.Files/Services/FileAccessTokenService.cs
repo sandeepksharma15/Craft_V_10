@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Craft.Infrastructure.FileUpload;
+namespace Craft.Files;
 
 /// <summary>
 /// Simple implementation of file access token service using HMAC-SHA256.

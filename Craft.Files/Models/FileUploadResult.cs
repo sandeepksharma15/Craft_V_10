@@ -1,4 +1,4 @@
-namespace Craft.Infrastructure.FileUpload;
+namespace Craft.Files;
 
 /// <summary>
 /// Represents the result of a file upload operation.

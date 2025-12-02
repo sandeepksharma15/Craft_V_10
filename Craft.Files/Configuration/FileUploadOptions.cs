@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Craft.Infrastructure.FileUpload;
+namespace Craft.Files;
 
 /// <summary>
 /// Configuration options for file upload services.

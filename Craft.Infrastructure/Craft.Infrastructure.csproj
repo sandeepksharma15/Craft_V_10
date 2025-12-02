@@ -30,7 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Emails\" />
+	  <Folder Include="FileUpload\" />
 	</ItemGroup>
 
 </Project>

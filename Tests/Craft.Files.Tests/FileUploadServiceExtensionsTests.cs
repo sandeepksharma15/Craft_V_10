@@ -1,9 +1,8 @@
-using Craft.Infrastructure.FileUpload;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Craft.Infrastructure.Tests.FileUpload;
+namespace Craft.Files.Tests;
 
 public class FileUploadServiceExtensionsTests
 {

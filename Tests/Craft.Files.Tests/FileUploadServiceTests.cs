@@ -1,10 +1,9 @@
-using Craft.Infrastructure.FileUpload;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace Craft.Infrastructure.Tests.FileUpload;
+namespace Craft.Files.Tests;
 
 public class FileUploadServiceTests
 {

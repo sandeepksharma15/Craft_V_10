@@ -1,6 +1,4 @@
-using Craft.Infrastructure.FileUpload;
-
-namespace Craft.Infrastructure.Tests.FileUpload;
+namespace Craft.Files.Tests;
 
 public class FileAccessTokenServiceTests
 {
