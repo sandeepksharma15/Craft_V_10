@@ -361,7 +361,7 @@ public class GlobalExceptionHandlerTests
     public async Task TryHandleAsync_NotFoundException_Returns404WithCustomTitle()
     {
         // Arrange
-        var exception = new NotFoundException("User", 123);
+        var exception = new EntityNotFoundException("User", 123);
 
         // Act
         var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
@@ -467,6 +467,84 @@ public class GlobalExceptionHandlerTests
     }
 
     [Fact]
+    public async Task TryHandleAsync_ConcurrencyException_Returns409WithConflictTitle()
+    {
+        // Arrange
+        var exception = new ConcurrencyException("Order", 123);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(409, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Conflict", titleProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
+        Assert.Contains("Concurrency conflict for entity \"Order\" (123)", detailProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ConcurrencyExceptionWithVersions_Returns409WithDetailedMessage()
+    {
+        // Arrange
+        var exception = new ConcurrencyException("Invoice", 456, "v1", "v2");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(409, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
+        var detail = detailProperty.GetString();
+        Assert.Contains("Concurrency conflict for entity \"Invoice\" (456)", detail);
+        Assert.Contains("Expected version: v1", detail);
+        Assert.Contains("Actual version: v2", detail);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ConcurrencyExceptionWithErrors_IncludesErrorList()
+    {
+        // Arrange
+        var errors = new List<string> 
+        { 
+            "Row version mismatch", 
+            "Record modified by user@example.com at 10:30 AM" 
+        };
+        var exception = new ConcurrencyException("Concurrency conflict detected", errors);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(409, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("errors", out var errorsProperty));
+        var errorArray = errorsProperty.EnumerateArray().Select(e => e.GetString()).ToList();
+
+        Assert.Equal(2, errorArray.Count);
+        Assert.Contains("Row version mismatch", errorArray);
+        Assert.Contains("Record modified by user@example.com at 10:30 AM", errorArray);
+    }
+
+    [Fact]
     public async Task TryHandleAsync_OperationCanceledException_Returns408()
     {
         // Arrange
@@ -526,7 +604,7 @@ public class GlobalExceptionHandlerTests
     public async Task TryHandleAsync_VerifiesRFC9110TypeUrls()
     {
         // Arrange
-        var exception = new NotFoundException("Resource not found");
+        var exception = new EntityNotFoundException("Resource not found");
 
         // Act
         var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
@@ -624,7 +702,7 @@ public class GlobalExceptionHandlerTests
     {
         // Arrange
         _httpContext.Request.Path = "/api/users/123";
-        var exception = new NotFoundException("User not found");
+        var exception = new EntityNotFoundException("User not found");
 
         // Act
         var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);

@@ -8,7 +8,7 @@ public class NotFoundExceptionTests
     public void Constructor_WithMessage_SetsMessageAndStatusCode()
     {
         // Arrange & Act
-        var ex = new NotFoundException("not found message");
+        var ex = new EntityNotFoundException("not found message");
 
         // Assert
         Assert.Equal("not found message", ex.Message);
@@ -19,7 +19,7 @@ public class NotFoundExceptionTests
     public void DefaultConstructor_CreatesInstance()
     {
         // Arrange & Act
-        var ex = new NotFoundException();
+        var ex = new EntityNotFoundException();
 
         // Assert
         Assert.NotNull(ex);
@@ -30,7 +30,7 @@ public class NotFoundExceptionTests
     {
         // Arrange & Act
         var inner = new Exception("inner");
-        var ex = new NotFoundException("msg", inner);
+        var ex = new EntityNotFoundException("msg", inner);
 
         // Assert
         Assert.Equal("msg", ex.Message);
@@ -42,7 +42,7 @@ public class NotFoundExceptionTests
     {
         // Arrange & Act
         var errors = new List<string> { "err1", "err2" };
-        var ex = new NotFoundException("msg", errors, HttpStatusCode.NotFound);
+        var ex = new EntityNotFoundException("msg", errors, HttpStatusCode.NotFound);
 
         // Assert
         Assert.Equal("msg", ex.Message);
@@ -54,7 +54,7 @@ public class NotFoundExceptionTests
     public void Constructor_WithNameAndKey_SetsFormattedMessage()
     {
         // Arrange & Act
-        var ex = new NotFoundException("User", 123);
+        var ex = new EntityNotFoundException("User", 123);
 
         // Assert
         Assert.Equal("Entity \"User\" (123) was not found.", ex.Message);
