@@ -1,5 +1,5 @@
 ﻿using Craft.QuerySpec;
-using Craft.TestDataStore.Models;
+using Craft.Testing.Fixtures;
 
 namespace Craft.QuerySpec.Tests.Core;
 

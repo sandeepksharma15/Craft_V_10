@@ -1,6 +1,5 @@
 using Craft.Data.DbContextFeatures;
 using Craft.Domain;
-using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Data.Tests.DbContextFeatures;

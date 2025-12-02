@@ -2,7 +2,7 @@
 using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec.Services;
-using Craft.TestDataStore.Models;
+using Craft.Testing.Fixtures;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;

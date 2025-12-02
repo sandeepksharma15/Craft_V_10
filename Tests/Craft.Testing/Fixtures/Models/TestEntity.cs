@@ -1,6 +1,6 @@
 ﻿using Craft.Domain;
 
-namespace Craft.TestDataStore.Models;
+namespace Craft.Testing.Fixtures;
 
 // Implements IEntity<int> directly for test compatibility
 public class TestEntity : IEntity<int>

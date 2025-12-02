@@ -1,6 +1,6 @@
-﻿using Craft.Utilities.TestClasses;
+﻿using Craft.Testing.TestClasses;
 
-namespace Craft.Utilities.Tests.TestClasses;
+namespace Craft.Testing.Tests;
 
 // Minimal IType interface for testing
 public interface ITestType

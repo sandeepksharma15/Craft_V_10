@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Craft.Domain;
 
-namespace Craft.TestDataStore.Models;
+namespace Craft.Testing.Fixtures;
 
 public class Company : BaseEntity
 {

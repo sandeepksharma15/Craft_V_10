@@ -13,7 +13,6 @@
     <ProjectReference Include="..\..\Craft.OpenAPI\Craft.OpenAPI.csproj" />
     <ProjectReference Include="..\..\Craft.QuerySpec\Craft.QuerySpec.csproj" />
     <ProjectReference Include="..\..\Craft.Repositories\Craft.Repositories.csproj" />
-    <ProjectReference Include="..\..\Tests\Craft.TestDataStore\Craft.TestDataStore.csproj" />
   </ItemGroup>
 
 </Project>

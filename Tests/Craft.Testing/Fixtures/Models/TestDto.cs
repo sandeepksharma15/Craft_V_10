@@ -1,7 +1,6 @@
 ﻿using Craft.Domain;
 
-namespace Craft.TestDataStore.Models;
-
+namespace Craft.Testing.Fixtures;
 
 public class TestDto : BaseDto
 {

@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Craft.Controllers\Craft.Controllers.csproj" />
-    <ProjectReference Include="..\Tests\Craft.TestDataStore\Craft.TestDataStore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

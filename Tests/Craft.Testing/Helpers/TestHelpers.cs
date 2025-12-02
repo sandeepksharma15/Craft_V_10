@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 using Xunit;
 
-namespace Craft.Utilities.Helpers;
+namespace Craft.Testing.Helpers;
 
 public static class TestHelpers
 {
     /// <summary>
-    /// Helper Method to Compare If Two Objects Have The Same Set Of Data. This assumes Non-Nexted objects.
+    /// Helper Method to Compare If Two Objects Have The Same Set Of Data. This assumes Non-Nested objects.
     /// </summary>
     /// <typeparam name="T">The Base Type Of Two Objects</typeparam>
     /// <param name="one">One Object Derived From T</param>

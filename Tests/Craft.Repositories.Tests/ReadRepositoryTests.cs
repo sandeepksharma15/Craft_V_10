@@ -1,7 +1,5 @@
 ﻿using Craft.Repositories.Services;
-using Craft.TestDataStore;
-using Craft.TestDataStore.Fixtures;
-using Craft.TestDataStore.Models;
+using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

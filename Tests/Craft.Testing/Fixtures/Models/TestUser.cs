@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Craft.TestDataStore.Models;
+namespace Craft.Testing.Fixtures;
 
 public class TestUser : IdentityUser<int>;

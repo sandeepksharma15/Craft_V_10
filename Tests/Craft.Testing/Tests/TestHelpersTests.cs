@@ -1,6 +1,6 @@
-﻿using Craft.Utilities.Helpers;
+﻿using Craft.Testing.Helpers;
 
-namespace Craft.Utilities.Tests.Helpers;
+namespace Craft.Testing.Tests;
 
 public class TestHelpersTests
 {

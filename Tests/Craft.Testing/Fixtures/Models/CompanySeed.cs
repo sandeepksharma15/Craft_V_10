@@ -1,4 +1,4 @@
-﻿namespace Craft.TestDataStore.Models;
+﻿namespace Craft.Testing.Fixtures;
 
 public static class CompanySeed
 {

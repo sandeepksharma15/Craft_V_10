@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Craft.TestDataStore.Models;
+using Craft.Testing.Fixtures;
 
 namespace Craft.QuerySpec.Tests.Builders;
 

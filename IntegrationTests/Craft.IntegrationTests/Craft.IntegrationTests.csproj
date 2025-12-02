@@ -22,7 +22,6 @@
     <ProjectReference Include="..\..\Craft.HttpServices\Craft.HttpServices.csproj" />
     <ProjectReference Include="..\..\Craft.QuerySpec\Craft.QuerySpec.csproj" />
     <ProjectReference Include="..\..\Craft.Repositories\Craft.Repositories.csproj" />
-    <ProjectReference Include="..\..\Tests\Craft.TestDataStore\Craft.TestDataStore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

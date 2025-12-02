@@ -1,8 +1,7 @@
 ﻿using Craft.Core;
-using Craft.TestDataStore.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.TestDataStore.Fixtures;
+namespace Craft.Testing.Fixtures;
 
 public class TestDbContext : DbContext, IDbContext
 {

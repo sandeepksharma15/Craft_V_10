@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Craft.Domain;
 using Craft.MultiTenant;
-using Craft.TestDataStore.Models;
+using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 

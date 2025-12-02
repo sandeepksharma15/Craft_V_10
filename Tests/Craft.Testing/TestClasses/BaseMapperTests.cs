@@ -1,8 +1,8 @@
-﻿using Craft.Utilities.Helpers;
+﻿using Craft.Testing.Helpers;
 using Mapster;
 using Xunit;
 
-namespace Craft.Utilities.TestClasses;
+namespace Craft.Testing.TestClasses;
 
 public abstract class BaseMapperTests<T, EntityDTO, EntityVM, IType>
     where T : class, IType
