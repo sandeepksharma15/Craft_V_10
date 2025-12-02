@@ -48,11 +48,11 @@ public class RequestLoggingMiddlewareTests
     {
         // Arrange
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -78,11 +78,11 @@ public class RequestLoggingMiddlewareTests
         // Arrange
         _httpContext.Request.Path = "/health";
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -112,11 +112,11 @@ public class RequestLoggingMiddlewareTests
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -144,11 +144,11 @@ public class RequestLoggingMiddlewareTests
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -178,11 +178,11 @@ public class RequestLoggingMiddlewareTests
         _httpContext.Request.Body = new MemoryStream([0x01, 0x02, 0x03]);
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -210,11 +210,11 @@ public class RequestLoggingMiddlewareTests
         _httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(largeBody));
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -237,11 +237,11 @@ public class RequestLoggingMiddlewareTests
     {
         // Arrange
         var nextCalled = false;
-        RequestDelegate next = async ctx =>
+        async Task next(HttpContext ctx)
         {
             nextCalled = true;
             await Task.Delay(10); // Add small delay
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);
@@ -275,11 +275,11 @@ public class RequestLoggingMiddlewareTests
         var middleware = new RequestLoggingMiddleware(_loggerMock.Object, settings);
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await middleware.InvokeAsync(_httpContext, next);
@@ -301,15 +301,15 @@ public class RequestLoggingMiddlewareTests
     public async Task InvokeAsync_WithSensitiveHeaders_RedactsHeaders()
     {
         // Arrange
-        _httpContext.Request.Headers["Authorization"] = "Bearer secret-token";
+        _httpContext.Request.Headers.Authorization = "Bearer secret-token";
         _httpContext.Request.Headers["X-Custom-Header"] = "public-value";
 
         var nextCalled = false;
-        RequestDelegate next = ctx =>
+        Task next(HttpContext ctx)
         {
             nextCalled = true;
             return Task.CompletedTask;
-        };
+        }
 
         // Act
         await _middleware.InvokeAsync(_httpContext, next);

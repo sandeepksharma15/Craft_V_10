@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Craft.Infrastructure.OpenApi;
+namespace Craft.OpenAPI;
 
 /// <summary>
 /// Configuration options for OpenAPI/Swagger documentation.

@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Craft.Infrastructure.OpenApi;
+using Craft.OpenAPI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

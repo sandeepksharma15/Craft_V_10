@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Craft.Infrastructure.OpenApi;
 
-namespace Craft.Infrastructure.Tests.OpenApi;
+namespace Craft.OpenAPI.Tests;
 
 /// <summary>
 /// Tests for SwaggerOptions validation and configuration.
