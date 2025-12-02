@@ -545,6 +545,169 @@ public class GlobalExceptionHandlerTests
     }
 
     [Fact]
+    public async Task TryHandleAsync_ConfigurationException_Returns500WithInternalServerErrorTitle()
+    {
+        // Arrange
+        var exception = new ConfigurationException("Database:ConnectionString", "Value is missing or empty");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(500, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Internal Server Error", titleProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
+        Assert.Contains("Database:ConnectionString", detailProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_DatabaseException_Returns500WithInternalServerErrorTitle()
+    {
+        // Arrange
+        var exception = new DatabaseException("INSERT", "Unique constraint violation on column 'Email'");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(500, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Internal Server Error", titleProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
+        Assert.Contains("Database error during INSERT", detailProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ExternalServiceException_Returns502WithBadGatewayTitle()
+    {
+        // Arrange
+        var exception = new ExternalServiceException("PaymentGateway", 503, "Service temporarily unavailable");
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(502, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
+        Assert.Equal("Bad Gateway", titleProperty.GetString());
+
+        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
+        Assert.Contains("PaymentGateway", detailProperty.GetString());
+        Assert.Contains("503", detailProperty.GetString());
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ConfigurationExceptionWithErrors_IncludesErrorList()
+    {
+        // Arrange
+        var errors = new List<string>
+        {
+            "ConnectionString is missing",
+            "ApiKey is invalid"
+        };
+        var exception = new ConfigurationException("Configuration validation failed", errors);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(500, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("errors", out var errorsProperty));
+        var errorArray = errorsProperty.EnumerateArray().Select(e => e.GetString()).ToList();
+
+        Assert.Equal(2, errorArray.Count);
+        Assert.Contains("ConnectionString is missing", errorArray);
+        Assert.Contains("ApiKey is invalid", errorArray);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_DatabaseExceptionWithErrors_IncludesErrorList()
+    {
+        // Arrange
+        var errors = new List<string>
+        {
+            "Connection pool exhausted",
+            "Maximum retry attempts exceeded"
+        };
+        var exception = new DatabaseException("Database operation failed", errors);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(500, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("errors", out var errorsProperty));
+        var errorArray = errorsProperty.EnumerateArray().Select(e => e.GetString()).ToList();
+
+        Assert.Equal(2, errorArray.Count);
+        Assert.Contains("Connection pool exhausted", errorArray);
+        Assert.Contains("Maximum retry attempts exceeded", errorArray);
+    }
+
+    [Fact]
+    public async Task TryHandleAsync_ExternalServiceExceptionWithErrors_IncludesErrorList()
+    {
+        // Arrange
+        var errors = new List<string>
+        {
+            "Service timeout after 30 seconds",
+            "Retry attempts exhausted"
+        };
+        var exception = new ExternalServiceException("External service call failed", errors);
+
+        // Act
+        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(502, _httpContext.Response.StatusCode);
+
+        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
+        var document = JsonDocument.Parse(responseBody);
+
+        Assert.True(document.RootElement.TryGetProperty("errors", out var errorsProperty));
+        var errorArray = errorsProperty.EnumerateArray().Select(e => e.GetString()).ToList();
+
+        Assert.Equal(2, errorArray.Count);
+        Assert.Contains("Service timeout after 30 seconds", errorArray);
+        Assert.Contains("Retry attempts exhausted", errorArray);
+    }
+
+    [Fact]
     public async Task TryHandleAsync_OperationCanceledException_Returns408()
     {
         // Arrange
