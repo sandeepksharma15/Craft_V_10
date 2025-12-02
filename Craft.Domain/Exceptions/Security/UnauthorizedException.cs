@@ -4,13 +4,18 @@ namespace Craft.Exceptions;
 
 public class UnauthorizedException : CraftException
 {
+    public UnauthorizedException()
+        : base("Unauthorized access", [], HttpStatusCode.Unauthorized) { }
+
     public UnauthorizedException(string message)
-        : base(message, (List<string>?)null, HttpStatusCode.Unauthorized) { }
+        : base(message, [], HttpStatusCode.Unauthorized) { }
 
-    public UnauthorizedException() { }
+    public UnauthorizedException(string message, Exception innerException)
+        : base(message, innerException, HttpStatusCode.Unauthorized) { }
 
-    public UnauthorizedException(string message, Exception innerException) : base(message, innerException) { }
+    public UnauthorizedException(string message, List<string>? errors = default)
+        : base(message, errors, HttpStatusCode.Unauthorized) { }
 
-    public UnauthorizedException(string message, List<string> errors = default!,
-        HttpStatusCode statusCode = HttpStatusCode.Unauthorized) : base(message, errors, statusCode) { }
+    public UnauthorizedException(string message, List<string>? errors, HttpStatusCode statusCode)
+        : base(message, errors, statusCode) { }
 }

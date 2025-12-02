@@ -2,18 +2,20 @@
 
 namespace Craft.Exceptions;
 
-public class EntityNotFoundException : CraftException
+/// <summary>
+/// Exception thrown when a requested entity cannot be found.
+/// </summary>
+[Obsolete("Use NotFoundException instead. This class will be removed in v2.0.0", false)]
+public class EntityNotFoundException : NotFoundException
 {
-    public EntityNotFoundException(string message)
-        : base(message, (List<string>?)null, HttpStatusCode.NotFound) { }
+    public EntityNotFoundException() : base() { }
 
-    public EntityNotFoundException() { }
+    public EntityNotFoundException(string message) : base(message) { }
 
     public EntityNotFoundException(string message, Exception innerException) : base(message, innerException) { }
 
     public EntityNotFoundException(string message, List<string> errors = default!,
-        HttpStatusCode statusCode = HttpStatusCode.NotFound) : base(message, errors, statusCode) { }
+        HttpStatusCode statusCode = HttpStatusCode.NotFound) : base(message, errors) { }
 
-    public EntityNotFoundException(string name, object key)
-        : base($"Entity \"{name}\" ({key}) was not found.", (List<string>?)null, HttpStatusCode.NotFound) { }
+    public EntityNotFoundException(string name, object key) : base(name, key) { }
 }
