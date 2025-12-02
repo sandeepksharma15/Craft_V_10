@@ -1,19 +1,18 @@
 ﻿using System.Net;
-using Craft.Exceptions.Security;
 
 namespace Craft.Exceptions.Tests.Security;
 
-public class UnauthorizedExceptionTests
+public class ForbiddenExceptionTests
 {
     [Fact]
     public void Constructor_WithMessage_SetsMessageAndStatusCode()
     {
         // Arrange & Act
-        var ex = new UnauthorizedException("unauthorized!");
+        var ex = new ForbiddenException("forbidden!");
 
         // Assert
-        Assert.Equal("unauthorized!", ex.Message);
-        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
+        Assert.Equal("forbidden!", ex.Message);
+        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
         Assert.Empty(ex.Errors);
     }
 
@@ -21,7 +20,7 @@ public class UnauthorizedExceptionTests
     public void Constructor_Parameterless_Defaults()
     {
         // Arrange & Act
-        var ex = new UnauthorizedException();
+        var ex = new ForbiddenException();
 
         // Assert
         Assert.NotNull(ex.Message); // Exception.Message is default
@@ -33,10 +32,10 @@ public class UnauthorizedExceptionTests
     {
         // Arrange & Act
         var inner = new Exception("inner");
-        var ex = new UnauthorizedException("unauthorized!", inner);
+        var ex = new ForbiddenException("forbidden!", inner);
 
         // Assert
-        Assert.Equal("unauthorized!", ex.Message);
+        Assert.Equal("forbidden!", ex.Message);
         Assert.Equal(inner, ex.InnerException);
         Assert.Empty(ex.Errors);
     }
@@ -46,11 +45,11 @@ public class UnauthorizedExceptionTests
     {
         // Arrange & Act
         var errors = new List<string> { "err1", "err2" };
-        var ex = new UnauthorizedException("unauthorized!", errors, HttpStatusCode.Unauthorized);
+        var ex = new ForbiddenException("forbidden!", errors, HttpStatusCode.Forbidden);
 
         // Assert
-        Assert.Equal("unauthorized!", ex.Message);
-        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
+        Assert.Equal("forbidden!", ex.Message);
+        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
         Assert.Equal(errors, ex.Errors);
     }
 
@@ -58,7 +57,7 @@ public class UnauthorizedExceptionTests
     public void Constructor_WithMessageAndNullErrors_SetsEmptyErrors()
     {
         // Arrange & Act
-        var ex = new UnauthorizedException("unauthorized!", null!, HttpStatusCode.Unauthorized);
+        var ex = new ForbiddenException("forbidden!", null!, HttpStatusCode.Forbidden);
 
         // Assert
         Assert.Empty(ex.Errors);
@@ -68,7 +67,7 @@ public class UnauthorizedExceptionTests
     public void Constructor_WithCustomStatusCode_SetsStatusCode()
     {
         // Arrange & Act
-        var ex = new UnauthorizedException("unauthorized!", [], HttpStatusCode.BadRequest);
+        var ex = new ForbiddenException("forbidden!", [], HttpStatusCode.BadRequest);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, ex.StatusCode);

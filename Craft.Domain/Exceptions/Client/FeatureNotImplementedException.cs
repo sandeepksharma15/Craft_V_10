@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions.Client;
+namespace Craft.Exceptions;
 
 /// <summary>
 /// Exception thrown when a feature or endpoint is not yet implemented.

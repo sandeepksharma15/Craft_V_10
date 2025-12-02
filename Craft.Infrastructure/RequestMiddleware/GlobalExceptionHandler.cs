@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Craft.Exceptions;
-using Craft.Exceptions.Security;
 using Craft.Security;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;

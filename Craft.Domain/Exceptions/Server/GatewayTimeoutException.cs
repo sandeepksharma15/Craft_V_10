@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions.Server;
+namespace Craft.Exceptions;
 
 /// <summary>
 /// Exception thrown when the server did not receive a timely response from an upstream server.

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Craft.Exceptions.Server;
+namespace Craft.Exceptions;
 
 public class InternalServerException : CraftException
 {

@@ -1,5 +1,4 @@
 using System.Net;
-using Craft.Exceptions.Server;
 
 namespace Craft.Exceptions.Tests.Server;
 

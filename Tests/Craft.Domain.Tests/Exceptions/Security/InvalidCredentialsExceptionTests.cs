@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Craft.Exceptions.Security;
 
 namespace Craft.Exceptions.Tests.Security;
 

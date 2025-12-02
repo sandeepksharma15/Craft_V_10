@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using Craft.Exceptions;
-using Craft.Exceptions.Security;
 using Craft.Middleware.RequestMiddleware;
 using Craft.Security;
 using Microsoft.AspNetCore.Hosting;

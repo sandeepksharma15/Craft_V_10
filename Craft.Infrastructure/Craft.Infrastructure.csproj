@@ -23,7 +23,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
-		<ProjectReference Include="..\Craft.Exceptions\Craft.Exceptions.csproj" />
 		<ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
 		<ProjectReference Include="..\Craft.Security\Craft.Security.csproj" />
 		<ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />

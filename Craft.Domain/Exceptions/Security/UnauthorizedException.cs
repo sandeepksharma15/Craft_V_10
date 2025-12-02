@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Craft.Exceptions.Security;
+namespace Craft.Exceptions;
 
 public class UnauthorizedException : CraftException
 {
