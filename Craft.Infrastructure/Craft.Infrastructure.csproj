@@ -29,4 +29,8 @@
 		<ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Emails\" />
+	</ItemGroup>
+
 </Project>
