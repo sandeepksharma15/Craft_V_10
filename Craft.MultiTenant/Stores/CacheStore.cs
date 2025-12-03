@@ -18,15 +18,10 @@ public class CacheStore<T>(ICacheService cacheService, ITenantStore<T> tenantRep
 
     private async Task<IReadOnlyList<T>?> GetTenantList()
     {
-        // Get From The Cache
-        (bool hasKey, IReadOnlyList<T>? tenants) = _cacheService.TryGet<List<T>>(_cacheKey);
-
-        // If Key Is Missing, Get Again From Repository
-        if (!hasKey || tenants == null)
-            tenants = await _tenantRepository.GetAllAsync();
-
-        // Set In Cache
-        _cacheService.Set(_cacheKey, tenants);
+        // Get or Set From The Cache using GetOrSetAsync
+        var tenants = await _cacheService.GetOrSetAsync(
+            _cacheKey,
+            async () => await _tenantRepository.GetAllAsync());
 
         return tenants;
     }
