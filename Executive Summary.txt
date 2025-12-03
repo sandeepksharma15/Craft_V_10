@@ -127,10 +127,8 @@ Specialized (5) + Apps (1) + Tests (excluded)
 Recommended: 15-18 Projects
 Consolidation Plan:
 Action	From	To	Impact
-Split	Craft.Infrastructure	Craft.Infrastructure.OpenApi<br>Craft.Infrastructure.Email<br>Craft.Infrastructure (middleware)	🔴 High
 Merge	Craft.Controllers	Craft.HttpServices	🟡 Medium
-Move	Craft.Utilities	Craft.Testing (new)	🟡 Medium
-Merge	Craft.Exceptions	Craft.Domain	🟢 Low
+Move	Craft.Utilities
 Optional	Craft.Auditing	Craft.Domain.Features (new)	🟢 Low
 Result: 19 Projects (24 - 1 delete + 3 new - 6 merged = ~20 projects, accounting for test organization)
 ---
@@ -173,20 +171,6 @@ Utilities
 2.2 Dependency Issues Identified
 Issue #1: Craft.Core has EF Core Dependency
 
-<!-- Craft.Core.csproj -->
-<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
-
-Problem:
-•	❌ Craft.Core is supposed to be pure abstractions
-•	❌ Shouldn't force EF Core on consumers who don't use it
-•	❌ Violates separation of concerns
-Investigation: Why does Core need EF Core?
-Let me check:
-Based on the analysis, Craft.Core needs EF Core for IDbContext interface which wraps DbContext. This is acceptable because:
-1.	Craft.Core is about core application abstractions, not just primitives
-2.	IDbContext is a key abstraction for the repository pattern
-3.	EF Core is a framework dependency, not a database-specific one
-Verdict: ✅ Acceptable - Craft.Core can have EF Core dependency since it provides database abstractions
 ---
 Issue #2: Circular Reference Risk with Craft.Infrastructure
 Craft.Infrastructure → Craft.Utilities → (Test helpers)
@@ -235,44 +219,6 @@ Web
 
 Dependency Health: ✅ Clean, minimal circular risks
 ---
-3. Missing Functionality Analysis
-3.1 Critical Missing Features (Should Have)
-1. ❌ Caching Abstraction (Priority: 🔴 High)
-Current State: No caching infrastructure
-Business Need: Every full-stack app needs caching for performance
-Recommended: Craft.Caching
-Craft.Caching/
-├── Abstractions/
-│   ├── ICacheService.cs              (Generic caching interface)
-│   ├── ICacheKeyGenerator.cs         (Standardized cache keys)
-│   └── CacheOptions.cs               (TTL, sliding expiration, etc.)
-├── Providers/
-│   ├── InMemoryCacheProvider.cs      (Memory cache)
-│   ├── DistributedCacheProvider.cs   (Redis, SQL Server)
-│   └── NullCacheProvider.cs          (No-op for testing)
-├── Extensions/
-│   ├── CacheExtensions.cs            (GetOrAdd, Remove patterns)
-│   └── ServiceCollectionExtensions.cs
-├── Attributes/
-│   └── CachedAttribute.cs            (Method-level caching)
-└── Invalidation/
-    ├── ICacheInvalidator.cs
-    └── CacheInvalidationStrategy.cs
-
-Usage:
-
-public class ProductService
-{
-    private readonly ICacheService _cache;
-    
-    public async Task<Product?> GetProductAsync(int id)
-    {
-        return await _cache.GetOrAddAsync(
-            $"product:{id}",
-            () => _repository.GetAsync(id),
-            TimeSpan.FromMinutes(10));
-    }
-}
 
 2. ❌ Configuration Management (Priority: 🔴 High)
 Current State: Each project handles config differently

@@ -16,7 +16,7 @@ public class CacheOptionsTests
         Assert.Equal(TimeSpan.FromHours(1), options.DefaultExpiration);
         Assert.Equal(TimeSpan.FromMinutes(30), options.DefaultSlidingExpiration);
         Assert.True(options.EnableStatistics);
-        Assert.Equal("craft:", options.KeyPrefix);
+        Assert.Equal("__CRAFT__", options.KeyPrefix);
     }
 
     [Fact]

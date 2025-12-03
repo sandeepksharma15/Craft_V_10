@@ -57,6 +57,10 @@ public static class CacheServiceExtensions
         services.TryAddSingleton<ICacheProviderFactory, CacheProviderFactory>();
         services.TryAddSingleton<ICacheService, CacheService>();
 
+        // Register key generator and invalidator
+        services.TryAddSingleton<ICacheKeyGenerator, CacheKeyGenerator>();
+        services.TryAddSingleton<ICacheInvalidator, CacheInvalidator>();
+
         return services;
     }
 
@@ -94,6 +98,10 @@ public static class CacheServiceExtensions
         // Register factory and main service
         services.TryAddSingleton<ICacheProviderFactory, CacheProviderFactory>();
         services.TryAddSingleton<ICacheService, CacheService>();
+
+        // Register key generator and invalidator
+        services.TryAddSingleton<ICacheKeyGenerator, CacheKeyGenerator>();
+        services.TryAddSingleton<ICacheInvalidator, CacheInvalidator>();
 
         return services;
     }

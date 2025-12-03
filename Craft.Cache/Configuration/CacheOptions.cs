@@ -33,7 +33,7 @@ public class CacheOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the key prefix for all cache keys.
     /// </summary>
-    public string KeyPrefix { get; set; } = "craft:";
+    public string KeyPrefix { get; set; } = "__CRAFT__";
 
     /// <summary>
     /// Gets or sets memory cache specific settings.
