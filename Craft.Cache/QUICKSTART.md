@@ -206,13 +206,7 @@ builder.Services
 ### Get from Cache
 
 ```csharp
-var (hasValue, product) = _cache.TryGet<Product>("product:1");
-if (hasValue)
-{
-    return product;
-}
-
-// Or async
+// Get with CacheResult
 var result = await _cache.GetAsync<Product>("product:1");
 if (result.HasValue)
 {
@@ -223,11 +217,8 @@ if (result.HasValue)
 ### Set to Cache
 
 ```csharp
-// Simple set
-_cache.Set("product:1", product);
-
-// With custom expiration
-_cache.Set("product:1", product, TimeSpan.FromMinutes(5));
+// Async set with default options
+await _cache.SetAsync("product:1", product);
 
 // With custom options
 var options = new CacheEntryOptions
@@ -236,9 +227,6 @@ var options = new CacheEntryOptions
     SlidingExpiration = TimeSpan.FromMinutes(15),
     Priority = CacheItemPriority.High
 };
-_cache.Set("product:1", product, options);
-
-// Async
 await _cache.SetAsync("product:1", product, options);
 ```
 
@@ -259,9 +247,6 @@ var product = await _cache.GetOrSetAsync(
 ### Remove from Cache
 
 ```csharp
-_cache.Remove("product:1");
-
-// Or async
 await _cache.RemoveAsync("product:1");
 ```
 
@@ -455,21 +440,13 @@ await _cache.SetAsync($"session:{userId}", session,
     CacheEntryOptions.WithSlidingExpiration(TimeSpan.FromMinutes(30)));
 ```
 
-### 3. Use GetOrSet for Simplicity
+### 3. Use Async Methods for All Operations
 
 ```csharp
-// Good - simple and clean
+// Good - using async/await properly
 var product = await _cache.GetOrSetAsync(
     $"product:{id}",
     async () => await _repository.GetByIdAsync(id));
-
-// Avoid - more code, same result
-var (hasValue, product) = _cache.TryGet<Product>($"product:{id}");
-if (!hasValue)
-{
-    product = await _repository.GetByIdAsync(id);
-    _cache.Set($"product:{id}", product);
-}
 ```
 
 ### 4. Invalidate Cache on Updates

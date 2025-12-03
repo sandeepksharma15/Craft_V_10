@@ -18,30 +18,6 @@ public class CacheService : ICacheService
         _defaultProvider = _providerFactory.GetDefaultProvider();
     }
 
-    // ========================================
-    // Legacy Methods (Backward Compatibility)
-    // ========================================
-
-    [Obsolete("Use RemoveAsync instead. This synchronous method will be removed in a future version.")]
-    public void Remove(string cacheKey)
-    {
-        RemoveAsync(cacheKey).GetAwaiter().GetResult();
-    }
-
-    [Obsolete("Use SetAsync instead. This synchronous method will be removed in a future version.")]
-    public T? Set<T>(string cacheKey, T? value)
-    {
-        SetAsync(cacheKey, value).GetAwaiter().GetResult();
-        return value;
-    }
-
-    [Obsolete("Use GetAsync instead. This synchronous method will be removed in a future version.")]
-    public (bool, T?) TryGet<T>(string cacheKey)
-    {
-        var result = GetAsync<T>(cacheKey).GetAwaiter().GetResult();
-        return (result.HasValue, result.Value);
-    }
-
     public Task<T?> GetOrSetAsync<T>(string cacheKey, Func<Task<T>> valueFactory)
     {
         return GetOrSetAsync(cacheKey, valueFactory, null, CancellationToken.None);

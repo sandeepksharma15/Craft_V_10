@@ -5,36 +5,6 @@
 /// </summary>
 public interface ICacheService
 {
-    // ========================================
-    // Legacy Methods (Backward Compatibility)
-    // ========================================
-
-    /// <summary>
-    /// Removes an entry from the cache by key.
-    /// </summary>
-    /// <param name="cacheKey">The cache key to remove.</param>
-    [Obsolete("Use RemoveAsync instead. This synchronous method will be removed in a future version.")]
-    void Remove(string cacheKey);
-
-    /// <summary>
-    /// Sets a value in the cache with default options.
-    /// </summary>
-    /// <typeparam name="T">The type of value to cache.</typeparam>
-    /// <param name="cacheKey">The cache key.</param>
-    /// <param name="value">The value to cache.</param>
-    /// <returns>The cached value.</returns>
-    [Obsolete("Use SetAsync instead. This synchronous method will be removed in a future version.")]
-    T? Set<T>(string cacheKey, T? value);
-
-    /// <summary>
-    /// Tries to get a value from the cache.
-    /// </summary>
-    /// <typeparam name="T">The type of value to retrieve.</typeparam>
-    /// <param name="cacheKey">The cache key.</param>
-    /// <returns>A tuple indicating success and the cached value.</returns>
-    [Obsolete("Use GetAsync instead. This synchronous method will be removed in a future version.")]
-    (bool, T?) TryGet<T>(string cacheKey);
-
     /// <summary>
     /// Gets a value from cache or sets it using the value factory if not found.
     /// </summary>
