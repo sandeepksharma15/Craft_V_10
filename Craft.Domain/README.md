@@ -589,26 +589,6 @@ Craft.Domain/
 
 ---
 
-## ?? Migration Notes
-
-### EntityNotFoundException ? NotFoundException
-
-`EntityNotFoundException` is now deprecated and will be removed in v2.0.0.
-
-```csharp
-// Old (deprecated)
-throw new EntityNotFoundException("User", userId);
-
-// New (recommended)
-throw new NotFoundException("User", userId);
-// OR
-throw CraftExceptionFactory.NotFound("User", userId);
-```
-
-The deprecated class still works for backward compatibility.
-
----
-
 ## ?? Integration with Other Craft Libraries
 
 - **Craft.Middleware**: Automatic exception handling with `GlobalExceptionHandler`
