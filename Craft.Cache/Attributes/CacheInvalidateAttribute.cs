@@ -9,7 +9,7 @@ public sealed class CacheInvalidateAttribute : Attribute
     /// <summary>
     /// Gets the cache keys or patterns to invalidate.
     /// </summary>
-    public string[] Keys { get; init; } = Array.Empty<string>();
+    public string[] Keys { get; init; } = [];
 
     /// <summary>
     /// Gets whether the keys are patterns (support wildcards). Default is false.

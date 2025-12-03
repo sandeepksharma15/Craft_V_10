@@ -89,14 +89,14 @@ public class DependentEntityInvalidationStrategy : CacheInvalidationStrategy
     public DependentEntityInvalidationStrategy(ICacheKeyGenerator keyGenerator)
     {
         _keyGenerator = keyGenerator ?? throw new ArgumentNullException(nameof(keyGenerator));
-        _dependencies = new Dictionary<Type, List<object>>();
+        _dependencies = [];
     }
 
     public DependentEntityInvalidationStrategy AddDependency<TEntity>(params object[] ids)
     {
         var type = typeof(TEntity);
         if (!_dependencies.ContainsKey(type))
-            _dependencies[type] = new List<object>();
+            _dependencies[type] = [];
 
         _dependencies[type].AddRange(ids);
         return this;
@@ -106,7 +106,7 @@ public class DependentEntityInvalidationStrategy : CacheInvalidationStrategy
     {
         var type = typeof(TEntity);
         if (!_dependencies.ContainsKey(type))
-            _dependencies[type] = new List<object>();
+            _dependencies[type] = [];
         return this;
     }
 
@@ -122,7 +122,7 @@ public class DependentEntityInvalidationStrategy : CacheInvalidationStrategy
                 var method = typeof(ICacheKeyGenerator)
                     .GetMethod(nameof(ICacheKeyGenerator.GenerateEntityPattern))!
                     .MakeGenericMethod(type);
-                var pattern = (string)method.Invoke(_keyGenerator, new object?[] { null })!;
+                var pattern = (string)method.Invoke(_keyGenerator, [null])!;
                 patterns.Add(pattern);
             }
             else
@@ -133,7 +133,7 @@ public class DependentEntityInvalidationStrategy : CacheInvalidationStrategy
                     .MakeGenericMethod(type);
                 foreach (var id in ids)
                 {
-                    var key = (string)method.Invoke(_keyGenerator, new[] { id })!;
+                    var key = (string)method.Invoke(_keyGenerator, [id])!;
                     patterns.Add(key);
                 }
             }

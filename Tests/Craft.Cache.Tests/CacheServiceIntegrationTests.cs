@@ -197,7 +197,7 @@ public class CacheServiceIntegrationTests : IDisposable
             Id = 123,
             Name = "Test Object",
             CreatedDate = DateTime.UtcNow,
-            Tags = new List<string> { "tag1", "tag2", "tag3" },
+            Tags = ["tag1", "tag2", "tag3"],
             Metadata = new Dictionary<string, string>
             {
                 ["key1"] = "value1",
@@ -290,6 +290,6 @@ public class ComplexTestObject
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; }
-    public List<string> Tags { get; set; } = new();
-    public Dictionary<string, string> Metadata { get; set; } = new();
+    public List<string> Tags { get; set; } = [];
+    public Dictionary<string, string> Metadata { get; set; } = [];
 }
