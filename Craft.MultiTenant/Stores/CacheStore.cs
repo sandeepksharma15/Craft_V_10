@@ -1,5 +1,5 @@
 ﻿using Craft.Domain;
-using Craft.Infrastructure.Cache;
+using Craft.Cache;
 
 namespace Craft.MultiTenant;
 

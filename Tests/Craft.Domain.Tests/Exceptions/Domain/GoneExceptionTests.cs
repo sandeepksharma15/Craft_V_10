@@ -165,8 +165,8 @@ public class GoneExceptionTests
         var ex = new GoneException();
 
         // Assert
-        Assert.IsAssignableFrom<CraftException>(ex);
-        Assert.IsAssignableFrom<Exception>(ex);
+        Assert.IsType<CraftException>(ex, exactMatch: false);
+        Assert.IsType<Exception>(ex, exactMatch: false);
     }
 
     [Fact]

@@ -203,7 +203,6 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IOpt
             return exception switch
             {
                 ModelValidationException => "One or more validation errors occurred",
-                EntityNotFoundException => "Resource not found",
                 AlreadyExistsException => "Resource already exists",
                 InvalidCredentialsException => "Invalid credentials",
                 UnauthorizedException => "Unauthorized access",

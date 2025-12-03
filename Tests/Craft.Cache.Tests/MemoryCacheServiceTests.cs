@@ -1,4 +1,4 @@
-﻿using Craft.Infrastructure.Cache;
+﻿using Craft.Cache;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 

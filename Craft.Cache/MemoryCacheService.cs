@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace Craft.Infrastructure.Cache;
+namespace Craft.Cache;
 
 public class MemoryCacheService : ICacheService
 {

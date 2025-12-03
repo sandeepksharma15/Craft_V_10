@@ -143,8 +143,8 @@ public class PayloadTooLargeExceptionTests
         var ex = new PayloadTooLargeException();
 
         // Assert
-        Assert.IsAssignableFrom<CraftException>(ex);
-        Assert.IsAssignableFrom<Exception>(ex);
+        Assert.IsType<CraftException>(ex, exactMatch: false);
+        Assert.IsType<Exception>(ex, exactMatch: false);
     }
 
     [Fact]

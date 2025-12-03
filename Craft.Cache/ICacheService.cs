@@ -1,4 +1,4 @@
-﻿namespace Craft.Infrastructure.Cache;
+﻿namespace Craft.Cache;
 
 public interface ICacheService
 {

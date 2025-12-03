@@ -178,8 +178,8 @@ public class ExternalServiceExceptionTests
         var ex = new ExternalServiceException();
 
         // Assert
-        Assert.IsAssignableFrom<CraftException>(ex);
-        Assert.IsAssignableFrom<Exception>(ex);
+        Assert.IsType<CraftException>(ex, exactMatch: false);
+        Assert.IsType<Exception>(ex, exactMatch: false);
     }
 
     [Fact]
@@ -270,6 +270,6 @@ public class ExternalServiceExceptionTests
         Assert.Contains("200", ex200.Message);
         Assert.Contains("404", ex404.Message);
         Assert.Contains("429", ex429.Message);
-        Assert.All(new[] { ex200, ex404, ex429 }, ex => Assert.Equal(HttpStatusCode.BadGateway, ex.StatusCode));
+        Assert.All([ex200, ex404, ex429], ex => Assert.Equal(HttpStatusCode.BadGateway, ex.StatusCode));
     }
 }

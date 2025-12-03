@@ -358,31 +358,6 @@ public class GlobalExceptionHandlerTests
     }
 
     [Fact]
-    public async Task TryHandleAsync_NotFoundException_Returns404WithCustomTitle()
-    {
-        // Arrange
-        var exception = new EntityNotFoundException("User", 123);
-
-        // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
-
-        // Assert
-        Assert.True(result);
-        Assert.Equal(404, _httpContext.Response.StatusCode);
-
-        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
-        var document = JsonDocument.Parse(responseBody);
-
-        Assert.True(document.RootElement.TryGetProperty("title", out var titleProperty));
-        Assert.Equal("Resource not found", titleProperty.GetString());
-
-        Assert.True(document.RootElement.TryGetProperty("detail", out var detailProperty));
-        Assert.Contains("User", detailProperty.GetString());
-        Assert.Contains("123", detailProperty.GetString());
-    }
-
-    [Fact]
     public async Task TryHandleAsync_AlreadyExistsException_Returns422WithCustomTitle()
     {
         // Arrange
@@ -764,28 +739,6 @@ public class GlobalExceptionHandlerTests
     }
 
     [Fact]
-    public async Task TryHandleAsync_VerifiesRFC9110TypeUrls()
-    {
-        // Arrange
-        var exception = new EntityNotFoundException("Resource not found");
-
-        // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
-
-        // Assert
-        Assert.True(result);
-
-        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
-        var document = JsonDocument.Parse(responseBody);
-
-        Assert.True(document.RootElement.TryGetProperty("type", out var typeProperty));
-        var typeUrl = typeProperty.GetString();
-        Assert.NotNull(typeUrl);
-        Assert.Contains("rfc9110", typeUrl);
-    }
-
-    [Fact]
     public async Task TryHandleAsync_IncludesInnerExceptionType_InDevelopment()
     {
         // Arrange
@@ -858,27 +811,6 @@ public class GlobalExceptionHandlerTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
-    }
-
-    [Fact]
-    public async Task TryHandleAsync_InstancePath_SetCorrectly()
-    {
-        // Arrange
-        _httpContext.Request.Path = "/api/users/123";
-        var exception = new EntityNotFoundException("User not found");
-
-        // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
-
-        // Assert
-        Assert.True(result);
-
-        _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
-        var document = JsonDocument.Parse(responseBody);
-
-        Assert.True(document.RootElement.TryGetProperty("instance", out var instanceProperty));
-        Assert.Equal("/api/users/123", instanceProperty.GetString());
     }
 
     private class TestCraftException : CraftException

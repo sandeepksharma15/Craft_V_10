@@ -171,8 +171,8 @@ public class PreconditionFailedExceptionTests
         var ex = new PreconditionFailedException();
 
         // Assert
-        Assert.IsAssignableFrom<CraftException>(ex);
-        Assert.IsAssignableFrom<Exception>(ex);
+        Assert.IsType<CraftException>(ex, exactMatch: false);
+        Assert.IsType<Exception>(ex, exactMatch: false);
     }
 
     [Fact]
