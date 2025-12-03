@@ -12,9 +12,7 @@ public class CacheProviderFactory : ICacheProviderFactory
     private readonly ILogger<CacheProviderFactory> _logger;
     private readonly CacheOptions _options;
 
-    public CacheProviderFactory(
-        IEnumerable<ICacheProvider> providers,
-        IOptions<CacheOptions> options,
+    public CacheProviderFactory(IEnumerable<ICacheProvider> providers, IOptions<CacheOptions> options,
         ILogger<CacheProviderFactory> logger)
     {
         _providers = providers ?? throw new ArgumentNullException(nameof(providers));

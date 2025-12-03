@@ -11,9 +11,7 @@ public class CacheService : ICacheService
     private readonly ILogger<CacheService> _logger;
     private readonly ICacheProvider _defaultProvider;
 
-    public CacheService(
-        ICacheProviderFactory providerFactory,
-        ILogger<CacheService> logger)
+    public CacheService(ICacheProviderFactory providerFactory, ILogger<CacheService> logger)
     {
         _providerFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

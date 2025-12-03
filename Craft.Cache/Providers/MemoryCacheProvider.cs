@@ -19,9 +19,7 @@ public class MemoryCacheProvider : ICacheProvider
 
     public string Name => "memory";
 
-    public MemoryCacheProvider(
-        IMemoryCache memoryCache,
-        IOptions<CacheOptions> options,
+    public MemoryCacheProvider(IMemoryCache memoryCache, IOptions<CacheOptions> options,
         ILogger<MemoryCacheProvider> logger)
     {
         _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));

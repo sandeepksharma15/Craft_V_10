@@ -20,9 +20,7 @@ public class RedisCacheProvider : ICacheProvider, IDisposable
 
     public string Name => "redis";
 
-    public RedisCacheProvider(
-        IOptions<CacheOptions> options,
-        ILogger<RedisCacheProvider> logger)
+    public RedisCacheProvider(IOptions<CacheOptions> options, ILogger<RedisCacheProvider> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));

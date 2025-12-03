@@ -1,8 +1,6 @@
 using Craft.Cache;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 #pragma warning disable IDE0130
 namespace Microsoft.Extensions.DependencyInjection;
