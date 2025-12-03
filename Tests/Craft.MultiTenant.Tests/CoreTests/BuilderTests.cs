@@ -441,7 +441,6 @@ public class BuilderTests
         public (bool, T?) TryGet<T>(string cacheKey) => (false, default);
         public Task<T?> GetOrSetAsync<T>(string cacheKey, Func<Task<T>> valueFactory)
         {
-            // Await the valueFactory and cast the result to T? to match the nullable return type
             return GetOrSetAsyncInternal(cacheKey, valueFactory);
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
@@ -451,6 +450,21 @@ public class BuilderTests
                 return result;
             }
         }
+
+        // New interface methods
+        public T? Set<T>(string cacheKey, T? value, TimeSpan? expiration) => value;
+        public T? Set<T>(string cacheKey, T? value, CacheEntryOptions options) => value;
+        public Task<CacheResult<T>> GetAsync<T>(string cacheKey, CancellationToken cancellationToken = default) => Task.FromResult(CacheResult<T>.Success());
+        public Task<CacheResult> SetAsync<T>(string cacheKey, T? value, CacheEntryOptions? options = null, CancellationToken cancellationToken = default) => Task.FromResult(CacheResult.Success());
+        public Task<CacheResult> RemoveAsync(string cacheKey, CancellationToken cancellationToken = default) => Task.FromResult(CacheResult.Success());
+        public Task<T?> GetOrSetAsync<T>(string cacheKey, Func<Task<T>> valueFactory, CacheEntryOptions? options, CancellationToken cancellationToken = default) => GetOrSetAsync(cacheKey, valueFactory);
+        public Task<IDictionary<string, T?>> GetManyAsync<T>(IEnumerable<string> keys, CancellationToken cancellationToken = default) => Task.FromResult<IDictionary<string, T?>>(new Dictionary<string, T?>());
+        public Task<CacheResult> SetManyAsync<T>(IDictionary<string, T?> items, CacheEntryOptions? options = null, CancellationToken cancellationToken = default) => Task.FromResult(CacheResult.Success());
+        public Task<int> RemoveByPatternAsync(string pattern, CancellationToken cancellationToken = default) => Task.FromResult(0);
+        public Task<bool> ExistsAsync(string cacheKey, CancellationToken cancellationToken = default) => Task.FromResult(false);
+        public Task<CacheStats> GetStatsAsync(CancellationToken cancellationToken = default) => Task.FromResult(new CacheStats());
+        public Task<CacheResult> ClearAsync(CancellationToken cancellationToken = default) => Task.FromResult(CacheResult.Success());
+        public Task<CacheResult> RefreshAsync(string cacheKey, CancellationToken cancellationToken = default) => Task.FromResult(CacheResult.Success());
     }
 
     private class DummyTenantRepository : ITenantStore<Tenant>
