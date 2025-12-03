@@ -125,7 +125,7 @@ public class CacheServiceIntegrationTests : IDisposable
         await _cacheService.SetAsync("other:1", "value4");
 
         // Act
-        var removedCount = await _cacheService.RemoveByPatternAsync("pattern:*");
+        var removedCount = await _cacheService.RemoveByPatternAsync("test:pattern:*");
 
         // Act - Verify removal
         var exists1 = await _cacheService.ExistsAsync("pattern:1");
@@ -134,7 +134,7 @@ public class CacheServiceIntegrationTests : IDisposable
         var existsOther = await _cacheService.ExistsAsync("other:1");
 
         // Assert
-        Assert.True(removedCount >= 3);  // At least 3 keys removed
+        Assert.True(removedCount >= 3, $"Expected at least 3 keys removed, but got {removedCount}");
         Assert.False(exists1);
         Assert.False(exists2);
         Assert.False(exists3);

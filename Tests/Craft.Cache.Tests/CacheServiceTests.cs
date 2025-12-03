@@ -26,12 +26,19 @@ public class CacheServiceTests
     [Fact]
     public void Constructor_WithValidParameters_CreatesInstance()
     {
-        // Arrange & Act
-        var service = new CacheService(_factoryMock.Object, _loggerMock.Object);
+        // Arrange
+        var factoryMock = new Mock<ICacheProviderFactory>();
+        var providerMock = new Mock<ICacheProvider>();
+        var loggerMock = new Mock<ILogger<CacheService>>();
+        
+        factoryMock.Setup(f => f.GetDefaultProvider()).Returns(providerMock.Object);
+
+        // Act
+        var service = new CacheService(factoryMock.Object, loggerMock.Object);
 
         // Assert
         Assert.NotNull(service);
-        _factoryMock.Verify(f => f.GetDefaultProvider(), Times.Once);
+        factoryMock.Verify(f => f.GetDefaultProvider(), Times.Once);
     }
 
     [Fact]
