@@ -184,7 +184,7 @@ public class CacheServiceIntegrationTests : IDisposable
 
         // Assert
         Assert.True(existsBefore);
-        // Note: This might be flaky in real scenarios, but demonstrates the concept
+        Assert.False(existsAfter);  // This assertion is missing!
     }
 
     [Fact]

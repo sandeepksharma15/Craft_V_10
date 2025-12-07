@@ -436,9 +436,9 @@ public class BuilderTests
     // Dummy implementations for test DI
     private class DummyCacheService : ICacheService
     {
-        public void Remove(string cacheKey) { }
-        public T? Set<T>(string cacheKey, T? value) => value;
-        public (bool, T?) TryGet<T>(string cacheKey) => (false, default);
+        public static void Remove() { }
+        public static T? Set<T>(T? value) => value;
+        public static (bool, T?) TryGet<T>() => (false, default);
         public Task<T?> GetOrSetAsync<T>(string cacheKey, Func<Task<T>> valueFactory)
         {
             return GetOrSetAsyncInternal(cacheKey, valueFactory);

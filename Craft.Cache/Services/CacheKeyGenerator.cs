@@ -67,7 +67,7 @@ public class CacheKeyGenerator : ICacheKeyGenerator
             : $"{basePattern}{_separator}{pattern}";
     }
 
-    private string GenerateParameterHash(params object[] parameters)
+    private static string GenerateParameterHash(params object[] parameters)
     {
         if (parameters == null || parameters.Length == 0)
             return string.Empty;

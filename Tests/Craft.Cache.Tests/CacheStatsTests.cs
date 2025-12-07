@@ -126,12 +126,12 @@ public class CacheStatsTests
     }
 
     [Fact]
-    public void Reset_UpdatesTimestamp()
+    public async Task Reset_UpdatesTimestamp()
     {
         // Arrange
         var stats = new CacheStats();
         var originalTimestamp = stats.Timestamp;
-        Thread.Sleep(10); // Ensure time passes
+        await Task.Delay(10);
 
         // Act
         stats.Reset();
@@ -188,7 +188,7 @@ public class CacheStatsTests
     }
 
     [Fact]
-    public void ThreadSafety_SettersAreThreadSafe()
+    public async Task ThreadSafety_InterlockedOperationsAreThreadSafe()
     {
         // Arrange
         var stats = new CacheStats();
@@ -199,20 +199,19 @@ public class CacheStatsTests
         {
             tasks.Add(Task.Run(() =>
             {
-                stats.Hits++;
-                stats.Misses++;
-                stats.Sets++;
-                stats.Removes++;
+                Interlocked.Increment(ref stats.HitsRef);
+                Interlocked.Increment(ref stats.MissesRef);
+                Interlocked.Increment(ref stats.SetsRef);
+                Interlocked.Increment(ref stats.RemovesRef);
             }));
         }
 
-        Task.WaitAll(tasks.ToArray());
+        await Task.WhenAll(tasks);
 
         // Assert
-        // Due to thread safety with Interlocked operations, all increments should be recorded
-        Assert.True(stats.Hits >= 0);
-        Assert.True(stats.Misses >= 0);
-        Assert.True(stats.Sets >= 0);
-        Assert.True(stats.Removes >= 0);
+        Assert.Equal(100, stats.Hits);
+        Assert.Equal(100, stats.Misses);
+        Assert.Equal(100, stats.Sets);
+        Assert.Equal(100, stats.Removes);
     }
 }
