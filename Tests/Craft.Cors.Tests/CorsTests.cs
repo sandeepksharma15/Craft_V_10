@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Craft.Infrastructure.Cors;
+using Craft.Cors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;

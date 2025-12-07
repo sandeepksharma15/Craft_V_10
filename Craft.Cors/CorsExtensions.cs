@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Craft.Infrastructure.Cors;
+namespace Craft.Cors;
 
 /// <summary>
 /// Extension methods for configuring CORS (Cross-Origin Resource Sharing) policies.
@@ -46,17 +46,10 @@ public static class CorsExtensions
 
         services.AddCors(options =>
         {
-            using var serviceProvider = services.BuildServiceProvider();
-            var corsSettings = serviceProvider.GetRequiredService<IOptions<CorsSettings>>().Value;
-            var logger = serviceProvider.GetService<ILogger<CorsSettings>>();
+            var corsSettingsSection = config.GetSection(CorsSettings.SectionName);
+            var corsSettings = corsSettingsSection.Get<CorsSettings>() ?? new CorsSettings();
 
             var origins = ParseOrigins(corsSettings);
-
-            if (logger?.IsEnabled(LogLevel.Information) == true)
-                if (origins.Count == 0)
-                    logger?.LogWarning("No CORS origins configured. The CORS policy will not allow any origins.");
-                else
-                    logger?.LogInformation("Configured CORS policy with {Count} origins", origins.Count);
 
             options.AddPolicy(CorsPolicy, policy =>
                 policy.AllowAnyHeader()

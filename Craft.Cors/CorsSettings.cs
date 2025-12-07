@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Craft.Infrastructure.Cors;
+namespace Craft.Cors;
 
 /// <summary>
 /// Configuration settings for CORS (Cross-Origin Resource Sharing) policies.
