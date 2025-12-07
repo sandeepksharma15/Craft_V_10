@@ -38,7 +38,7 @@ internal class OptionsDecryptor<TOptions> : IPostConfigureOptions<TOptions> wher
                 continue;
 
             var value = property.GetValue(options) as string;
-            
+
             if (string.IsNullOrEmpty(value))
                 continue;
 
@@ -51,14 +51,14 @@ internal class OptionsDecryptor<TOptions> : IPostConfigureOptions<TOptions> wher
                 var decryptedValue = _keySafeService.Decrypt(encryptedValue);
 
                 property.SetValue(options, decryptedValue);
-                
-                _logger?.LogDebug("Successfully decrypted property {Property} on {OptionsType}", property.Name,
-                    typeof(TOptions).Name);
+
+                _logger?.LogDebug("Successfully decrypted property {Property} on {OptionsType}",
+                    property.Name, typeof(TOptions).Name);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Failed to decrypt property {Property} on {OptionsType}", property.Name,
-                    typeof(TOptions).Name);
+                _logger?.LogError(ex, "Failed to decrypt property {Property} on {OptionsType}",
+                    property.Name, typeof(TOptions).Name);
             }
         }
     }
