@@ -2,7 +2,7 @@ using Craft.Utilities.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Craft.Infrastructure.ConfigurationProviders;
+namespace Craft.Configuration;
 
 /// <summary>
 /// Configuration source that provides decryption capabilities for encrypted configuration values.

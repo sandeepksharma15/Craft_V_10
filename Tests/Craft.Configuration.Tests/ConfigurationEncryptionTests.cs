@@ -1,4 +1,4 @@
-using Craft.Infrastructure.ConfigurationProviders;
+using Craft.Configuration;
 using Craft.Utilities.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

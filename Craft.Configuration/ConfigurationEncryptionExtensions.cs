@@ -1,10 +1,11 @@
+using Craft.Configuration;
 using Craft.Utilities.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Craft.Infrastructure.ConfigurationProviders;
+namespace Craft.Configuration;
 
 /// <summary>
 /// Extension methods for configuration encryption/decryption support.

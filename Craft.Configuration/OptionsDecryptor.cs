@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
-namespace Craft.Infrastructure.ConfigurationProviders;
+namespace Craft.Configuration;
 
 /// <summary>
 /// Post-configures options by decrypting encrypted string properties.

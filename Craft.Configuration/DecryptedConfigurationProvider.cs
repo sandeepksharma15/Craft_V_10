@@ -2,9 +2,8 @@ using Craft.Utilities.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Primitives;
 
-namespace Craft.Infrastructure.ConfigurationProviders;
+namespace Craft.Configuration;
 
 /// <summary>
 /// Configuration provider that automatically decrypts encrypted configuration values.
