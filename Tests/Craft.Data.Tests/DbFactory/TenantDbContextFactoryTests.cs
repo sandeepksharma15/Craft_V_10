@@ -64,7 +64,7 @@ public class TenantDbContextFactoryTests
 
         // Mock ITenantContextAccessor
         var mockTenantContextAccessor = new Mock<ITenantContextAccessor>();
-        var tenantContext = fullTenant != null
+        var tenantContext = fullTenant is not null
             ? new TenantContext { Tenant = fullTenant }
             : null;
         mockTenantContextAccessor.Setup(x => x.TenantContext).Returns(tenantContext);
