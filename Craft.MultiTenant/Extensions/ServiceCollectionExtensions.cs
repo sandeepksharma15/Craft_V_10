@@ -1,4 +1,5 @@
-﻿using Craft.Domain;
+﻿using Craft.Core;
+using Craft.Domain;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.MultiTenant;
@@ -37,6 +38,10 @@ public static class ServiceCollectionExtensions
             ?? throw new InvalidOperationException("Tenant is not resolved in the current context."));
 
         services.AddScoped<ITenant>(sp => sp.GetRequiredService<T>());
+
+        // Register the lightweight CurrentTenant service
+        services.AddScoped<ICurrentTenant, CurrentTenant>();
+        services.AddScoped<ICurrentTenant<KeyType>, CurrentTenant>();
 
         // Configure tenant options
         services.Configure(config);

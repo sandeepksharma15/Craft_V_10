@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
+using Craft.Core;
 using Craft.Domain;
-using Craft.MultiTenant;
 using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -415,22 +415,15 @@ public class QueryFilterExtensionTests
         public bool IsDeleted { get; set; }
     }
 
-    // Fake current tenant implementation
+    // Fake current tenant implementation for testing
     private class FakeCurrentTenant : ICurrentTenant
     {
         public KeyType Id { get; set; }
-        public string AdminEmail { get; set; } = string.Empty;
-        public string ConnectionString { get; set; } = string.Empty;
-        public string DbProvider { get; set; } = string.Empty;
-        public string Identifier { get; set; } = string.Empty;
-        public string LogoUri { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public TenantType Type { get; set; } = TenantType.Tenant;
-        public DateTime ValidUpTo { get; set; } = DateTime.UtcNow.AddMonths(1);
-        public bool IsDeleted { get; set; }
-        public string? ConcurrencyStamp { get; set; }
+        public string? Identifier { get; set; } = "test";
+        public string? Name { get; set; } = "Test Tenant";
+        public KeyType GetId() => Id;
+        public bool IsAvailable { get; set; } = true;
         public bool IsActive { get; set; } = true;
-        public TenantDbType DbType { get; set; }
     }
 
     // DbContext using AddGlobalTenantFilter

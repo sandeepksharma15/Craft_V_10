@@ -15,8 +15,16 @@ public class TenantDbContextFactoryTests
 {
     #region Test Doubles / Helpers
 
-    // Simple current tenant implementation (ICurrentTenant inherits ITenant)
-    private sealed class TestCurrentTenant : Tenant, ICurrentTenant { }
+    // Mock implementation of lightweight ICurrentTenant
+    private sealed class TestCurrentTenant : ICurrentTenant
+    {
+        public long Id { get; set; }
+        public string? Identifier { get; set; }
+        public string? Name { get; set; }
+        public bool IsAvailable { get; set; } = true;
+        public bool IsActive { get; set; } = true;
+        public long GetId() => Id;
+    }
 
     // Dummy DbContext that accepts configured options so we can inspect them
     private sealed class DummyDbContext : DbContext, IDbContext
@@ -40,7 +48,8 @@ public class TenantDbContextFactoryTests
     }
 
     private static TenantDbContextFactory<DummyDbContext> CreateFactory(
-        TestCurrentTenant tenant,
+        TestCurrentTenant currentTenant,
+        Tenant? fullTenant,
         IEnumerable<IDatabaseProvider> providers,
         DatabaseOptions dbOptions,
         MultiTenantOptions? mtOptions = null)
@@ -52,15 +61,26 @@ public class TenantDbContextFactoryTests
         services.AddSingleton<IOptions<DatabaseOptions>>(MsOptions.Create(dbOptions));
         services.AddSingleton<IOptions<MultiTenantOptions>>(MsOptions.Create(mtOptions));
         services.AddLogging();
+
+        // Mock ITenantContextAccessor
+        var mockTenantContextAccessor = new Mock<ITenantContextAccessor>();
+        var tenantContext = fullTenant != null
+            ? new TenantContext { Tenant = fullTenant }
+            : null;
+        mockTenantContextAccessor.Setup(x => x.TenantContext).Returns(tenantContext);
+
+        services.AddSingleton(mockTenantContextAccessor.Object);
+
         var sp = services.BuildServiceProvider();
 
         var logger = sp.GetRequiredService<ILogger<TenantDbContextFactory<DummyDbContext>>>();
 
         return new TenantDbContextFactory<DummyDbContext>(
-            tenant, 
-            providers, 
-            sp, 
-            MsOptions.Create(dbOptions), 
+            currentTenant,
+            mockTenantContextAccessor.Object,
+            providers,
+            sp,
+            MsOptions.Create(dbOptions),
             MsOptions.Create(mtOptions),
             logger);
     }
@@ -77,8 +97,31 @@ public class TenantDbContextFactoryTests
         return (mock, calls);
     }
 
-    private static TestCurrentTenant BuildTenant(TenantDbType dbType, string? cs = null, string? provider = null) =>
-        new() { DbType = dbType, ConnectionString = cs ?? string.Empty, DbProvider = provider ?? string.Empty };
+    private static (TestCurrentTenant currentTenant, Tenant fullTenant) BuildTenant(
+        TenantDbType dbType, string? cs = null, string? provider = null)
+    {
+        var fullTenant = new Tenant
+        {
+            Id = 1,
+            Identifier = "test-tenant",
+            Name = "Test Tenant",
+            DbType = dbType,
+            ConnectionString = cs ?? string.Empty,
+            DbProvider = provider ?? string.Empty,
+            IsActive = true
+        };
+
+        var currentTenant = new TestCurrentTenant
+        {
+            Id = fullTenant.Id,
+            Identifier = fullTenant.Identifier,
+            Name = fullTenant.Name,
+            IsAvailable = true,
+            IsActive = fullTenant.IsActive
+        };
+
+        return (currentTenant, fullTenant);
+    }
 
     #endregion
 
@@ -88,10 +131,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_Shared_Uses_Defaults_And_Configures_Provider()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.Shared);
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.Shared);
         var dbOptions = new DatabaseOptions { ConnectionString = "SHARED_CS", DbProvider = "mssql" };
         var (providerMock, calls) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act
         var ctx = sut.CreateDbContext();
@@ -109,10 +152,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_MultiTenancyDisabled_Uses_Defaults()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: "npgsql");
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: "npgsql");
         var dbOptions = new DatabaseOptions { ConnectionString = "DEFAULT_SHARED", DbProvider = "mssql" };
         var (providerMock, calls) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions, new MultiTenantOptions { IsEnabled = false });
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions, new MultiTenantOptions { IsEnabled = false });
 
         // Act
         _ = sut.CreateDbContext();
@@ -130,10 +173,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_PerTenant_NoConnectionString_Throws()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.PerTenant, cs: "");
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.PerTenant, cs: "");
         var dbOptions = new DatabaseOptions { ConnectionString = "DEF", DbProvider = "mssql" };
         var (providerMock, _) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => sut.CreateDbContext());
@@ -145,10 +188,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_PerTenant_WithTenantProvider_Uses_TenantValues()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: "npgsql");
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: "npgsql");
         var dbOptions = new DatabaseOptions { ConnectionString = "DEF", DbProvider = "mssql" };
         var (providerMock, calls) = CreateProviderMock("npgsql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act
         _ = sut.CreateDbContext();
@@ -163,10 +206,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_PerTenant_NoTenantProvider_FallsBack_To_DefaultProvider()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: null); // provider empty -> fallback
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.PerTenant, cs: "TENANT_CS", provider: null); // provider empty -> fallback
         var dbOptions = new DatabaseOptions { ConnectionString = "DEF", DbProvider = "mssql" };
         var (providerMock, calls) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act
         _ = sut.CreateDbContext();
@@ -185,10 +228,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_Hybrid_WithTenantConnection_Uses_TenantConnection()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.Hybrid, cs: "TENANT_CS", provider: "mssql");
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.Hybrid, cs: "TENANT_CS", provider: "mssql");
         var dbOptions = new DatabaseOptions { ConnectionString = "DEF_CS", DbProvider = "mssql" };
         var (providerMock, calls) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act
         _ = sut.CreateDbContext();
@@ -202,10 +245,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_Hybrid_NoTenantConnection_FallsBack_To_Shared()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.Hybrid, cs: ""); // empty -> shared path
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.Hybrid, cs: ""); // empty -> shared path
         var dbOptions = new DatabaseOptions { ConnectionString = "SHARED_CS", DbProvider = "mssql" };
         var (providerMock, calls) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act
         _ = sut.CreateDbContext();
@@ -223,12 +266,12 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_NoMatchingProvider_Throws_NotSupportedException()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.Shared); // uses defaults provider key "mssql"
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.Shared); // uses defaults provider key "mssql"
         var dbOptions = new DatabaseOptions { ConnectionString = "CS", DbProvider = "mssql" };
         // provider mock that reports false for any CanHandle
         var providerMock = new Mock<IDatabaseProvider>();
         providerMock.Setup(p => p.CanHandle(It.IsAny<string>())).Returns(false);
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act & Assert
         var ex = Assert.Throws<NotSupportedException>(() => sut.CreateDbContext());
@@ -239,10 +282,10 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_UnsupportedDbType_Throws()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.None); // will hit default:
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.None); // will hit default:
         var dbOptions = new DatabaseOptions { ConnectionString = "CS", DbProvider = "mssql" };
         var (providerMock, _) = CreateProviderMock("mssql");
-        var sut = CreateFactory(tenant, [providerMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [providerMock.Object], dbOptions);
 
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => sut.CreateDbContext());
@@ -257,13 +300,13 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_MultipleProviders_Selects_FirstMatching()
     {
         // Arrange
-        var tenant = BuildTenant(TenantDbType.Shared);
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.Shared);
         var dbOptions = new DatabaseOptions { ConnectionString = "CS", DbProvider = "npgsql" };
 
         var (nonMatchMock, nonMatchCalls) = CreateProviderMock("mssql"); // will not match npgsql
         var (matchMock, matchCalls) = CreateProviderMock("npgsql");
 
-        var sut = CreateFactory(tenant, [nonMatchMock.Object, matchMock.Object], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [nonMatchMock.Object, matchMock.Object], dbOptions);
 
         // Act
         _ = sut.CreateDbContext();
@@ -282,7 +325,7 @@ public class TenantDbContextFactoryTests
     public void CreateDbContext_Applies_Provider_And_Options_Flags()
     {
         // Arrange shared tenant scenario
-        var tenant = BuildTenant(TenantDbType.Shared);
+        var (currentTenant, fullTenant) = BuildTenant(TenantDbType.Shared);
         var dbOptions = new DatabaseOptions
         {
             ConnectionString = "InMemDb-Test",
@@ -291,7 +334,7 @@ public class TenantDbContextFactoryTests
             EnableSensitiveDataLogging = true
         };
         var testProvider = new InMemoryTestDatabaseProvider();
-        var sut = CreateFactory(tenant, [testProvider], dbOptions);
+        var sut = CreateFactory(currentTenant, fullTenant, [testProvider], dbOptions);
 
         // Act
         var ctx = sut.CreateDbContext();

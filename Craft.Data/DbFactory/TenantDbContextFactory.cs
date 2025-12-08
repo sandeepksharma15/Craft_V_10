@@ -18,18 +18,20 @@ namespace Craft.Data;
 /// </remarks>
 public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContext, IDbContext
 {
-    private readonly ICurrentTenant _currentTenant;                // Current resolved tenant (may be a lightweight proxy)
+    private readonly ICurrentTenant _currentTenant;                // Lightweight current tenant accessor
+    private readonly ITenantContextAccessor _tenantContextAccessor; // Full tenant context accessor
     private readonly IEnumerable<IDatabaseProvider> _providers;    // Registered database providers
     private readonly IServiceProvider _sp;                         // Root service provider for context construction
     private readonly DatabaseOptions _dbOptions;                   // Default / shared database options
     private readonly MultiTenantOptions _multiTenantOptions;       // Multi-tenant feature options
     private readonly ILogger<TenantDbContextFactory<T>> _logger;   // Logger for diagnostics
 
-    public TenantDbContextFactory(ICurrentTenant currentTenant, IEnumerable<IDatabaseProvider> providers,
-        IServiceProvider sp, IOptions<DatabaseOptions> dbOptions, IOptions<MultiTenantOptions> multiTenantOptions,
-        ILogger<TenantDbContextFactory<T>> logger)
+    public TenantDbContextFactory(ICurrentTenant currentTenant, ITenantContextAccessor tenantContextAccessor,
+        IEnumerable<IDatabaseProvider> providers, IServiceProvider sp, IOptions<DatabaseOptions> dbOptions,
+        IOptions<MultiTenantOptions> multiTenantOptions, ILogger<TenantDbContextFactory<T>> logger)
     {
         _currentTenant = currentTenant;
+        _tenantContextAccessor = tenantContextAccessor;
         _providers = providers;
         _sp = sp;
         _dbOptions = dbOptions.Value;
@@ -46,16 +48,19 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
         var tenantId = _currentTenant?.GetId() ?? default;
         var tenantIdentifier = _currentTenant?.Identifier ?? "Default";
 
+        // Get full tenant details when needed for connection resolution
+        var fullTenant = _tenantContextAccessor.TenantContext?.Tenant as ITenant;
+
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             _logger.LogDebug(
                 "Creating DbContext for tenant: {TenantIdentifier} (ID: {TenantId}), DbType: {DbType}",
                 tenantIdentifier,
                 tenantId,
-                _currentTenant?.DbType ?? TenantDbType.Shared);
+                fullTenant?.DbType ?? TenantDbType.Shared);
         }
 
-        var target = DetermineTarget();
+        var target = DetermineTarget(fullTenant);
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -83,10 +88,10 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
 
     #region Target Resolution
 
-    private (string ConnectionString, string ProviderKey) DetermineTarget()
+    private (string ConnectionString, string ProviderKey) DetermineTarget(ITenant? fullTenant)
     {
         // Multi-tenancy disabled OR no tenant context -> always use shared defaults.
-        if (_multiTenantOptions.IsEnabled == false || _currentTenant == null)
+        if (_multiTenantOptions.IsEnabled == false || fullTenant == null)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug("Multi-tenancy disabled or no tenant context. Using shared database configuration.");
@@ -94,12 +99,12 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
             return (_dbOptions.ConnectionString, _dbOptions.DbProvider);
         }
 
-        return _currentTenant.DbType switch
+        return fullTenant.DbType switch
         {
             TenantDbType.Shared => ResolveShared(),
-            TenantDbType.PerTenant => ResolvePerTenant(),
-            TenantDbType.Hybrid => ResolveHybrid(),
-            _ => throw new InvalidOperationException($"Unsupported DbType: {_currentTenant.DbType}")
+            TenantDbType.PerTenant => ResolvePerTenant(fullTenant),
+            TenantDbType.Hybrid => ResolveHybrid(fullTenant),
+            _ => throw new InvalidOperationException($"Unsupported DbType: {fullTenant.DbType}")
         };
     }
 
@@ -111,14 +116,14 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
         return (_dbOptions.ConnectionString, _dbOptions.DbProvider);
     }
 
-    private (string ConnectionString, string ProviderKey) ResolvePerTenant()
+    private (string ConnectionString, string ProviderKey) ResolvePerTenant(ITenant fullTenant)
     {
-        if (string.IsNullOrEmpty(_currentTenant.ConnectionString))
+        if (string.IsNullOrEmpty(fullTenant.ConnectionString))
         {
             if (_logger.IsEnabled(LogLevel.Error))
                 _logger.LogError(
                     "Tenant {TenantIdentifier} is configured as PerTenant but has no connection string defined.",
-                    _currentTenant.Identifier);
+                    fullTenant.Identifier);
 
             throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
         }
@@ -126,31 +131,31 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug(
                 "Tenant {TenantIdentifier} uses dedicated database (PerTenant strategy).",
-                _currentTenant.Identifier);
+                fullTenant.Identifier);
 
-        return (_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
+        return (fullTenant.ConnectionString, NormalizeProvider(fullTenant.DbProvider));
     }
 
-    private (string ConnectionString, string ProviderKey) ResolveHybrid()
+    private (string ConnectionString, string ProviderKey) ResolveHybrid(ITenant fullTenant)
     {
         // Own DB when a connection string is provided, else shared defaults
-        if (!string.IsNullOrEmpty(_currentTenant.ConnectionString))
+        if (!string.IsNullOrEmpty(fullTenant.ConnectionString))
         {
             if (_logger.IsEnabled(LogLevel.Debug))
             {
                 _logger.LogDebug(
                     "Tenant {TenantIdentifier} uses dedicated database (Hybrid strategy).",
-                    _currentTenant.Identifier);
+                    fullTenant.Identifier);
             }
 
-            return (_currentTenant.ConnectionString, NormalizeProvider(_currentTenant.DbProvider));
+            return (fullTenant.ConnectionString, NormalizeProvider(fullTenant.DbProvider));
         }
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             _logger.LogDebug(
                 "Tenant {TenantIdentifier} uses shared database (Hybrid strategy fallback).",
-                _currentTenant.Identifier);
+                fullTenant.Identifier);
         }
 
         return (_dbOptions.ConnectionString, _dbOptions.DbProvider);

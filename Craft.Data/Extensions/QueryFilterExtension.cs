@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
+using Craft.Core;
 using Craft.Domain;
-using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
