@@ -9,7 +9,49 @@ Craft.Controllers is a .NET 10 library providing generic, reusable, and extensib
 - **Model Mapping**: Supports mapping between domain entities and data transfer models (DTOs) using Mapster.
 - **Error Handling & Logging**: Built-in error handling and structured logging using ILogger.
 - **Async & Paginated Operations**: All operations are asynchronous and support pagination.
+- **Rate Limiting**: Configurable request throttling with multiple pre-defined policies.
+- **API Versioning**: Full support for multiple API versions (URL, query string, and header versioning).
+- **Enhanced Swagger/OpenAPI**: Comprehensive API documentation with JWT auth, XML comments, and examples.
 - **.NET 10 & C# 13**: Utilizes the latest .NET and C# features for performance and maintainability.
+
+## New in Version 1.1.0 ??
+
+### ?? Rate Limiting
+Protect your API from abuse with configurable rate limiting policies:
+- Read operations: 100 requests/minute
+- Write operations: 30 requests/minute
+- Delete operations: 10 requests/minute
+- Bulk operations: 5 requests/minute
+
+```csharp
+builder.Services.AddControllerRateLimiting();
+app.UseRateLimiter();
+```
+
+### ?? API Versioning
+Support multiple API versions simultaneously with flexible versioning strategies:
+```csharp
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+public class UsersController : EntityReadController<User, UserDto> { }
+```
+
+### ?? Enhanced Swagger/OpenAPI
+Comprehensive API documentation with:
+- JWT Bearer authentication support
+- XML documentation comments
+- Automatic response code documentation
+- Rate limiting information
+- Authorization requirements
+
+```csharp
+builder.Services.AddEnhancedSwagger();
+app.UseSwagger();
+app.UseEnhancedSwaggerUI();
+```
+
+**?? See [FEATURES.md](FEATURES.md) for detailed documentation and examples.**
 
 ## Getting Started
 
