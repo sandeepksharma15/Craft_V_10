@@ -46,7 +46,7 @@ public class ConfigurationValidator : IConfigurationValidator
                     var value = monitor.CurrentValue;
                     var validationResults = ValidateObject(value);
                     
-                    if (validationResults.Any())
+                    if (validationResults.Count != 0)
                     {
                         var typeName = value.GetType().Name;
                         errors.AddRange(validationResults.Select(r => 
@@ -96,7 +96,7 @@ public class ConfigurationValidator : IConfigurationValidator
             var value = options.Value;
             var validationResults = ValidateObject(value);
 
-            if (validationResults.Any())
+            if (validationResults.Count != 0)
             {
                 var errors = validationResults.Select(r => r.ErrorMessage ?? "Unknown error").ToList();
                 _logger.LogWarning("Configuration section {Type} validation failed with {ErrorCount} errors", 

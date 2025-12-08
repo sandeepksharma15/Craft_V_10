@@ -1,4 +1,5 @@
-﻿using Craft.Security.Tokens;
+﻿using Craft.Core;
+using Craft.Security.Tokens;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.Security;

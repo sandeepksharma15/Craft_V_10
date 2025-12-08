@@ -1,5 +1,5 @@
 using System.Text;
-using Craft.Security;
+using Craft.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

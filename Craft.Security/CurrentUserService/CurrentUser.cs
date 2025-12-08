@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Craft.Core;
 
 namespace Craft.Security;
 

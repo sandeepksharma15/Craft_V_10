@@ -1,5 +1,5 @@
+using Craft.Core;
 using Craft.Middleware.RequestMiddleware;
-using Craft.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
 
 namespace Craft.Middleware.Tests.RequestMiddleware;
 

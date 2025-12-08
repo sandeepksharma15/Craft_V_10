@@ -1,7 +1,6 @@
 using Craft.Core;
 using Craft.MultiTenant;
 using Craft.Security;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
