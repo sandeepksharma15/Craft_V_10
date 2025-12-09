@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Sandeep SHARMA</Authors>
+		<LangVersion>preview</LangVersion>
+		<RootNamespace>Craft.QuerySpec</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Craft.Repositories\Craft.Repositories.csproj" />
+	  <ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />
+	</ItemGroup>
+
+</Project>

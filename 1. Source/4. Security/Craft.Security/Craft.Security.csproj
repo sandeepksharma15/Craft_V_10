@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Sandeep SHARMA</Authors>
+		<LangVersion>preview</LangVersion>
+		<RootNamespace>Craft.Security</RootNamespace>
+		<AssemblyVersion>1.0.32.9</AssemblyVersion>
+		<FileVersion>1.0.0.9</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+	</ItemGroup>
+
+</Project>
