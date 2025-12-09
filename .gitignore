@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Craft.Controllers/FEATURES.md
+/Craft.Controllers/IMPLEMENTATION_SUMMARY.md
+/Craft.Controllers/Extensions/ApiVersioningExtensions.cs

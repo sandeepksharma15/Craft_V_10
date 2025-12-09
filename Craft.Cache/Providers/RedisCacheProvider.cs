@@ -101,8 +101,9 @@ public class RedisCacheProvider : ICacheProvider, IDisposable
             var fullKey = GetFullKey(key);
             var serializedValue = JsonSerializer.Serialize(value);
             var expiry = GetExpiry(options);
+            var redisExpiry = expiry.HasValue ? new Expiration(expiry.Value) : new Expiration();
 
-            await _database!.StringSetAsync(fullKey, serializedValue, expiry);
+            await _database!.StringSetAsync(fullKey, serializedValue, redisExpiry);
 
             if (_options.EnableStatistics)
                 Interlocked.Increment(ref _stats.SetsRef);
@@ -198,11 +199,13 @@ public class RedisCacheProvider : ICacheProvider, IDisposable
             var batch = _database!.CreateBatch();
             var tasks = new List<Task>();
 
+            var redisExpiry = expiry.HasValue ? new Expiration(expiry.Value) : new Expiration();
+
             foreach (var item in items)
             {
                 var fullKey = GetFullKey(item.Key);
                 var serializedValue = JsonSerializer.Serialize(item.Value);
-                tasks.Add(batch.StringSetAsync(fullKey, serializedValue, expiry));
+                tasks.Add(batch.StringSetAsync(fullKey, serializedValue, redisExpiry));
             }
 
             batch.Execute();
