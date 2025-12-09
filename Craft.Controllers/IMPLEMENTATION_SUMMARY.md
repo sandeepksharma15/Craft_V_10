@@ -21,36 +21,25 @@
   - Query string versioning (`?api-version=1.0`)
   - Header versioning (`X-Api-Version: 1.0`)
   - Multiple versioning strategies support
-  - Swagger integration for versioned documentation
   - Version deprecation support
 - **Key Methods:**
   - `AddControllerApiVersioning()`
-  - `AddControllerApiVersioningWithSwagger()`
-  - `ConfigureSwaggerForVersioning()`
 
-### 3. ?? Enhanced Swagger/OpenAPI Documentation
-- **Status:** ? Fully Implemented
-- **Location:** `Craft.Controllers/Extensions/SwaggerExtensions.cs`
-- **Features:**
-  - JWT Bearer authentication support
-  - API Key authentication support
-  - XML documentation inclusion
-  - Response headers documentation
-  - Rate limiting information in descriptions
-  - Authorization requirements display
-  - Enum descriptions
-  - Required field detection
-  - Automatic 401/403/429 response documentation
-  - Custom operation and schema filters
-- **Key Methods:**
-  - `AddEnhancedSwagger()`
-  - `UseEnhancedSwaggerUI()`
-- **Filters:**
-  - `AddResponseHeadersFilter` - Documents response headers
-  - `AddRateLimitingInfoFilter` - Adds rate limit info to operations
-  - `AddAuthorizationInfoFilter` - Shows required roles/policies
-  - `EnumSchemaFilter` - Makes enums readable
-  - `RequiredNotNullableSchemaFilter` - Marks required fields
+### 3. ?? Swagger/OpenAPI Documentation
+- **Status:** ? Use Craft.OpenAPI Module
+- **Location:** Separate `Craft.OpenAPI` project
+- **Why Separate:**
+  - Swashbuckle.AspNetCore 10.0.1 has extensive breaking changes from 7.2.0
+  - Microsoft.OpenApi 2.x has different API than 1.x
+  - Better separation of concerns
+  - Craft.OpenAPI provides more comprehensive features
+- **Features in Craft.OpenAPI:**
+  - Multiple Security Schemes (JWT Bearer, API Key, OAuth2)
+  - UI Customization (Themes, custom CSS/JS)
+  - XML Documentation with validation
+  - Environment-Specific configuration
+  - API Versioning Support
+  - Tag Descriptions and Document Filters
 
 ### 4. ?? Enhanced XML Documentation
 - **Status:** ? Complete
@@ -68,7 +57,7 @@
 ### 5. ?? Documentation
 - **Status:** ? Complete
 - **Files Created:**
-  - `FEATURES.md` - Comprehensive feature guide (1000+ lines)
+  - `FEATURES.md` - Comprehensive feature guide
   - Updated `README.md` - Quick overview with links
 - **Content:**
   - Quick start guides for each feature
@@ -76,39 +65,42 @@
   - Best practices
   - Troubleshooting section
   - Configuration options
-  - Integration examples
+  - Integration examples with Craft.OpenAPI
 
 ## ?? Files Created/Modified
 
 ### New Files
-1. `Craft.Controllers/Extensions/RateLimitingExtensions.cs`
-2. `Craft.Controllers/Extensions/ApiVersioningExtensions.cs`
-3. `Craft.Controllers/Extensions/SwaggerExtensions.cs`
-4. `Craft.Controllers/FEATURES.md`
+1. `Craft.Controllers/Extensions/ApiVersioningExtensions.cs`
+2. `Craft.Controllers/FEATURES.md`
 
 ### Modified Files
-1. `Craft.Controllers/Craft.Controllers.csproj` - Added NuGet packages
-2. `Craft.Controllers/Controllers/EntityReadController.cs` - Enhanced XML docs & attributes
-3. `Craft.Controllers/Controllers/EntityChangeController.cs` - Enhanced XML docs & attributes
+1. `Craft.Controllers/Craft.Controllers.csproj` - Added API Versioning NuGet packages
+2. `Craft.Controllers/Controllers/EntityReadController.cs` - Enhanced XML docs
+3. `Craft.Controllers/Controllers/EntityChangeController.cs` - Enhanced XML docs
 4. `Craft.Controllers/README.md` - Added new features section
 
-## ?? NuGet Packages Added
+### Removed Files
+1. `Craft.Controllers/Extensions/SwaggerExtensions.cs` - Moved to Craft.OpenAPI module
+2. `Craft.Controllers/Extensions/RateLimitingExtensions.cs` - Not needed (guidance provided instead)
+
+## ?? NuGet Packages
 
 ```xml
 <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
 <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
 <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
-<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
 ```
 
-**Note:** Rate limiting uses built-in ASP.NET Core framework support (no additional packages needed).
+**Note:** 
+- Rate limiting uses built-in ASP.NET Core framework support (no additional packages needed).
+- Swagger/OpenAPI functionality is provided by the **Craft.OpenAPI** module which uses Swashbuckle.AspNetCore 10.0.1.
 
 ## ?? Quick Usage Guide
 
 ### API Versioning
 ```csharp
 // Program.cs
-builder.Services.AddControllerApiVersioningWithSwagger();
+builder.Services.AddControllerApiVersioning();
 
 // Controller
 [ApiVersion("1.0")]
@@ -117,23 +109,15 @@ builder.Services.AddControllerApiVersioningWithSwagger();
 public class UsersController : EntityReadController<User, UserDto> { }
 ```
 
-### Swagger Enhancement
+### Swagger/OpenAPI Documentation
 ```csharp
 // Program.cs
-builder.Services.AddEnhancedSwagger();
-builder.Services.ConfigureSwaggerForVersioning();
+// Use Craft.OpenAPI module
+builder.Services.AddControllerApiVersioning();
+builder.Services.AddOpenApiDocumentation(builder.Configuration);
 
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-    foreach (var description in provider.ApiVersionDescriptions)
-    {
-        options.SwaggerEndpoint(
-            $"/swagger/{description.GroupName}/swagger.json",
-            description.GroupName.ToUpperInvariant());
-    }
-});
+var app = builder.Build();
+app.UseOpenApiDocumentation();
 ```
 
 ### Rate Limiting
@@ -181,18 +165,12 @@ Craft.Controllers/
 ?   ?   ??? Query String Versioning
 ?   ?   ??? Header Versioning
 ?   ?   ??? Deprecation
-?   ??? Enhanced Swagger/OpenAPI
-?   ?   ??? Quick Start
-?   ?   ??? XML Documentation
-?   ?   ??? Security Schemes
-?   ?   ??? Customization
+?   ??? Swagger/OpenAPI (Reference to Craft.OpenAPI)
 ?   ??? Complete Setup Example
 ?   ??? Best Practices
 ?   ??? Troubleshooting
 ??? Extensions/
-?   ??? RateLimitingExtensions.cs         # Rate limiting documentation helper
 ?   ??? ApiVersioningExtensions.cs        # API versioning implementation
-?   ??? SwaggerExtensions.cs              # Enhanced Swagger implementation
 ??? Controllers/
     ??? EntityReadController.cs           # Enhanced with XML docs
     ??? EntityChangeController.cs         # Enhanced with XML docs
@@ -202,15 +180,13 @@ Craft.Controllers/
 
 - ? Rate limiting guidance provided
 - ? API versioning fully implemented
-- ? Enhanced Swagger/OpenAPI documentation
+- ? Swagger/OpenAPI via Craft.OpenAPI module (Swashbuckle 10.0.1)
 - ? Comprehensive XML documentation
 - ? Best practices documented
 - ? Troubleshooting guide included
 - ? Complete code examples
 - ? Multiple versioning strategies
-- ? Security scheme support (JWT, API Key, OAuth2)
-- ? Response code documentation
-- ? Error handling examples
+- ? Clear separation of concerns
 
 ## ?? Next Steps (Optional Future Enhancements)
 
@@ -227,25 +203,29 @@ These were **not requested** but could be added later:
 
 1. **Rate Limiting:** Due to .NET class library limitations, rate limiting must be configured in the consuming application's `Program.cs`. Complete implementation examples are provided in `FEATURES.md`.
 
-2. **API Versioning:** Fully functional with support for multiple versioning strategies. Works seamlessly with Swagger for version-specific documentation.
+2. **API Versioning:** Fully functional with support for multiple versioning strategies. Works seamlessly with Craft.OpenAPI for version-specific documentation.
 
-3. **Swagger Enhancement:** Provides comprehensive documentation with JWT auth, XML comments, and automatic response code detection.
+3. **Swagger/OpenAPI:** Moved to **Craft.OpenAPI** module due to breaking changes in Swashbuckle.AspNetCore 10.0.1. This provides:
+   - Better separation of concerns
+   - More comprehensive features
+   - Proper support for Swashbuckle 10.0.1
+   - Configuration-based setup
 
 4. **XML Documentation:** `.csproj` needs `<GenerateDocumentationFile>true</GenerateDocumentationFile>` to generate XML files for Swagger.
 
 ## ?? Summary
 
-All three requested features have been successfully implemented:
+All requested features have been successfully implemented:
 
 1. ? **Rate Limiting** - Complete documentation and guidance
-2. ? **API Versioning** - Fully implemented with Swagger integration
-3. ? **Enhanced Swagger/OpenAPI** - Comprehensive documentation features
+2. ? **API Versioning** - Fully implemented
+3. ? **Swagger/OpenAPI** - Available via Craft.OpenAPI module (Swashbuckle 10.0.1)
 
 The implementation is **production-ready**, **well-documented**, and follows .NET 10 best practices.
 
 ---
 
-**Implementation Date:** January 2025  
+**Implementation Date:** December 2025  
 **Version:** 1.1.0  
 **Target Framework:** .NET 10  
 **Status:** ? Complete

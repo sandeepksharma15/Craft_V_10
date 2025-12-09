@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Craft.Controllers.Extensions;
 
@@ -55,6 +54,10 @@ public static class ApiVersioningExtensions
     /// }
     /// </code>
     /// </para>
+    /// <para>
+    /// <strong>Note:</strong> For Swagger/OpenAPI documentation with API versioning, use the Craft.OpenAPI module
+    /// which provides comprehensive OpenAPI documentation features including automatic versioned document generation.
+    /// </para>
     /// </remarks>
     /// <example>
     /// Custom configuration:
@@ -106,148 +109,5 @@ public static class ApiVersioningExtensions
         });
 
         return services;
-    }
-
-    /// <summary>
-    /// Configures API versioning for use with Swagger/OpenAPI documentation.
-    /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="configureOptions">Optional action to customize versioning options.</param>
-    /// <returns>The service collection for chaining.</returns>
-    /// <remarks>
-    /// <para>
-    /// This method configures API versioning specifically for Swagger documentation generation,
-    /// ensuring that each API version gets its own Swagger document.
-    /// </para>
-    /// <para>
-    /// <strong>Usage with Swagger:</strong>
-    /// <code>
-    /// builder.Services.AddControllerApiVersioningWithSwagger();
-    /// builder.Services.AddSwaggerGen();
-    /// builder.Services.ConfigureSwaggerForVersioning();
-    /// </code>
-    /// </para>
-    /// </remarks>
-    public static IServiceCollection AddControllerApiVersioningWithSwagger(
-        this IServiceCollection services,
-        Action<ApiVersioningOptions>? configureOptions = null)
-    {
-        services.AddApiVersioning(options =>
-        {
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-            options.AssumeDefaultVersionWhenUnspecified = true;
-            options.ReportApiVersions = true;
-            
-            options.ApiVersionReader = ApiVersionReader.Combine(
-                new UrlSegmentApiVersionReader(),
-                new QueryStringApiVersionReader("api-version"),
-                new HeaderApiVersionReader("X-Api-Version")
-            );
-            
-            configureOptions?.Invoke(options);
-        })
-        .AddMvc()
-        .AddApiExplorer(options =>
-        {
-            options.GroupNameFormat = "'v'VVV";
-            options.SubstituteApiVersionInUrl = true;
-            
-            // Add versioned API explorer for Swagger
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-        });
-
-        return services;
-    }
-
-    /// <summary>
-    /// Configures Swagger to support API versioning with separate documents per version.
-    /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <returns>The service collection for chaining.</returns>
-    /// <remarks>
-    /// <para>
-    /// Generates a separate Swagger document for each API version detected.
-    /// Requires <c>AddControllerApiVersioningWithSwagger()</c> to be called first.
-    /// </para>
-    /// <para>
-    /// <strong>Usage:</strong>
-    /// <code>
-    /// builder.Services.AddControllerApiVersioningWithSwagger();
-    /// builder.Services.AddSwaggerGen();
-    /// builder.Services.ConfigureSwaggerForVersioning();
-    /// 
-    /// var app = builder.Build();
-    /// app.UseSwagger();
-    /// app.UseSwaggerUI(options =>
-    /// {
-    ///     var provider = app.Services.GetRequiredService&lt;IApiVersionDescriptionProvider&gt;();
-    ///     foreach (var description in provider.ApiVersionDescriptions)
-    ///     {
-    ///         options.SwaggerEndpoint(
-    ///             $"/swagger/{description.GroupName}/swagger.json",
-    ///             description.GroupName.ToUpperInvariant());
-    ///     }
-    /// });
-    /// </code>
-    /// </para>
-    /// </remarks>
-    public static IServiceCollection ConfigureSwaggerForVersioning(this IServiceCollection services)
-    {
-        services.ConfigureOptions<ConfigureSwaggerOptions>();
-        return services;
-    }
-}
-
-/// <summary>
-/// Configures Swagger options for API versioning.
-/// </summary>
-internal class ConfigureSwaggerOptions : IConfigureOptions<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>
-{
-    private readonly IApiVersionDescriptionProvider _provider;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ConfigureSwaggerOptions"/> class.
-    /// </summary>
-    /// <param name="provider">The API version description provider.</param>
-    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
-    {
-        _provider = provider;
-    }
-
-    /// <inheritdoc />
-    public void Configure(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions options)
-    {
-        // Add a swagger document for each discovered API version
-        foreach (var description in _provider.ApiVersionDescriptions)
-        {
-            options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
-        }
-    }
-
-    private static Microsoft.OpenApi.Models.OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
-    {
-        var info = new Microsoft.OpenApi.Models.OpenApiInfo
-        {
-            Title = "Craft API",
-            Version = description.ApiVersion.ToString(),
-            Description = "A production-ready API with versioning support.",
-            Contact = new Microsoft.OpenApi.Models.OpenApiContact
-            {
-                Name = "API Support",
-                Email = "support@example.com"
-            },
-            License = new Microsoft.OpenApi.Models.OpenApiLicense
-            {
-                Name = "MIT",
-                Url = new Uri("https://opensource.org/licenses/MIT")
-            }
-        };
-
-        if (description.IsDeprecated)
-        {
-            info.Description += " (This API version has been deprecated)";
-        }
-
-        return info;
     }
 }

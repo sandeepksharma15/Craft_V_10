@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0  
 > **Target Framework:** .NET 10  
-> **New Features:** Rate Limiting, API Versioning, Enhanced Swagger/OpenAPI Documentation
+> **Features:** Rate Limiting, API Versioning
 
 ---
 
@@ -11,7 +11,7 @@
 1. [Overview](#overview)
 2. [Rate Limiting](#rate-limiting)
 3. [API Versioning](#api-versioning)
-4. [Enhanced Swagger/OpenAPI](#enhanced-swaggeropenapi)
+4. [Swagger/OpenAPI Documentation](#swaggeropenapi-documentation)
 5. [Complete Setup Example](#complete-setup-example)
 6. [Best Practices](#best-practices)
 7. [Troubleshooting](#troubleshooting)
@@ -20,11 +20,11 @@
 
 ## ?? Overview
 
-Craft.Controllers now includes three production-ready features to enhance your API:
+Craft.Controllers provides production-ready features to enhance your API:
 
 - **?? Rate Limiting** - Protect your API from abuse with configurable request throttling
 - **?? API Versioning** - Support multiple API versions simultaneously
-- **?? Enhanced Swagger/OpenAPI** - Comprehensive API documentation with examples
+- **?? Swagger/OpenAPI** - Use the **Craft.OpenAPI** module for comprehensive API documentation
 
 ---
 
@@ -321,163 +321,60 @@ Api-Deprecated-Versions: 1.0
 
 ---
 
-## ?? Enhanced Swagger/OpenAPI
+## ?? Swagger/OpenAPI Documentation
 
-### Quick Start
+For comprehensive Swagger/OpenAPI documentation features, use the **Craft.OpenAPI** module which provides:
+
+- **Multiple Security Schemes**: JWT Bearer, API Key, OAuth2
+- **UI Customization**: Themes, custom CSS/JS, layout options
+- **XML Documentation**: Automatic inclusion with validation
+- **Environment-Specific**: Different configs per environment
+- **Configuration Validation**: Startup validation with detailed errors
+- **API Versioning Support**: Automatic versioned document generation
+- **Tag Descriptions**: Custom descriptions for endpoint groups
+- **Deep Linking**: Direct links to operations
+- **Authorization Persistence**: Remember auth across sessions
+
+### Quick Start with Craft.OpenAPI
 
 ```csharp
 // Program.cs
 var builder = WebApplication.CreateBuilder(args);
 
-// Add enhanced Swagger
-builder.Services.AddEnhancedSwagger();
+// Add API versioning
+builder.Services.AddControllerApiVersioning();
+
+// Add OpenAPI documentation from Craft.OpenAPI module
+builder.Services.AddOpenApiDocumentation(builder.Configuration);
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Use Swagger
-app.UseSwagger();
-app.UseEnhancedSwaggerUI();
+// Use OpenAPI documentation
+app.UseOpenApiDocumentation();
 
 app.MapControllers();
 app.Run();
 ```
 
-### With API Versioning
+### Configuration (appsettings.json)
 
-```csharp
-using Asp.Versioning.ApiExplorer;
-
-// Program.cs
-var builder = WebApplication.CreateBuilder(args);
-
-// Add API versioning with Swagger support
-builder.Services.AddControllerApiVersioningWithSwagger();
-builder.Services.AddEnhancedSwagger();
-builder.Services.ConfigureSwaggerForVersioning();
-builder.Services.AddControllers();
-
-var app = builder.Build();
-
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+```json
 {
-    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-    
-    foreach (var description in provider.ApiVersionDescriptions)
-    {
-        options.SwaggerEndpoint(
-            $"/swagger/{description.GroupName}/swagger.json",
-            description.GroupName.ToUpperInvariant());
+  "SwaggerOptions": {
+    "Enable": true,
+    "Title": "My API",
+    "Version": "v1",
+    "Description": "My API Documentation",
+    "Security": {
+      "EnableJwtBearer": true
     }
-    
-    options.RoutePrefix = "swagger";
-    options.DocumentTitle = "My API Documentation";
-    options.EnableDeepLinking();
-    options.DisplayRequestDuration();
-});
-
-app.MapControllers();
-app.Run();
-```
-
-### XML Documentation
-
-**1. Enable XML documentation in .csproj:**
-
-```xml
-<PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-</PropertyGroup>
-```
-
-**2. Add comprehensive XML comments:**
-
-```csharp
-/// <summary>
-/// Creates a new product.
-/// </summary>
-/// <param name="model">The product data.</param>
-/// <param name="cancellationToken">Cancellation token.</param>
-/// <returns>The created product.</returns>
-/// <remarks>
-/// Sample request:
-/// 
-///     POST /api/products
-///     {
-///         "name": "Laptop",
-///         "price": 999.99,
-///         "category": "Electronics"
-///     }
-/// 
-/// </remarks>
-/// <response code="201">Returns the newly created product</response>
-/// <response code="400">If the model is invalid</response>
-/// <response code="401">If user is not authenticated</response>
-[HttpPost]
-[ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
-[ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public async Task<IActionResult> Create([FromBody] ProductDto model, CancellationToken cancellationToken)
-{
-    // Implementation
+  }
 }
 ```
 
-### Swagger Features
-
-The enhanced Swagger configuration includes:
-
-? **JWT Bearer Authentication** - Authorize button for token input  
-? **API Key Authentication** - Support for API key headers  
-? **XML Documentation** - Automatic inclusion from XML comments  
-? **Response Headers** - Documents all response headers (X-Request-Id, X-RateLimit-*, etc.)  
-? **Rate Limiting Info** - Shows rate limits in operation descriptions  
-? **Authorization Info** - Shows required roles/policies  
-? **Enum Descriptions** - Readable enum values  
-? **Required Fields** - Marks non-nullable properties as required  
-? **429 Responses** - Automatic documentation for rate-limited endpoints  
-? **401/403 Responses** - Automatic documentation for authorized endpoints  
-
-### Swagger UI Customization
-
-```csharp
-builder.Services.AddEnhancedSwagger(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "My Custom API",
-        Version = "v1",
-        Description = "My custom API description",
-        Contact = new OpenApiContact
-        {
-            Name = "John Doe",
-            Email = "john@example.com",
-            Url = new Uri("https://example.com")
-        }
-    });
-    
-    // Add custom security definitions
-    options.AddSecurityDefinition("OAuth2", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            AuthorizationCode = new OpenApiOAuthFlow
-            {
-                AuthorizationUrl = new Uri("https://auth.example.com/authorize"),
-                TokenUrl = new Uri("https://auth.example.com/token"),
-                Scopes = new Dictionary<string, string>
-                {
-                    { "read", "Read access" },
-                    { "write", "Write access" }
-                }
-            }
-        }
-    });
-});
-```
+For complete documentation, see the **Craft.OpenAPI README.md** file.
 
 ---
 
@@ -487,7 +384,6 @@ Here's a complete `Program.cs` with all features enabled:
 
 ```csharp
 using Craft.Controllers.Extensions;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
@@ -540,11 +436,10 @@ builder.Services.AddRateLimiter(options =>
 });
 
 // Add API versioning
-builder.Services.AddControllerApiVersioningWithSwagger();
+builder.Services.AddControllerApiVersioning();
 
-// Add enhanced Swagger
-builder.Services.AddEnhancedSwagger();
-builder.Services.ConfigureSwaggerForVersioning();
+// Add OpenAPI documentation (from Craft.OpenAPI module)
+builder.Services.AddOpenApiDocumentation(builder.Configuration);
 
 // Add controllers
 builder.Services.AddControllers();
@@ -570,27 +465,10 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Middleware order is important!
+// Use OpenAPI documentation (from Craft.OpenAPI module)
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        
-        foreach (var description in provider.ApiVersionDescriptions)
-        {
-            options.SwaggerEndpoint(
-                $"/swagger/{description.GroupName}/swagger.json",
-                $"API {description.GroupName.ToUpperInvariant()}");
-        }
-        
-        options.RoutePrefix = "swagger";
-        options.DocumentTitle = "Craft API Documentation";
-        options.EnableDeepLinking();
-        options.DisplayRequestDuration();
-        options.EnableTryItOutByDefault();
-    });
+    app.UseOpenApiDocumentation();
 }
 
 app.UseHttpsRedirection();
@@ -663,37 +541,15 @@ app.Run();
    /// </remarks>
    ```
 
-### Swagger/OpenAPI
+### Swagger/OpenAPI Documentation
 
-1. **Always enable XML documentation**:
-   ```xml
-   <GenerateDocumentationFile>true</GenerateDocumentationFile>
-   ```
+For comprehensive Swagger/OpenAPI documentation best practices, refer to the **Craft.OpenAPI** module documentation which includes:
 
-2. **Provide examples in XML comments**:
-   ```csharp
-   /// <remarks>
-   /// Sample request:
-   ///     POST /api/users
-   ///     { "name": "John", "email": "john@example.com" }
-   /// </remarks>
-   ```
-
-3. **Document all response codes**:
-   ```csharp
-   [ProducesResponseType(typeof(UserDto), 200)]
-   [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
-   [ProducesResponseType(401)]
-   [ProducesResponseType(403)]
-   [ProducesResponseType(429)]
-   [ProducesResponseType(500)]
-   ```
-
-4. **Use schema filters** for consistent documentation:
-   ```csharp
-   options.SchemaFilter<EnumSchemaFilter>();
-   options.SchemaFilter<RequiredNotNullableSchemaFilter>();
-   ```
+- XML documentation configuration
+- Security scheme setup
+- UI customization options
+- Response type documentation
+- Example value provision
 
 ---
 
@@ -706,7 +562,7 @@ app.Run();
 **Solution:**
 1. Check middleware order - `UseRateLimiter()` must come BEFORE `UseAuthorization()`
 2. Verify policy name matches: `[EnableRateLimiting("read-policy")]`
-3. Check that `AddControllerRateLimiting()` is called
+3. Ensure rate limiter is configured in `Program.cs`
 
 ### API Versioning Not Working
 
@@ -717,28 +573,13 @@ app.Run();
 2. Check API version reader configuration
 3. Verify `AssumeDefaultVersionWhenUnspecified = true` for backward compatibility
 
-### Swagger Not Showing
+### Swagger/OpenAPI Documentation Issues
 
-**Issue:** Swagger UI not accessible
-
-**Solution:**
-1. Check environment: Swagger typically only in Development
-2. Verify route prefix: Default is `/swagger`
-3. Check XML documentation file is generated
-4. Ensure `UseSwagger()` comes before `UseSwaggerUI()`
-
-### XML Comments Not Showing
-
-**Issue:** Descriptions missing in Swagger
-
-**Solution:**
-1. Enable XML generation in .csproj:
-   ```xml
-   <GenerateDocumentationFile>true</GenerateDocumentationFile>
-   ```
-2. Rebuild project to generate .xml file
-3. Check XML file exists in output directory
-4. Verify `IncludeXmlComments()` is called
+For Swagger/OpenAPI troubleshooting, please refer to the **Craft.OpenAPI** module documentation which includes:
+- Swagger UI not accessible
+- XML documentation not showing
+- Security scheme not working
+- Custom CSS not loading
 
 ---
 
@@ -746,11 +587,11 @@ app.Run();
 
 - [ASP.NET Core Rate Limiting](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit)
 - [ASP.NET Core API Versioning](https://github.com/dotnet/aspnet-api-versioning)
-- [Swashbuckle Documentation](https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
+- [Craft.OpenAPI Documentation](../Craft.OpenAPI/README.md)
 
 ---
 
 **Version:** 1.1.0  
-**Last Updated:** January 2025  
+**Last Updated:** December 2025  
 **Target Framework:** .NET 10  
 **Status:** ? Production Ready
