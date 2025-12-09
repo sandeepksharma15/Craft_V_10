@@ -20,4 +20,10 @@
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
+	  <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
+	  <ProjectReference Include="..\Craft.Auditing\Craft.Auditing.csproj" />
+	</ItemGroup>
+
 </Project>

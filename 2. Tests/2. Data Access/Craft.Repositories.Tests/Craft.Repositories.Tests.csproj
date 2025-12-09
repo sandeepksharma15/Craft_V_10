@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Craft.Testing\Craft.Testing.csproj" />
     <ProjectReference Include="..\Craft.Testing\Craft.Testing.csproj" />
   </ItemGroup>
 

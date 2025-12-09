@@ -23,6 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\1. Source\1. Core\Craft.Domain\Craft.Domain.csproj" />
+    <ProjectReference Include="..\..\..\1. Source\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

@@ -27,4 +27,9 @@
 		<Folder Include="Builders\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\1. Source\1. Core\Craft.Core\Craft.Core.csproj" />
+	  <ProjectReference Include="..\..\1. Source\1. Core\Craft.Domain\Craft.Domain.csproj" />
+	</ItemGroup>
+
 </Project>
