@@ -131,4 +131,49 @@ public class ParameterReplacerVisitorTests
         var inner = compiled(3);
         Assert.Equal(6, inner(5));
     }
+
+    [Fact]
+    public void Replace_ThrowsArgumentException_WhenTypeMismatch()
+    {
+        // Arrange
+        ParameterExpression oldParam = Expression.Parameter(typeof(int), "x");
+        ParameterExpression newParam = Expression.Parameter(typeof(string), "y");
+        Expression expr = Expression.Constant(1);
+
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => ParameterReplacerVisitor.Replace(expr, oldParam, newParam));
+        Assert.Contains("type", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Replace_ThrowsArgumentException_WhenTypeMismatch_ComplexTypes()
+    {
+        // Arrange
+        ParameterExpression oldParam = Expression.Parameter(typeof(List<int>), "x");
+        ParameterExpression newParam = Expression.Parameter(typeof(List<string>), "y");
+        Expression expr = Expression.Constant(new List<int>());
+
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => ParameterReplacerVisitor.Replace(expr, oldParam, newParam));
+        Assert.Contains("type", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Replace_WorksWithSameType_DifferentNames()
+    {
+        // Arrange
+        ParameterExpression oldParam = Expression.Parameter(typeof(int), "foo");
+        ParameterExpression newParam = Expression.Parameter(typeof(int), "bar");
+        Expression<Func<int, int>> expr = Expression.Lambda<Func<int, int>>(
+            Expression.Multiply(oldParam, Expression.Constant(2)),
+            oldParam);
+
+        // Act
+        var replaced = ParameterReplacerVisitor.Replace(expr.Body, oldParam, newParam);
+
+        // Assert
+        var lambda = Expression.Lambda<Func<int, int>>(replaced, newParam);
+        var compiled = lambda.Compile();
+        Assert.Equal(10, compiled(5));
+    }
 }

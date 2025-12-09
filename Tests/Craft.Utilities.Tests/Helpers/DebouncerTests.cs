@@ -64,6 +64,121 @@ public class DebouncerTests : IDisposable
         Assert.Equal(0, callCount);
     }
 
+    [Fact]
+    public async Task Debounce_HandlesExceptionGracefully()
+    {
+        int callCount = 0;
+        Task action()
+        {
+            callCount++;
+            throw new InvalidOperationException("Test exception");
+        }
+
+        _debouncer.Debounce(100, action);
+
+        await Task.Delay(200);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
+    public async Task Throttle_HandlesExceptionGracefully()
+    {
+        int callCount = 0;
+        Task action()
+        {
+            callCount++;
+            throw new InvalidOperationException("Test exception");
+        }
+
+        _debouncer.Throttle(100, action);
+
+        await Task.Delay(200);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
+    public async Task Debounce_MultipleRapidCalls_ExecutesOnlyOnce()
+    {
+        int callCount = 0;
+        Task action() { callCount++; return Task.CompletedTask; }
+
+        for (int i = 0; i < 10; i++)
+        {
+            _debouncer.Debounce(100, action);
+            await Task.Delay(10);
+        }
+
+        await Task.Delay(200);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
+    public async Task Throttle_ConsecutiveCalls_RespectsInterval()
+    {
+        int callCount = 0;
+        Task action() { callCount++; return Task.CompletedTask; }
+
+        _debouncer.Throttle(100, action);
+        await Task.Delay(150);
+        _debouncer.Throttle(100, action);
+        await Task.Delay(150);
+        _debouncer.Throttle(100, action);
+        await Task.Delay(150);
+
+        Assert.Equal(3, callCount);
+    }
+
+    [Fact]
+    public async Task Debounce_WithTaskCancelledException_DoesNotPropagate()
+    {
+        int callCount = 0;
+        Task action()
+        {
+            callCount++;
+            throw new TaskCanceledException();
+        }
+
+        _debouncer.Debounce(100, action);
+
+        await Task.Delay(200);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
+    public async Task Throttle_WithTaskCancelledException_DoesNotPropagate()
+    {
+        int callCount = 0;
+        Task action()
+        {
+            callCount++;
+            throw new TaskCanceledException();
+        }
+
+        _debouncer.Throttle(100, action);
+
+        await Task.Delay(200);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
+    public async Task Debounce_ConcurrentCalls_ThreadSafe()
+    {
+        int callCount = 0;
+        Task action() { Interlocked.Increment(ref callCount); return Task.CompletedTask; }
+
+        var tasks = Enumerable.Range(0, 20).Select(_ => Task.Run(() => _debouncer.Debounce(100, action)));
+        await Task.WhenAll(tasks);
+
+        await Task.Delay(200);
+
+        Assert.Equal(1, callCount);
+    }
+
     public void Dispose()
     {
         _debouncer.Dispose();
