@@ -28,6 +28,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+	  <ProjectReference Include="..\..\4. Security\Craft.Security\Craft.Security.csproj" />
 	  <ProjectReference Include="..\Craft.MultiTenant\Craft.MultiTenant.csproj" />
 	  <ProjectReference Include="..\Craft.Security\Craft.Security.csproj" />
 	</ItemGroup>

@@ -18,6 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\1. Core\Craft.Utilities\Craft.Utilities.csproj" />
 	  <ProjectReference Include="..\Craft.Repositories\Craft.Repositories.csproj" />
 	  <ProjectReference Include="..\Craft.Utilities\Craft.Utilities.csproj" />
 	</ItemGroup>

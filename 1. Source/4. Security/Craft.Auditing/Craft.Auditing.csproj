@@ -10,6 +10,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
+	  <ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
 	  <ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
 	  <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
 	</ItemGroup>
