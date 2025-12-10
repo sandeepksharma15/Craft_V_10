@@ -1,10 +1,23 @@
-﻿using System.Linq.Expressions;
+﻿using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Craft.Expressions;
 
+/// <summary>
+/// Builds LINQ expression trees from abstract syntax tree (AST) nodes.
+/// </summary>
+/// <typeparam name="T">The type of the parameter in the expression.</typeparam>
 internal class ExpressionTreeBuilder<T>
 {
+    /// <summary>
+    /// Builds a LINQ expression from an AST node.
+    /// </summary>
+    /// <param name="node">The AST node to build from.</param>
+    /// <param name="param">The parameter expression representing the input value.</param>
+    /// <returns>A LINQ expression representing the AST node.</returns>
+    /// <exception cref="NotSupportedException">Thrown when an unsupported AST node type or operator is encountered.</exception>
+    /// <exception cref="ExpressionEvaluationException">Thrown when a member cannot be resolved on the target type.</exception>
     public Expression Build(AstNode node, ParameterExpression param)
     {
         return node switch
@@ -25,14 +38,14 @@ internal class ExpressionTreeBuilder<T>
 
         return node.Operator switch
         {
-            "&&" => Expression.AndAlso(left, right),
-            "||" => Expression.OrElse(left, right),
-            "==" => Expression.Equal(left, right),
-            "!=" => Expression.NotEqual(left, right),
-            ">" => Expression.GreaterThan(left, right),
-            ">=" => Expression.GreaterThanOrEqual(left, right),
-            "<" => Expression.LessThan(left, right),
-            "<=" => Expression.LessThanOrEqual(left, right),
+            ExpressionOperators.And => Expression.AndAlso(left, right),
+            ExpressionOperators.Or => Expression.OrElse(left, right),
+            ExpressionOperators.Equal => Expression.Equal(left, right),
+            ExpressionOperators.NotEqual => Expression.NotEqual(left, right),
+            ExpressionOperators.GreaterThan => Expression.GreaterThan(left, right),
+            ExpressionOperators.GreaterThanOrEqual => Expression.GreaterThanOrEqual(left, right),
+            ExpressionOperators.LessThan => Expression.LessThan(left, right),
+            ExpressionOperators.LessThanOrEqual => Expression.LessThanOrEqual(left, right),
             _ => throw new NotSupportedException($"Operator '{node.Operator}' is not supported.")
         };
     }
@@ -43,7 +56,7 @@ internal class ExpressionTreeBuilder<T>
 
         return node.Operator switch
         {
-            "!" => Expression.Not(operand),
+            ExpressionOperators.Not => Expression.Not(operand),
             _ => throw new NotSupportedException($"Unary operator '{node.Operator}' is not supported.")
         };
     }
@@ -70,7 +83,7 @@ internal class ExpressionTreeBuilder<T>
                 continue;
             }
 
-            throw new InvalidOperationException($"Member '{member}' not found on type '{expr.Type.Name}'.");
+            throw new ExpressionEvaluationException("Member not found", expr.Type, member);
         }
 
         return expr;
@@ -83,10 +96,10 @@ internal class ExpressionTreeBuilder<T>
 
         if (value is string s)
         {
-            // Try to parse as number or bool if possible
-            return int.TryParse(s, out var i)
+            // Try to parse as number or bool if possible, using invariant culture for consistency
+            return int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i)
                 ? Expression.Constant(i)
-                : double.TryParse(s, out var d)
+                : double.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d)
                 ? Expression.Constant(d)
                 : bool.TryParse(s, out var b) ? Expression.Constant(b) : Expression.Constant(s);
         }
@@ -96,7 +109,10 @@ internal class ExpressionTreeBuilder<T>
 
     private Expression BuildMethodCall(MethodCallAstNode node, ParameterExpression param)
     {
-        Expression target = node.Target != null ? Build(node.Target, param) : throw new InvalidOperationException("Method call must have a target.");
+        Expression target = node.Target != null
+            ? Build(node.Target, param)
+            : throw new ExpressionEvaluationException("Method call must have a target", typeof(T), node.MethodName);
+
         var argExprs = node.Arguments.Select(arg => Build(arg, param)).ToArray();
         var argTypes = argExprs.Select(a => a.Type).ToArray();
 
@@ -109,7 +125,7 @@ internal class ExpressionTreeBuilder<T>
                 .FirstOrDefault(m => m.Name == node.MethodName && m.GetParameters().Length == argExprs.Length);
 
             if (method == null)
-                throw new InvalidOperationException($"Method '{node.MethodName}' not found on type '{target.Type.Name}'.");
+                throw new ExpressionEvaluationException($"Method '{node.MethodName}' not found", target.Type, node.MethodName);
         }
 
         // Convert arguments if needed

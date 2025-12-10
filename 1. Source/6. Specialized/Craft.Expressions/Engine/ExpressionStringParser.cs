@@ -1,10 +1,25 @@
 ﻿namespace Craft.Expressions;
 
+/// <summary>
+/// Parses a sequence of tokens into an abstract syntax tree (AST).
+/// </summary>
 internal class ExpressionStringParser
 {
+    /// <summary>
+    /// The maximum depth of nested expressions to prevent stack overflow attacks.
+    /// </summary>
+    private const int MaxDepth = 100;
+
+    private int _depth = 0;
     private IEnumerator<Token> _tokens = Enumerable.Empty<Token>().GetEnumerator();
     private Token _current = null!;
 
+    /// <summary>
+    /// Parses a sequence of tokens into an AST node.
+    /// </summary>
+    /// <param name="tokens">The tokens to parse.</param>
+    /// <returns>The root AST node representing the parsed expression.</returns>
+    /// <exception cref="ExpressionParseException">Thrown when the tokens cannot be parsed.</exception>
     public AstNode Parse(IEnumerable<Token> tokens)
     {
         _tokens = tokens.GetEnumerator();
@@ -14,7 +29,7 @@ internal class ExpressionStringParser
         var expr = ParseExpression();
 
         return _current.Type != TokenType.EndOfInput
-            ? throw new InvalidOperationException($"Unexpected token at end: {_current.Value}")
+            ? throw new ExpressionParseException("Unexpected token at end", _current.Position, _current.Value)
             : expr;
     }
 
@@ -28,7 +43,7 @@ internal class ExpressionStringParser
     {
         var left = ParseAnd();
 
-        while (_current.Type == TokenType.Operator && _current.Value == "||")
+        while (_current.Type == TokenType.Operator && _current.Value == ExpressionOperators.Or)
         {
             var op = _current.Value;
 
@@ -47,7 +62,7 @@ internal class ExpressionStringParser
     {
         var left = ParseEquality();
 
-        while (_current.Type == TokenType.Operator && _current.Value == "&&")
+        while (_current.Type == TokenType.Operator && _current.Value == ExpressionOperators.And)
         {
             var op = _current.Value;
 
@@ -66,7 +81,7 @@ internal class ExpressionStringParser
     {
         var left = ParseRelational();
 
-        while (_current.Type == TokenType.Operator && (_current.Value == "==" || _current.Value == "!="))
+        while (_current.Type == TokenType.Operator && (_current.Value == ExpressionOperators.Equal || _current.Value == ExpressionOperators.NotEqual))
         {
             var op = _current.Value;
 
@@ -86,7 +101,8 @@ internal class ExpressionStringParser
         var left = ParseUnary();
 
         while (_current.Type == TokenType.Operator &&
-            (_current.Value == ">" || _current.Value == ">=" || _current.Value == "<" || _current.Value == "<="))
+            (_current.Value == ExpressionOperators.GreaterThan || _current.Value == ExpressionOperators.GreaterThanOrEqual ||
+             _current.Value == ExpressionOperators.LessThan || _current.Value == ExpressionOperators.LessThanOrEqual))
         {
             var op = _current.Value;
 
@@ -103,7 +119,7 @@ internal class ExpressionStringParser
     // ParseUnary: handles !
     private AstNode ParseUnary()
     {
-        if (_current.Type == TokenType.Operator && _current.Value == "!")
+        if (_current.Type == TokenType.Operator && _current.Value == ExpressionOperators.Not)
         {
             var op = _current.Value;
 
@@ -120,19 +136,29 @@ internal class ExpressionStringParser
     // ParsePrimary: identifiers, literals, method calls, member access, parentheses
     private AstNode ParsePrimary()
     {
-        // Parenthesized expression
+        // Parenthesized expression - check depth to prevent stack overflow
         if (_current.Type == TokenType.OpenParen)
         {
-            MoveNext();
+            if (++_depth > MaxDepth)
+                throw new ExpressionParseException($"Expression depth exceeds maximum of {MaxDepth}", _current.Position, _current.Value);
 
-            var expr = ParseExpression();
+            try
+            {
+                MoveNext();
 
-            if (_current.Type != TokenType.CloseParen)
-                throw new InvalidOperationException($"Expected ')', got {_current.Value}");
+                var expr = ParseExpression();
 
-            MoveNext();
+                if (_current.Type != TokenType.CloseParen)
+                    throw new ExpressionParseException("Expected ')'", _current.Position, _current.Value);
 
-            return expr;
+                MoveNext();
+
+                return expr;
+            }
+            finally
+            {
+                _depth--;
+            }
         }
 
         // Identifier: member access or method call
@@ -147,7 +173,7 @@ internal class ExpressionStringParser
                 MoveNext();
 
                 if (_current.Type != TokenType.Identifier)
-                    throw new InvalidOperationException($"Expected identifier after '.', got {_current.Value}");
+                    throw new ExpressionParseException("Expected identifier after '.'", _current.Position, _current.Value);
 
                 memberPath.Add(_current.Value);
                 MoveNext();
@@ -171,7 +197,7 @@ internal class ExpressionStringParser
                     }
 
                 if (_current.Type != TokenType.CloseParen)
-                    throw new InvalidOperationException($"Expected ')', got {_current.Value}");
+                    throw new ExpressionParseException("Expected ')'", _current.Position, _current.Value);
 
                 MoveNext();
 
@@ -218,6 +244,6 @@ internal class ExpressionStringParser
             return new ConstantAstNode(null!);
         }
 
-        throw new InvalidOperationException($"Unexpected token: {_current.Value}");
+        throw new ExpressionParseException("Unexpected token", _current.Position, _current.Value);
     }
 }

@@ -2,8 +2,17 @@
 
 namespace Craft.Expressions;
 
+/// <summary>
+/// Tokenizes an expression string into a sequence of tokens.
+/// </summary>
 internal class ExpressionStringTokenizer
 {
+    /// <summary>
+    /// Tokenizes the input string into a sequence of tokens.
+    /// </summary>
+    /// <param name="input">The expression string to tokenize.</param>
+    /// <returns>A sequence of tokens representing the expression.</returns>
+    /// <exception cref="ExpressionTokenizationException">Thrown when invalid characters or syntax are encountered.</exception>
     public static IEnumerable<Token> Tokenize(string input)
     {
         int pos = 0;
@@ -62,65 +71,65 @@ internal class ExpressionStringTokenizer
                 case '!':
                     if (pos + 1 < input.Length && input[pos + 1] == '=')
                     {
-                        yield return new Token(TokenType.Operator, "!=", pos);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.NotEqual, pos);
                         pos += 2;
                     }
                     else
-                        yield return new Token(TokenType.Operator, "!", pos++);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.Not, pos++);
                     break;
 
                 case '=':
                     if (pos + 1 < input.Length && input[pos + 1] == '=')
                     {
-                        yield return new Token(TokenType.Operator, "==", pos);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.Equal, pos);
                         pos += 2;
                     }
                     else
-                        throw new InvalidOperationException($"Unexpected '=' at position {pos}");
+                        throw new ExpressionTokenizationException("Unexpected '=' (did you mean '=='?)", pos, '=');
                     break;
 
                 case '>':
                     if (pos + 1 < input.Length && input[pos + 1] == '=')
                     {
-                        yield return new Token(TokenType.Operator, ">=", pos);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.GreaterThanOrEqual, pos);
                         pos += 2;
                     }
                     else
-                        yield return new Token(TokenType.Operator, ">", pos++);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.GreaterThan, pos++);
                     break;
 
                 case '<':
                     if (pos + 1 < input.Length && input[pos + 1] == '=')
                     {
-                        yield return new Token(TokenType.Operator, "<=", pos);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.LessThanOrEqual, pos);
                         pos += 2;
                     }
                     else
-                        yield return new Token(TokenType.Operator, "<", pos++);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.LessThan, pos++);
                     break;
 
                 case '&':
                     if (pos + 1 < input.Length && input[pos + 1] == '&')
                     {
-                        yield return new Token(TokenType.Operator, "&&", pos);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.And, pos);
                         pos += 2;
                     }
                     else
-                        throw new InvalidOperationException($"Unexpected '&' at position {pos}");
+                        throw new ExpressionTokenizationException("Unexpected '&' (did you mean '&&'?)", pos, '&');
                     break;
 
                 case '|':
                     if (pos + 1 < input.Length && input[pos + 1] == '|')
                     {
-                        yield return new Token(TokenType.Operator, "||", pos);
+                        yield return new Token(TokenType.Operator, ExpressionOperators.Or, pos);
                         pos += 2;
                     }
                     else
-                        throw new InvalidOperationException($"Unexpected '|' at position {pos}");
+                        throw new ExpressionTokenizationException("Unexpected '|' (did you mean '||'?)", pos, '|');
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Unexpected character '{c}' at position {pos}");
+                    throw new ExpressionTokenizationException("Unexpected character", pos, c);
             }
         }
 

@@ -218,7 +218,7 @@ public class ExpressionStringParserTests
         var expr = "$";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Parse(expr));
+        Assert.Throws<ExpressionTokenizationException>(() => Parse(expr));
     }
 
     [Fact]
@@ -228,7 +228,7 @@ public class ExpressionStringParserTests
         var expr = "(Name == \"John\"";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Parse(expr));
+        Assert.Throws<ExpressionParseException>(() => Parse(expr));
     }
 
     [Fact]
@@ -238,6 +238,6 @@ public class ExpressionStringParserTests
         var expr = "Name == ";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Parse(expr));
+        Assert.Throws<ExpressionParseException>(() => Parse(expr));
     }
 }

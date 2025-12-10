@@ -2,8 +2,17 @@
 
 namespace Craft.Expressions;
 
+/// <summary>
+/// Converts LINQ expression trees to their string representations.
+/// </summary>
 internal static class ExpressionToStringConverter
 {
+    /// <summary>
+    /// Converts a LINQ expression to a string representation.
+    /// </summary>
+    /// <param name="expr">The expression to convert.</param>
+    /// <returns>A string representation of the expression.</returns>
+    /// <exception cref="NotSupportedException">Thrown when an unsupported expression type is encountered.</exception>
     public static string Convert(Expression expr)
     {
         return expr switch
@@ -40,11 +49,14 @@ internal static class ExpressionToStringConverter
 
     private static string SerializeMethodCall(MethodCallExpression methodCall)
     {
+        ArgumentNullException.ThrowIfNull(methodCall);
+
+        if (methodCall.Object == null)
+            throw new NotSupportedException("Static method calls are not supported in serialization.");
+
         var methodName = methodCall.Method.Name;
-
-        var objectStr = Convert(methodCall?.Object!);
-
-        var args = string.Join(", ", methodCall?.Arguments?.Select(Convert)!);
+        var objectStr = Convert(methodCall.Object);
+        var args = string.Join(", ", methodCall.Arguments.Select(Convert));
 
         return $"{objectStr}.{methodName}({args})";
     }
@@ -53,15 +65,15 @@ internal static class ExpressionToStringConverter
     {
         return nodeType switch
         {
-            ExpressionType.AndAlso => "&&",
-            ExpressionType.OrElse => "||",
-            ExpressionType.Equal => "==",
-            ExpressionType.NotEqual => "!=",
-            ExpressionType.GreaterThan => ">",
-            ExpressionType.GreaterThanOrEqual => ">=",
-            ExpressionType.LessThan => "<",
-            ExpressionType.LessThanOrEqual => "<=",
-            ExpressionType.Not => "!",
+            ExpressionType.AndAlso => ExpressionOperators.And,
+            ExpressionType.OrElse => ExpressionOperators.Or,
+            ExpressionType.Equal => ExpressionOperators.Equal,
+            ExpressionType.NotEqual => ExpressionOperators.NotEqual,
+            ExpressionType.GreaterThan => ExpressionOperators.GreaterThan,
+            ExpressionType.GreaterThanOrEqual => ExpressionOperators.GreaterThanOrEqual,
+            ExpressionType.LessThan => ExpressionOperators.LessThan,
+            ExpressionType.LessThanOrEqual => ExpressionOperators.LessThanOrEqual,
+            ExpressionType.Not => ExpressionOperators.Not,
             _ => throw new NotSupportedException($"Operator '{nodeType}' is not supported.")
         };
     }

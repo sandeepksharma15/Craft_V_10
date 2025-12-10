@@ -202,7 +202,7 @@ public class ExpressionTreeBuilderTests
         var node = new MethodCallAstNode(target, "NotAMethod", []);
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Builder.Build(node, Param));
+        Assert.Throws<ExpressionEvaluationException>(() => Builder.Build(node, Param));
     }
 
     [Fact]
@@ -212,7 +212,7 @@ public class ExpressionTreeBuilderTests
         var node = new MethodCallAstNode(null!, "ToLower", []);
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Builder.Build(node, Param));
+        Assert.Throws<ExpressionEvaluationException>(() => Builder.Build(node, Param));
     }
 
     [Fact]
@@ -222,7 +222,7 @@ public class ExpressionTreeBuilderTests
         var node = new MemberAstNode(["NotAProp"]);
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Builder.Build(node, Param));
+        Assert.Throws<ExpressionEvaluationException>(() => Builder.Build(node, Param));
     }
 
     [Fact]

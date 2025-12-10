@@ -153,7 +153,7 @@ public class ExpressionSerializerTests
         var exprString = "Name === \"John\"";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Serializer.Deserialize(exprString));
+        Assert.Throws<ExpressionTokenizationException>(() => Serializer.Deserialize(exprString));
     }
 
     [Fact]
@@ -163,6 +163,6 @@ public class ExpressionSerializerTests
         var exprString = "Name.NotAMethod()";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => Serializer.Deserialize(exprString));
+        Assert.Throws<ExpressionEvaluationException>(() => Serializer.Deserialize(exprString));
     }
 }

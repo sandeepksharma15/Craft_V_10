@@ -171,7 +171,7 @@ public class ExpressionStringTokenizerTests
         var input = "Name$";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
+        Assert.Throws<ExpressionTokenizationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class ExpressionStringTokenizerTests
         var input = "Name = \"John\"";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
+        Assert.Throws<ExpressionTokenizationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public class ExpressionStringTokenizerTests
         var input = "Name & \"John\"";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
+        Assert.Throws<ExpressionTokenizationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
     }
 
     [Fact]
@@ -201,6 +201,6 @@ public class ExpressionStringTokenizerTests
         var input = "Name | \"John\"";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
+        Assert.Throws<ExpressionTokenizationException>(() => ExpressionStringTokenizer.Tokenize(input).ToList());
     }
 }
