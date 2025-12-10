@@ -20,7 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\1. Source\6. Specialized\Craft.Expressions\Craft.Expressions.csproj" />
     <ProjectReference Include="..\..\Craft.Testing\Craft.Testing.csproj" />
-    <ProjectReference Include="..\Craft.Testing\Craft.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

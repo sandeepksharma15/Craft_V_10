@@ -27,10 +27,6 @@
 		<ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
 		<ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
 		<ProjectReference Include="..\..\2. Data Access\Craft.Repositories\Craft.Repositories.csproj" />
-		<ProjectReference Include="..\Craft.Core\Craft.Core.csproj" />
-		<ProjectReference Include="..\Craft.Domain\Craft.Domain.csproj" />
-		<ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
-		<ProjectReference Include="..\Craft.Repositories\Craft.Repositories.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\1. Source\3. Infrastructure\Craft.Configuration\Craft.Configuration.csproj" />
+    <ProjectReference Include="..\..\Craft.Testing\Craft.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -17,7 +17,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\4. Security\Craft.Security\Craft.Security.csproj" />
-	  <ProjectReference Include="..\Craft.Security\Craft.Security.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
-    <ProjectReference Include="..\Craft.Extensions\Craft.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

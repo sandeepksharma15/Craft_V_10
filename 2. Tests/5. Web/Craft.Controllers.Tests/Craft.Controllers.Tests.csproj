@@ -21,7 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\1. Source\1. Core\Craft.Domain\Craft.Domain.csproj" />
     <ProjectReference Include="..\..\..\1. Source\5. Web\Craft.Controllers\Craft.Controllers.csproj" />
-    <ProjectReference Include="..\Craft.Controllers\Craft.Controllers.csproj" />
+    <ProjectReference Include="..\..\Craft.Testing\Craft.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

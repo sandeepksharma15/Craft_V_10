@@ -28,7 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\1. Source\2. Data Access\Craft.Data\Craft.Data.csproj" />
     <ProjectReference Include="..\..\Craft.Testing\Craft.Testing.csproj" />
-    <ProjectReference Include="..\Craft.Testing\Craft.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
