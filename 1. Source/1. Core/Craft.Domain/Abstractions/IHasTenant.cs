@@ -8,7 +8,7 @@ public interface IHasTenant<TKey>
 
     TKey GetTenantId() => TenantId;
 
-    bool IsTenantIdSet() => !(TenantId!.Equals(default(TKey)));
+    bool IsTenantIdSet() => TenantId != null && !EqualityComparer<TKey>.Default.Equals(TenantId, default);
 
     void SetTenantId(TKey tenantId) => TenantId = tenantId;
 }

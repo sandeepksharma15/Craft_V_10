@@ -8,9 +8,11 @@ public static class DomainConstants
     public const string RequiredError = "{0} is required";
     public const string StartDateGreaterError = "Start must be before End";
     public const string RangeError = "{0} must be between {1} and {2}";
+    public const string MinLengthError = "{0} must be at least {1} characters";
+    public const string MaxLengthError = "{0} must not exceed {1} characters";
 
     public const string AlphabetAndSpecialCharError = "{0} must contain only alphabets (1st Uppercase) and ,.'() ";
-    public const string AlphaNumericrError = "{0} must contain only alphanumberic characters (1st uppercase)";
+    public const string AlphaNumericError = "{0} must contain only alphanumberic characters (1st uppercase)";
     public const string CapitalAlphabetError = "{0} must contan only uppercase letters";
     public const string OnlyDigitError = "{0} must be a whole number";
     public const string OnlyNumberError = "{0} must be a valid number";
@@ -26,5 +28,7 @@ public static class DomainConstants
     public const string DigitsGreaterThanZero = "^[1-9]+";
     public const string NumberRegEx = "(^[0-9]*[.])?[0-9]+";
     public const string AlphaNumCodeWithHyphenRegEx = @"[A-Z]*[0-9\-]*";
-    public const string EmailRegExpr = @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$";
+    public const string EmailRegExpr = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+    public const string PhoneRegExpr = @"^\+?[\d\s\-\(\)]+$";
+    public const string UrlRegExpr = @"^https?://[^\s]+$";
 }

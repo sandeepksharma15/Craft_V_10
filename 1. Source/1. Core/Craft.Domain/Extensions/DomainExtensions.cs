@@ -1,6 +1,6 @@
-﻿
-#pragma warning disable IDE0130 // Namespace does not match folder structure
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
 using System.ComponentModel;
+using Craft.Domain;
 
 namespace System;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
@@ -39,4 +39,22 @@ public static class DomainExtensions
 
         return default;
     }
+
+    public static bool IsNullOrDefault<TKey>(this IEntity<TKey> entity)
+        => entity == null || entity.HasDefaultId();
+
+    public static bool IsNullOrDefault(this IEntity entity)
+        => entity == null || entity.HasDefaultId();
+
+    public static void SetCreatedBy<TKey>(this IHasUser<TKey> entity, TKey userId) 
+        => entity.SetUserId(userId);
+
+    public static void SetCreatedBy(this IHasUser entity, KeyType userId)
+        => entity.SetUserId(userId);
+
+    public static bool BelongsToTenant<TKey>(this IHasTenant<TKey> entity, TKey tenantId)
+        => entity.TenantId?.Equals(tenantId) == true;
+
+    public static bool BelongsToTenant(this IHasTenant entity, KeyType tenantId)
+        => entity.TenantId.Equals(tenantId) == true;
 }
