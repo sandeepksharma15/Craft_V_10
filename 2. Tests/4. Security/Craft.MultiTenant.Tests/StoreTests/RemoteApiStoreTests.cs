@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Reflection;
+using System.Text.Json;
 using Craft.MultiTenant.Stores;
 using Moq;
-using Newtonsoft.Json;
 
 namespace Craft.MultiTenant.Tests.StoreTests;
 
@@ -98,7 +98,7 @@ public class RemoteApiStoreTests : TenantStoreTestBase
             if (string.Equals(request.RequestUri.Segments[numSegments - 1], "initech", StringComparison.OrdinalIgnoreCase))
             {
                 var tenantInfo = new Tenant { Id = 1, Identifier = "initech" };
-                var json = JsonConvert.SerializeObject(tenantInfo);
+                var json = JsonSerializer.Serialize(tenantInfo);
                 result.StatusCode = HttpStatusCode.OK;
                 result.Content = new StringContent(json);
             }
