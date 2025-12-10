@@ -16,6 +16,8 @@
 		<PackageReference Include="Markdig" Version="0.44.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
 		<PackageReference Include="itext" Version="9.4.0" />
+		<!-- Override vulnerable transitive dependency from itext package -->
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 
 </Project>
