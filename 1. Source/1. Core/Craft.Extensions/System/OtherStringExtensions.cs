@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Craft.Extensions.System;
 
@@ -143,5 +144,149 @@ public static class OtherStringExtensions
         Span<byte> buffer = new byte[s.Length + 1];
 
         return Convert.TryFromBase64String(s, buffer, out _);
+    }
+
+    /// <summary>
+    /// Truncates the string to the specified maximum length.
+    /// </summary>
+    public static string? Truncate(this string? str, int maxLength)
+    {
+        if (string.IsNullOrEmpty(str) || str.Length <= maxLength)
+            return str;
+
+        return str[..maxLength];
+    }
+
+    /// <summary>
+    /// Truncates the string to the specified maximum length and appends an ellipsis if truncated.
+    /// </summary>
+    public static string? TruncateWithEllipsis(this string? str, int maxLength, string ellipsis = "...")
+    {
+        if (string.IsNullOrEmpty(str) || str.Length <= maxLength)
+            return str;
+
+        return maxLength <= ellipsis.Length
+            ? str[..maxLength]
+            : str[..(maxLength - ellipsis.Length)] + ellipsis;
+    }
+
+    /// <summary>
+    /// Converts a string to PascalCase (e.g., "hello world" -> "HelloWorld").
+    /// </summary>
+    public static string? ToPascalCase(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return str;
+
+        var words = str.Split([' ', '_', '-'], StringSplitOptions.RemoveEmptyEntries);
+        var result = new StringBuilder();
+
+        foreach (var word in words)
+            if (word.Length > 0)
+                result.Append(char.ToUpperInvariant(word[0]) + word[1..].ToLowerInvariant());
+
+        return result.ToString();
+    }
+
+    /// <summary>
+    /// Converts a string to camelCase (e.g., "hello world" -> "helloWorld").
+    /// </summary>
+    public static string? ToCamelCase(this string? str)
+    {
+        var pascal = str.ToPascalCase();
+
+        return string.IsNullOrEmpty(pascal)
+            ? pascal
+            : char.ToLowerInvariant(pascal[0]) + pascal[1..];
+    }
+
+    /// <summary>
+    /// Converts a string to snake_case (e.g., "HelloWorld" -> "hello_world").
+    /// </summary>
+    public static string? ToSnakeCase(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return str;
+
+        var result = Regex.Replace(str, "([a-z0-9])([A-Z])", "$1_$2");
+        return result.Replace(' ', '_').Replace('-', '_').ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// Converts a string to kebab-case (e.g., "HelloWorld" -> "hello-world").
+    /// </summary>
+    public static string? ToKebabCase(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return str;
+
+        var result = Regex.Replace(str, "([a-z0-9])([A-Z])", "$1-$2");
+        return result.Replace(' ', '-').Replace('_', '-').ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// Reverses the characters in the string.
+    /// </summary>
+    public static string? Reverse(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return str;
+
+        var charArray = str.ToCharArray();
+        Array.Reverse(charArray);
+        return new string(charArray);
+    }
+
+    /// <summary>
+    /// Counts the number of occurrences of a substring within the string.
+    /// </summary>
+    public static int CountOccurrences(this string? str, string substring, StringComparison comparisonType = StringComparison.Ordinal)
+    {
+        if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(substring))
+            return 0;
+
+        int count = 0;
+        int index = 0;
+
+        while ((index = str.IndexOf(substring, index, comparisonType)) != -1)
+        {
+            count++;
+            index += substring.Length;
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// Determines whether the string contains only digits.
+    /// </summary>
+    public static bool IsNumeric(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return false;
+
+        return str.All(char.IsDigit);
+    }
+
+    /// <summary>
+    /// Determines whether the string contains only letters.
+    /// </summary>
+    public static bool IsAlphabetic(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return false;
+
+        return str.All(char.IsLetter);
+    }
+
+    /// <summary>
+    /// Determines whether the string contains only letters and digits.
+    /// </summary>
+    public static bool IsAlphanumeric(this string? str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return false;
+
+        return str.All(char.IsLetterOrDigit);
     }
 }
