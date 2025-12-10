@@ -2,14 +2,14 @@
 
 namespace Craft.Domain.Tests.Base;
 
-public class BaseDtoTests
+public class BaseModelTests
 {
     [Fact]
     public void BaseDto_ConcurrencyStamp_ShouldSetAndGet()
     {
         // Arrange
         const string testConcurrencyStamp = "test-concurrency-stamp";
-        var dto = new Mock<BaseDto>();
+        var dto = new Mock<BaseModel>();
 
         //Act
         dto.SetupProperty(x => x.ConcurrencyStamp, testConcurrencyStamp);
@@ -23,7 +23,7 @@ public class BaseDtoTests
     {
         // Arrange
         const int testId = 1;
-        var dto = new Mock<BaseDto>();
+        var dto = new Mock<BaseModel>();
 
         //Act
         dto.SetupProperty(x => x.Id, testId);
@@ -37,7 +37,7 @@ public class BaseDtoTests
     {
         // Arrange
         const bool isDeleted = true;
-        var dto = new Mock<BaseDto>();
+        var dto = new Mock<BaseModel>();
 
         //Act
         dto.SetupProperty(x => x.IsDeleted, isDeleted);
@@ -131,5 +131,5 @@ public class BaseDtoTests
     }
 
     // TestDto class for testing the abstract BaseDto
-    public class TestDto : BaseDto;
+    public class TestDto : BaseModel;
 }

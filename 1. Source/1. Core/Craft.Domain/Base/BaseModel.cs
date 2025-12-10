@@ -1,10 +1,10 @@
 ﻿namespace Craft.Domain;
 
 [Serializable]
-public abstract class BaseDto : BaseDto<KeyType>, IModel;
+public abstract class BaseModel : BaseModel<KeyType>, IModel;
 
 [Serializable]
-public abstract class BaseDto<TKey> : IHasConcurrency, ISoftDelete, IModel<TKey>
+public abstract class BaseModel<TKey> : IHasConcurrency, ISoftDelete, IModel<TKey>
 {
     public virtual TKey Id { get; set; } = default!;
 

@@ -2,7 +2,7 @@
 
 namespace Craft.Testing.Fixtures;
 
-public class TestDto : BaseDto
+public class TestModel : BaseModel
 {
     public string Name { get; set; } = string.Empty;
 }
