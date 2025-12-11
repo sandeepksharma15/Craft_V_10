@@ -120,10 +120,10 @@ public static class AuditTrailExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var values = audit.GetOldValuesAsDictionary();
-        if (values == null || !values.ContainsKey(propertyName))
+        if (values == null || !values.TryGetValue(propertyName, out JsonElement value))
             return null;
 
-        return values[propertyName];
+        return value;
     }
 
     public static object? GetNewValue(this AuditTrail audit, string propertyName)
@@ -132,10 +132,10 @@ public static class AuditTrailExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var values = audit.GetNewValuesAsDictionary();
-        if (values == null || !values.ContainsKey(propertyName))
+        if (values == null || !values.TryGetValue(propertyName, out JsonElement value))
             return null;
 
-        return values[propertyName];
+        return value;
     }
 
     public static bool HasPropertyChanged(this AuditTrail audit, string propertyName)

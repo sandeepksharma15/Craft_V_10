@@ -92,7 +92,7 @@ public class SearchEvaluatorTests : IDisposable
         // Act
         query.Search(x => x.Name!, "A%");
         query.Search(x => x.Name!, "B%");
-        var result = evaluator.GetQuery(_context.Stores, query)?.ToList();
+        var result = evaluator.GetQuery(_context.Stores!, query)?.ToList();
 
         // Assert
         Assert.Equal(3, result?.Count);

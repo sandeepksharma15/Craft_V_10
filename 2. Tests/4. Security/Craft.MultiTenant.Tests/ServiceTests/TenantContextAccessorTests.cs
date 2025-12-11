@@ -99,9 +99,9 @@ public class TenantContextAccessorTests
             return accessor.TenantContext?.Tenant?.Id;
         });
         
-        await Task.WhenAll(task1, task2);
+        var results = await Task.WhenAll(task1, task2);
         
-        Assert.Equal(1, task1.Result);
-        Assert.Equal(2, task2.Result);
+        Assert.Equal(1, results[0]);
+        Assert.Equal(2, results[1]);
     }
 }

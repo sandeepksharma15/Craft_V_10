@@ -12,6 +12,6 @@ public sealed class SearchEvaluator : IEvaluator
 
         return queryable.Search(query?
             .SqlLikeSearchCriteriaBuilder?
-            .SqlLikeSearchCriteriaList ?? []);
+            .SqlLikeSearchCriteriaList ?? [])!;
     }
 }

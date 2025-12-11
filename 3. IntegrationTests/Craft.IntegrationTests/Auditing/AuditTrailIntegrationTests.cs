@@ -453,7 +453,7 @@ public class Product : BaseEntity
 public class Document : BaseEntity, ISoftDelete
 {
     public string Title { get; set; } = string.Empty;
-    public bool IsDeleted { get; set; }
+    public override bool IsDeleted { get; set; }
 }
 
 public class User : BaseEntity
