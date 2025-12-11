@@ -234,7 +234,7 @@ public class ObserverManagerTests
             return Task.CompletedTask;
         }
 
-        await observerManager.NotifyAsync(NotificationAsync, (_, observer) => observer.StartsWith("A"));
+        await observerManager.NotifyAsync(NotificationAsync, (_, observer) => observer.StartsWith('A'));
 
         // Assert
         Assert.Equal(2, notifiedObservers.Count);
@@ -277,7 +277,7 @@ public class ObserverManagerTests
         observerManager.Subscribe(3, "Observer3");
 
         // Act
-        Task NotificationAsync(string observer)
+        static Task NotificationAsync(string observer)
         {
             if (observer == "Observer2")
                 throw new Exception("Notification failed");

@@ -43,12 +43,12 @@ public class CurrentTenantTests
         var currentTenant = new CurrentTenant(mockAccessor.Object);
 
         // Act & Assert
-        Assert.Equal(default(long), currentTenant.Id);
+        Assert.Equal(default, currentTenant.Id);
         Assert.Null(currentTenant.Identifier);
         Assert.Null(currentTenant.Name);
         Assert.False(currentTenant.IsAvailable);
         Assert.False(currentTenant.IsActive);
-        Assert.Equal(default(long), currentTenant.GetId());
+        Assert.Equal(default, currentTenant.GetId());
     }
 
     [Fact]

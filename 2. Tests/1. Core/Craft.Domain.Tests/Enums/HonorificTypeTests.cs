@@ -11,7 +11,7 @@ public class HonorificTypeTests
     public void HonorificType_ShouldHaveFiveValues()
     {
         // Arrange & Act
-        var values = Enum.GetValues(typeof(HonorificType));
+        var values = Enum.GetValues<HonorificType>();
 
         // Assert
         Assert.Equal(5, values.Length);
@@ -244,7 +244,7 @@ public class HonorificTypeTests
     public void HonorificType_IsDefined_Dr_ShouldReturnTrue()
     {
         // Act
-        var result = Enum.IsDefined(typeof(HonorificType), HonorificType.Dr);
+        var result = Enum.IsDefined(HonorificType.Dr);
 
         // Assert
         Assert.True(result);
@@ -269,7 +269,7 @@ public class HonorificTypeTests
     public void HonorificType_AllValues_AreValid(HonorificType honorific)
     {
         // Act
-        var result = Enum.IsDefined(typeof(HonorificType), honorific);
+        var result = Enum.IsDefined(honorific);
 
         // Assert
         Assert.True(result);

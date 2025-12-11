@@ -85,7 +85,7 @@ public class BaseDtoTests
         var dto = new TestDto();
 
         // Act & Assert
-        Assert.IsAssignableFrom<IModel>(dto);
+        Assert.IsType<IModel>(dto, exactMatch: false);
     }
 
     [Fact]
@@ -95,7 +95,7 @@ public class BaseDtoTests
         var dto = new TestGenericDto();
 
         // Act & Assert
-        Assert.IsAssignableFrom<IModel<long>>(dto);
+        Assert.IsType<IModel<long>>(dto, exactMatch: false);
     }
 
     [Fact]

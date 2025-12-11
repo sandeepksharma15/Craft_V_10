@@ -66,7 +66,7 @@ public static class DateTimeExtensions
     /// Returns the last day of the month for the specified date.
     /// </summary>
     public static DateTime EndOfMonth(this DateTime dateTime)
-        => new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month), 23, 59, 59, 999, dateTime.Kind);
+        => new(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month), 23, 59, 59, 999, dateTime.Kind);
 
     /// <summary>
     /// Returns the first day of the year for the specified date.

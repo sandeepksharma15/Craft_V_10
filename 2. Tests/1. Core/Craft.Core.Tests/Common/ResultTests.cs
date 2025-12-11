@@ -194,7 +194,7 @@ public class ResultTests
         var result = Result<string>.Success("test");
 
         // Assert
-        Assert.IsAssignableFrom<Result>(result);
+        Assert.IsType<Result>(result, exactMatch: false);
     }
 
     #endregion
@@ -497,8 +497,8 @@ public class ResultTests
     public void Result_WithCollectionTypes_WorksCorrectly()
     {
         // Arrange & Act
-        var listResult = Result<List<int>>.Success(new List<int> { 1, 2, 3 });
-        var arrayResult = Result<int[]>.Success(new[] { 1, 2, 3 });
+        var listResult = Result<List<int>>.Success([1, 2, 3]);
+        var arrayResult = Result<int[]>.Success([1, 2, 3]);
 
         // Assert
         Assert.True(listResult.IsSuccess);

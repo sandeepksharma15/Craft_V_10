@@ -116,17 +116,9 @@ internal class ExpressionTreeBuilder<T>
         var argExprs = node.Arguments.Select(arg => Build(arg, param)).ToArray();
         var argTypes = argExprs.Select(a => a.Type).ToArray();
 
-        var method = target.Type.GetMethod(node.MethodName, argTypes);
-
-        if (method == null)
-        {
-            // Try to find a method with the right name and parameter count (for implicit conversions)
-            method = target.Type.GetMethods()
-                .FirstOrDefault(m => m.Name == node.MethodName && m.GetParameters().Length == argExprs.Length);
-
-            if (method == null)
-                throw new ExpressionEvaluationException($"Method '{node.MethodName}' not found", target.Type, node.MethodName);
-        }
+        var method = target.Type.GetMethod(node.MethodName, argTypes) 
+            ?? target.Type.GetMethods().FirstOrDefault(m => m.Name == node.MethodName && m.GetParameters().Length == argExprs.Length) 
+                    ?? throw new ExpressionEvaluationException($"Method '{node.MethodName}' not found", target.Type, node.MethodName);
 
         // Convert arguments if needed
         var convertedArgs = method.GetParameters()

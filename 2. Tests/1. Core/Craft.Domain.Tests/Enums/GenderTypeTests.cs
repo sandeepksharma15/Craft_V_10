@@ -11,7 +11,7 @@ public class GenderTypeTests
     public void GenderType_ShouldHaveThreeValues()
     {
         // Arrange & Act
-        var values = Enum.GetValues(typeof(GenderType));
+        var values = Enum.GetValues<GenderType>();
 
         // Assert
         Assert.Equal(3, values.Length);
@@ -164,7 +164,7 @@ public class GenderTypeTests
     public void GenderType_IsDefined_Male_ShouldReturnTrue()
     {
         // Act
-        var result = Enum.IsDefined(typeof(GenderType), GenderType.Male);
+        var result = Enum.IsDefined(GenderType.Male);
 
         // Assert
         Assert.True(result);
