@@ -69,7 +69,7 @@ public class WhereEvaluatorTests
         var query = new Query<Company>();
 
         // Assert
-        Assert.Throws<ArgumentNullException>(() => evaluator.GetQuery<Company>(null, query));
+        Assert.Throws<ArgumentNullException>(() => evaluator.GetQuery(null!, query));
     }
 
     [Fact]

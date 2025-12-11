@@ -398,10 +398,11 @@ public class QueryTests
     public void Skip_SetZero_AcceptedAsValid()
     {
         // Arrange
-        var query = new Query<Company>();
-
-        // Act
-        query.Skip = 0;
+        var query = new Query<Company>
+        {
+            // Act
+            Skip = 0
+        };
 
         // Assert
         Assert.Equal(0, query.Skip);
@@ -411,10 +412,11 @@ public class QueryTests
     public void Take_SetOne_AcceptedAsValid()
     {
         // Arrange
-        var query = new Query<Company>();
-
-        // Act
-        query.Take = 1;
+        var query = new Query<Company>
+        {
+            // Act
+            Take = 1
+        };
 
         // Assert
         Assert.Equal(1, query.Take);

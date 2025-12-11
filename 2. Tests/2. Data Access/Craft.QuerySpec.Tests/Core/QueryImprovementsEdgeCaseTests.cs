@@ -11,10 +11,11 @@ public class QueryImprovementsEdgeCaseTests
     public void Skip_WithMaxIntValue_DoesNotThrow()
     {
         // Arrange
-        var query = new Query<Company>();
-
-        // Act
-        query.Skip = int.MaxValue;
+        var query = new Query<Company>
+        {
+            // Act
+            Skip = int.MaxValue
+        };
 
         // Assert
         Assert.Equal(int.MaxValue, query.Skip);
@@ -24,10 +25,11 @@ public class QueryImprovementsEdgeCaseTests
     public void Take_WithMaxIntValue_DoesNotThrow()
     {
         // Arrange
-        var query = new Query<Company>();
-
-        // Act
-        query.Take = int.MaxValue;
+        var query = new Query<Company>
+        {
+            // Act
+            Take = int.MaxValue
+        };
 
         // Assert
         Assert.Equal(int.MaxValue, query.Take);
@@ -71,7 +73,7 @@ public class QueryImprovementsEdgeCaseTests
     {
         // Arrange
         var query = new Query<Company>();
-        query.Where(c => c.Name!.StartsWith("A"));
+        query.Where(c => c.Name!.StartsWith('A'));
         query.Where(c => c.Id > 100);
         query.OrderBy(c => c.Name!);
         query.OrderBy(c => c.Id); // This becomes ThenOrderBy automatically via SortOrderBuilder
@@ -119,7 +121,7 @@ public class QueryImprovementsEdgeCaseTests
         var query = new Query<Company>();
         query.Where(c => c.Id > 0);
         query.Where(c => c.Name!.Length > 2);
-        query.Where(c => c.Name!.StartsWith("C"));
+        query.Where(c => c.Name!.StartsWith('C'));
         var company = new Company { Id = 1, Name = "Company" };
 
         // Act
@@ -261,7 +263,7 @@ public class QueryImprovementsEdgeCaseTests
         var query = new Query<Company> { PostProcessingAction = null };
 
         // Act & Assert
-        var exception = Record.Exception(() => query.PostProcessingAction?.Invoke(new List<Company>()));
+        var exception = Record.Exception(() => query.PostProcessingAction?.Invoke([]));
         Assert.Null(exception);
     }
 
@@ -275,7 +277,7 @@ public class QueryImprovementsEdgeCaseTests
         };
 
         // Act
-        var result = query.PostProcessingAction(new List<Company>());
+        var result = query.PostProcessingAction([]);
 
         // Assert
         Assert.Empty(result);

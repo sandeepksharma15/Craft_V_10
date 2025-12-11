@@ -5,7 +5,7 @@ namespace Craft.Auditing.Tests.Extensions;
 
 public class AuditTrailQueryExtensionsTests
 {
-    private TestDbContext CreateContext()
+    private static TestDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TestDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())

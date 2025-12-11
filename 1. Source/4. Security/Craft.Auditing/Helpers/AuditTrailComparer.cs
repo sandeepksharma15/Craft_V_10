@@ -30,7 +30,7 @@ public static class AuditTrailComparer
             PreviousAudit = previous
         };
 
-        if (previous == null)
+        if (previous is null)
         {
             return comparison;
         }

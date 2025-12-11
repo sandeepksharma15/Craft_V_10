@@ -15,7 +15,7 @@ public class IHashKeysTests
 
         // Assert
         Assert.NotNull(hashKeys);
-        Assert.IsAssignableFrom<IHashKeys>(hashKeys);
+        Assert.IsType<IHashKeys>(hashKeys, exactMatch: false);
     }
 
     [Fact]

@@ -76,8 +76,8 @@ public class AuditTrailIntegrationTests : IDisposable
 
         var changedColumns = audit.GetChangedColumnsAsList();
         Assert.NotNull(changedColumns);
-        Assert.True(changedColumns.Any(c => c.Contains("Name")));
-        Assert.True(changedColumns.Any(c => c.Contains("Price")));
+        Assert.Contains(changedColumns, c => c.Contains("Name"));
+        Assert.Contains(changedColumns, c => c.Contains("Price"));
     }
 
     [Fact]

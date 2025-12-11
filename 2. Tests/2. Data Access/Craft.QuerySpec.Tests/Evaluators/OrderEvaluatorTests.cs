@@ -147,7 +147,7 @@ public class OrderEvaluatorTests
         query.OrderBy(x => x.Id);
 
         // Assert
-        Assert.Throws<ArgumentNullException>(() => evaluator.GetQuery<Company>(null, query));
+        Assert.Throws<ArgumentNullException>(() => evaluator.GetQuery(null!, query));
     }
 
     [Fact]

@@ -86,7 +86,7 @@ public class TenantTests
     {
         var tenant = new Tenant();
         
-        Assert.Equal(default(long), tenant.Id);
+        Assert.Equal(default, tenant.Id);
         Assert.Equal(string.Empty, tenant.Name);
         Assert.Equal(string.Empty, tenant.ConnectionString);
         Assert.Equal(TenantDbType.Shared, tenant.DbType);
