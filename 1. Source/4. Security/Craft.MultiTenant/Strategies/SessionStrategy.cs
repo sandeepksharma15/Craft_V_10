@@ -1,6 +1,4 @@
-﻿// Ensure That app.UseSession(); Is Before app.UseMultiTenancy(); In The Request Pipeline
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Craft.MultiTenant;
 

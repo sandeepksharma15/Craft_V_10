@@ -2,11 +2,6 @@ using Craft.Core;
 
 namespace Craft.MultiTenant;
 
-/// <summary>
-/// Service that provides access to the current tenant's information by wrapping
-/// the tenant context accessor and exposing essential tenant properties.
-/// </summary>
-/// <typeparam name="TKey">The type used to represent the tenant's ID.</typeparam>
 public class CurrentTenant<TKey> : ICurrentTenant<TKey>
 {
     private readonly ITenantContextAccessor _contextAccessor;
@@ -32,9 +27,6 @@ public class CurrentTenant<TKey> : ICurrentTenant<TKey>
     public TKey GetId() => Id;
 }
 
-/// <summary>
-/// Default implementation of ICurrentTenant using KeyType as the key type.
-/// </summary>
 public class CurrentTenant : CurrentTenant<KeyType>, ICurrentTenant
 {
     public CurrentTenant(ITenantContextAccessor contextAccessor) : base(contextAccessor)

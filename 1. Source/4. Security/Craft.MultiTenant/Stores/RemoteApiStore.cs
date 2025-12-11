@@ -15,20 +15,30 @@ public class RemoteApiStore<T> : ITenantStore<T> where T : class, ITenant, IEnti
         ArgumentNullException.ThrowIfNull(endpointTemplate, nameof(endpointTemplate));
 
         _client = client;
-        _endpointTemplate = endpointTemplate;
+
+        var templateForValidation = endpointTemplate;
+        if (!templateForValidation.Contains(EndpointIdentifierToken))
+        {
+            if (templateForValidation.EndsWith('/'))
+                templateForValidation = templateForValidation.TrimEnd('/');
+        }
+        else
+        {
+            templateForValidation = templateForValidation.Replace(EndpointIdentifierToken, "placeholder");
+        }
+
+        if (!Uri.IsWellFormedUriString(templateForValidation, UriKind.Absolute))
+            throw new ArgumentException("Parameter 'endpointTemplate' is not a well formed uri.", nameof(endpointTemplate));
+
+        if (!templateForValidation.StartsWith("https", StringComparison.OrdinalIgnoreCase)
+            && !templateForValidation.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Parameter 'endpointTemplate' is not an http or https uri.", nameof(endpointTemplate));
 
         if (!endpointTemplate.Contains(EndpointIdentifierToken))
             if (endpointTemplate.EndsWith('/'))
                 endpointTemplate += EndpointIdentifierToken;
             else
                 endpointTemplate += $"/{EndpointIdentifierToken}";
-
-        if (Uri.IsWellFormedUriString(endpointTemplate, UriKind.Absolute))
-            throw new ArgumentException("Parameter 'endpointTemplate' is not a well formed uri.", nameof(endpointTemplate));
-
-        if (!endpointTemplate.StartsWith("https", StringComparison.OrdinalIgnoreCase)
-            && !endpointTemplate.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException("Parameter 'endpointTemplate' is not an http or https uri.", nameof(endpointTemplate));
 
         _endpointTemplate = endpointTemplate;
     }

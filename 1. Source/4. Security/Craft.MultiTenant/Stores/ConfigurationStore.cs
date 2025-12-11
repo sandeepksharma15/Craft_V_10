@@ -41,7 +41,6 @@ public class ConfigurationStore<T> : ITenantStore<T> where T : class, ITenant, I
 
         foreach (var tenantSection in tenants)
         {
-            // Get The Default ConnectionString If It Is Available
             values = _section.GetSection("Defaults")
                 .Get<TenantConfigData>(options => options.BindNonPublicProperties = true) ?? new TenantConfigData();
 
@@ -55,7 +54,6 @@ public class ConfigurationStore<T> : ITenantStore<T> where T : class, ITenant, I
                 ConnectionString = values?.ConnectionString!
             };
 
-            // Throws an ArgumentNullException if the identifier is null.
             newMap.TryAdd(newTenant.Identifier!, newTenant);
         }
 
@@ -88,7 +86,6 @@ public class ConfigurationStore<T> : ITenantStore<T> where T : class, ITenant, I
 
     public async Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
-        // Return the tenant with type Host
         return await Task.FromResult(_tenantMap?.SingleOrDefault(kv => kv.Value.Type is TenantType.Host).Value);
     }
 

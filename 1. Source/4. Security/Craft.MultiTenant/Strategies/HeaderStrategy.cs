@@ -1,5 +1,4 @@
-﻿// Set A Request Header with Key as "__TENANT__" and value of the Tenant
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Craft.MultiTenant;
 

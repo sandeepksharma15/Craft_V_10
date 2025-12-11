@@ -28,7 +28,6 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         if (existing != null || existingByIdentifier != null)
             throw new MultiTenantException($"Tenant with Id '{entity.Id}' or Identifier '{entity.Identifier}' already exists.");
 
-        // Check that there is only one host tenant
         var host = await GetHostAsync(false, cancellationToken);
 
         return host is not null && entity.Type == TenantType.Host
@@ -120,9 +119,26 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
     public Task<long> GetCountAsync(CancellationToken cancellationToken = default)
         => _store.GetCountAsync(cancellationToken);
 
-    public Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
+    public async Task<T?> GetHostAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        T? result = null;
+
+        try
+        {
+            result = await _store.GetHostAsync(includeDetails, cancellationToken);
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+                if (result != null)
+                    _logger.LogDebug("GetHostAsync: Host tenant found");
+                else
+                    _logger.LogDebug("GetHostAsync: No host tenant found");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Exception in GetHostAsync");
+        }
+
+        return result;
     }
 
     public async Task<T> UpdateAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
@@ -130,32 +146,23 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         ArgumentNullException.ThrowIfNull(entity.Identifier, nameof(entity.Identifier));
 
-        try
+        ITenant? tenant = await GetByIdentifierAsync(entity.Identifier, false, cancellationToken);
+
+        if (tenant != null && tenant.Id != entity.Id)
+            throw new MultiTenantException($"Tenant with identifier \"{entity.Identifier}\" already exists.");
+
+        if (entity.Type == TenantType.Host)
         {
-            // Check that there is no duplicate identifier
-            ITenant? tenant = await GetByIdentifierAsync(entity.Identifier, false, cancellationToken);
+            ITenant? host = await GetHostAsync(false, cancellationToken);
 
-            if (tenant != null && tenant.Id != entity.Id)
-                throw new MultiTenantException($"Tenant with identifier \"{entity.Identifier}\" already exists.");
-
-            // Check that there is only one host tenant
-            if (entity.Type == TenantType.Host)
-            {
-                ITenant? host = await GetHostAsync(false, cancellationToken);
-
-                if (host != null && host.Id != entity.Id)
-                    throw new MultiTenantException("There is already a host tenant.");
-            }
-
-            var existing = await GetAsync(entity.Id, false, cancellationToken);
-
-            if (existing is not null)
-                entity = await _store.UpdateAsync(entity, autoSave, cancellationToken);
+            if (host != null && host.Id != entity.Id)
+                throw new MultiTenantException("There is already a host tenant.");
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Exception in UpdateAsync");
-        }
+
+        var existing = await GetAsync(entity.Id, false, cancellationToken);
+
+        if (existing is not null)
+            entity = await _store.UpdateAsync(entity, autoSave, cancellationToken);
 
         return entity;
     }

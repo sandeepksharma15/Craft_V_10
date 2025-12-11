@@ -52,7 +52,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
 
     public TenantBuilder<T> WithCacheStore()
     {
-        // Use the new overload to let DI resolve dependencies
         return WithStore<CacheStore<T>>(ServiceLifetime.Singleton);
     }
 
@@ -65,7 +64,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
 
             options.Events.OnValidatePrincipal = async context =>
             {
-                // Skip if bypass set (e.g. ClaimStrategy in effect)
                 if (context.HttpContext.Items.ContainsKey($"{TenantConstants.TenantToken}__bypass_validate_principal__"))
                     return;
 
@@ -82,9 +80,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
     public TenantBuilder<T> WithConfigurationStore(IConfiguration configuration, string sectionName)
         => WithStore<ConfigurationStore<T>>(ServiceLifetime.Singleton, configuration, sectionName);
 
-    /// <summary>
-    /// builder.Services.AddMultiTenancy<Tenant>().WithDelegateStrategy(_ => Task.FromResult("localhost"));
-    /// </summary>
     public TenantBuilder<T> WithDelegateStrategy(Func<object, Task<string>> doStrategy)
     {
         ArgumentNullException.ThrowIfNull(doStrategy, nameof(doStrategy));
@@ -160,9 +155,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
         return WithStrategy<SessionStrategy>(ServiceLifetime.Singleton, tenantKey);
     }
 
-    /// <summary>
-    /// builder.Services.AddMultiTenancy<Tenant>().WithStaticStrategy("localhost").WithStore<InMemoryTenantStore>();
-    /// </summary>
     public TenantBuilder<T> WithStaticStrategy(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier, nameof(identifier));
@@ -170,7 +162,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
         return WithStrategy<StaticStrategy>(ServiceLifetime.Singleton, [identifier]);
     }
 
-    // New overload: Registers TStore directly, letting DI resolve dependencies
     public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime)
         where TStore : ITenantStore<T>
     {
@@ -187,7 +178,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
     {
         ArgumentNullException.ThrowIfNull(factory, nameof(factory));
 
-        // Potential for multiple entries per service is intended
         _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<T>),
             sp => factory(sp),
             lifetime));
@@ -206,7 +196,6 @@ public class TenantBuilder<T>(IServiceCollection services) where T : class, ITen
     {
         ArgumentNullException.ThrowIfNull(factory, nameof(factory));
 
-        // Potential for multiple entries per service is intended
         _services.Add(ServiceDescriptor.Describe(typeof(ITenantStrategy),
             sp => factory(sp),
             lifetime));

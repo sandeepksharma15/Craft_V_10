@@ -1,6 +1,4 @@
-﻿// builder.Services.AddMultiTenancy<Tenant>().WithStaticStrategy("localhost").
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Craft.MultiTenant;
 

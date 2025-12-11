@@ -6,6 +6,8 @@ public class SubDomainStrategy : ITenantStrategy
 {
     public Task<string?> GetIdentifierAsync(HttpContext context)
     {
+        ArgumentNullException.ThrowIfNull(context, nameof(context));
+
         string? _identifier = null;
 
         var _hostList = context.Request.Host.Host.Split('.');

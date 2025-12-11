@@ -8,7 +8,6 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
 {
     protected readonly InMemoryStoreOptions<T> _options;
     protected readonly ConcurrentDictionary<string, T> _tenantMap;
-    protected readonly int tenantId = 1;
 
     public InMemoryStore(IOptions<InMemoryStoreOptions<T>> options)
     {
@@ -21,19 +20,20 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
 
         _tenantMap = new ConcurrentDictionary<string, T>(stringComparer);
 
+        long nextId = 1;
         foreach (var tenant in _options.Tenants)
         {
-            // Configuration is not able to read the TenantId from the configuration file
-            // since I have started using a custom data type for TenantId. So, I am using this hack as
-            // of now to assign a TenantId to the tenant.
-            tenant.Id = tenantId++;
-
             if (tenant.Id == default)
-                throw new MultiTenantException("Missing Tenant Id in options");
-            if (_tenantMap.Values.SingleOrDefault(ti => ti.Id == tenant.Id) is not null)
+                tenant.Id = nextId++;
+            else
+                nextId = tenant.Id + 1;
+
+            if (_tenantMap.Values.Any(ti => ti.Id == tenant.Id))
                 throw new MultiTenantException("Duplicate Tenant Id in options");
+
             if (tenant.Identifier.IsNullOrWhiteSpace())
                 throw new MultiTenantException("Missing Tenant Identifier in options");
+
             if (_tenantMap.ContainsKey(tenant.Identifier))
                 throw new MultiTenantException("Duplicate Tenant Identifier in options");
 
@@ -96,10 +96,6 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
             ? throw new MultiTenantException($"Problem updating the Tenant: {entity.Identifier}")
             : await Task.FromResult(entity);
     }
-
-    #region CRUD Members Not Implemented
-
-    #endregion
 }
 
 public class InMemoryStore(IOptions<InMemoryStoreOptions<Tenant>> options)
