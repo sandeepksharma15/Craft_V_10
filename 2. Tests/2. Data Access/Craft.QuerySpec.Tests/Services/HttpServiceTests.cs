@@ -788,6 +788,181 @@ public class HttpServiceTests
         Assert.Null(getPagedListResult.Data);
     }
 
+    [Fact]
+    public async Task DeleteAsync_HandlesNetworkError()
+    {
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("Network error"));
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
+        var query = new DummyQuery<DummyEntity>();
+
+        var result = await service.DeleteAsync(query);
+
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
+        Assert.Contains("Network error", result.Errors);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_HandlesNetworkError()
+    {
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("Network failure"));
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
+        var query = new DummyQuery<DummyEntity>();
+
+        var result = await service.GetAllAsync(query);
+
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
+        Assert.Contains("Network failure", result.Errors);
+    }
+
+    [Fact]
+    public async Task GetAsync_SetsStatusCode_OnSuccess()
+    {
+        var entity = new DummyEntity { Id = 42 };
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(entity), Encoding.UTF8, "application/json")
+        };
+        var httpClient = CreateHttpClient(response);
+        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
+        var query = new DummyQuery<DummyEntity>();
+
+        var result = await service.GetAsync(query);
+
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetCountAsync_SetsStatusCode_OnSuccess()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(42L), Encoding.UTF8, "application/json")
+        };
+        var httpClient = CreateHttpClient(response);
+        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
+        var query = new DummyQuery<DummyEntity>();
+
+        var result = await service.GetCountAsync(query);
+
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsync_HandlesNetworkError()
+    {
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("Connection timeout"));
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
+        var query = new DummyQuery<DummyEntity>();
+
+        var result = await service.GetPagedListAsync(query);
+
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
+        Assert.Contains("Connection timeout", result.Errors);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_Projected_LogsDebug_WhenLoggerEnabled()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("[]", Encoding.UTF8, "application/json")
+        };
+        var httpClient = CreateHttpClient(response);
+        var loggerMock = new Mock<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        loggerMock.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, loggerMock.Object);
+        var query = new DummyQuery<DummyEntity, DummyDto>();
+
+        await service.GetAllAsync<DummyDto>(query);
+
+        loggerMock.Verify(x => x.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("GetAllAsync") && v.ToString()!.Contains("DummyDto")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAsync_Projected_LogsDebug_WhenLoggerEnabled()
+    {
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("null", Encoding.UTF8, "application/json")
+        };
+        var httpClient = CreateHttpClient(response);
+        var loggerMock = new Mock<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        loggerMock.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, loggerMock.Object);
+        var query = new DummyQuery<DummyEntity, DummyDto>();
+
+        await service.GetAsync<DummyDto>(query);
+
+        loggerMock.Verify(x => x.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("GetAsync") && v.ToString()!.Contains("DummyDto")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsync_Projected_LogsDebug_WhenLoggerEnabled()
+    {
+        var entities = new List<DummyDto> { new() { Id = 1 } };
+        var page = new PageResponse<DummyDto>(entities, 1, 1, 1);
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
+        };
+        var httpClient = CreateHttpClient(response);
+        var loggerMock = new Mock<ILogger<HttpService<DummyEntity, DummyView, DummyDto, int>>>();
+        loggerMock.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
+        var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, loggerMock.Object);
+        var query = new DummyQuery<DummyEntity, DummyDto>();
+
+        await service.GetPagedListAsync<DummyDto>(query);
+
+        loggerMock.Verify(x => x.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("GetPagedListAsync") && v.ToString()!.Contains("DummyDto")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
     // --- Dummy types and helpers ---
     public class DummyEntity : Craft.Domain.IEntity<int>, Craft.Domain.IModel<int>
     {
