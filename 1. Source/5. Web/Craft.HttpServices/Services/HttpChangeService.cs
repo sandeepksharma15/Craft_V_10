@@ -46,13 +46,6 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         );
     }
 
-    public virtual async Task<HttpServiceResult<List<T>?>> AddRangeAsync(IEnumerable<ViewT> models, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(models, nameof(models));
-
-        return await AddRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
-    }
-
     public virtual async Task<HttpServiceResult<bool>> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id, nameof(id));
@@ -79,13 +72,6 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
             () => _httpClient.PutAsJsonAsync(new Uri($"{_apiURL}/RemoveRange"), dtos, cancellationToken: cancellationToken),
             cancellationToken
         );
-    }
-
-    public virtual async Task<HttpServiceResult<bool>> DeleteRangeAsync(IEnumerable<ViewT> models, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(models, nameof(models));
-
-        return await DeleteRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 
     public virtual async Task<HttpServiceResult<T?>> UpdateAsync(ViewT model, CancellationToken cancellationToken = default)
@@ -118,13 +104,6 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
             async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
             cancellationToken
         );
-    }
-
-    public virtual async Task<HttpServiceResult<List<T>?>> UpdateRangeAsync(IEnumerable<ViewT> models, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(models, nameof(models));
-
-        return await UpdateRangeAsync(models is IReadOnlyCollection<ViewT> c ? c : models.ToList(), cancellationToken).ConfigureAwait(false);
     }
 }
 

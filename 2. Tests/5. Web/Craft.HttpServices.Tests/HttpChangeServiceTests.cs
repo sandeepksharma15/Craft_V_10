@@ -9,6 +9,18 @@ namespace Craft.HtppServices.Tests;
 public class HttpChangeServiceTests
 {
     [Fact]
+    public async Task AddAsync_ThrowsArgumentNullException_WhenModelIsNull()
+    {
+        // Arrange
+        var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.AddAsync(null!));
+    }
+
+    [Fact]
     public async Task AddAsync_ReturnsSuccessResult_WhenResponseIsSuccess()
     {
         // Arrange
@@ -79,12 +91,15 @@ public class HttpChangeServiceTests
     public async Task AddAsync_RespectsCancellationToken()
     {
         // Arrange
-        var expected = new DummyEntity { Id = 1 };
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(expected), System.Text.Encoding.UTF8, "application/json")
-        };
-        var httpClient = CreateHttpClient(response);
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new OperationCanceledException());
+        var httpClient = new HttpClient(handlerMock.Object);
         var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
         var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
         using var cts = new CancellationTokenSource();
@@ -92,6 +107,44 @@ public class HttpChangeServiceTests
         // Act & Assert
         cts.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.AddAsync(new DummyView { Id = 1 }, cts.Token));
+    }
+
+    [Fact]
+    public async Task AddAsync_LogsDebug_WhenLoggerEnabled()
+    {
+        // Arrange
+        var expected = new DummyEntity { Id = 42 };
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(expected), System.Text.Encoding.UTF8, "application/json")
+        };
+        var httpClient = CreateHttpClient(response);
+        var loggerMock = new Mock<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        loggerMock.Setup(x => x.IsEnabled(LogLevel.Debug)).Returns(true);
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, loggerMock.Object);
+
+        // Act
+        await service.AddAsync(new DummyView { Id = 42 });
+
+        // Assert
+        loggerMock.Verify(x => x.Log(
+            LogLevel.Debug,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("AddAsync")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task AddRangeAsync_ThrowsArgumentNullException_WhenModelsIsNull()
+    {
+        // Arrange
+        var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.AddRangeAsync(null!));
     }
 
     [Fact]
@@ -187,6 +240,28 @@ public class HttpChangeServiceTests
     }
 
     [Fact]
+    public async Task AddRangeAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new OperationCanceledException());
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.AddRangeAsync([new DummyView { Id = 1 }], cts.Token));
+    }
+
+    [Fact]
     public async Task DeleteAsync_ReturnsSuccessResult_WhenResponseIsSuccess()
     {
         // Arrange
@@ -249,6 +324,52 @@ public class HttpChangeServiceTests
     }
 
     [Fact]
+    public async Task DeleteAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new OperationCanceledException());
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.DeleteAsync(1, cts.Token));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ThrowsArgumentNullException_WhenUsingReferenceTypeKey()
+    {
+        // Arrange
+        var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntityWithStringKey, DummyViewWithStringKey, DummyDtoWithStringKey, string>>>();
+        var service = new HttpChangeService<DummyEntityWithStringKey, DummyViewWithStringKey, DummyDtoWithStringKey, string>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.DeleteAsync(null!));
+    }
+
+    [Fact]
+    public async Task DeleteRangeAsync_ThrowsArgumentNullException_WhenModelsIsNull()
+    {
+        // Arrange
+        var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.DeleteRangeAsync(null!));
+    }
+
+    [Fact]
     public async Task DeleteRangeAsync_ReturnsSuccessResult_WhenResponseIsSuccess()
     {
         // Arrange
@@ -308,6 +429,40 @@ public class HttpChangeServiceTests
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete range plain error", result.Errors);
+    }
+
+    [Fact]
+    public async Task DeleteRangeAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new OperationCanceledException());
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.DeleteRangeAsync([new DummyView { Id = 1 }], cts.Token));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ThrowsArgumentNullException_WhenModelIsNull()
+    {
+        // Arrange
+        var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.UpdateAsync(null!));
     }
 
     [Fact]
@@ -375,6 +530,40 @@ public class HttpChangeServiceTests
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update plain error", result.Errors);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new OperationCanceledException());
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.UpdateAsync(new DummyView { Id = 99 }, cts.Token));
+    }
+
+    [Fact]
+    public async Task UpdateRangeAsync_ThrowsArgumentNullException_WhenModelsIsNull()
+    {
+        // Arrange
+        var httpClient = CreateHttpClient(new HttpResponseMessage(HttpStatusCode.OK));
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.UpdateRangeAsync(null!));
     }
 
     [Fact]
@@ -469,6 +658,53 @@ public class HttpChangeServiceTests
         Assert.Null(result.Errors);
     }
 
+    [Fact]
+    public async Task UpdateRangeAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new OperationCanceledException());
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.UpdateRangeAsync([new DummyView { Id = 5 }], cts.Token));
+    }
+
+    [Fact]
+    public async Task UpdateRangeAsync_HandlesNetworkError()
+    {
+        // Arrange
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("Network failure"));
+        var httpClient = new HttpClient(handlerMock.Object);
+        var logger = Mock.Of<ILogger<HttpChangeService<DummyEntity, DummyView, DummyDto, int>>>();
+        var service = new HttpChangeService<DummyEntity, DummyView, DummyDto, int>(new Uri("http://localhost/api"), httpClient, logger);
+
+        // Act
+        var result = await service.UpdateRangeAsync([new DummyView { Id = 5 }]);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
+        Assert.Contains("Network failure", result.Errors);
+    }
+
     public class DummyEntity : Craft.Domain.IEntity<int>, Craft.Domain.IModel<int>
     {
         public int Id { get; set; }
@@ -496,5 +732,20 @@ public class HttpChangeServiceTests
             .ReturnsAsync(response)
             .Verifiable();
         return new HttpClient(handlerMock.Object);
+    }
+
+    public class DummyEntityWithStringKey : Craft.Domain.IEntity<string>, Craft.Domain.IModel<string>
+    {
+        public string Id { get; set; } = string.Empty;
+    }
+
+    public class DummyViewWithStringKey : Craft.Domain.IModel<string>
+    {
+        public string Id { get; set; } = string.Empty;
+    }
+
+    public class DummyDtoWithStringKey : Craft.Domain.IModel<string>
+    {
+        public string Id { get; set; } = string.Empty;
     }
 }

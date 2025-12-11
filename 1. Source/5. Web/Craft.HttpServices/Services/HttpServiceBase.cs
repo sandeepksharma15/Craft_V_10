@@ -90,9 +90,6 @@ public abstract class HttpServiceBase
             return Task.FromResult(result);
         }
 
-        // Debug: Mark method entry
-        // System.Diagnostics.Debug.WriteLine("SendAndParseAsync started.");
-
         try
         {
             return HandleHttpOperationAsync(
@@ -112,8 +109,6 @@ public abstract class HttpServiceBase
         }
         catch (Exception ex)
         {
-            // Debug: Log exception
-            // System.Diagnostics.Debug.WriteLine($"SendAndParseAsync exception: {ex}");
             var result = new HttpServiceResult<TResult?>
             {
                 Success = false,
@@ -122,8 +117,6 @@ public abstract class HttpServiceBase
 
             return Task.FromResult(result);
         }
-        // Debug: Mark method exit (not reached if exception thrown)
-        // System.Diagnostics.Debug.WriteLine("SendAndParseAsync completed.");
     }
 
     protected static Task<HttpServiceResult<bool>> SendAndParseNoContentAsync(
