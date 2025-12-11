@@ -29,7 +29,7 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        result.State = EntityState.Detached;
+        _appDbContext.Entry(entity).State = EntityState.Detached;
 
         return result.Entity;
     }
@@ -89,18 +89,30 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
-        if (entityList.Any(entity => entity is ISoftDelete))
+        var softDeleteEntities = new List<T>();
+        var hardDeleteEntities = new List<T>();
+
+        foreach (var entity in entityList)
         {
-            foreach (var entity in entityList)
+            if (entity is ISoftDelete)
+                softDeleteEntities.Add(entity);
+            else
+                hardDeleteEntities.Add(entity);
+        }
+
+        if (softDeleteEntities.Count > 0)
+        {
+            foreach (var entity in softDeleteEntities)
             {
-                ISoftDelete softDeleteEntity = (ISoftDelete)entity;
+                var softDeleteEntity = (ISoftDelete)entity;
                 softDeleteEntity.IsDeleted = true;
             }
 
-            _dbSet.UpdateRange(entityList);
+            _dbSet.UpdateRange(softDeleteEntities);
         }
-        else
-            _dbSet.RemoveRange(entityList);
+
+        if (hardDeleteEntities.Count > 0)
+            _dbSet.RemoveRange(hardDeleteEntities);
 
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -119,14 +131,14 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[ChangeRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"UpdateAsync\"] Id: [\"{entity.Id}\"]");
 
-        var result = _dbSet.Update(entity);
+        _dbSet.Update(entity);
 
         if (autoSave)
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        result.State = EntityState.Detached;
+        _appDbContext.Entry(entity).State = EntityState.Detached;
 
-        return result.Entity;
+        return entity;
     }
 
     /// <inheritdoc/>

@@ -468,4 +468,173 @@ public class ChangeRepositoryTests
         Assert.Contains(context.Countries!.OfType<Country>(), c => c.Name == "SoftDelete1" && c.IsDeleted);
         Assert.Contains(context.Countries!.OfType<Country>(), c => c.Name == "SoftDelete2" && c.IsDeleted);
     }
+
+    [Fact]
+    public async Task DeleteRangeAsync_HandlesMixedEntities_WhenSomeImplementISoftDelete()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+
+        var softDeleteLogger = new Logger<ChangeRepository<Country, KeyType>>(new LoggerFactory());
+        var softDeleteRepo = new ChangeRepository<Country, KeyType>(context, softDeleteLogger);
+
+        var hardDeleteLogger = new Logger<ChangeRepository<NoSoftDeleteEntity, KeyType>>(new LoggerFactory());
+        var hardDeleteRepo = new ChangeRepository<NoSoftDeleteEntity, KeyType>(context, hardDeleteLogger);
+
+        var softDeleteCountries = new List<Country> {
+            new() { Name = "SoftDelete1" },
+            new() { Name = "SoftDelete2" }
+        };
+
+        var hardDeleteEntities = new List<NoSoftDeleteEntity> {
+            new() { Desc = "HardDelete1" },
+            new() { Desc = "HardDelete2" }
+        };
+
+        // Act
+        await softDeleteRepo.AddRangeAsync(softDeleteCountries);
+        await hardDeleteRepo.AddRangeAsync(hardDeleteEntities);
+
+        await softDeleteRepo.DeleteRangeAsync(softDeleteCountries);
+        await hardDeleteRepo.DeleteRangeAsync(hardDeleteEntities);
+
+        // Assert - soft delete entities should still exist but marked deleted
+        Assert.All(softDeleteCountries, c => Assert.True(c.IsDeleted));
+        Assert.Contains(context.Countries!, c => c.Name == "SoftDelete1" && c.IsDeleted);
+        Assert.Contains(context.Countries!, c => c.Name == "SoftDelete2" && c.IsDeleted);
+
+        // Assert - hard delete entities should be removed
+        Assert.DoesNotContain(context.NoSoftDeleteEntities!, e => e.Desc == "HardDelete1");
+        Assert.DoesNotContain(context.NoSoftDeleteEntities!, e => e.Desc == "HardDelete2");
+    }
+
+    [Fact]
+    public async Task DeleteRangeAsync_HandlesEmptyList()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var emptyList = new List<Country>();
+
+        // Act
+        var result = await repo.DeleteRangeAsync(emptyList);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task AddAsync_DetachesEntityAfterSave()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var country = new Country { Name = "TestCountry" };
+
+        // Act
+        var result = await repo.AddAsync(country);
+
+        // Assert
+        Assert.Equal(EntityState.Detached, context.Entry(result).State);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_DetachesEntityAfterSave()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var country = new Country { Name = "OldName" };
+        await repo.AddAsync(country);
+        country.Name = "NewName";
+
+        // Act
+        var result = await repo.UpdateAsync(country);
+
+        // Assert
+        Assert.Equal(EntityState.Detached, context.Entry(result).State);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_DetachesEntityAfterSave()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var country = new Country { Name = "ToDelete" };
+        await repo.AddAsync(country);
+
+        // Act
+        var result = await repo.DeleteAsync(country);
+
+        // Assert
+        Assert.Equal(EntityState.Detached, context.Entry(result).State);
+    }
+
+    [Fact]
+    public async Task AddRangeAsync_DetachesAllEntitiesAfterSave()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var countries = new List<Country> {
+            new() { Name = "Country1" },
+            new() { Name = "Country2" }
+        };
+
+        // Act
+        var result = await repo.AddRangeAsync(countries);
+
+        // Assert
+        Assert.All(result, entity => Assert.Equal(EntityState.Detached, context.Entry(entity).State));
+    }
+
+    [Fact]
+    public async Task UpdateRangeAsync_DetachesAllEntitiesAfterSave()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var countries = new List<Country> {
+            new() { Name = "Country1" },
+            new() { Name = "Country2" }
+        };
+        await repo.AddRangeAsync(countries);
+        countries.ForEach(c => c.Name = $"Updated{c.Name}");
+
+        // Act
+        var result = await repo.UpdateRangeAsync(countries);
+
+        // Assert
+        Assert.All(result, entity => Assert.Equal(EntityState.Detached, context.Entry(entity).State));
+    }
+
+    [Fact]
+    public async Task DeleteRangeAsync_DetachesAllEntitiesAfterSave()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        var repo = CreateRepository(context);
+        var countries = new List<Country> {
+            new() { Name = "ToDelete1" },
+            new() { Name = "ToDelete2" }
+        };
+        await repo.AddRangeAsync(countries);
+
+        // Act
+        var result = await repo.DeleteRangeAsync(countries);
+
+        // Assert
+        Assert.All(result, entity => Assert.Equal(EntityState.Detached, context.Entry(entity).State));
+    }
 }

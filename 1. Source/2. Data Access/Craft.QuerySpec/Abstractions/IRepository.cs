@@ -7,22 +7,22 @@ namespace Craft.QuerySpec;
 public interface IRepository<T, TKey> : IChangeRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
     /// <summary>
-    /// Get a single entity by the given <paramref name="query"/>; returns null if no entry meets criteria
+    /// Get a single entity by the given <paramref name="query"/>; returns null if no entry meets criteria.
     /// </summary>
     /// <param name="query">
-    ///     A Query containing filtering parameters
-    ///     It throws <see cref="InvalidOperationException"/> if there are multiple entities with the given <paramref name="predicate"/>.
+    ///     A Query containing filtering parameters.
+    ///     It throws <see cref="InvalidOperationException"/> if there are multiple entities matching the given <paramref name="query"/>.
     /// </param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The entity</returns>
     Task<T?> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get TResult by the given <paramref name="query"/>; returns null if no entry meets criteria
+    /// Get TResult by the given <paramref name="query"/>; returns null if no entry meets criteria.
     /// </summary>
     /// <param name="query">
-    ///     A Query containing filtering parameters
-    ///     It throws <see cref="InvalidOperationException"/> if there are multiple entities with the given <paramref name="predicate"/>.
+    ///     A Query containing filtering parameters.
+    ///     It throws <see cref="InvalidOperationException"/> if there are multiple entities matching the given <paramref name="query"/>.
     /// </param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>TResult</returns>

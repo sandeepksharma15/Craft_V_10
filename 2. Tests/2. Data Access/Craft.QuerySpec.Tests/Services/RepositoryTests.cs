@@ -444,27 +444,22 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var repo = CreateRepository(context);
-        var countries = new List<Country> {
-            new() { Name = "A" },
-            new() { Name = "B" },
-            new() { Name = "C" }
-        };
-        context.Countries?.AddRange(countries);
+        var country = new Country { Name = "TestCountry" };
+        context.Countries?.Add(country);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
         // Act
         var query = new Query<Country, CountryDto>
         {
-            Skip = 1,
-            Take = 1,
             QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
         };
-        var page = await repo.GetPagedListAsync(query);
+        query.Where(c => c.Name == "TestCountry");
+        var result = await repo.GetAsync(query);
 
         // Assert
-        Assert.Single(page.Items);
-        Assert.Equal(5, page.TotalCount);
+        Assert.NotNull(result);
+        Assert.Equal("TestCountry", result!.Name);
     }
 
     [Fact]
@@ -514,23 +509,23 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var repo = CreateRepository(context);
-        var countries = new List<Country> { new() { Name = "A" }, new() { Name = "B" } };
-        context.Countries?.AddRange(countries);
+        var country = new Country { Name = "TestCountry" };
+        context.Countries?.Add(country);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
-        // Create a query to get paged list
+        // Create a query to get the country
         var query = new Query<Country, CountryDto>
         {
-            Skip = 0,
-            Take = 1,
-            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>().Add(c => c.Name!, d => d.Name!)
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
         };
+        query.Where(c => c.Name == "TestCountry");
         using var cts = new CancellationTokenSource();
 
         // Act & Assert
         cts.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetPagedListAsync(query, cts.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repo.GetAsync(query, cts.Token));
     }
 
     [Fact]
@@ -657,14 +652,265 @@ public class RepositoryTests
     }
 
     [Fact]
-    public async Task GetAllAsyncTResult_ThrowsArgumentNullException_WhenQueryIsNull()
+    public async Task GetAsync_ThrowsInvalidOperationException_WhenMultipleMatches()
     {
         // Arrange
         await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
         var repo = CreateRepository(context);
+        var countries = new List<Country> { 
+            new() { Name = "Test" }, 
+            new() { Name = "Test" } 
+        };
+        context.Countries?.AddRange(countries);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.GetAllAsync<CountryDto>(null!));
+        IQuery<Country> query = new Query<Country>();
+        query.Where(c => c.Name == "Test");
+        
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => repo.GetAsync(query));
+        Assert.Equal("Sequence contains more than one matching element.", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetAsyncTResult_ThrowsInvalidOperationException_WhenMultipleMatches()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        var countries = new List<Country> { 
+            new() { Name = "Test" }, 
+            new() { Name = "Test" } 
+        };
+        context.Countries?.AddRange(countries);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        // Act & Assert
+        var query = new Query<Country, CountryDto>
+        {
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
+        };
+        query.Where(c => c.Name == "Test");
+        
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => repo.GetAsync(query));
+        Assert.Equal("Sequence contains more than one matching element.", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetAsync_HandlesEmptyResults_Efficiently()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+
+        // Act
+        IQuery<Country> query = new Query<Country>();
+        query.Where(c => c.Name == "NonExistent");
+        var result = await repo.GetAsync(query);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetAsyncTResult_HandlesEmptyResults_Efficiently()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+
+        // Act
+        var query = new Query<Country, CountryDto>
+        {
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
+        };
+        query.Where(c => c.Name == "NonExistent");
+        var result = await repo.GetAsync(query);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsync_ValidatesSkipParameter()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        var query = new Query<Country> { Take = 10 }; // Skip is null
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => repo.GetPagedListAsync(query));
+        Assert.Contains("Skip must be set and non-negative", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsync_ValidatesTakeParameter()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        var query = new Query<Country> { Skip = 0 }; // Take is null
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => repo.GetPagedListAsync(query));
+        Assert.Contains("Page size (Take) must be set and greater than zero", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsync_HandlesEmptyResults()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        IQuery<Country> query = new Query<Country> { Skip = 0, Take = 10 };
+        query.Where(c => c.Name == "NonExistent");
+
+        // Act
+        var page = await repo.GetPagedListAsync(query);
+
+        // Assert
+        Assert.Empty(page.Items);
+        Assert.Equal(0, page.TotalCount);
+        Assert.Equal(1, page.CurrentPage);
+        Assert.Equal(10, page.PageSize);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsyncTResult_HandlesEmptyResults()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        var query = new Query<Country, CountryDto> 
+        { 
+            Skip = 0, 
+            Take = 10,
+            QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
+                .Add(c => c.Name!, d => d.Name!)
+        };
+        query.Where(c => c.Name == "NonExistent");
+
+        // Act
+        var page = await repo.GetPagedListAsync(query);
+
+        // Assert
+        Assert.Empty(page.Items);
+        Assert.Equal(0, page.TotalCount);
+        Assert.Equal(1, page.CurrentPage);
+        Assert.Equal(10, page.PageSize);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_HandlesEmptyQueryResults()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        IQuery<Country> query = new Query<Country>();
+        query.Where(c => c.Name == "NonExistent");
+
+        // Act & Assert - Should not throw
+        await repo.DeleteAsync(query);
+    }
+
+    [Fact]
+    public async Task GetCountAsync_HandlesEmptyResults()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        IQuery<Country> query = new Query<Country>();
+        query.Where(c => c.Name == "NonExistent");
+
+        // Act
+        var count = await repo.GetCountAsync(query);
+
+        // Assert
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_HandlesLargeDataSets()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        
+        // Clear any seeded data first
+        var existing = await context.Countries!.ToListAsync();
+        context.Countries!.RemoveRange(existing);
+        await context.SaveChangesAsync();
+        
+        var countries = Enumerable.Range(1, 1000)
+            .Select(i => new Country { Name = $"Country{i}" })
+            .ToList();
+        context.Countries?.AddRange(countries);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        // Act
+        IQuery<Country> query = new Query<Country>();
+        query.Where(c => c.Name!.StartsWith("Country"));
+        var result = await repo.GetAllAsync(query);
+
+        // Assert
+        Assert.Equal(1000, result.Count);
+    }
+
+    [Fact]
+    public async Task GetPagedListAsync_CalculatesCorrectPageNumber()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+        var countries = Enumerable.Range(1, 100)
+            .Select(i => new Country { Name = $"Country{i}" })
+            .ToList();
+        context.Countries?.AddRange(countries);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        // Act - Get page 3 with page size 10
+        IQuery<Country> query = new Query<Country> { Skip = 20, Take = 10 };
+        var page = await repo.GetPagedListAsync(query);
+
+        // Assert
+        Assert.Equal(3, page.CurrentPage);
+        Assert.Equal(10, page.PageSize);
+        Assert.True(page.TotalCount >= 100);
     }
 
     // DTO for projection tests

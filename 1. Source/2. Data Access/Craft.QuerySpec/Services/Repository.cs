@@ -49,11 +49,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
-        // Defensive: avoid IndexOutOfRangeException if no match
-        var queryable = _dbSet.WithQuery(query);
-
-        if (queryable.Any())
-            queryable = queryable.Take(2); // Limit to 2 to check for multiple matches  
+        var queryable = _dbSet.WithQuery(query).Take(2);
 
         var list = await queryable
             .ToListSafeAsync(cancellationToken)
@@ -61,7 +57,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         return list.Count == 0
             ? null
-            : list.Count > 1 ? throw new InvalidOperationException("Sequence contains more than one matching element.") : list[0];
+            : list.Count > 1 
+                ? throw new InvalidOperationException("Sequence contains more than one matching element.") 
+                : list[0];
     }
 
     /// <inheritdoc />
@@ -73,11 +71,7 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
-        // Defensive: avoid IndexOutOfRangeException if no match
-        var queryable = _dbSet.WithQuery(query);
-
-        if (queryable.Any())
-            queryable = queryable.Take(2); // Limit to 2 to check for multiple matches  
+        var queryable = _dbSet.WithQuery(query).Take(2);
 
         var list = await queryable
             .ToListSafeAsync(cancellationToken)
@@ -85,7 +79,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 
         return list is null || list.Count == 0
             ? null
-            : list.Count > 1 ? throw new InvalidOperationException("Sequence contains more than one matching element.") : list[0];
+            : list.Count > 1 
+                ? throw new InvalidOperationException("Sequence contains more than one matching element.") 
+                : list[0];
     }
 
     /// <inheritdoc />
