@@ -17,7 +17,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
 		<PackageReference Include="itext" Version="9.4.0" />
 		<!-- Override vulnerable transitive dependency from itext package -->
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 
 </Project>
