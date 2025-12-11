@@ -15,6 +15,17 @@ public class DoNotAuditAttributeTests
     }
 
     [Fact]
+    public void DoNotAuditAttribute_CanBeAppliedToProperty()
+    {
+        // Arrange & Act
+        var propertyInfo = typeof(DummyClassWithNonAuditedProperty).GetProperty(nameof(DummyClassWithNonAuditedProperty.NonAuditedProperty));
+        var attr = propertyInfo?.GetCustomAttribute<DoNotAuditAttribute>();
+
+        // Assert
+        Assert.NotNull(attr);
+    }
+
+    [Fact]
     public void DoNotAuditAttribute_AttributeUsage_IsCorrect()
     {
         // Arrange & Act
@@ -23,7 +34,7 @@ public class DoNotAuditAttributeTests
 
         // Assert
         Assert.NotNull(usage);
-        Assert.Equal(AttributeTargets.Class, usage.ValidOn);
+        Assert.Equal(AttributeTargets.Class | AttributeTargets.Property, usage.ValidOn);
         Assert.False(usage.Inherited);
     }
 
@@ -53,6 +64,32 @@ public class DoNotAuditAttributeTests
         Assert.False(hasAttribute);
     }
 
+    [Fact]
+    public void DoNotAuditAttribute_PropertyExtension_DetectsAttributeCorrectly()
+    {
+        // Arrange
+        var propertyInfo = typeof(DummyClassWithNonAuditedProperty).GetProperty(nameof(DummyClassWithNonAuditedProperty.NonAuditedProperty));
+
+        // Act
+        var hasAttribute = propertyInfo?.HasDoNotAuditAttribute();
+
+        // Assert
+        Assert.True(hasAttribute);
+    }
+
+    [Fact]
+    public void DoNotAuditAttribute_PropertyExtension_ReturnsFalseForRegularProperty()
+    {
+        // Arrange
+        var propertyInfo = typeof(DummyClassWithNonAuditedProperty).GetProperty(nameof(DummyClassWithNonAuditedProperty.RegularProperty));
+
+        // Act
+        var hasAttribute = propertyInfo?.HasDoNotAuditAttribute();
+
+        // Assert
+        Assert.False(hasAttribute);
+    }
+
     [DoNotAudit]
     private class DummyNonAuditedClass { }
 
@@ -60,4 +97,12 @@ public class DoNotAuditAttributeTests
     private class BaseClass { }
 
     private class DerivedClass : BaseClass { }
+
+    private class DummyClassWithNonAuditedProperty
+    {
+        [DoNotAudit]
+        public string NonAuditedProperty { get; set; } = string.Empty;
+
+        public string RegularProperty { get; set; } = string.Empty;
+    }
 }

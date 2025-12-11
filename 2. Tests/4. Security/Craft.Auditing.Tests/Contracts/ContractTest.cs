@@ -10,14 +10,16 @@ public class ContractTest
         // Arrange
         var audit = new TestAuditTrail();
         var now = DateTime.UtcNow;
+        var archiveDate = now.AddDays(30);
         audit.ChangedColumns = "Col1,Col2";
         audit.ChangeType = EntityChangeType.Updated;
         audit.DateTimeUTC = now;
         audit.KeyValues = "id=1";
         audit.NewValues = "{\"Col1\":2}";
         audit.OldValues = "{\"Col1\":1}";
-        audit.ShowDetails = true;
         audit.TableName = "TestTable";
+        audit.ArchiveAfter = archiveDate;
+        audit.IsArchived = false;
 
         // Act & Assert
         Assert.Equal("Col1,Col2", audit.ChangedColumns);
@@ -26,8 +28,9 @@ public class ContractTest
         Assert.Equal("id=1", audit.KeyValues);
         Assert.Equal("{\"Col1\":2}", audit.NewValues);
         Assert.Equal("{\"Col1\":1}", audit.OldValues);
-        Assert.True(audit.ShowDetails);
         Assert.Equal("TestTable", audit.TableName);
+        Assert.Equal(archiveDate, audit.ArchiveAfter);
+        Assert.False(audit.IsArchived);
     }
 
     [Fact]
@@ -124,8 +127,9 @@ public class ContractTest
         public string? KeyValues { get; set; }
         public string? NewValues { get; set; }
         public string? OldValues { get; set; }
-        public bool ShowDetails { get; set; }
         public string? TableName { get; set; }
+        public DateTime? ArchiveAfter { get; set; }
+        public bool IsArchived { get; set; }
 
         // ISoftDelete implementation
         public bool IsDeleted { get; set; }

@@ -15,6 +15,17 @@ public class AuditAttributeTests
     }
 
     [Fact]
+    public void AuditAttribute_CanBeAppliedToProperty()
+    {
+        // Arrange & Act
+        var propertyInfo = typeof(DummyClassWithAuditedProperty).GetProperty(nameof(DummyClassWithAuditedProperty.AuditedProperty));
+        var attr = propertyInfo?.GetCustomAttribute<AuditAttribute>();
+
+        // Assert
+        Assert.NotNull(attr);
+    }
+
+    [Fact]
     public void AuditAttribute_AttributeUsage_IsCorrect()
     {
         // Arrange
@@ -23,7 +34,7 @@ public class AuditAttributeTests
 
         // Assert
         Assert.NotNull(usage);
-        Assert.Equal(AttributeTargets.Class, usage.ValidOn);
+        Assert.Equal(AttributeTargets.Class | AttributeTargets.Property, usage.ValidOn);
         Assert.False(usage.Inherited);
     }
 
@@ -53,6 +64,32 @@ public class AuditAttributeTests
         Assert.False(hasAttribute);
     }
 
+    [Fact]
+    public void AuditAttribute_PropertyExtension_DetectsAttributeCorrectly()
+    {
+        // Arrange
+        var propertyInfo = typeof(DummyClassWithAuditedProperty).GetProperty(nameof(DummyClassWithAuditedProperty.AuditedProperty));
+
+        // Act
+        var hasAttribute = propertyInfo?.HasAuditAttribute();
+
+        // Assert
+        Assert.True(hasAttribute);
+    }
+
+    [Fact]
+    public void AuditAttribute_PropertyExtension_ReturnsFalseForNonAuditedProperty()
+    {
+        // Arrange
+        var propertyInfo = typeof(DummyClassWithAuditedProperty).GetProperty(nameof(DummyClassWithAuditedProperty.RegularProperty));
+
+        // Act
+        var hasAttribute = propertyInfo?.HasAuditAttribute();
+
+        // Assert
+        Assert.False(hasAttribute);
+    }
+
     [Audit]
     private class DummyAuditedClass { }
 
@@ -61,4 +98,11 @@ public class AuditAttributeTests
 
     private class DerivedClass : BaseClass { }
 
+    private class DummyClassWithAuditedProperty
+    {
+        [Audit]
+        public string AuditedProperty { get; set; } = string.Empty;
+
+        public string RegularProperty { get; set; } = string.Empty;
+    }
 }
