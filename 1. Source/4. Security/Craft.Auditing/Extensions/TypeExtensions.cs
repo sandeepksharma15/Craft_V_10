@@ -1,4 +1,6 @@
-﻿namespace Craft.Auditing;
+﻿using System.Reflection;
+
+namespace Craft.Auditing;
 
 public static class TypeExtensions
 {
@@ -19,4 +21,22 @@ public static class TypeExtensions
     /// langword="false"/>.</returns>
     public static bool HasAuditAttribute(this Type type)
         => type.IsDefined(typeof(AuditAttribute), inherit: false);
+
+    /// <summary>
+    /// Determines whether the specified property is decorated with the <see cref="DoNotAuditAttribute"/>.
+    /// </summary>
+    /// <param name="propertyInfo">The property to inspect for the presence of the <see cref="DoNotAuditAttribute"/>.</param>
+    /// <returns><see langword="true"/> if the <see cref="DoNotAuditAttribute"/> is applied to the specified property; otherwise,
+    /// <see langword="false"/>.</returns>
+    public static bool HasDoNotAuditAttribute(this PropertyInfo propertyInfo)
+        => propertyInfo.IsDefined(typeof(DoNotAuditAttribute), inherit: false);
+
+    /// <summary>
+    /// Determines whether the specified property is decorated with the <see cref="AuditAttribute"/>.
+    /// </summary>
+    /// <param name="propertyInfo">The property to inspect for the presence of the <see cref="AuditAttribute"/>.</param>
+    /// <returns><see langword="true"/> if the <see cref="AuditAttribute"/> is applied to the specified property; otherwise,
+    /// <see langword="false"/>.</returns>
+    public static bool HasAuditAttribute(this PropertyInfo propertyInfo)
+        => propertyInfo.IsDefined(typeof(AuditAttribute), inherit: false);
 }
