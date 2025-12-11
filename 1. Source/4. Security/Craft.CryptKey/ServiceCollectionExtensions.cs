@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Craft.Domain.HashIdentityKey;
+namespace Craft.CryptKey;
 
 public static class ServiceCollectionExtensions
 {

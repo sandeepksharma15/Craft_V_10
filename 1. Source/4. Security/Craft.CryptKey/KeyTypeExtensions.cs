@@ -1,7 +1,7 @@
 ﻿using Craft.CryptKey;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Craft.Domain.HashIdentityKey;
+namespace Craft.CryptKey;
 
 public static class KeyTypeExtensions
 {
@@ -18,7 +18,7 @@ public static class KeyTypeExtensions
 
     public static KeyType ToKeyType(this string hashKey)
     {
-        if (hashKey.IsNullOrEmpty())
+        if (hashKey.IsNullOrWhiteSpace())
             throw new ArgumentException("HashKey cannot be null or empty");
 
         var options = Activator.CreateInstance<HashKeyOptions>();
@@ -37,7 +37,7 @@ public static class KeyTypeExtensions
 
     public static KeyType ToKeyType(this string hashKey, IHashKeys hashKeys)
     {
-        return hashKey.IsNullOrEmpty() ? throw new ArgumentException("HashKey cannot be null or empty") : hashKeys.DecodeLong(hashKey)[0];
+        return hashKey.IsNullOrWhiteSpace() ? throw new ArgumentException("HashKey cannot be null or empty") : hashKeys.DecodeLong(hashKey)[0];
     }
 
     // Optional: Overloads using IServiceProvider for convenience
