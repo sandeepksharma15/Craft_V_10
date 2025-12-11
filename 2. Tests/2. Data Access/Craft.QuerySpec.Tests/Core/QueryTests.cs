@@ -39,40 +39,27 @@ public class QueryTests
     [Theory]
     [InlineData(-5, 10)]
     [InlineData(0, 10)]
-    [InlineData(1, -10)]
-    [InlineData(1, 0)]
-    public void SetPage_WithInvalidParameters_SetsToDefaults(int page, int pageSize)
+    public void SetPage_WithInvalidPage_ThrowsArgumentOutOfRangeException(int page, int pageSize)
     {
         // Arrange
         var query = new Query<Company>();
 
-        // Act
-        query.SetPage(page, pageSize);
-
-        // Assert
-        Assert.Equal(10, query.Take);
-        Assert.Equal(0, query.Skip);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(() => query.SetPage(page, pageSize));
+        Assert.Contains("Page number must be 1 or greater", exception.Message);
     }
 
-    [Fact]
-    public void SetPage_NullOrNegativeValues_UsesDefaults()
+    [Theory]
+    [InlineData(1, -10)]
+    [InlineData(1, 0)]
+    public void SetPage_WithInvalidPageSize_ThrowsArgumentOutOfRangeException(int page, int pageSize)
     {
         // Arrange
         var query = new Query<Company>();
 
-        // Act
-        query.SetPage(-1, -1);
-
-        // Assert
-        Assert.Equal(10, query.Take);
-        Assert.Equal(0, query.Skip);
-
-        // Act
-        query.SetPage(0, 0);
-
-        // Assert
-        Assert.Equal(10, query.Take);
-        Assert.Equal(0, query.Skip);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(() => query.SetPage(page, pageSize));
+        Assert.Contains("Page size must be 1 or greater", exception.Message);
     }
 
     [Fact]
@@ -186,8 +173,8 @@ public class QueryTests
         Assert.False(query.AsSplitQuery);
         Assert.True(query.IgnoreAutoIncludes);
         Assert.False(query.IgnoreQueryFilters);
-        Assert.Equal(0, query.Skip);
-        Assert.Equal(10, query.Take);
+        Assert.Null(query.Skip);
+        Assert.Null(query.Take);
         Assert.Equal(0, query.EntityFilterBuilder?.EntityFilterList.Count);
         Assert.Equal(0, query.QuerySelectBuilder?.Count);
         Assert.Null(query.SelectorMany);
@@ -207,8 +194,8 @@ public class QueryTests
         Assert.True(query.IgnoreAutoIncludes);
         Assert.False(query.AsSplitQuery);
         Assert.False(query.IgnoreQueryFilters);
-        Assert.Equal(0, query.Skip);
-        Assert.Equal(10, query.Take);
+        Assert.Null(query.Skip);
+        Assert.Null(query.Take);
         Assert.Empty(query.SortOrderBuilder?.OrderDescriptorList!);
         Assert.Empty(query.SqlLikeSearchCriteriaBuilder?.SqlLikeSearchCriteriaList!);
         Assert.Empty(query.EntityFilterBuilder?.EntityFilterList!);
@@ -339,5 +326,149 @@ public class QueryTests
 
         // Assert
         Assert.Empty(builder!.EntityFilterList);
+    }
+
+    [Fact]
+    public void ToString_ReturnsFormattedQueryInfo()
+    {
+        // Arrange
+        var query = new Query<Company>();
+        query.Where(c => c.Name == "Test");
+        query.OrderBy(c => c.Id);
+        query.Skip = 10;
+        query.Take = 20;
+
+        // Act
+        var result = query.ToString();
+
+        // Assert
+        Assert.Contains("Query<Company>", result);
+        Assert.Contains("AsNoTracking: True", result);
+        Assert.Contains("Skip: 10, Take: 20", result);
+        Assert.Contains("Filters: 1", result);
+        Assert.Contains("Orders:", result);
+    }
+
+    [Fact]
+    public void ToString_WithNullPaginationValues_ShowsNull()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act
+        var result = query.ToString();
+
+        // Assert
+        Assert.Contains("Skip: null, Take: null", result);
+    }
+
+    [Fact]
+    public void IsSatisfiedBy_OnlyEvaluatesWhereClause()
+    {
+        // Arrange
+        var query = new Query<Company>();
+        query.Where(c => c.Id == 1);
+        query.OrderBy(c => c.Name!);
+        query.Skip = 10;
+        query.Take = 5;
+        var company = new Company { Id = 1, Name = "Test" };
+
+        // Act
+        var result = query.IsSatisfiedBy(company);
+
+        // Assert - Should be true despite pagination and ordering
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void Clear_DoesNotSetPaginationDefaults()
+    {
+        // Arrange
+        var query = new Query<Company> { Skip = 100, Take = 50 };
+
+        // Act
+        query.Clear();
+
+        // Assert
+        Assert.Null(query.Skip);
+        Assert.Null(query.Take);
+    }
+
+    [Fact]
+    public void Skip_SetZero_AcceptedAsValid()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act
+        query.Skip = 0;
+
+        // Assert
+        Assert.Equal(0, query.Skip);
+    }
+
+    [Fact]
+    public void Take_SetOne_AcceptedAsValid()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act
+        query.Take = 1;
+
+        // Assert
+        Assert.Equal(1, query.Take);
+    }
+
+    [Fact]
+    public void Skip_ThrowsWithNegativeValue_IncludesValueInException()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(() => query.Skip = -5);
+        Assert.Contains("-5", exception.Message);
+        Assert.Contains("Skip cannot be negative", exception.Message);
+    }
+
+    [Fact]
+    public void Take_ThrowsWithZeroValue_IncludesValueInException()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(() => query.Take = 0);
+        Assert.Contains("0", exception.Message);
+        Assert.Contains("Take must be greater than zero", exception.Message);
+    }
+
+    [Fact]
+    public void SetPage_WithMinimumValidValues_Succeeds()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act
+        query.SetPage(1, 1);
+
+        // Assert
+        Assert.Equal(1, query.Take);
+        Assert.Equal(0, query.Skip);
+    }
+
+    [Fact]
+    public void SetPage_WithLargeValues_DoesNotOverflow()
+    {
+        // Arrange
+        var query = new Query<Company>();
+
+        // Act
+        query.SetPage(1000, 1000);
+
+        // Assert
+        Assert.Equal(1000, query.Take);
+        Assert.Equal(999000, query.Skip);
     }
 }

@@ -6,6 +6,9 @@ namespace Craft.QuerySpec;
 /// <summary>
 /// Builder class for creating order expressions.
 /// </summary>
+/// <remarks>
+/// This class is NOT thread-safe. Do not share instances across threads.
+/// </remarks>
 [Serializable]
 public class SortOrderBuilder<T> where T : class
 {
@@ -19,7 +22,10 @@ public class SortOrderBuilder<T> where T : class
     /// </summary>
     public List<OrderDescriptor<T>> OrderDescriptorList { get; }
 
-    public long Count => OrderDescriptorList.Count;
+    /// <summary>
+    /// Gets the number of order expressions.
+    /// </summary>
+    public int Count => OrderDescriptorList.Count;
 
     public SortOrderBuilder<T> Add(OrderDescriptor<T> orderInfo)
     {

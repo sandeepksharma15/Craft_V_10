@@ -80,15 +80,11 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
                 ? throw new InvalidOperationException("QuerySelectBuilder is not defined")
                 : filtered.Select(selector);
         }
-        else if (hasSelectMany)
-        {
+        
+        if (hasSelectMany)
             return filtered.SelectMany(query.SelectorMany!);
-        }
-        else
-        {
-            Console.WriteLine("No selection defined, returning filtered queryable as is.");
-            // Defensive fallback, should never hit due to earlier checks
-            return Enumerable.Empty<TResult>().AsQueryable();
-        }
+
+        throw new InvalidOperationException(
+            "Internal error: No selection strategy determined. This indicates a bug in QueryEvaluator.");
     }
 }

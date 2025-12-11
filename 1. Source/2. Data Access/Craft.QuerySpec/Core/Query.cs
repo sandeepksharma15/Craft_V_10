@@ -1,20 +1,23 @@
 ﻿using System.Linq.Expressions;
+using System.Text;
 
 namespace Craft.QuerySpec;
 
-// Represents a query with result projection.
+/// <summary>
+/// Represents a query with result projection.
+/// </summary>
+/// <remarks>
+/// This class does not require disposal. All resources are managed by the garbage collector.
+/// </remarks>
 [Serializable]
 public class Query<T, TResult> : Query<T>, IQuery<T, TResult>
     where T : class
     where TResult : class
 {
-    // QuerySelectBuilder for constructing select expressions.
     public QuerySelectBuilder<T, TResult>? QuerySelectBuilder { get; internal set; } = new();
 
-    // Expression for selecting many results.
     public Expression<Func<T, IEnumerable<TResult>>>? SelectorMany { get; set; }
 
-    // Clears the query specifications including select expressions and selector for many results.
     public new void Clear()
     {
         base.Clear();
@@ -22,27 +25,38 @@ public class Query<T, TResult> : Query<T>, IQuery<T, TResult>
         SelectorMany = null;
     }
 
-    // Function for post-processing results.
+    /// <summary>
+    /// Optional post-processing function applied to results after database retrieval.
+    /// </summary>
+    /// <remarks>
+    /// WARNING: This function executes in-memory after database query completion.
+    /// Be cautious with large result sets and avoid capturing large objects in closures.
+    /// </remarks>
     public new Func<IEnumerable<TResult>, IEnumerable<TResult>>? PostProcessingAction { get; set; }
 }
 
+/// <summary>
+/// Query specification for entity retrieval.
+/// </summary>
+/// <remarks>
+/// This class does not require disposal. All resources are managed by the garbage collector.
+/// This class is NOT thread-safe. Do not share instances across threads.
+/// </remarks>
 [Serializable]
 public class Query<T> : IQuery<T> where T : class
 {
-    // Common query specifications.
     public bool AsNoTracking { get; set; } = true;
     public bool AsSplitQuery { get; set; }
     public bool IgnoreAutoIncludes { get; set; } = true;
     public bool IgnoreQueryFilters { get; set; }
 
-    // Pagination specifications.
     public int? Skip
     {
         get => field;
         set
         {
             if (value is < 0)
-                throw new ArgumentOutOfRangeException(nameof(Skip), "Skip cannot be negative.");
+                throw new ArgumentOutOfRangeException(nameof(Skip), value, "Skip cannot be negative.");
             field = value;
         }
     }
@@ -52,57 +66,100 @@ public class Query<T> : IQuery<T> where T : class
         get => field;
         set
         {
-            if (value is <= 0)
-                throw new ArgumentOutOfRangeException(nameof(Take), "Take must be greater than zero.");
+            if (value.HasValue && value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(Take), value, "Take must be greater than zero.");
             field = value;
         }
     }
 
-    // Builders for building where and order expressions.
     public SortOrderBuilder<T>? SortOrderBuilder { get; set; } = new();
     public SqlLikeSearchCriteriaBuilder<T>? SqlLikeSearchCriteriaBuilder { get; set; } = new();
     public EntityFilterBuilder<T>? EntityFilterBuilder { get; set; } = new();
 
-    // Function for post-processing results.
+    /// <summary>
+    /// Optional post-processing function applied to results after database retrieval.
+    /// </summary>
+    /// <remarks>
+    /// WARNING: This function executes in-memory after database query completion.
+    /// Be cautious with large result sets and avoid capturing large objects in closures.
+    /// </remarks>
     public Func<IEnumerable<T>, IEnumerable<T>>? PostProcessingAction { get; set; }
 
-    // Checks if the entity satisfies the query specifications.
+    /// <summary>
+    /// Checks if the entity satisfies the query's filter criteria.
+    /// </summary>
+    /// <remarks>
+    /// This method only evaluates WHERE clauses for performance. 
+    /// Ordering, pagination, and other query features are not considered.
+    /// </remarks>
     public virtual bool IsSatisfiedBy(T entity)
     {
         if (entity is null) return false;
 
-        // Create a queryable from the entity
         var queryable = new List<T> { entity }.AsQueryable();
+        queryable = WhereEvaluator.Instance.GetQuery(queryable, this) ?? queryable;
 
-        queryable = QueryEvaluator.Instance.GetQuery(queryable, this);
-
-        return queryable?.Any() == true;
+        return queryable.Any();
     }
 
-    // Sets pagination specifications.
+    /// <summary>
+    /// Sets pagination specifications.
+    /// </summary>
+    /// <param name="page">Page number (1-based). Must be 1 or greater.</param>
+    /// <param name="pageSize">Number of items per page. Must be 1 or greater.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when page or pageSize is less than 1.</exception>
     public virtual void SetPage(int page = PaginationConstant.DefaultPage, int pageSize = PaginationConstant.DefaultPageSize)
     {
-        pageSize = pageSize > 0 ? pageSize : PaginationConstant.DefaultPageSize;
-        page = Math.Max(page, PaginationConstant.DefaultPage);
+        if (page < 1)
+            throw new ArgumentOutOfRangeException(nameof(page), page, "Page number must be 1 or greater.");
+
+        if (pageSize < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "Page size must be 1 or greater.");
+
         Take = pageSize;
         Skip = (page - 1) * pageSize;
     }
 
-    // Clears all query specifications.
+    /// <summary>
+    /// Clears all query specifications and resets to defaults.
+    /// </summary>
     public void Clear()
     {
-        // Reset pagination specifications.
-        SetPage();
+        Skip = null;
+        Take = null;
 
-        // Reset common query specifications.
         AsNoTracking = true;
         AsSplitQuery = false;
         IgnoreAutoIncludes = true;
         IgnoreQueryFilters = false;
 
-        // Clear Builders
         SortOrderBuilder?.Clear();
         SqlLikeSearchCriteriaBuilder?.Clear();
         EntityFilterBuilder?.Clear();
+    }
+
+    /// <summary>
+    /// Returns a string representation of the query for debugging purposes.
+    /// </summary>
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Query<{typeof(T).Name}>");
+        sb.AppendLine($"  AsNoTracking: {AsNoTracking}");
+        sb.AppendLine($"  AsSplitQuery: {AsSplitQuery}");
+        sb.AppendLine($"  IgnoreAutoIncludes: {IgnoreAutoIncludes}");
+        sb.AppendLine($"  IgnoreQueryFilters: {IgnoreQueryFilters}");
+        sb.AppendLine($"  Skip: {Skip?.ToString() ?? "null"}, Take: {Take?.ToString() ?? "null"}");
+
+        if (EntityFilterBuilder?.Count > 0)
+            sb.AppendLine($"  Filters: {EntityFilterBuilder.Count}");
+
+        if (SortOrderBuilder?.Count > 0)
+            sb.AppendLine($"  Orders: {SortOrderBuilder}");
+
+        if (SqlLikeSearchCriteriaBuilder?.Count > 0)
+            sb.AppendLine($"  Search Criteria: {SqlLikeSearchCriteriaBuilder.Count}");
+
+        return sb.ToString();
     }
 }

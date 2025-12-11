@@ -6,6 +6,9 @@ namespace Craft.QuerySpec;
 /// <summary>
 /// Builder for creating and managing a list of entity filter criteria for type <typeparamref name="T"/>.
 /// </summary>
+/// <remarks>
+/// This class is NOT thread-safe. Do not share instances across threads.
+/// </remarks>
 /// <typeparam name="T">The entity type.</typeparam>
 [Serializable]
 public class EntityFilterBuilder<T> where T : class
@@ -23,7 +26,7 @@ public class EntityFilterBuilder<T> where T : class
     /// <summary>
     /// Gets the number of filter criteria.
     /// </summary>
-    public long Count => EntityFilterList.Count;
+    public int Count => EntityFilterList.Count;
 
     /// <summary>
     /// Adds a filter criteria based on a boolean expression.

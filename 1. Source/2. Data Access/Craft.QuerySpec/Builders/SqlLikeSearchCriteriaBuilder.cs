@@ -3,13 +3,24 @@ using Craft.Extensions.Expressions;
 
 namespace Craft.QuerySpec;
 
+/// <summary>
+/// Builder for creating and managing SQL LIKE search criteria for type <typeparamref name="T"/>.
+/// </summary>
+/// <remarks>
+/// This class is NOT thread-safe. Do not share instances across threads.
+/// </remarks>
+/// <typeparam name="T">The entity type.</typeparam>
+[Serializable]
 public class SqlLikeSearchCriteriaBuilder<T> where T : class
 {
     public List<SqlLikeSearchInfo<T>> SqlLikeSearchCriteriaList { get; }
 
     public SqlLikeSearchCriteriaBuilder() => SqlLikeSearchCriteriaList = [];
 
-    public long Count => SqlLikeSearchCriteriaList.Count;
+    /// <summary>
+    /// Gets the number of search criteria.
+    /// </summary>
+    public int Count => SqlLikeSearchCriteriaList.Count;
 
     public SqlLikeSearchCriteriaBuilder<T> Add(SqlLikeSearchInfo<T> searchInfo)
     {

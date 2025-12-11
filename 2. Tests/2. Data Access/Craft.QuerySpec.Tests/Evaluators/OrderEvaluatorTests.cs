@@ -166,4 +166,80 @@ public class OrderEvaluatorTests
         Assert.NotNull(result);
         Assert.Empty(result);
     }
+
+    [Fact]
+    public void GetQuery_WithDuplicateOrderBy_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var evaluator = OrderEvaluator.Instance;
+        var query = new Query<Company>();
+
+        // Manually add duplicate OrderBy to bypass SortOrderBuilder validation
+        var descriptor1 = new OrderDescriptor<Company>(c => c.Id, OrderTypeEnum.OrderBy);
+        var descriptor2 = new OrderDescriptor<Company>(c => c.Name!, OrderTypeEnum.OrderBy);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor1);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor2);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => evaluator.GetQuery(_companies, query));
+        Assert.Contains("Multiple primary OrderBy/OrderByDescending clauses detected", exception.Message);
+        Assert.Contains("2 found", exception.Message);
+        Assert.Contains("Use OrderBy() for the first sort, then ThenBy() for subsequent sorts", exception.Message);
+    }
+
+    [Fact]
+    public void GetQuery_WithMultipleOrderByDescending_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var evaluator = OrderEvaluator.Instance;
+        var query = new Query<Company>();
+
+        // Manually add duplicate OrderByDescending
+        var descriptor1 = new OrderDescriptor<Company>(c => c.Id, OrderTypeEnum.OrderByDescending);
+        var descriptor2 = new OrderDescriptor<Company>(c => c.Name!, OrderTypeEnum.OrderByDescending);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor1);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor2);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => evaluator.GetQuery(_companies, query));
+        Assert.Contains("Multiple primary OrderBy/OrderByDescending clauses detected", exception.Message);
+    }
+
+    [Fact]
+    public void GetQuery_WithMixedDuplicateOrderBy_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var evaluator = OrderEvaluator.Instance;
+        var query = new Query<Company>();
+
+        // Manually add mixed OrderBy and OrderByDescending
+        var descriptor1 = new OrderDescriptor<Company>(c => c.Id, OrderTypeEnum.OrderBy);
+        var descriptor2 = new OrderDescriptor<Company>(c => c.Name!, OrderTypeEnum.OrderByDescending);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor1);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor2);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => evaluator.GetQuery(_companies, query));
+        Assert.Contains("2 found", exception.Message);
+    }
+
+    [Fact]
+    public void GetQuery_WithThreeOrderByClauses_ProvidesClearErrorMessage()
+    {
+        // Arrange
+        var evaluator = OrderEvaluator.Instance;
+        var query = new Query<Company>();
+
+        // Manually add three OrderBy clauses
+        var descriptor1 = new OrderDescriptor<Company>(c => c.Id, OrderTypeEnum.OrderBy);
+        var descriptor2 = new OrderDescriptor<Company>(c => c.Name!, OrderTypeEnum.OrderBy);
+        var descriptor3 = new OrderDescriptor<Company>(c => c.Country!.Name!, OrderTypeEnum.OrderBy);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor1);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor2);
+        query.SortOrderBuilder?.OrderDescriptorList.Add(descriptor3);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => evaluator.GetQuery(_companies, query));
+        Assert.Contains("3 found", exception.Message);
+    }
 }

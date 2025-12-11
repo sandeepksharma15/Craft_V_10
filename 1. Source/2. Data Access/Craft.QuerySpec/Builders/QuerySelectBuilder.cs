@@ -9,6 +9,9 @@ public class QuerySelectBuilder<T> : QuerySelectBuilder<T, T>, IQuerySelectBuild
 /// <summary>
 /// A builder class for constructing select expressions.
 /// </summary>
+/// <remarks>
+/// This class is NOT thread-safe. Do not share instances across threads.
+/// </remarks>
 [Serializable]
 public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
     where T : class
@@ -22,9 +25,9 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
     public QuerySelectBuilder() => SelectDescriptorList = [];
 
     /// <summary>
-    /// Gets the count of select expressions.
+    /// Gets the number of select expressions.
     /// </summary>
-    public long Count => SelectDescriptorList.Count;
+    public int Count => SelectDescriptorList.Count;
 
     public QuerySelectBuilder<T, TResult> Add(Expression<Func<T, object>> assignor, Expression<Func<TResult, object>> assignee)
     {

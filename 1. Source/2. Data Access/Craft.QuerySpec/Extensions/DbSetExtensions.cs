@@ -8,19 +8,11 @@ public static class DbSetExtensions
     public static async Task<IEnumerable<TSource>> ToEnumerableAsync<TSource>(this DbSet<TSource> source,
          IQuery<TSource>? query, CancellationToken cancellationToken = default) where TSource : class
     {
-        var queryable = QueryEvaluator.Instance.GetQuery(source, query);
-
-        var result = await queryable.ToListSafeAsync(cancellationToken);
-
-        return result.Count == 0
-            ? []
-            : query?.PostProcessingAction == null
-            ? result
-            : query.PostProcessingAction(result);
+        return await ToListAsync(source, query, cancellationToken);
     }
 
     public static async Task<List<TSource>> ToListAsync<TSource>(this DbSet<TSource> source,
-         IQuery<TSource> query, CancellationToken cancellationToken = default) where TSource : class
+         IQuery<TSource>? query, CancellationToken cancellationToken = default) where TSource : class
     {
         var queryable = QueryEvaluator.Instance.GetQuery(source, query);
 
@@ -28,7 +20,7 @@ public static class DbSetExtensions
 
         return result.Count == 0
             ? []
-            : query.PostProcessingAction == null
+            : query?.PostProcessingAction == null
             ? result
             : [.. query.PostProcessingAction(result)];
     }
@@ -38,7 +30,7 @@ public static class DbSetExtensions
     {
         evaluator ??= QueryEvaluator.Instance;
 
-        return evaluator.GetQuery(source, query) ?? Enumerable.Empty<TSource>().AsQueryable();
+        return evaluator.GetQuery(source, query);
     }
 
     public static IQueryable<TResult> WithQuery<TSource, TResult>(this IQueryable<TSource> source,

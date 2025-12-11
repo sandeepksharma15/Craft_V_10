@@ -6,7 +6,7 @@ public sealed class SearchEvaluator : IEvaluator
 
     public static SearchEvaluator Instance { get; } = new SearchEvaluator();
 
-    public IQueryable<T>? GetQuery<T>(IQueryable<T>? queryable, IQuery<T>? query) where T : class
+    public IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query) where T : class
     {
         ArgumentNullException.ThrowIfNull(queryable);
 
