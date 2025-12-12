@@ -175,7 +175,7 @@ public class NotificationModelTests
     [Theory]
     [InlineData(NotificationChannel.None, false)]
     [InlineData(NotificationChannel.InApp, true)]
-    [InlineData(NotificationChannel.Email, true)]
+    [InlineData(NotificationChannel.Email, false)]
     [InlineData(NotificationChannel.Push, false)]
     [InlineData(NotificationChannel.InApp | NotificationChannel.Email, true)]
     public void NotificationChannel_FlagsWork_Correctly(NotificationChannel channel, bool hasInApp)

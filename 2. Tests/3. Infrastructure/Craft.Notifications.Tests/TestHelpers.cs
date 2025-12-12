@@ -41,12 +41,14 @@ public static class TestHelpers
                 opt.UseInMemoryDatabase(Guid.NewGuid().ToString()));
         }
 
-        // Register options
+        // Register options - both as IOptions<T> and as singleton instance
         var notificationOptions = options ?? new NotificationOptions();
         services.AddSingleton(Options.Create(notificationOptions));
+        services.AddSingleton(notificationOptions); // Register the instance directly
 
         // Register services
         services.AddLogging();
+        services.AddHttpClient(); // Add HttpClient for webhook providers
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
         services.AddScoped<INotificationRealTimeService, NullNotificationRealTimeService>();
