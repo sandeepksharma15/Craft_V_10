@@ -102,8 +102,13 @@ public class TokenBlacklistCleanupServiceTests
 
         // Act
         await service.StartAsync(cts.Token);
+        
+        await Task.Delay(100);
+        
         await cts.CancelAsync();
-        await Task.Delay(50);
+        
+        await Task.Delay(100);
+        
         await service.StopAsync(CancellationToken.None);
 
         // Assert
