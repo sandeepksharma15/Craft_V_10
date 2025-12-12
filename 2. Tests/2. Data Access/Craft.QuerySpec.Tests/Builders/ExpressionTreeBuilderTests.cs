@@ -85,26 +85,7 @@ public class ExpressionTreeBuilderTests
     }
 
     [Theory]
-    [InlineData("id == \"this-is-id\"", "x => (x.Id == \"this-is-id\")")]
-    [InlineData("id == 2", "x => (x.Id == \"2\")")]
-    [InlineData("(id == 2)", "x => (x.Id == \"2\")")]
-    [InlineData("NumericValue > 2", "x => (x.NumericValue > 2)")]
-    [InlineData("NumericValue >= 3", "x => (x.NumericValue >= 3)")]
-    [InlineData("NumericValue < 3", "x => (x.NumericValue < 3)")]
-    [InlineData("NumericValue <= 3", "x => (x.NumericValue <= 3)")]
-    [InlineData("id == 2 & numericValue ==32", "x => ((x.Id == \"2\") And (x.NumericValue == 32))")]
-    [InlineData("id == 2 && numericValue ==32", "x => ((x.Id == \"2\") AndAlso (x.NumericValue == 32))")]
-    [InlineData("id == 2 && numericValue ==32 & stringValue==a", "x => ((x.Id == \"2\") AndAlso ((x.NumericValue == 32) And (x.StringValue == \"a\")))")]
-    [InlineData("id == 2 & numericValue ==32 & stringValue==a", "x => ((x.Id == \"2\") And ((x.NumericValue == 32) And (x.StringValue == \"a\")))")]
-    [InlineData("id == 2 && numericValue ==32 && stringValue==a", "x => ((x.Id == \"2\") AndAlso ((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")))")]
-    [InlineData("id == 2 | numericValue ==32", "x => ((x.Id == \"2\") Or (x.NumericValue == 32))")]
-    [InlineData("id == 2 || numericValue ==32", "x => ((x.Id == \"2\") OrElse (x.NumericValue == 32))")]
-    [InlineData("id == 2 || numericValue ==32 || stringValue==a", "x => ((x.Id == \"2\") OrElse ((x.NumericValue == 32) OrElse (x.StringValue == \"a\")))")]
-    [InlineData("id == 2 || numericValue ==32 |  stringValue==a", "x => ((x.Id == \"2\") OrElse ((x.NumericValue == 32) Or (x.StringValue == \"a\")))")]
-    [InlineData("(id == 2 || numericvalue <3 && stringValue ==a)", "x => ((x.Id == \"2\") OrElse ((x.NumericValue < 3) AndAlso (x.StringValue == \"a\")))")]
-    [InlineData("(id == 2 || numericvalue <3) && stringValue ==a", "x => (((x.Id == \"2\") OrElse (x.NumericValue < 3)) AndAlso (x.StringValue == \"a\"))")]
-    [InlineData("id == 2 || (numericvalue ==32 && stringValue ==a)", "x => ((x.Id == \"2\") OrElse ((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")))")]
-    [InlineData("id == 2 || (numericvalue ==32 && stringValue ==a) || stringValue ==b", "x => ((x.Id == \"2\") OrElse (((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")) OrElse (x.StringValue == \"b\")))")]
+    [MemberData(nameof(BinaryTreeFromStringTestData))]
     public void ToBinaryTree_FromString(string query, string expResult)
     {
         // Arrange
@@ -113,6 +94,30 @@ public class ExpressionTreeBuilderTests
         // Assert
         Assert.Equal(expResult, e?.ToString());
     }
+
+    public static TheoryData<string, string> BinaryTreeFromStringTestData => new()
+    {
+        { "id == \"this-is-id\"", "x => (x.Id == \"this-is-id\")" },
+        { "id == 2", "x => (x.Id == \"2\")" },
+        { "(id == 2)", "x => (x.Id == \"2\")" },
+        { "NumericValue > 2", "x => (x.NumericValue > 2)" },
+        { "NumericValue >= 3", "x => (x.NumericValue >= 3)" },
+        { "NumericValue < 3", "x => (x.NumericValue < 3)" },
+        { "NumericValue <= 3", "x => (x.NumericValue <= 3)" },
+        { "id == 2 & numericValue ==32", "x => ((x.Id == \"2\") And (x.NumericValue == 32))" },
+        { "id == 2 && numericValue ==32", "x => ((x.Id == \"2\") AndAlso (x.NumericValue == 32))" },
+        { "id == 2 && numericValue ==32 & stringValue==a", "x => ((x.Id == \"2\") AndAlso ((x.NumericValue == 32) And (x.StringValue == \"a\")))" },
+        { "id == 2 & numericValue ==32 & stringValue==a", "x => ((x.Id == \"2\") And ((x.NumericValue == 32) And (x.StringValue == \"a\")))" },
+        { "id == 2 && numericValue ==32 && stringValue==a", "x => ((x.Id == \"2\") AndAlso ((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")))" },
+        { "id == 2 | numericValue ==32", "x => ((x.Id == \"2\") Or (x.NumericValue == 32))" },
+        { "id == 2 || numericValue ==32", "x => ((x.Id == \"2\") OrElse (x.NumericValue == 32))" },
+        { "id == 2 || numericValue ==32 || stringValue==a", "x => ((x.Id == \"2\") OrElse ((x.NumericValue == 32) OrElse (x.StringValue == \"a\")))" },
+        { "id == 2 || numericValue ==32 |  stringValue==a", "x => ((x.Id == \"2\") OrElse ((x.NumericValue == 32) Or (x.StringValue == \"a\")))" },
+        { "(id == 2 || numericvalue <3 && stringValue ==a)", "x => ((x.Id == \"2\") OrElse ((x.NumericValue < 3) AndAlso (x.StringValue == \"a\")))" },
+        { "(id == 2 || numericvalue <3) && stringValue ==a", "x => (((x.Id == \"2\") OrElse (x.NumericValue < 3)) AndAlso (x.StringValue == \"a\"))" },
+        { "id == 2 || (numericvalue ==32 && stringValue ==a)", "x => ((x.Id == \"2\") OrElse ((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")))" },
+        { "id == 2 || (numericvalue ==32 && stringValue ==a) || stringValue ==b", "x => ((x.Id == \"2\") OrElse (((x.NumericValue == 32) AndAlso (x.StringValue == \"a\")) OrElse (x.StringValue == \"b\")))" }
+    };
 
     [Theory]
     [InlineData("idsfdsadffffdsfsdf2")]
