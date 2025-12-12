@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Craft.Exceptions.Tests.Security;
+namespace Craft.Domain.Tests.Security;
 
 public class ForbiddenExceptionTests
 {

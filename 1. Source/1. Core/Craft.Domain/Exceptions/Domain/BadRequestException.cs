@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions;
+namespace Craft.Domain;
 
 /// <summary>
 /// Exception thrown when a request is malformed or contains invalid data that doesn't fit validation scenarios.

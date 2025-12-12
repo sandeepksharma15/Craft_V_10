@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Craft.Exceptions;
+namespace Craft.Domain;
 
 /// <summary>
 /// Base class for all custom exceptions in the Craft framework.

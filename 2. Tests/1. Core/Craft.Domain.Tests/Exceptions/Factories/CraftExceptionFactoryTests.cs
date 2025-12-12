@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions.Tests.Factories;
+namespace Craft.Domain.Tests.Factories;
 
 public class CraftExceptionFactoryTests
 {

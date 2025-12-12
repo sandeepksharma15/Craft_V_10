@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions;
+namespace Craft.Domain;
 
 /// <summary>
 /// Exception thrown when the request payload exceeds the maximum allowed size.

@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions;
+namespace Craft.Domain;
 
 /// <summary>
 /// Exception thrown when the client has sent too many requests in a given time period.

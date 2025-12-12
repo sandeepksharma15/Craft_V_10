@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions.Tests.Domain;
+namespace Craft.Domain.Tests.Domain;
 
 public class ConflictExceptionTests
 {

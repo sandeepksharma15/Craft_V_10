@@ -55,7 +55,7 @@ var isNew = customer.IsDefaultId();
 ### Exception Usage (Traditional)
 
 ```csharp
-using Craft.Exceptions;
+using Craft.Domain;
 
 // Throw exceptions directly
 throw new NotFoundException("User", userId);
@@ -66,7 +66,7 @@ throw new ConcurrencyException("Order", orderId, "v1", "v2");
 ### Exception Usage (Factory Pattern - Recommended)
 
 ```csharp
-using Craft.Exceptions;
+using Craft.Domain;
 
 // Use factory for consistency
 throw CraftExceptionFactory.NotFound("User", userId);

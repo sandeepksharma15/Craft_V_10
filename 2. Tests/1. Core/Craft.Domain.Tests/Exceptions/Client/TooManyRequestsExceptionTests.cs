@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions.Tests.Client;
+namespace Craft.Domain.Tests.Client;
 
 public class TooManyRequestsExceptionTests
 {

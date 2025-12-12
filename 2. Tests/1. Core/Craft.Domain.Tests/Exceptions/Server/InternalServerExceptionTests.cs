@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Craft.Exceptions.Tests.Server;
+namespace Craft.Domain.Tests.Server;
 
 public class InternalServerExceptionTests
 {

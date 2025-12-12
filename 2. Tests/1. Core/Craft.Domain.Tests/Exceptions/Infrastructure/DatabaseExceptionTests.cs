@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Craft.Exceptions.Tests.Infrastructure;
+namespace Craft.Domain.Tests.Infrastructure;
 
 public class DatabaseExceptionTests
 {

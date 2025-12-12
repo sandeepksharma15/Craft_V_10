@@ -1,4 +1,4 @@
-namespace Craft.Exceptions;
+namespace Craft.Domain;
 
 /// <summary>
 /// Factory for creating Craft exceptions with consistent formatting and simplified usage.
