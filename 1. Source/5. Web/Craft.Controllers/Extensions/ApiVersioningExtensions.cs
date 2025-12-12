@@ -1,8 +1,7 @@
 using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Craft.Controllers.Extensions;
+namespace Craft.Controllers;
 
 /// <summary>
 /// Extension methods for configuring API versioning for controllers.

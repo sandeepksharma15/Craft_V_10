@@ -1,5 +1,4 @@
-﻿using Craft.Controllers.Controllers;
-using Craft.Domain;
+﻿using Craft.Domain;
 using Craft.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

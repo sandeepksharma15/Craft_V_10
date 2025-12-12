@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Craft.Controllers.Controllers;
+namespace Craft.Controllers;
 
 /// <summary>
 /// Base controller providing full CRUD operations (Create, Read, Update, Delete) for entities.

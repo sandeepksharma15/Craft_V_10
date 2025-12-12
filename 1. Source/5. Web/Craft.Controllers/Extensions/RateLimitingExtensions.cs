@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.RateLimiting;
 
-namespace Craft.Controllers.Extensions;
+namespace Craft.Controllers;
 
 /// <summary>
 /// Extension methods for configuring rate limiting policies for API controllers.

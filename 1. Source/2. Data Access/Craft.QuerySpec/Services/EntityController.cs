@@ -1,4 +1,4 @@
-﻿using Craft.Controllers.Controllers;
+﻿using Craft.Controllers;
 using Craft.Core;
 using Craft.Domain;
 using Microsoft.AspNetCore.Http;
