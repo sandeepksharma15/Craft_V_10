@@ -1,9 +1,10 @@
-# Request Middleware
+# Craft Middleware
 
-Modern, comprehensive request/response middleware for ASP.NET Core (.NET 10) applications with advanced exception handling, logging, and diagnostics.
+Modern, comprehensive middleware collection for ASP.NET Core (.NET 10) applications with advanced exception handling, logging, diagnostics, and CORS configuration.
 
 ## Features
 
+### Request/Response Middleware
 ? **Modern Exception Handling** - `IExceptionHandler` implementation with RFC 7807 & RFC 9110 compliance  
 ? **Comprehensive CraftException Support** - Automatic handling of all custom exception types  
 ? **Validation Error Formatting** - Rich `ValidationProblemDetails` with structured errors  
@@ -14,6 +15,15 @@ Modern, comprehensive request/response middleware for ASP.NET Core (.NET 10) app
 ? **Multi-Tenant Support** - Automatic tenant context in logs and error responses  
 ? **User Context** - Captures user ID, email, and tenant information  
 ? **Development Diagnostics** - Stack traces and inner exception details in development mode
+
+### CORS Middleware
+? **Configuration-based** - Define allowed origins in `appsettings.json`  
+? **Options Pattern** - Uses `IOptions<CorsSettings>` for better testability  
+? **Automatic Validation** - Validates configuration at startup  
+? **Multiple Frontend Support** - Separate settings for Angular, Blazor, and React  
+? **Semicolon-separated** - Multiple origins per frontend type  
+? **Permissive Policy** - Allows any header, any method, and credentials  
+? **Fail-Fast** - Configuration errors detected at startup
 
 ## Quick Start
 
@@ -42,32 +52,48 @@ Modern, comprehensive request/response middleware for ASP.NET Core (.NET 10) app
       "UseProblemDetails": true,
       "IncludeDiagnostics": true
     }
+  },
+  "CorsSettings": {
+    "Angular": "http://localhost:4200;https://angular.app.com",
+    "Blazor": "http://localhost:5000;https://blazor.app.com",
+    "React": "http://localhost:3000;https://react.app.com"
   }
 }
 ```
 
-## Usage
-
-### In `Program.cs` or Startup:
+### 2. Register Services in `Program.cs`
 
 ```csharp
-// Register services
+using Craft.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Register middleware services
 builder.Services.AddExceptionHandling(builder.Configuration);
 builder.Services.AddDetailedLogging(builder.Configuration);
+builder.Services.AddCorsPolicy(builder.Configuration);
+
+var app = builder.Build();
 
 // Configure middleware pipeline (order matters!)
 app.UseExceptionHandling(app.Configuration);
+app.UseCorsPolicy();                    // Before routing
 app.UseSerilogRequestLogging(app.Configuration);
 app.UseDetailedLogging(app.Configuration);
 
 // Add your other middleware
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
+app.Run();
 ```
 
 ## Middleware Components
 
-### 1. GlobalExceptionHandler
+### Request/Response Middleware
+
+#### 1. GlobalExceptionHandler
 
 Modern `IExceptionHandler` implementation that:
 - Returns RFC 7807 ProblemDetails responses
@@ -86,7 +112,7 @@ Modern `IExceptionHandler` implementation that:
 - `TimeoutException` ? 408 Request Timeout
 - All others ? 500 Internal Server Error
 
-### 2. RequestLoggingMiddleware
+#### 2. RequestLoggingMiddleware
 
 Logs incoming requests with:
 - Correlation ID generation
@@ -95,7 +121,7 @@ Logs incoming requests with:
 - Path-based exclusion
 - Performance timing
 
-### 3. ResponseLoggingMiddleware
+#### 3. ResponseLoggingMiddleware
 
 Logs outgoing responses with:
 - Proper response body buffering
@@ -104,7 +130,7 @@ Logs outgoing responses with:
 - Header filtering
 - Status-code based log levels
 
-### 4. Serilog Request Logging
+#### 4. Serilog Request Logging
 
 Enhanced Serilog integration with:
 - Automatic enrichment with correlation ID
@@ -112,9 +138,51 @@ Enhanced Serilog integration with:
 - Performance-based log levels
 - Custom message templates
 
+### CORS Middleware
+
+#### 5. CORS Policy Configuration
+
+Provides configuration-based CORS setup with:
+- Multiple frontend support (Angular, Blazor, React)
+- Semicolon-separated origins per frontend
+- Automatic validation at startup
+- Options pattern for testability
+
+**Configuration:**
+
+```json
+{
+  "CorsSettings": {
+    "Angular": "http://localhost:4200;https://angular.app.com",
+    "Blazor": "http://localhost:5000;https://blazor.app.com",
+    "React": "http://localhost:3000;https://react.app.com"
+  }
+}
+```
+
+**Usage:**
+
+```csharp
+// Register CORS policy
+builder.Services.AddCorsPolicy(builder.Configuration);
+
+// Use CORS policy (before routing/endpoints)
+app.UseCorsPolicy();
+```
+
+**CORS Policy Details:**
+
+The configured policy allows:
+- ? **Any Header** - `AllowAnyHeader()`
+- ? **Any Method** - `AllowAnyMethod()` (GET, POST, PUT, DELETE, etc.)
+- ? **Credentials** - `AllowCredentials()` (cookies, authorization headers)
+- ? **Specified Origins** - Only from configured `CorsSettings`
+
 ## Configuration Options
 
-### LoggingSettings
+### Request/Response Settings
+
+#### LoggingSettings
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -128,7 +196,7 @@ Enhanced Serilog integration with:
 | `MaxRequestBodyLength` | int | 4096 | Max request body size to log |
 | `MaxResponseBodyLength` | int | 4096 | Max response body size to log |
 
-### ExceptionHandlingSettings
+#### ExceptionHandlingSettings
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -137,13 +205,26 @@ Enhanced Serilog integration with:
 | `UseProblemDetails` | bool | true | Use RFC 7807 format |
 | `IncludeDiagnostics` | bool | true | Include errorId, correlationId, etc. |
 
+### CORS Settings
+
+#### CorsSettings
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `Angular` | `string?` | Semicolon-separated list of Angular app origins | `"http://localhost:4200;https://angular.app.com"` |
+| `Blazor` | `string?` | Semicolon-separated list of Blazor app origins | `"http://localhost:5000;https://blazor.app.com"` |
+| `React` | `string?` | Semicolon-separated list of React app origins | `"http://localhost:3000;https://react.app.com"` |
+
+**Note:** At least one origin must be configured, or the application will fail at startup.
+
 ## Best Practices
 
 ### 1. Order of Middleware
 
 ```csharp
 app.UseExceptionHandling();        // First - catch all exceptions
-app.UseSerilogRequestLogging();    // Second - log all requests
+app.UseCorsPolicy();               // Second - CORS before routing
+app.UseSerilogRequestLogging();    // Third - log all requests
 app.UseDetailedLogging();          // Optional - detailed logging
 app.UseAuthentication();           // After logging setup
 app.UseAuthorization();
@@ -162,6 +243,11 @@ app.UseAuthorization();
     "ExceptionHandling": {
       "IncludeStackTrace": false     // Don't expose internals
     }
+  },
+  "CorsSettings": {
+    "Angular": "https://angular.app.com",
+    "Blazor": "https://blazor.app.com",
+    "React": "https://react.app.com"
   }
 }
 ```
@@ -179,9 +265,23 @@ app.UseAuthorization();
     "ExceptionHandling": {
       "IncludeStackTrace": true
     }
+  },
+  "CorsSettings": {
+    "Angular": "http://localhost:4200",
+    "Blazor": "http://localhost:5000",
+    "React": "http://localhost:3000"
   }
 }
 ```
+
+### 4. CORS Best Practices
+
+1. ? **Use specific origins** - Never use `AllowAnyOrigin()` in production
+2. ? **Use HTTPS in production** - Always use `https://` for production origins
+3. ? **Limit origins** - Only add origins you control and trust
+4. ? **Use environment-specific configs** - Different origins for dev/staging/production
+5. ? **Test CORS policies** - Verify from actual frontend applications
+6. ? **Monitor logs** - Check for CORS warnings during deployment
 
 ## Response Format
 
@@ -288,21 +388,74 @@ app.UseSerilogRequestLogging(configuration);
 
 ## Troubleshooting
 
-### Issue: Response body is empty in logs
+### Request/Response Middleware Issues
+
+#### Issue: Response body is empty in logs
 
 **Solution**: Ensure `LogResponseBody = true` and the response is a text-based format (JSON/XML/Text).
 
-### Issue: Sensitive data in logs
+#### Issue: Sensitive data in logs
 
 **Solution**: Add paths to `SensitivePaths` and headers to `SensitiveHeaders`.
 
-### Issue: Performance degradation
+#### Issue: Performance degradation
 
 **Solution**: Disable `LogResponseBody` and add high-traffic paths to `ExcludedPaths`.
 
-### Issue: Missing correlation IDs
+#### Issue: Missing correlation IDs
 
 **Solution**: Ensure `RequestLoggingMiddleware` is registered before other logging middleware.
+
+### CORS Issues
+
+#### Issue: CORS errors in browser
+
+**Symptom:** Browser shows errors like:
+```
+Access to XMLHttpRequest at 'https://api.example.com' from origin 'http://localhost:4200' 
+has been blocked by CORS policy
+```
+
+**Solutions:**
+
+1. **Check configuration** - Ensure `CorsSettings` is in `appsettings.json`
+2. **Check origins** - Verify the origin matches exactly (including protocol and port)
+3. **Check middleware order** - `UseCorsPolicy()` must be called before `UseRouting()` or `MapControllers()`
+4. **Check logs** - Look for CORS warnings in application logs
+
+#### Issue: No origins allowed
+
+**Symptom:** All CORS requests are blocked
+
+**Solutions:**
+
+1. **Verify configuration section exists** - Check `appsettings.json` has `CorsSettings`
+2. **Check origin format** - Origins must include protocol: `http://` or `https://`
+3. **Check for typos** - Property names are case-sensitive in JSON
+4. **Review logs** - Check for warning messages about missing configuration
+
+#### Issue: Credentials not working
+
+**Symptom:** Cookies or authorization headers not sent
+
+**Solution:** Ensure frontend is configured to send credentials:
+
+**JavaScript/Fetch:**
+```javascript
+fetch('https://api.example.com/data', {
+    credentials: 'include'
+});
+```
+
+**Axios:**
+```javascript
+axios.defaults.withCredentials = true;
+```
+
+**Angular HttpClient:**
+```typescript
+this.http.get('https://api.example.com/data', { withCredentials: true });
+```
 
 ## Support
 
