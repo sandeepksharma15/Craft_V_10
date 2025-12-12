@@ -56,7 +56,7 @@ public class TeamsWebhookNotificationProvider : NotificationProviderBase
                     Encoding.UTF8,
                     "application/json");
 
-                var response = await httpClient.PostAsync(webhookUrl, content, cancellationToken);
+                var response = await httpClient.PostAsync(new Uri(webhookUrl), content, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -118,11 +118,11 @@ public class TeamsWebhookNotificationProvider : NotificationProviderBase
     /// For Adaptive Cards, you would need to modify this structure.
     /// See: https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using
     /// </remarks>
-    private object CreateTeamsMessageCard(Notification notification)
+    private static object CreateTeamsMessageCard(Notification notification)
     {
         var themeColor = GetThemeColor(notification.Type);
-        var sections = new List<object>
-        {
+        List<object> sections =
+        [
             new
             {
                 activityTitle = notification.Title,
@@ -131,9 +131,9 @@ public class TeamsWebhookNotificationProvider : NotificationProviderBase
                 text = notification.Message,
                 facts = GetFacts(notification)
             }
-        };
+        ];
 
-        var potentialActions = new List<object>();
+        List<object> potentialActions = [];
         if (!string.IsNullOrEmpty(notification.ActionUrl))
         {
             potentialActions.Add(new
@@ -161,13 +161,13 @@ public class TeamsWebhookNotificationProvider : NotificationProviderBase
     /// <summary>
     /// Gets additional facts to display in the Teams message.
     /// </summary>
-    private List<object> GetFacts(Notification notification)
+    private static List<object> GetFacts(Notification notification)
     {
-        var facts = new List<object>
-        {
+        List<object> facts =
+        [
             new { name = "Type", value = notification.Type.ToString() },
             new { name = "Priority", value = notification.Priority.ToString() }
-        };
+        ];
 
         if (!string.IsNullOrEmpty(notification.Category))
             facts.Add(new { name = "Category", value = notification.Category });
@@ -183,7 +183,7 @@ public class TeamsWebhookNotificationProvider : NotificationProviderBase
     /// <summary>
     /// Gets the theme color based on notification type.
     /// </summary>
-    private string GetThemeColor(NotificationType type)
+    private static string GetThemeColor(NotificationType type)
     {
         return type switch
         {

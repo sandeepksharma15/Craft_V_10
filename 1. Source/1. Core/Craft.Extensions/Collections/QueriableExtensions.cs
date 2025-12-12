@@ -32,23 +32,23 @@ public static class QueriableExtensions
     {
         if (queryable.SupportsAsync())
             return await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
-        else
-            return await Task.FromResult(queryable.ToList()).ConfigureAwait(false);
+        
+        return [.. queryable];
     }
 
     public static async Task<long> LongCountSafeAsync<T>(this IQueryable<T> queryable, CancellationToken cancellationToken = default)
     {
         if (queryable.SupportsAsync())
             return await queryable.LongCountAsync(cancellationToken).ConfigureAwait(false);
-        else
-            return await Task.FromResult(queryable.LongCount()).ConfigureAwait(false);
+        
+        return queryable.LongCount();
     }
 
     public static async Task<long> CountSafeAsync<T>(this IQueryable<T> queryable, CancellationToken cancellationToken = default)
     {
         if (queryable.SupportsAsync())
             return await queryable.CountAsync(cancellationToken).ConfigureAwait(false);
-        else
-            return await Task.FromResult(queryable.Count()).ConfigureAwait(false);
+        
+        return queryable.Count();
     }
 }

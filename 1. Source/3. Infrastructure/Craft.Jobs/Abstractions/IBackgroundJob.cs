@@ -11,7 +11,7 @@ public interface IBackgroundJob
     /// <param name="context">The execution context containing runtime information.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task ExecuteAsync(JobExecutionContext context, CancellationToken cancellationToken = default);
+    Task ExecuteAsync(JobExecutionContext context, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -26,5 +26,5 @@ public interface IBackgroundJob<in TParameters> : IBackgroundJob where TParamete
     /// <param name="parameters">The job parameters.</param>
     /// <param name="context">The execution context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task ExecuteAsync(TParameters parameters, JobExecutionContext context, CancellationToken cancellationToken = default);
+    Task ExecuteAsync(TParameters parameters, JobExecutionContext context, CancellationToken cancellationToken);
 }

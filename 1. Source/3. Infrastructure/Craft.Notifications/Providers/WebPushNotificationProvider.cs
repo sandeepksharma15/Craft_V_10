@@ -132,16 +132,10 @@ public class WebPushNotificationProvider : NotificationProviderBase
     /// 3. Encrypt the payload
     /// 4. Send the HTTP POST request to the push service
     /// </remarks>
-    private async Task<bool> SendWebPushAsync(
-        string endpoint,
-        string publicKey,
-        string auth,
-        string payload,
-        CancellationToken cancellationToken)
+    private static Task<bool> SendWebPushAsync()
     {
         // Placeholder for actual implementation
         // Real implementation would use WebPush-NetCore or similar library
-        await Task.CompletedTask;
-        return true;
+        return Task.FromResult(true);
     }
 }

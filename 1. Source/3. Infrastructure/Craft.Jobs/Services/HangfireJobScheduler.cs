@@ -156,7 +156,7 @@ public class HangfireJobScheduler : IJobScheduler
         return result;
     }
 
-    private JobExecutionContext CreateContext<TJob>(object? parameters, string? recurringJobId = null) where TJob : IBackgroundJob
+    private JobExecutionContext CreateContext<TJob>(object? _, string? recurringJobId = null) where TJob : IBackgroundJob
     {
         var context = new JobExecutionContext
         {

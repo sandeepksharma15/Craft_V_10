@@ -234,8 +234,8 @@ public class NotificationServiceTests
         var userId = "user123";
         
         var result1 = await notificationService.SendAsync(TestHelpers.CreateSampleNotification(userId));
-        var result2 = await notificationService.SendAsync(TestHelpers.CreateSampleNotification(userId));
-        
+        _ = await notificationService.SendAsync(TestHelpers.CreateSampleNotification(userId));
+
         await notificationService.MarkAsReadAsync(result1.Value!.Id);
 
         // Act

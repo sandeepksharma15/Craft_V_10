@@ -81,10 +81,11 @@ public class HashKeyOptionsTests
     public void MinHashLength_CanBeSetToCustomValue()
     {
         // Arrange
-        var options = new HashKeyOptions();
-
-        // Act
-        options.MinHashLength = 25;
+        var options = new HashKeyOptions
+        {
+            // Act
+            MinHashLength = 25
+        };
 
         // Assert
         Assert.Equal(25, options.MinHashLength);
@@ -122,10 +123,11 @@ public class HashKeyOptionsTests
     public void MinHashLength_CanBeSetToZero()
     {
         // Arrange
-        var options = new HashKeyOptions();
-
-        // Act
-        options.MinHashLength = 0;
+        var options = new HashKeyOptions
+        {
+            // Act
+            MinHashLength = 0
+        };
 
         // Assert
         Assert.Equal(0, options.MinHashLength);
@@ -147,10 +149,11 @@ public class HashKeyOptionsTests
     public void EmptySalt_CanBeSet()
     {
         // Arrange
-        var options = new HashKeyOptions();
-
-        // Act
-        options.Salt = string.Empty;
+        var options = new HashKeyOptions
+        {
+            // Act
+            Salt = string.Empty
+        };
 
         // Assert
         Assert.Equal(string.Empty, options.Salt);
@@ -160,13 +163,14 @@ public class HashKeyOptionsTests
     public void AllProperties_CanBeModifiedAfterConstruction()
     {
         // Arrange
-        var options = new HashKeyOptions();
-
-        // Act
-        options.Alphabet = "abc";
-        options.MinHashLength = 100;
-        options.Salt = "NewSalt";
-        options.Steps = "xyz";
+        var options = new HashKeyOptions
+        {
+            // Act
+            Alphabet = "abc",
+            MinHashLength = 100,
+            Salt = "NewSalt",
+            Steps = "xyz"
+        };
 
         // Assert
         Assert.Equal("abc", options.Alphabet);

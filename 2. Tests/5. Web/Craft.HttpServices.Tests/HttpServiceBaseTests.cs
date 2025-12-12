@@ -14,11 +14,11 @@ public class HttpServiceBaseTests
     public async Task GetAllFromPagedAsync_ReturnsEmptyList_WhenPagedResultIsNull()
     {
         // Arrange
-        Func<CancellationToken, Task<HttpServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(null);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = p => p.Items.ToList();
+        Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(null);
+        List<TestItem> ExtractItems(PageResponse<TestItem> p) => [.. p.Items];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(GetPaged, ExtractItems, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -36,11 +36,11 @@ public class HttpServiceBaseTests
             Success = true,
             Data = null
         };
-        Func<CancellationToken, Task<HttpServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = p => p.Items.ToList();
+        Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
+        List<TestItem> ExtractItems(PageResponse<TestItem> p) => [.. p.Items];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(GetPaged, ExtractItems, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -61,11 +61,11 @@ public class HttpServiceBaseTests
             Data = pageResponse,
             StatusCode = 200
         };
-        Func<CancellationToken, Task<HttpServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = p => p.Items.ToList();
+        Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
+        List<TestItem> ExtractItems(PageResponse<TestItem> p) => [.. p.Items];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(GetPaged, ExtractItems, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -85,11 +85,11 @@ public class HttpServiceBaseTests
             Errors = ["API Error"],
             StatusCode = 500
         };
-        Func<CancellationToken, Task<HttpServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = p => p.Items.ToList();
+        Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
+        List<TestItem> ExtractItems(PageResponse<TestItem> p) => [.. p.Items];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(GetPaged, ExtractItems, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -103,11 +103,11 @@ public class HttpServiceBaseTests
     public async Task GetAllFromPagedAsync_HandlesException_WhenGetPagedThrows()
     {
         // Arrange
-        Func<CancellationToken, Task<HttpServiceResult<PageResponse<TestItem>>?>> getPaged = _ => throw new InvalidOperationException("Test exception");
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = p => p.Items.ToList();
+        Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => throw new InvalidOperationException("Test exception");
+        List<TestItem> ExtractItems(PageResponse<TestItem> p) => [.. p.Items];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(GetPaged, ExtractItems, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -120,12 +120,12 @@ public class HttpServiceBaseTests
     public async Task GetAllFromPagedAsync_PropagatesOperationCanceledException()
     {
         // Arrange
-        Func<CancellationToken, Task<HttpServiceResult<PageResponse<TestItem>>?>> getPaged = _ => throw new OperationCanceledException();
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = p => p.Items.ToList();
+        Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => throw new OperationCanceledException();
+        List<TestItem> ExtractItems(PageResponse<TestItem> p) => [.. p.Items];
 
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(() => 
-            HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None));
+            HttpServiceBase.GetAllFromPagedAsync(GetPaged, ExtractItems, CancellationToken.None));
     }
 
     public class TestItem
@@ -133,34 +133,20 @@ public class HttpServiceBaseTests
         public int Id { get; set; }
     }
 
-    public class TestHttpServiceBase : HttpServiceBase
+    public class TestHttpServiceBase(Uri apiURL, HttpClient httpClient) : HttpServiceBase(apiURL, httpClient)
     {
-        public TestHttpServiceBase(Uri apiURL, HttpClient httpClient) : base(apiURL, httpClient)
-        {
-        }
+#pragma warning disable CA1822 // Mark members as static
+        public Task<HttpServiceResult<TResult?>> TestGetAndParseAsync<TResult>(Func<CancellationToken, Task<HttpResponseMessage>> sendRequest,
+            Func<HttpContent, CancellationToken, Task<TResult?>> parser, CancellationToken cancellationToken) =>
+            GetAndParseAsync(sendRequest, parser, cancellationToken);
 
-        public Task<HttpServiceResult<TResult?>> TestGetAndParseAsync<TResult>(
-            Func<CancellationToken, Task<HttpResponseMessage>> sendRequest,
-            Func<HttpContent, CancellationToken, Task<TResult?>> parser,
-            CancellationToken cancellationToken)
-        {
-            return GetAndParseAsync(sendRequest, parser, cancellationToken);
-        }
+        public Task<HttpServiceResult<TResult?>> TestSendAndParseAsync<TResult>(Func<Task<HttpResponseMessage>> sendRequest,
+            Func<HttpContent, CancellationToken, Task<TResult?>> parser, CancellationToken cancellationToken) =>
+            SendAndParseAsync(sendRequest, parser, cancellationToken);
 
-        public Task<HttpServiceResult<TResult?>> TestSendAndParseAsync<TResult>(
-            Func<Task<HttpResponseMessage>> sendRequest,
-            Func<HttpContent, CancellationToken, Task<TResult?>> parser,
-            CancellationToken cancellationToken)
-        {
-            return SendAndParseAsync(sendRequest, parser, cancellationToken);
-        }
-
-        public Task<HttpServiceResult<bool>> TestSendAndParseNoContentAsync(
-            Func<Task<HttpResponseMessage>> sendRequest,
-            CancellationToken cancellationToken)
-        {
-            return SendAndParseNoContentAsync(sendRequest, cancellationToken);
-        }
+        public Task<HttpServiceResult<bool>> TestSendAndParseNoContentAsync(Func<Task<HttpResponseMessage>> sendRequest, CancellationToken cancellationToken) 
+            => SendAndParseNoContentAsync(sendRequest, cancellationToken);
+#pragma warning restore CA1822 // Mark members as static
     }
 
     [Fact]
@@ -169,10 +155,10 @@ public class HttpServiceBaseTests
         // Arrange
         var httpClient = new HttpClient();
         var service = new TestHttpServiceBase(new Uri("http://localhost"), httpClient);
-        Func<HttpContent, CancellationToken, Task<string?>> parser = (c, ct) => Task.FromResult<string?>("test");
+        static Task<string?> Parser(HttpContent c, CancellationToken ct) => Task.FromResult<string?>("test");
 
         // Act
-        var result = await service.TestSendAndParseAsync<string>(null!, parser, CancellationToken.None);
+        var result = await service.TestSendAndParseAsync<string>(null!, Parser, CancellationToken.None);
 
         // Assert
         Assert.False(result.Success);
@@ -186,10 +172,10 @@ public class HttpServiceBaseTests
         // Arrange
         var httpClient = new HttpClient();
         var service = new TestHttpServiceBase(new Uri("http://localhost"), httpClient);
-        Func<Task<HttpResponseMessage>> sendRequest = () => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        static Task<HttpResponseMessage> SendRequest() => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
 
         // Act
-        var result = await service.TestSendAndParseAsync<string>(sendRequest, null!, CancellationToken.None);
+        var result = await service.TestSendAndParseAsync<string>(SendRequest, null!, CancellationToken.None);
 
         // Assert
         Assert.False(result.Success);
@@ -203,11 +189,11 @@ public class HttpServiceBaseTests
         // Arrange
         var httpClient = new HttpClient();
         var service = new TestHttpServiceBase(new Uri("http://localhost"), httpClient);
-        Func<Task<HttpResponseMessage>> sendRequest = () => throw new InvalidOperationException("Send error");
-        Func<HttpContent, CancellationToken, Task<string?>> parser = (c, ct) => Task.FromResult<string?>("test");
+        Task<HttpResponseMessage> SendRequest() => throw new InvalidOperationException("Send error");
+        Task<string?> Parser(HttpContent c, CancellationToken ct) => Task.FromResult<string?>("test");
 
         // Act
-        var result = await service.TestSendAndParseAsync(sendRequest, parser, CancellationToken.None);
+        var result = await service.TestSendAndParseAsync(SendRequest, Parser, CancellationToken.None);
 
         // Assert
         Assert.False(result.Success);
@@ -234,11 +220,11 @@ public class HttpServiceBaseTests
             .ReturnsAsync(response);
         var httpClient = new HttpClient(handlerMock.Object);
         var service = new TestHttpServiceBase(new Uri("http://localhost"), httpClient);
-        Func<CancellationToken, Task<HttpResponseMessage>> sendRequest = ct => httpClient.GetAsync("http://localhost", ct);
-        Func<HttpContent, CancellationToken, Task<string?>> parser = async (c, ct) => await c.ReadAsStringAsync(ct);
+        Task<HttpResponseMessage> SendRequest(CancellationToken ct) => httpClient.GetAsync(new Uri("http://localhost"), ct);
+        async Task<string?> Parser(HttpContent c, CancellationToken ct) => await c.ReadAsStringAsync(ct);
 
         // Act
-        var result = await service.TestGetAndParseAsync(sendRequest, parser, CancellationToken.None);
+        var result = await service.TestGetAndParseAsync(SendRequest, Parser, CancellationToken.None);
 
         // Assert
         Assert.True(result.Success);
@@ -261,10 +247,10 @@ public class HttpServiceBaseTests
             .ReturnsAsync(response);
         var httpClient = new HttpClient(handlerMock.Object);
         var service = new TestHttpServiceBase(new Uri("http://localhost"), httpClient);
-        Func<Task<HttpResponseMessage>> sendRequest = () => Task.FromResult(response);
+        Task<HttpResponseMessage> SendRequest() => Task.FromResult(response);
 
         // Act
-        var result = await service.TestSendAndParseNoContentAsync(sendRequest, CancellationToken.None);
+        var result = await service.TestSendAndParseNoContentAsync(SendRequest, CancellationToken.None);
 
         // Assert
         Assert.True(result.Success);
@@ -290,10 +276,10 @@ public class HttpServiceBaseTests
             .ReturnsAsync(response);
         var httpClient = new HttpClient(handlerMock.Object);
         var service = new TestHttpServiceBase(new Uri("http://localhost"), httpClient);
-        Func<Task<HttpResponseMessage>> sendRequest = () => Task.FromResult(response);
+        Task<HttpResponseMessage> SendRequest() => Task.FromResult(response);
 
         // Act
-        var result = await service.TestSendAndParseNoContentAsync(sendRequest, CancellationToken.None);
+        var result = await service.TestSendAndParseNoContentAsync(SendRequest, CancellationToken.None);
 
         // Assert
         Assert.False(result.Success);

@@ -152,9 +152,9 @@ public class AuditTrail : BaseEntity, IAuditTrail
     /// </summary>
     /// <param name="entity">The entity entry to audit.</param>
     /// <param name="userId">The ID of the user making the change.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <param name="_">A cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation, containing the new <see cref="AuditTrail"/> instance.</returns>
-    public static Task<AuditTrail> CreateAsync(EntityEntry entity, KeyType userId, CancellationToken cancellationToken = default)
+    public static Task<AuditTrail> CreateAsync(EntityEntry entity, KeyType userId, CancellationToken _ = default)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
@@ -346,7 +346,7 @@ public class AuditTrail : BaseEntity, IAuditTrail
                 continue;
 
             // For simplicity, use the first FK property
-            var foreignKeyProperty = foreignKey.Properties.First();
+            var foreignKeyProperty = foreignKey.Properties[0];
             var fkPropertyEntry = entity.Property(foreignKeyProperty.Name);
 
             // Track new value (for Added/Modified)

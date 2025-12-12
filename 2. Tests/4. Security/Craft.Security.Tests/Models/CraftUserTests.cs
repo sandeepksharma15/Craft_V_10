@@ -95,10 +95,11 @@ public class CraftUserTests
     public void Gender_CanBeSetAndRetrieved()
     {
         // Arrange
-        var user = new CraftUser<Guid>();
-
-        // Act
-        user.Gender = GenderType.Male;
+        var user = new CraftUser<Guid>
+        {
+            // Act
+            Gender = GenderType.Male
+        };
 
         // Assert
         Assert.Equal(GenderType.Male, user.Gender);
@@ -108,10 +109,11 @@ public class CraftUserTests
     public void Title_CanBeSetAndRetrieved()
     {
         // Arrange
-        var user = new CraftUser<Guid>();
-
-        // Act
-        user.Title = HonorificType.Mr;
+        var user = new CraftUser<Guid>
+        {
+            // Act
+            Title = HonorificType.Mr
+        };
 
         // Assert
         Assert.Equal(HonorificType.Mr, user.Title);
@@ -138,10 +140,11 @@ public class CraftUserTests
     public void IsDeleted_CanBeSetAndRetrieved()
     {
         // Arrange
-        var user = new CraftUser<Guid>();
-
-        // Act
-        user.IsDeleted = true;
+        var user = new CraftUser<Guid>
+        {
+            // Act
+            IsDeleted = true
+        };
 
         // Assert
         Assert.True(user.IsDeleted);

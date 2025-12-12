@@ -163,8 +163,8 @@ public class TokenBlacklistCleanupServiceTests
         var service = new TokenBlacklistCleanupService(_mockServiceProvider.Object, _mockLogger.Object);
 
         // Assert
-        Assert.IsAssignableFrom<IHostedService>(service);
-        Assert.IsAssignableFrom<BackgroundService>(service);
+        Assert.IsType<IHostedService>(service, exactMatch: false);
+        Assert.IsType<BackgroundService>(service, exactMatch: false);
 
         // Cleanup
         await service.StopAsync(CancellationToken.None);

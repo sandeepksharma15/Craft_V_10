@@ -36,7 +36,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_AddsItemIfNotPresent_ReturnsTrue()
     {
         // Arrange
-        var list = new List<int> { 1, 2, 3 };
+        List<int> list = [1, 2, 3];
 
         // Act
         bool added = list.AddIfNotContains(4);
@@ -50,7 +50,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_DoesNotAddIfPresent_ReturnsFalse()
     {
         // Arrange
-        var list = new List<int> { 1, 2, 3 };
+        List<int> list = [1, 2, 3];
 
         // Act
         bool added = list.AddIfNotContains(2);
@@ -74,7 +74,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Enumerable_AddsOnlyMissingItems()
     {
         // Arrange
-        var list = new List<int> { 1, 2 };
+        List<int> list = [1, 2];
 
         // Act
         var added = list.AddIfNotContains([2, 3, 4]).ToList();
@@ -100,7 +100,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Enumerable_ThrowsIfItemsIsNull()
     {
         // Arrange
-        var list = new List<int> { 1 };
+        List<int> list = [1];
         IEnumerable<int>? items = null;
 
         // Act & Assert
@@ -111,7 +111,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Enumerable_AddsNothingIfAllPresent()
     {
         // Arrange
-        var list = new List<int> { 1, 2 };
+        List<int> list = [1, 2];
 
         // Act
         var added = list.AddIfNotContains([1, 2]);
@@ -125,7 +125,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Predicate_AddsIfPredicateNotSatisfied()
     {
         // Arrange
-        var list = new List<int> { 1, 2, 3 };
+        List<int> list = [1, 2, 3];
 
         // Act
         bool added = list.AddIfNotContains(x => x == 4, () => 4);
@@ -139,7 +139,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Predicate_DoesNotAddIfPredicateSatisfied()
     {
         // Arrange
-        var list = new List<int> { 1, 2, 3 };
+        List<int> list = [1, 2, 3];
 
         // Act
         bool added = list.AddIfNotContains(x => x == 2, () => 2);
@@ -163,7 +163,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Predicate_ThrowsIfPredicateIsNull()
     {
         // Arrange
-        var list = new List<int> { 1 };
+        List<int> list = [1];
         Func<int, bool>? predicate = null;
 
         // Act & Assert
@@ -174,7 +174,7 @@ public class CollectionExtensionsTests
     public void AddIfNotContains_Predicate_ThrowsIfItemFactoryIsNull()
     {
         // Arrange
-        var list = new List<int> { 1 };
+        List<int> list = [1];
         Func<int>? factory = null;
 
         // Act & Assert
@@ -185,7 +185,7 @@ public class CollectionExtensionsTests
     public void RemoveAll_Enumerable_RemovesAllSpecifiedItems()
     {
         // Arrange
-        var list = new List<int> { 1, 2, 3, 4 };
+        List<int> list = [1, 2, 3, 4];
 
         // Act
         list.RemoveAll([2, 3]);
@@ -211,7 +211,7 @@ public class CollectionExtensionsTests
     public void RemoveAll_Enumerable_ThrowsIfItemsIsNull()
     {
         // Arrange
-        var list = new List<int> { 1 };
+        List<int> list = [1];
         IEnumerable<int>? items = null;
 
         // Act & Assert
@@ -222,7 +222,7 @@ public class CollectionExtensionsTests
     public void RemoveAll_Enumerable_DoesNothingIfItemsNotPresent()
     {
         // Arrange
-        var list = new List<int> { 1, 2 };
+        List<int> list = [1, 2];
 
         // Act
         list.RemoveAll([3, 4]);

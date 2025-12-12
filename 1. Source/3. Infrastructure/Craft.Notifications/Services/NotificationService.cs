@@ -27,7 +27,7 @@ public class NotificationService : INotificationService
         _dbContext = dbContext;
         _logger = logger;
         _options = options.Value;
-        _providers = providers.OrderBy(p => p.Priority).ToList();
+        _providers = [.. providers.OrderBy(p => p.Priority)];
         _preferenceService = preferenceService;
         _realTimeService = realTimeService;
     }
@@ -209,7 +209,7 @@ public class NotificationService : INotificationService
         try
         {
             var notification = await _dbContext.Set<Notification>()
-                .FindAsync(new object[] { notificationId }, cancellationToken);
+                .FindAsync([notificationId], cancellationToken);
 
             if (notification == null)
                 return Result.Failure("Notification not found");
@@ -308,7 +308,7 @@ public class NotificationService : INotificationService
         try
         {
             var notification = await _dbContext.Set<Notification>()
-                .FindAsync(new object[] { notificationId }, cancellationToken);
+                .FindAsync([notificationId], cancellationToken);
 
             if (notification == null)
                 return Result.Failure("Notification not found");
@@ -360,7 +360,7 @@ public class NotificationService : INotificationService
         try
         {
             var notification = await _dbContext.Set<Notification>()
-                .FindAsync(new object[] { notificationId }, cancellationToken);
+                .FindAsync([notificationId], cancellationToken);
 
             if (notification == null)
                 return Result.Failure("Notification not found");
@@ -504,7 +504,7 @@ public class NotificationService : INotificationService
         await _dbContext.Set<NotificationDeliveryLog>().AddAsync(log, cancellationToken);
     }
 
-    private Notification MapRequestToNotification(NotificationRequest request)
+    private static Notification MapRequestToNotification(NotificationRequest request)
     {
         var notification = new Notification
         {

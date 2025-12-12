@@ -56,7 +56,7 @@ public class WebhookNotificationProvider : NotificationProviderBase
                     Encoding.UTF8,
                     "application/json");
 
-                var response = await httpClient.PostAsync(webhookUrl, content, cancellationToken);
+                var response = await httpClient.PostAsync(new Uri(webhookUrl), content, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -99,7 +99,7 @@ public class WebhookNotificationProvider : NotificationProviderBase
     /// Gets the webhook URL for the notification.
     /// Priority: notification metadata > action URL > default config
     /// </summary>
-    private string? GetWebhookUrl(Notification notification)
+    private static string? GetWebhookUrl(Notification notification)
     {
         // Check notification metadata for webhook URL
         var metadata = notification.GetMetadata();

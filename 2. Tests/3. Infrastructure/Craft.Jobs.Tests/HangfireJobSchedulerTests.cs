@@ -176,7 +176,7 @@ public class HangfireJobSchedulerTests
         // We'll verify the scheduler calls it by checking the actual implementation
 
         // Act
-        var result = _scheduler.Requeue(jobId);
+        _ = _scheduler.Requeue(jobId);
 
         // Assert
         // The method will attempt to call the extension, result depends on implementation

@@ -157,7 +157,7 @@ public class UiUserProviderTests
         var provider = new UiUserProvider(mockAuthStateProvider.Object);
 
         // Assert
-        Assert.IsAssignableFrom<ICurrentUserProvider>(provider);
+        Assert.IsType<ICurrentUserProvider>(provider, exactMatch: false);
     }
 
     [Fact]

@@ -95,7 +95,7 @@ public abstract class NotificationProviderBase : INotificationProvider
     /// <summary>
     /// Measures the execution time of a delivery operation.
     /// </summary>
-    protected async Task<(T Result, long DurationMs)> MeasureAsync<T>(Func<Task<T>> operation)
+    protected static async Task<(T Result, long DurationMs)> MeasureAsync<T>(Func<Task<T>> operation)
     {
         var startTime = DateTimeOffset.UtcNow;
         var result = await operation();

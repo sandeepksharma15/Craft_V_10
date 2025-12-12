@@ -150,6 +150,6 @@ public class ApiUserProviderTests
         var provider = new ApiUserProvider(mockHttpContextAccessor.Object);
 
         // Assert
-        Assert.IsAssignableFrom<ICurrentUserProvider>(provider);
+        Assert.IsType<ICurrentUserProvider>(provider, exactMatch: false);
     }
 }
