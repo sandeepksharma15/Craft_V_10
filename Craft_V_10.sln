@@ -23,7 +23,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. Docs", "5. Docs", "{FDDE2AEC-845D-400D-A91D-8F19C52BA33F}"
 	ProjectSection(SolutionItems) = preProject
 		5. Docs\ARCHITECTURE_DIAGRAM.md = 5. Docs\ARCHITECTURE_DIAGRAM.md
-		5. Docs\Executive Summary.txt = 5. Docs\Executive Summary.txt
 		5. Docs\QUICK_REFERENCE.md = 5. Docs\QUICK_REFERENCE.md
 		5. Docs\REFACTORING_SUMMARY.md = 5. Docs\REFACTORING_SUMMARY.md
 		5. Docs\SOLUTION_REVIEW_REPORT.md = 5. Docs\SOLUTION_REVIEW_REPORT.md
