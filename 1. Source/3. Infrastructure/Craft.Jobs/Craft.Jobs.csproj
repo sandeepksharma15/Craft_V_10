@@ -4,6 +4,28 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Hangfire for background job processing -->
+    <PackageReference Include="Hangfire.Core" Version="1.8.17" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.17" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.11" />
+    
+    <!-- Microsoft Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Craft project references -->
+    <ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
+    <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
+    <ProjectReference Include="..\..\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+  </ItemGroup>
 
 </Project>
