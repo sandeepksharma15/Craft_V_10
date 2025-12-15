@@ -212,7 +212,10 @@ public class ChangeRepositoryTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.DoesNotContain(context.Countries!, c => c.Name == "NewName");
+
+        // Verify using a fresh context that the update wasn't persisted
+        await using var verifyContext = new TestDbContext(options);
+        Assert.DoesNotContain(verifyContext.Countries!, c => c.Name == "NewName");
     }
 
     [Fact]
@@ -283,7 +286,10 @@ public class ChangeRepositoryTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.DoesNotContain(context.Countries!, c => c.Name == "Updated1");
+
+        // Verify using a fresh context that the update wasn't persisted
+        await using var verifyContext = new TestDbContext(options);
+        Assert.DoesNotContain(verifyContext.Countries!, c => c.Name == "Updated1");
     }
 
     [Fact]

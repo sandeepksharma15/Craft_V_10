@@ -27,9 +27,10 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
             .ConfigureAwait(false);
 
         if (autoSave)
+        {
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        _appDbContext.Entry(entity).State = EntityState.Detached;
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+        }
 
         return result.Entity;
     }
@@ -47,10 +48,12 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
         await _dbSet.AddRangeAsync(entityList, cancellationToken).ConfigureAwait(false);
 
         if (autoSave)
+        {
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var entity in entityList)
-            _appDbContext.Entry(entity).State = EntityState.Detached;
+            foreach (var entity in entityList)
+                _appDbContext.Entry(entity).State = EntityState.Detached;
+        }
 
         return entityList;
     }
@@ -72,9 +75,10 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
             _dbSet.Remove(entity);
 
         if (autoSave)
+        {
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        _appDbContext.Entry(entity).State = EntityState.Detached;
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+        }
 
         return entity;
     }
@@ -111,17 +115,19 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
             _dbSet.UpdateRange(softDeleteEntities);
         }
 
-        if (hardDeleteEntities.Count > 0)
-            _dbSet.RemoveRange(hardDeleteEntities);
+            if (hardDeleteEntities.Count > 0)
+                _dbSet.RemoveRange(hardDeleteEntities);
 
-        if (autoSave)
-            await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            if (autoSave)
+            {
+                await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var entity in entityList)
-            _appDbContext.Entry(entity).State = EntityState.Detached;
+                foreach (var entity in entityList)
+                    _appDbContext.Entry(entity).State = EntityState.Detached;
+            }
 
-        return entityList;
-    }
+            return entityList;
+        }
 
     /// <inheritdoc/>
     public virtual async Task<T> UpdateAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
@@ -134,9 +140,10 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
         _dbSet.Update(entity);
 
         if (autoSave)
+        {
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        _appDbContext.Entry(entity).State = EntityState.Detached;
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+        }
 
         return entity;
     }
@@ -154,10 +161,12 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
         _dbSet.UpdateRange(entityList);
 
         if (autoSave)
+        {
             await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var entity in entityList)
-            _appDbContext.Entry(entity).State = EntityState.Detached;
+            foreach (var entity in entityList)
+                _appDbContext.Entry(entity).State = EntityState.Detached;
+        }
 
         return entityList;
     }
