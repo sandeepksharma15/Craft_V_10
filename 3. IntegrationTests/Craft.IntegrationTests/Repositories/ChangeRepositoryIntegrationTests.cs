@@ -124,6 +124,7 @@ public class ChangeRepositoryIntegrationTests : IAsyncLifetime
     public async Task AddAsync_WithAutoSaveFalse_DoesNotPersistUntilSaveChanges()
     {
         // Arrange
+        var initialCount = await _repository.GetCountAsync();
         var product = new Product
         {
             Name = "Delayed Save Product",
@@ -132,19 +133,19 @@ public class ChangeRepositoryIntegrationTests : IAsyncLifetime
             TenantId = 1
         };
 
-        // Act
+        // Act - Add with autoSave: false
         var result = await _repository.AddAsync(product, autoSave: false);
 
-        // Verify not yet persisted (using a new context would show it's not saved)
-        var count = await _repository.GetCountAsync();
-        var initialCount = count;
+        // Verify not yet persisted - count should still be the same
+        var countBeforeSave = await _repository.GetCountAsync();
+        Assert.Equal(initialCount, countBeforeSave);
 
         // Now save
         await _repository.SaveChangesAsync();
 
         // Assert - count should have increased
-        var newCount = await _repository.GetCountAsync();
-        Assert.Equal(initialCount + 1, newCount);
+        var countAfterSave = await _repository.GetCountAsync();
+        Assert.Equal(initialCount + 1, countAfterSave);
     }
 
     [Fact]
