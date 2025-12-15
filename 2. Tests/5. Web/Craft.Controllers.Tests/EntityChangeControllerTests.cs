@@ -56,7 +56,7 @@ public class EntityChangeControllerTests
         var result = await _controller.AddAsync(model);
 
         // Assert
-        var created = Assert.IsType<CreatedAtActionResult>(result.Result);
+        var created = Assert.IsType<CreatedResult>(result.Result);
         Assert.Equal(entity, created.Value);
     }
 
