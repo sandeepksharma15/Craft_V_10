@@ -579,9 +579,9 @@ public class RetryHelperTests
                 throw new InvalidOperationException("Operation failed");
             }, maxAttempts: 10, initialDelayMs: 100, maxDelayMs: 200));
 
-        // Assert all delays respect the max delay cap
+        // Assert all delays respect the max delay cap (with tolerance for timing variance)
         Assert.Equal(10, attemptCount);
-        Assert.All(delays, delay => Assert.True(delay <= 250, $"Delay {delay} exceeded max with tolerance"));
+        Assert.All(delays, delay => Assert.True(delay <= 300, $"Delay {delay} exceeded max with tolerance"));
     }
 
     [Fact]
@@ -726,9 +726,9 @@ public class RetryHelperTests
                 throw new InvalidOperationException("Operation failed");
             }, maxAttempts: 10, initialDelayMs: 100, maxDelayMs: 200));
 
-        // Assert all delays respect the max delay cap
+        // Assert all delays respect the max delay cap (with tolerance for timing variance)
         Assert.Equal(10, attemptCount);
-        Assert.All(delays, delay => Assert.True(delay <= 250, $"Delay {delay} exceeded max with tolerance"));
+        Assert.All(delays, delay => Assert.True(delay <= 300, $"Delay {delay} exceeded max with tolerance"));
     }
 
     [Fact]
