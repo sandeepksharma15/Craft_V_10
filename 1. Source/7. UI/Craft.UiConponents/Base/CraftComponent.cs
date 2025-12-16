@@ -298,9 +298,7 @@ public abstract class CraftComponent : ComponentBase, IJsComponent, IAsyncDispos
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !string.IsNullOrEmpty(JsModulePath))
-        {
             await InitializeJsModuleAsync();
-        }
     }
 
     /// <inheritdoc />

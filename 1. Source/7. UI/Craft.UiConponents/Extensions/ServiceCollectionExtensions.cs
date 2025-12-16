@@ -1,3 +1,4 @@
+using Craft.UiConponents.Enums;
 using Craft.UiConponents.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,9 +27,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection to add services to.</param>
     /// <param name="configure">The configuration action.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddCraftUiComponents(
-        this IServiceCollection services,
-        Action<CraftUiOptions> configure)
+    public static IServiceCollection AddCraftUiComponents(this IServiceCollection services, Action<CraftUiOptions> configure)
     {
         var options = new CraftUiOptions();
         configure(options);
@@ -48,7 +47,7 @@ public class CraftUiOptions
     /// <summary>
     /// Gets or sets the default theme.
     /// </summary>
-    public Enums.Theme DefaultTheme { get; set; } = Enums.Theme.System;
+    public Enums.Theme DefaultTheme { get; set; } = Theme.System;
 
     /// <summary>
     /// Gets or sets whether to enable component logging.
@@ -58,7 +57,7 @@ public class CraftUiOptions
     /// <summary>
     /// Gets or sets the default animation duration.
     /// </summary>
-    public Enums.AnimationDuration DefaultAnimationDuration { get; set; } = Enums.AnimationDuration.Normal;
+    public AnimationDuration DefaultAnimationDuration { get; set; } = AnimationDuration.Normal;
 
     /// <summary>
     /// Gets or sets the CSS class prefix for all components.
