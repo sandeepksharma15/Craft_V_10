@@ -1,0 +1,409 @@
+/**
+ * Craft UI Components - Core Styles
+ * Base CSS variables and utility classes for the component library.
+ */
+
+/* ===== CSS Custom Properties (Theme Variables) ===== */
+
+:root,
+.craft-theme-light {
+    /* Colors */
+    --craft-color-primary: #3b82f6;
+    --craft-color-primary-hover: #2563eb;
+    --craft-color-primary-active: #1d4ed8;
+    
+    --craft-color-secondary: #64748b;
+    --craft-color-secondary-hover: #475569;
+    --craft-color-secondary-active: #334155;
+    
+    --craft-color-success: #22c55e;
+    --craft-color-success-hover: #16a34a;
+    --craft-color-success-active: #15803d;
+    
+    --craft-color-warning: #f59e0b;
+    --craft-color-warning-hover: #d97706;
+    --craft-color-warning-active: #b45309;
+    
+    --craft-color-danger: #ef4444;
+    --craft-color-danger-hover: #dc2626;
+    --craft-color-danger-active: #b91c1c;
+    
+    --craft-color-info: #06b6d4;
+    --craft-color-info-hover: #0891b2;
+    --craft-color-info-active: #0e7490;
+    
+    /* Background & Surface */
+    --craft-color-background: #ffffff;
+    --craft-color-surface: #f8fafc;
+    --craft-color-surface-hover: #f1f5f9;
+    
+    /* Text */
+    --craft-color-text: #1e293b;
+    --craft-color-text-secondary: #64748b;
+    --craft-color-text-muted: #94a3b8;
+    --craft-color-text-inverse: #ffffff;
+    
+    /* Borders */
+    --craft-color-border: #e2e8f0;
+    --craft-color-border-hover: #cbd5e1;
+    --craft-color-border-focus: var(--craft-color-primary);
+    
+    /* Shadows */
+    --craft-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --craft-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --craft-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --craft-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    
+    /* Focus Ring */
+    --craft-ring-color: rgba(59, 130, 246, 0.5);
+    --craft-ring-offset: 2px;
+    --craft-ring-width: 2px;
+    
+    /* Spacing */
+    --craft-spacing-xs: 0.25rem;
+    --craft-spacing-sm: 0.5rem;
+    --craft-spacing-md: 1rem;
+    --craft-spacing-lg: 1.5rem;
+    --craft-spacing-xl: 2rem;
+    
+    /* Border Radius */
+    --craft-radius-sm: 0.25rem;
+    --craft-radius: 0.375rem;
+    --craft-radius-md: 0.5rem;
+    --craft-radius-lg: 0.75rem;
+    --craft-radius-xl: 1rem;
+    --craft-radius-full: 9999px;
+    
+    /* Typography */
+    --craft-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --craft-font-size-xs: 0.75rem;
+    --craft-font-size-sm: 0.875rem;
+    --craft-font-size-md: 1rem;
+    --craft-font-size-lg: 1.125rem;
+    --craft-font-size-xl: 1.25rem;
+    
+    /* Animation */
+    --craft-animation-duration: 300ms;
+    --craft-animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Z-Index Scale */
+    --craft-z-dropdown: 1000;
+    --craft-z-sticky: 1020;
+    --craft-z-fixed: 1030;
+    --craft-z-modal-backdrop: 1040;
+    --craft-z-modal: 1050;
+    --craft-z-popover: 1060;
+    --craft-z-tooltip: 1070;
+}
+
+/* ===== Dark Theme ===== */
+
+.craft-theme-dark {
+    --craft-color-primary: #60a5fa;
+    --craft-color-primary-hover: #3b82f6;
+    --craft-color-primary-active: #2563eb;
+    
+    --craft-color-secondary: #94a3b8;
+    --craft-color-secondary-hover: #cbd5e1;
+    --craft-color-secondary-active: #e2e8f0;
+    
+    --craft-color-success: #4ade80;
+    --craft-color-success-hover: #22c55e;
+    --craft-color-success-active: #16a34a;
+    
+    --craft-color-warning: #fbbf24;
+    --craft-color-warning-hover: #f59e0b;
+    --craft-color-warning-active: #d97706;
+    
+    --craft-color-danger: #f87171;
+    --craft-color-danger-hover: #ef4444;
+    --craft-color-danger-active: #dc2626;
+    
+    --craft-color-info: #22d3ee;
+    --craft-color-info-hover: #06b6d4;
+    --craft-color-info-active: #0891b2;
+    
+    /* Background & Surface */
+    --craft-color-background: #0f172a;
+    --craft-color-surface: #1e293b;
+    --craft-color-surface-hover: #334155;
+    
+    /* Text */
+    --craft-color-text: #f1f5f9;
+    --craft-color-text-secondary: #94a3b8;
+    --craft-color-text-muted: #64748b;
+    --craft-color-text-inverse: #0f172a;
+    
+    /* Borders */
+    --craft-color-border: #334155;
+    --craft-color-border-hover: #475569;
+    --craft-color-border-focus: var(--craft-color-primary);
+    
+    /* Shadows */
+    --craft-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --craft-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+    --craft-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --craft-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    
+    /* Focus Ring */
+    --craft-ring-color: rgba(96, 165, 250, 0.5);
+}
+
+/* ===== Base Styles ===== */
+
+.craft-hidden {
+    display: none !important;
+}
+
+.craft-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.craft-readonly {
+    pointer-events: none;
+}
+
+/* ===== Size Variants ===== */
+
+.craft-size-xs {
+    --craft-component-padding: var(--craft-spacing-xs) var(--craft-spacing-sm);
+    --craft-component-font-size: var(--craft-font-size-xs);
+}
+
+.craft-size-sm {
+    --craft-component-padding: var(--craft-spacing-sm) var(--craft-spacing-md);
+    --craft-component-font-size: var(--craft-font-size-sm);
+}
+
+.craft-size-lg {
+    --craft-component-padding: var(--craft-spacing-md) var(--craft-spacing-lg);
+    --craft-component-font-size: var(--craft-font-size-lg);
+}
+
+.craft-size-xl {
+    --craft-component-padding: var(--craft-spacing-lg) var(--craft-spacing-xl);
+    --craft-component-font-size: var(--craft-font-size-xl);
+}
+
+/* ===== Variant Styles ===== */
+
+.craft-variant-primary {
+    --craft-component-bg: var(--craft-color-primary);
+    --craft-component-bg-hover: var(--craft-color-primary-hover);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-primary);
+}
+
+.craft-variant-secondary {
+    --craft-component-bg: var(--craft-color-secondary);
+    --craft-component-bg-hover: var(--craft-color-secondary-hover);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-secondary);
+}
+
+.craft-variant-success {
+    --craft-component-bg: var(--craft-color-success);
+    --craft-component-bg-hover: var(--craft-color-success-hover);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-success);
+}
+
+.craft-variant-warning {
+    --craft-component-bg: var(--craft-color-warning);
+    --craft-component-bg-hover: var(--craft-color-warning-hover);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-warning);
+}
+
+.craft-variant-danger {
+    --craft-component-bg: var(--craft-color-danger);
+    --craft-component-bg-hover: var(--craft-color-danger-hover);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-danger);
+}
+
+.craft-variant-info {
+    --craft-component-bg: var(--craft-color-info);
+    --craft-component-bg-hover: var(--craft-color-info-hover);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-info);
+}
+
+.craft-variant-light {
+    --craft-component-bg: var(--craft-color-surface);
+    --craft-component-bg-hover: var(--craft-color-surface-hover);
+    --craft-component-text: var(--craft-color-text);
+    --craft-component-border: var(--craft-color-border);
+}
+
+.craft-variant-dark {
+    --craft-component-bg: var(--craft-color-text);
+    --craft-component-bg-hover: var(--craft-color-text-secondary);
+    --craft-component-text: var(--craft-color-text-inverse);
+    --craft-component-border: var(--craft-color-text);
+}
+
+.craft-variant-outlined {
+    --craft-component-bg: transparent;
+    --craft-component-bg-hover: var(--craft-color-surface);
+    --craft-component-text: var(--craft-color-text);
+    --craft-component-border: var(--craft-color-border);
+}
+
+.craft-variant-text {
+    --craft-component-bg: transparent;
+    --craft-component-bg-hover: var(--craft-color-surface);
+    --craft-component-text: var(--craft-color-primary);
+    --craft-component-border: transparent;
+}
+
+/* ===== Validation States ===== */
+
+.craft-valid {
+    --craft-component-border: var(--craft-color-success);
+}
+
+.craft-invalid {
+    --craft-component-border: var(--craft-color-danger);
+}
+
+.craft-required::after {
+    content: ' *';
+    color: var(--craft-color-danger);
+}
+
+/* ===== Animation Classes ===== */
+
+.craft-animate-fade {
+    animation: craft-fade var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-slide {
+    animation: craft-slide var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-scale {
+    animation: craft-scale var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-collapse {
+    animation: craft-collapse var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-bounce {
+    animation: craft-bounce var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-shake {
+    animation: craft-shake var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-pulse {
+    animation: craft-pulse var(--craft-animation-duration) var(--craft-animation-timing) infinite;
+}
+
+.craft-animate-flip {
+    animation: craft-flip var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+.craft-animate-rotate {
+    animation: craft-rotate var(--craft-animation-duration) var(--craft-animation-timing);
+}
+
+/* ===== Keyframes ===== */
+
+@keyframes craft-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes craft-slide {
+    from { 
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes craft-scale {
+    from { 
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to { 
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes craft-collapse {
+    from { 
+        opacity: 0;
+        max-height: 0;
+    }
+    to { 
+        opacity: 1;
+        max-height: 1000px;
+    }
+}
+
+@keyframes craft-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes craft-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes craft-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes craft-flip {
+    from { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+    to { transform: perspective(400px) rotateY(0); opacity: 1; }
+}
+
+@keyframes craft-rotate {
+    from { transform: rotate(-180deg); opacity: 0; }
+    to { transform: rotate(0); opacity: 1; }
+}
+
+/* ===== Focus Styles ===== */
+
+.craft-focusable:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--craft-ring-offset) var(--craft-color-background),
+                0 0 0 calc(var(--craft-ring-offset) + var(--craft-ring-width)) var(--craft-ring-color);
+}
+
+/* ===== Transitions ===== */
+
+.craft-transition {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: var(--craft-animation-duration);
+    transition-timing-function: var(--craft-animation-timing);
+}
+
+/* ===== Screen Reader Only ===== */
+
+.craft-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
