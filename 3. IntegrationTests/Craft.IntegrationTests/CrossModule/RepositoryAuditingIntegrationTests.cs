@@ -86,7 +86,7 @@ public class RepositoryAuditingIntegrationTests : IAsyncLifetime
         Assert.Contains("Updated Audited Customer", updateAudit.NewValues!);
 
         var changedColumns = updateAudit.GetChangedColumnsAsList();
-        Assert.Contains(changedColumns, c => c.Contains("Name"));
+        Assert.Contains(changedColumns!, c => c.Contains("Name"));
 
         // Step 3: Delete entity (soft delete) - should generate Deleted audit
         _dbContext.ChangeTracker.Clear();

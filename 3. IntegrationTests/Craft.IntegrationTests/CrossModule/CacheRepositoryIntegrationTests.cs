@@ -335,7 +335,7 @@ public class CacheRepositoryIntegrationTests : IAsyncLifetime
 
         var product = await _repository.GetAsync(id);
 
-        if (product != null)
+        if (product is not null)
             await _cacheService.SetAsync(cacheKey, product);
 
         return product;
@@ -352,7 +352,7 @@ public class CacheRepositoryIntegrationTests : IAsyncLifetime
         var products = await _repository.GetAllAsync();
         await _cacheService.SetAsync(cacheKey, products.ToList());
 
-        return products.ToList();
+        return [.. products];
     }
 
     #endregion
