@@ -15,4 +15,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
+    <ProjectReference Include="..\..\1. Core\Craft.Utilities\Craft.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>
