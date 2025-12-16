@@ -1,7 +1,7 @@
-﻿using System.Text;
-using Craft.UiConponents.Abstractions;
+﻿using Craft.UiConponents.Abstractions;
 using Craft.UiConponents.Enums;
 using Craft.UiConponents.Services;
+using Craft.Utilities.Builders;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -288,8 +288,7 @@ public abstract class CraftComponent : ComponentBase, IJsComponent, IAsyncDispos
         Id ??= GenerateId();
         _previousVisible = Visible;
 
-        if (ThemeService is not null)
-            ThemeService.ThemeChanged += OnThemeChanged;
+        ThemeService?.ThemeChanged += OnThemeChanged;
 
         LogDebug("Component initialized with Id: {Id}", Id);
     }
@@ -347,20 +346,13 @@ public abstract class CraftComponent : ComponentBase, IJsComponent, IAsyncDispos
     /// <returns>The combined CSS class string.</returns>
     protected virtual string BuildCssClass()
     {
-        var builder = new CssClassBuilder();
-
-        builder.Add(GetComponentCssClass());
-        builder.Add(GetSizeCssClass());
-        builder.Add(GetVariantCssClass());
-        builder.Add(GetAnimationCssClass());
-
-        if (Disabled)
-            builder.Add("craft-disabled");
-
-        if (!Visible)
-            builder.Add("craft-hidden");
-
-        builder.Add(Class);
+        var builder = new CssBuilder(GetComponentCssClass() ?? string.Empty)
+            .AddClass(GetSizeCssClass()!, !string.IsNullOrEmpty(GetSizeCssClass()))
+            .AddClass(GetVariantCssClass()!, !string.IsNullOrEmpty(GetVariantCssClass()))
+            .AddClass(GetAnimationCssClass()!, !string.IsNullOrEmpty(GetAnimationCssClass()))
+            .AddClass("craft-disabled", Disabled)
+            .AddClass("craft-hidden", !Visible)
+            .AddClass(Class ?? String.Empty, !string.IsNullOrEmpty(Class));
 
         return builder.Build();
     }
@@ -427,16 +419,14 @@ public abstract class CraftComponent : ComponentBase, IJsComponent, IAsyncDispos
     /// <returns>The combined style string.</returns>
     protected virtual string? BuildStyle()
     {
-        var builder = new StyleBuilder();
-
         var duration = CustomAnimationDurationMs ?? (int)AnimationDuration;
+        var hasAnimationDuration = duration > 0 && Animation != AnimationType.None;
 
-        if (duration > 0 && Animation != AnimationType.None)
-            builder.Add("--craft-animation-duration", $"{duration}ms");
+        var builder = StyleBuilder.Empty()
+            .AddStyle("--craft-animation-duration", $"{duration}ms", hasAnimationDuration)
+            .AddStyle(Style ?? String.Empty);
 
-        builder.Add(Style);
-
-        return builder.Build();
+        return builder.NullIfEmpty();
     }
 
     /// <summary>
@@ -592,8 +582,7 @@ public abstract class CraftComponent : ComponentBase, IJsComponent, IAsyncDispos
 
         _disposed = true;
 
-        if (ThemeService is not null)
-            ThemeService.ThemeChanged -= OnThemeChanged;
+        ThemeService?.ThemeChanged -= OnThemeChanged;
 
         await DisposeAsyncCore();
 
@@ -621,110 +610,4 @@ public abstract class CraftComponent : ComponentBase, IJsComponent, IAsyncDispos
     protected virtual ValueTask DisposeAsyncCore() => ValueTask.CompletedTask;
 
     #endregion
-}
-
-/// <summary>
-/// Helper class for building CSS class strings.
-/// </summary>
-public sealed class CssClassBuilder
-{
-    private readonly StringBuilder _builder = new();
-
-    /// <summary>
-    /// Adds a CSS class to the builder if it's not null or empty.
-    /// </summary>
-    public CssClassBuilder Add(string? cssClass)
-    {
-        if (string.IsNullOrWhiteSpace(cssClass))
-            return this;
-
-        if (_builder.Length > 0)
-            _builder.Append(' ');
-
-        _builder.Append(cssClass.Trim());
-
-        return this;
-    }
-
-    /// <summary>
-    /// Adds a CSS class to the builder conditionally.
-    /// </summary>
-    public CssClassBuilder Add(string? cssClass, bool condition)
-    {
-        if (condition)
-            Add(cssClass);
-
-        return this;
-    }
-
-    /// <summary>
-    /// Builds the final CSS class string.
-    /// </summary>
-    public string Build() => _builder.ToString();
-
-    /// <inheritdoc />
-    public override string ToString() => Build();
-}
-
-/// <summary>
-/// Helper class for building inline style strings.
-/// </summary>
-public sealed class StyleBuilder
-{
-    private readonly StringBuilder _builder = new();
-
-    /// <summary>
-    /// Adds a style property to the builder.
-    /// </summary>
-    public StyleBuilder Add(string property, string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return this;
-
-        if (_builder.Length > 0 && !_builder.ToString().EndsWith(';'))
-            _builder.Append("; ");
-
-        _builder.Append($"{property}: {value}");
-
-        return this;
-    }
-
-    /// <summary>
-    /// Adds raw style string to the builder.
-    /// </summary>
-    public StyleBuilder Add(string? style)
-    {
-        if (string.IsNullOrWhiteSpace(style))
-            return this;
-
-        if (_builder.Length > 0 && !_builder.ToString().EndsWith(';'))
-            _builder.Append("; ");
-
-        _builder.Append(style.Trim().TrimEnd(';'));
-
-        return this;
-    }
-
-    /// <summary>
-    /// Adds a style property conditionally.
-    /// </summary>
-    public StyleBuilder Add(string property, string? value, bool condition)
-    {
-        if (condition)
-            Add(property, value);
-
-        return this;
-    }
-
-    /// <summary>
-    /// Builds the final style string.
-    /// </summary>
-    public string? Build()
-    {
-        var result = _builder.ToString();
-        return string.IsNullOrWhiteSpace(result) ? null : result;
-    }
-
-    /// <inheritdoc />
-    public override string ToString() => Build() ?? string.Empty;
 }

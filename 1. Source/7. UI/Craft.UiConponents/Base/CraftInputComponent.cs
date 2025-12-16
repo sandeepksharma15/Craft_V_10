@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using Craft.Utilities.Builders;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -13,7 +14,7 @@ namespace Craft.UiConponents;
 public abstract class CraftInputComponent<TValue> : CraftComponent
 {
     private bool _hasInitializedParameters;
-    private bool _previousParsingAttemptFailed;
+    //private bool _previousParsingAttemptFailed;
     private ValidationMessageStore? _parsingValidationMessages;
     private Type? _nullableUnderlyingType;
 
@@ -60,17 +61,17 @@ public abstract class CraftInputComponent<TValue> : CraftComponent
 
             if (_nullableUnderlyingType is not null && string.IsNullOrEmpty(value))
             {
-                _previousParsingAttemptFailed = false;
+                //_previousParsingAttemptFailed = false;
                 CurrentValue = default;
             }
             else if (TryParseValueFromString(value, out var parsedValue, out var validationErrorMessage))
             {
-                _previousParsingAttemptFailed = false;
+                //_previousParsingAttemptFailed = false;
                 CurrentValue = parsedValue;
             }
             else
             {
-                _previousParsingAttemptFailed = true;
+                //_previousParsingAttemptFailed = true;
                 _parsingValidationMessages ??= new ValidationMessageStore(EditContext!);
                 _parsingValidationMessages.Add(FieldIdentifier, validationErrorMessage ?? "Invalid value.");
 
@@ -221,16 +222,12 @@ public abstract class CraftInputComponent<TValue> : CraftComponent
     /// <inheritdoc />
     protected override string BuildCssClass()
     {
-        var builder = new CssClassBuilder();
+        var baseClass = base.BuildCssClass();
 
-        builder.Add(base.BuildCssClass());
-        builder.Add(ValidationCssClass);
-
-        if (ReadOnly)
-            builder.Add("craft-readonly");
-
-        if (Required)
-            builder.Add("craft-required");
+        var builder = new CssBuilder(baseClass)
+            .AddClass(ValidationCssClass, !string.IsNullOrEmpty(ValidationCssClass))
+            .AddClass("craft-readonly", ReadOnly)
+            .AddClass("craft-required", Required);
 
         return builder.Build();
     }
@@ -291,8 +288,7 @@ public abstract class CraftInputComponent<TValue> : CraftComponent
     /// <inheritdoc />
     protected override ValueTask DisposeAsyncCore()
     {
-        if (EditContext is not null)
-            EditContext.OnValidationStateChanged -= OnValidationStateChanged;
+        EditContext?.OnValidationStateChanged -= OnValidationStateChanged;
 
         _parsingValidationMessages?.Clear();
 
