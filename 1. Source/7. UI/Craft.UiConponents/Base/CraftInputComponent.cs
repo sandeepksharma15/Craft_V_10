@@ -14,7 +14,6 @@ namespace Craft.UiConponents;
 public abstract class CraftInputComponent<TValue> : CraftComponent
 {
     private bool _hasInitializedParameters;
-    //private bool _previousParsingAttemptFailed;
     private ValidationMessageStore? _parsingValidationMessages;
     private Type? _nullableUnderlyingType;
 
@@ -61,17 +60,14 @@ public abstract class CraftInputComponent<TValue> : CraftComponent
 
             if (_nullableUnderlyingType is not null && string.IsNullOrEmpty(value))
             {
-                //_previousParsingAttemptFailed = false;
                 CurrentValue = default;
             }
             else if (TryParseValueFromString(value, out var parsedValue, out var validationErrorMessage))
             {
-                //_previousParsingAttemptFailed = false;
                 CurrentValue = parsedValue;
             }
             else
             {
-                //_previousParsingAttemptFailed = true;
                 _parsingValidationMessages ??= new ValidationMessageStore(EditContext!);
                 _parsingValidationMessages.Add(FieldIdentifier, validationErrorMessage ?? "Invalid value.");
 
