@@ -17,6 +17,7 @@ The Craft UI component library uses **interface-based composition** with C# 8.0+
 ```
 CraftComponent (minimal base)
 ?   ??? ElementRef & OnClick (80% use case)
+?   ??? Disabled property (used by event interfaces)
 ?   ??? Styling, Theming, Animation
 ?   ??? Core properties
 ?
@@ -44,11 +45,61 @@ CraftComponent (minimal base)
 | `IFocusEvents` | OnFocus, OnBlur | Components managing focus state |
 | `ITouchEvents` | OnTouchStart/End/Move/Cancel | Touch-enabled components |
 
+**Note:** Event interfaces require a `bool Disabled { get; }` property. `CraftComponent` already provides this, so any component inheriting from it automatically satisfies this requirement.
+
 ### JS Interop Interface
 
 | Interface | Members | When to Use |
 |-----------|---------|-------------|
 | `IJsComponent` | JsModule, IsJsInitialized | Components requiring JavaScript interop |
+
+---
+
+## How `Disabled` Works with Event Interfaces
+
+The event interfaces (`IMouseEvents`, `IKeyboardEvents`, `ITouchEvents`) have default implementations that respect the `Disabled` state:
+
+```csharp
+public interface IMouseEvents
+{
+    bool Disabled { get; }  // Required property
+    
+    // Default implementation checks Disabled
+    Task HandleMouseDownAsync(MouseEventArgs args)
+    {
+        if (Disabled)
+            return Task.CompletedTask;  // No-op when disabled
+            
+        return OnMouseDown.InvokeAsync(args);
+    }
+}
+```
+
+### For Components Inheriting from CraftComponent
+
+```csharp
+// ? Works automatically - CraftComponent provides Disabled
+public class CraftButton : CraftComponent, IMouseEvents
+{
+    // Disabled property is inherited from CraftComponent
+    // Event handlers automatically check it
+}
+```
+
+### For Custom Components Not Using CraftComponent
+
+```csharp
+// ?? Must implement Disabled yourself
+public class MyCustomComponent : ComponentBase, IMouseEvents
+{
+    [Parameter]
+    public bool Disabled { get; set; }  // Must provide this
+    
+    [Parameter] 
+    public EventCallback<MouseEventArgs> OnMouseDown { get; set; }
+    // ... other required properties
+}
+```
 
 ---
 
