@@ -134,7 +134,7 @@ public class ChangeRepositoryIntegrationTests : IAsyncLifetime
         };
 
         // Act - Add with autoSave: false
-        var result = await _repository.AddAsync(product, autoSave: false);
+        _ = await _repository.AddAsync(product, autoSave: false);
 
         // Verify not yet persisted - count should still be the same
         var countBeforeSave = await _repository.GetCountAsync();

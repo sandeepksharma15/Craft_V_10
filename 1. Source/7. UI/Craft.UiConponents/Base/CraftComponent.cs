@@ -144,8 +144,7 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
         Id ??= GenerateId();
         _previousVisible = Visible;
 
-        if (ThemeService is not null)
-            ThemeService.ThemeChanged += OnThemeChanged;
+        ThemeService?.ThemeChanged += OnThemeChanged;
 
         LogDebug("Component initialized with Id: {Id}", Id);
     }

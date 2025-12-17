@@ -22,13 +22,14 @@ public class CraftUiOptionsTests
     public void Properties_ShouldBeSettable()
     {
         // Arrange
-        var options = new CraftUiOptions();
-
-        // Act
-        options.DefaultTheme = Theme.Dark;
-        options.EnableLogging = true;
-        options.DefaultAnimationDuration = AnimationDuration.Slow;
-        options.CssPrefix = "custom-prefix";
+        var options = new CraftUiOptions
+        {
+            // Act
+            DefaultTheme = Theme.Dark,
+            EnableLogging = true,
+            DefaultAnimationDuration = AnimationDuration.Slow,
+            CssPrefix = "custom-prefix"
+        };
 
         // Assert
         Assert.Equal(Theme.Dark, options.DefaultTheme);

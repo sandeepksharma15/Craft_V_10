@@ -170,7 +170,7 @@ public class TenantResolutionIntegrationTests
         // Arrange
         var tenants = new List<Tenant>
         {
-            new Tenant(1, "ToDelete", "conn", "to-delete") { IsActive = true }
+            new(1, "ToDelete", "conn", "to-delete") { IsActive = true }
         };
         var store = CreateInMemoryStore(tenants);
 
@@ -409,7 +409,7 @@ public class TenantResolutionIntegrationTests
     {
         var options = Options.Create(new InMemoryStoreOptions<Tenant>
         {
-            Tenants = tenants.ToList(),
+            Tenants = [.. tenants],
             IsCaseSensitive = false
         });
         return new InMemoryStore<Tenant>(options);

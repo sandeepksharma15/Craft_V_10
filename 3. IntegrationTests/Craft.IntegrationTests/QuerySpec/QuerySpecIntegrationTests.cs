@@ -109,8 +109,10 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
     public async Task Query_WithTake_LimitsResults()
     {
         // Arrange
-        var query = new Query<Product>();
-        query.Take = 2;
+        var query = new Query<Product>
+        {
+            Take = 2
+        };
 
         // Act
         var results = await _dbContext.Products
@@ -126,8 +128,10 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
     {
         // Arrange
         var totalCount = await _dbContext.Products.CountAsync();
-        var query = new Query<Product>();
-        query.Skip = 2;
+        var query = new Query<Product>
+        {
+            Skip = 2
+        };
 
         // Act
         var results = await _dbContext.Products
@@ -351,8 +355,10 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
     public async Task Query_AsNoTracking_DoesNotTrackEntities()
     {
         // Arrange
-        var query = new Query<Product>();
-        query.AsNoTracking = true;
+        var query = new Query<Product>
+        {
+            AsNoTracking = true
+        };
         query.Where(p => p.Id == 1);
 
         // Act
@@ -371,8 +377,10 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
     public async Task Query_IgnoreQueryFilters_IncludesSoftDeleted()
     {
         // Arrange
-        var query = new Query<Product>();
-        query.IgnoreQueryFilters = true;
+        var query = new Query<Product>
+        {
+            IgnoreQueryFilters = true
+        };
 
         // Act
         var results = await _dbContext.Products
@@ -387,8 +395,10 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
     public async Task Query_WithoutIgnoreQueryFilters_ExcludesSoftDeleted()
     {
         // Arrange
-        var query = new Query<Product>();
-        query.IgnoreQueryFilters = false;
+        var query = new Query<Product>
+        {
+            IgnoreQueryFilters = false
+        };
 
         // Act
         var results = await _dbContext.Products
