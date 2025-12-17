@@ -11,7 +11,7 @@ namespace Craft.UiConponents;
 /// for validation and two-way binding support.
 /// </summary>
 /// <typeparam name="TValue">The type of the input value.</typeparam>
-public abstract class CraftInputComponent<TValue> : CraftComponent
+public abstract class CraftInputComponent<TValue> : CraftInteractiveComponent
 {
     private bool _hasInitializedParameters;
     private ValidationMessageStore? _parsingValidationMessages;
@@ -83,62 +83,52 @@ public abstract class CraftInputComponent<TValue> : CraftComponent
     /// <summary>
     /// Gets or sets the cascading edit context.
     /// </summary>
-    [CascadingParameter]
-    private EditContext? CascadedEditContext { get; set; }
+    [CascadingParameter] private EditContext? CascadedEditContext { get; set; }
 
     /// <summary>
     /// Gets or sets the value of the input.
     /// </summary>
-    [Parameter]
-    public TValue? Value { get; set; }
+    [Parameter] public TValue? Value { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the value changes.
     /// </summary>
-    [Parameter]
-    public EventCallback<TValue?> ValueChanged { get; set; }
+    [Parameter] public EventCallback<TValue?> ValueChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the expression identifying the bound value.
     /// </summary>
-    [Parameter]
-    public Expression<Func<TValue>>? ValueExpression { get; set; }
+    [Parameter] public Expression<Func<TValue>>? ValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the display name for the field, used in validation messages.
     /// </summary>
-    [Parameter]
-    public string? DisplayName { get; set; }
+    [Parameter] public string? DisplayName { get; set; }
 
     /// <summary>
     /// Gets or sets the placeholder text for the input.
     /// </summary>
-    [Parameter]
-    public string? Placeholder { get; set; }
+    [Parameter] public string? Placeholder { get; set; }
 
     /// <summary>
     /// Gets or sets whether the input is read-only.
     /// </summary>
-    [Parameter]
-    public bool ReadOnly { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
 
     /// <summary>
     /// Gets or sets whether the input is required.
     /// </summary>
-    [Parameter]
-    public bool Required { get; set; }
+    [Parameter] public bool Required { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the input value changes (before validation).
     /// </summary>
-    [Parameter]
-    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked on every input event.
     /// </summary>
-    [Parameter]
-    public EventCallback<ChangeEventArgs> OnInput { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
     #endregion
 
@@ -267,15 +257,11 @@ public abstract class CraftInputComponent<TValue> : CraftComponent
     /// <summary>
     /// Handles the input event from the input element.
     /// </summary>
-    protected virtual async Task HandleInputAsync(ChangeEventArgs args)
-    {
-        await OnInput.InvokeAsync(args);
-    }
+    protected virtual async Task HandleInputAsync(ChangeEventArgs args) 
+        => await OnInput.InvokeAsync(args);
 
-    private void OnValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
-    {
-        InvokeAsync(StateHasChanged);
-    }
+    private void OnValidationStateChanged(object? sender, ValidationStateChangedEventArgs e) 
+        => InvokeAsync(StateHasChanged);
 
     #endregion
 
