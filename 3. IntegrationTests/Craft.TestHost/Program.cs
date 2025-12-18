@@ -52,5 +52,7 @@ app.MapControllers();
 app.Run();
 
 // Required for WebApplicationFactory
+#pragma warning disable ASP0027 // Unnecessary public Program class declaration
 public partial class Program { }
+#pragma warning restore ASP0027 // Unnecessary public Program class declaration
 
