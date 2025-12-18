@@ -3,18 +3,18 @@
   <PropertyGroup>
     <!-- Mark all projects in this directory as test projects -->
     <IsTestProject>true</IsTestProject>
-
+    
     <!-- Ensure NuGet packages are restored to the correct location -->
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
-
+    
     <!-- Prevent Live Unit Testing from using shadow copy directories -->
     <DisableMSBuildAssemblyLoader>false</DisableMSBuildAssemblyLoader>
-
+    
     <!-- Ensure deterministic builds -->
     <Deterministic>true</Deterministic>
     <DeterministicSourcePaths>false</DeterministicSourcePaths>
-
+    
     <!-- Copy local lock file assemblies to output directory -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
