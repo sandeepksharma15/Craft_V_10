@@ -95,7 +95,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         try
         {
             T entity = await repository.AddAsync(model.Adapt<T>(), cancellationToken: cancellationToken);
-            return Created($"{entity.Id}/false", entity);
+            return Created(new Uri($"{entity.Id}/false", UriKind.Relative), entity);
         }
         catch (Exception ex)
         {

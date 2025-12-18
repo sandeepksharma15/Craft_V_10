@@ -476,7 +476,7 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
         var query = new Query<Product>();
         query.Where(p => p.CategoryId == categoryId);
         query.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
-        query.Where(p => p.Name.ToLower().Contains(searchTerm));
+        query.Where(p => p.Name.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase));
         query.OrderBy(p => p.Name);
 
         // Step 2: Execute the query
