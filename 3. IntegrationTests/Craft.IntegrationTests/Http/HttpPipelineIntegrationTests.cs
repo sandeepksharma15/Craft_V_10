@@ -13,6 +13,8 @@ public class HttpPipelineIntegrationTests
 {
     private readonly TestHostFixture _fixture;
 
+#pragma warning disable CA2234 // Pass system uri objects instead of strings
+
     public HttpPipelineIntegrationTests(TestHostFixture fixture)
     {
         _fixture = fixture;
@@ -27,7 +29,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.Client;
 
         // Act
-        var response = await client.GetAsync(new Uri("/WeatherForecast"));
+        var response = await client.GetAsync("/WeatherForecast");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -44,7 +46,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("alpha");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Tenant"));
+        var response = await client.GetAsync("/api/Tenant");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -63,7 +65,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("nonexistent");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Tenant"));
+        var response = await client.GetAsync("/api/Tenant");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -76,7 +78,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.Client;
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Tenant"));
+        var response = await client.GetAsync("/api/Tenant");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -89,7 +91,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("beta");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Tenant/check"));
+        var response = await client.GetAsync("/api/Tenant/check");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -105,7 +107,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.Client;
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Tenant/check"));
+        var response = await client.GetAsync("/api/Tenant/check");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -125,7 +127,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("alpha");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Products/true"));
+        var response = await client.GetAsync("/api/Products/true");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -138,7 +140,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("alpha");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Products/1/true"));
+        var response = await client.GetAsync("/api/Products/1/true");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -156,7 +158,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("alpha");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Products/99999/true"));
+        var response = await client.GetAsync("/api/Products/99999/true");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -169,7 +171,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("alpha");
 
         // Act
-        var response = await client.GetAsync(new Uri("/api/Products/count"));
+        var response = await client.GetAsync("/api/Products/count");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -219,13 +221,13 @@ public class HttpPipelineIntegrationTests
         Assert.NotNull(created);
 
         // Act
-        var response = await client.DeleteAsync(new Uri($"/api/Products/{created.Id}"));
+        var response = await client.DeleteAsync($"/api/Products/{created.Id}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         // Verify deleted (soft delete - should not be found)
-        var getResponse = await client.GetAsync(new Uri($"/api/Products/{created.Id}/false"));
+        var getResponse = await client.GetAsync($"/api/Products/{created.Id}/false");
         Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
     }
 
@@ -254,7 +256,7 @@ public class HttpPipelineIntegrationTests
         Assert.NotEqual(default, created.Id);
 
         // Step 2: Read
-        var readResponse = await client.GetAsync(new Uri($"/api/Products/{created.Id}/true"));
+        var readResponse = await client.GetAsync($"/api/Products/{created.Id}/true");
         Assert.Equal(HttpStatusCode.OK, readResponse.StatusCode);
 
         var read = await readResponse.Content.ReadFromJsonAsync<ProductResponse>();
@@ -262,11 +264,11 @@ public class HttpPipelineIntegrationTests
         Assert.Contains("CRUD Loop Product", read.Name);
 
         // Step 3: Delete
-        var deleteResponse = await client.DeleteAsync(new Uri($"/api/Products/{created.Id}"));
+        var deleteResponse = await client.DeleteAsync($"/api/Products/{created.Id}");
         Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
 
         // Verify deletion
-        var verifyDeleteResponse = await client.GetAsync(new Uri($"/api/Products/{created.Id}/false"));
+        var verifyDeleteResponse = await client.GetAsync($"/api/Products/{created.Id}/false");
         Assert.Equal(HttpStatusCode.NotFound, verifyDeleteResponse.StatusCode);
     }
 
@@ -281,7 +283,7 @@ public class HttpPipelineIntegrationTests
         var client = _fixture.CreateClientWithTenant("alpha");
 
         // Act
-        var response = await client.GetAsync( new Uri("/api/Products/getpaged/1/2/false"));
+        var response = await client.GetAsync("/api/Products/getpaged/1/2/false");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -316,4 +318,6 @@ public class HttpPipelineIntegrationTests
     }
 
     #endregion
+
+#pragma warning restore CA2234 // Pass system uri objects instead of strings
 }
