@@ -1,0 +1,8 @@
+<Project>
+  <!-- Redirect Live Unit Testing to use source obj folders instead of shadow directory -->
+  <PropertyGroup Condition="'$(BuildingForLiveUnitTesting)' == 'true'">
+    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(MSBuildProjectDirectory)\obj\$(Configuration)\</IntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(MSBuildProjectDirectory)\obj\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+</Project>
