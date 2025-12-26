@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -85,20 +86,32 @@ public static class CraftDbContextExtensions
     /// </summary>
     /// <typeparam name="TContext">The DbContext type.</typeparam>
     /// <param name="services">The service collection.</param>
-    /// <param name="connectionName">The Aspire connection string name.</param>
+    /// <param name="configuration">The configuration to read connection string from.</param>
+    /// <param name="connectionName">The connection string name.</param>
     /// <param name="enablePooling">Whether to enable DbContext pooling (default: true).</param>
     /// <param name="poolSize">The pool size if pooling is enabled (default: 1024).</param>
     /// <param name="additionalConfiguration">Additional configuration action.</param>
     public static IServiceCollection AddCraftPostgreSql<TContext>(
         this IServiceCollection services,
+        IConfiguration configuration,
         string connectionName,
         bool enablePooling = true,
         int poolSize = 1024,
         Action<DbContextOptionsBuilder>? additionalConfiguration = null)
         where TContext : DbContext
     {
-        // Add Aspire's NpgsqlDataSource
-        services.AddNpgsqlDataSource(connectionName);
+        // Get connection string from configuration
+        var connectionString = configuration.GetConnectionString(connectionName);
+
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException(
+                $"Connection string '{connectionName}' not found in configuration. " +
+                $"Ensure the connection is configured in Aspire AppHost or appsettings.json.");
+        }
+
+        // Add NpgsqlDataSource with the connection string
+        services.AddNpgsqlDataSource(connectionString);
 
         // Register DbContext with or without pooling
         if (enablePooling)
@@ -116,8 +129,8 @@ public static class CraftDbContextExtensions
             });
         }
 
-                        return services;
-                    }
+        return services;
+    }
 
                     private static void ConfigurePostgreSqlOptions(
                         IServiceProvider serviceProvider,
