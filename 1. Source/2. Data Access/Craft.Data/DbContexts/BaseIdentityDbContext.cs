@@ -3,13 +3,13 @@ using Craft.MultiTenant;
 using Craft.Security;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Craft.Data;
 
 /// <summary>
 /// Base IdentityDbContext with pluggable feature support and ASP.NET Core Identity integration.
 /// Provides convention configuration, model building hooks, and save pipeline integration for Identity-based applications.
+/// All configuration should be done via DI at registration time for compatibility with DbContext pooling.
 /// </summary>
 /// <typeparam name="TContext">The concrete DbContext type.</typeparam>
 /// <typeparam name="TUser">The user entity type (must inherit from CraftUser).</typeparam>
@@ -23,14 +23,16 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
 {
     private readonly ITenant _currentTenant;
     private readonly ICurrentUser _currentUser;
-    private readonly ILoggerFactory? _loggerFactory;
 
-    protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser,
-        ILoggerFactory? loggerFactory = null) : base(options)
+    /// <summary>
+    /// Creates a new instance of BaseIdentityDbContext.
+    /// LoggerFactory and other options should be configured via DI, not in constructor.
+    /// </summary>
+    protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser)
+        : base(options)
     {
         _currentTenant = currentTenant;
         _currentUser = currentUser;
-        _loggerFactory = loggerFactory;
     }
 
     /// <summary>
@@ -69,30 +71,6 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
     /// Override to add custom conventions beyond features and built-in UTC DateTime.
     /// </summary>
     protected virtual void ConfigureAdditionalConventions(ModelConfigurationBuilder configurationBuilder) { }
-
-    /// <summary>
-    /// Configure DbContext options like logging and tracking behavior.
-    /// </summary>
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-
-        // Configure logger factory if provided
-        if (_loggerFactory != null)
-            optionsBuilder.UseLoggerFactory(_loggerFactory);
-
-        // Default to NoTracking for better performance (consumers can override)
-        if (!optionsBuilder.IsConfigured)
-            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
-        // Allow consumer customizations
-        ConfigureAdditionalOptions(optionsBuilder);
-    }
-
-    /// <summary>
-    /// Override to configure additional DbContext options.
-    /// </summary>
-    protected virtual void ConfigureAdditionalOptions(DbContextOptionsBuilder optionsBuilder) { }
 
     /// <summary>
     /// Configure entity types and relationships. Features are applied after base configuration.
@@ -159,6 +137,10 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
 public abstract class BaseIdentityDbContext<TContext> : BaseIdentityDbContext<TContext, CraftUser, CraftRole, KeyType>
     where TContext : DbContext
 {
-    protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser,
-        ILoggerFactory? loggerFactory = null) : base(options, currentTenant, currentUser, loggerFactory) { }
+    /// <summary>
+    /// Creates a new instance of BaseIdentityDbContext with default types.
+    /// LoggerFactory and other options should be configured via DI, not in constructor.
+    /// </summary>
+    protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser)
+        : base(options, currentTenant, currentUser) { }
 }
