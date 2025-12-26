@@ -1,7 +1,30 @@
-
+// Bootstrap Custom Variables for GccPT
+// Synchronized with MudBlazor Theme defined in GccPT.Shared\Constants\Themes.cs
 
 //
-// Color system
+// Color system - Light Theme
+//
+
+// MudBlazor Light Palette Colors
+$mudblazor-primary: #1E88E5;
+$mudblazor-secondary: #FF4081;
+$mudblazor-appbar-bg: #1976D2;
+$mudblazor-background: #F5F5F5;
+$mudblazor-surface: #FFFFFF;
+$mudblazor-text-primary: #212121;
+$mudblazor-text-secondary: #757575;
+
+// MudBlazor Dark Palette Colors
+$mudblazor-dark-primary: #1E88E5;
+$mudblazor-dark-secondary: #FF4081;
+$mudblazor-dark-appbar-bg: #1976D2;
+$mudblazor-dark-background: #303030;
+$mudblazor-dark-surface: #424242;
+$mudblazor-dark-text-primary: #FFFFFF;
+$mudblazor-dark-text-secondary: #BDBDBD;
+
+//
+// Bootstrap Color Mappings - Light Theme
 //
 
 $white: #fff !default;
@@ -14,52 +37,36 @@ $gray-600: #7a8288 !default;
 $gray-700: #52575c !default;
 $gray-800: #3a3f44 !default;
 $gray-900: #272b30 !default;
-$black: rgba(39, 39, 47, 1) !default;
+$black: #000 !default;
 
-$blue: #007bff !default;
-$indigo: #6610f2 !default;
-$purple: #6f42c1 !default;
-$pink: #e83e8c !default;
-$red: #ee5f5b !default;
-$orange: #fd7e14 !default;
-$yellow: #f89406 !default;
-$green: #62c462 !default;
-$teal: #20c997 !default;
-$cyan: #5bc0de !default;
-
-$primary: rgba(13, 110, 253, 1) !default;
-$secondary: rgba(176, 190, 197, 1) !default;
-$success: rgba(76, 175, 80, 1) !default;
-$info: rgba(0, 191, 255, 1) !default;
-$warning: rgba(255, 152, 0, 1) !default;
-$danger: rgba(255, 87, 51, 1) !default;
+// Bootstrap theme colors mapped to MudBlazor palette
+$primary: $mudblazor-primary !default;
+$secondary: $mudblazor-secondary !default;
+$success: #4caf50 !default;
+$info: #2196f3 !default;
+$warning: #ff9800 !default;
+$danger: #f44336 !default;
 $light: $gray-200 !default;
-$dark: rgba(39,39,47,1) !default;
+$dark: #272b30 !default;
 
 $primary-bg-subtle: lighten($primary, 10%) !default;
 
 $min-contrast-ratio: 1.95 !default;
 
-// Body
-
-$body-bg: rgba(45,45,56,1) !default;
-$body-color: #aaa !default;
+// Body - Light Theme
+$body-bg: $mudblazor-background !default;
+$body-color: $mudblazor-text-primary !default;
 
 // Links
-
-$link-color: $white !default;
+$link-color: $mudblazor-primary !default;
+$link-hover-color: darken($mudblazor-primary, 15%) !default;
 
 // Options
-//
-// Quickly modify global styling by enabling or disabling optional features.
 $enable-shadows: true !default;
-$enable-gradients: true !default;
+$enable-gradients: false !default;
 $enable-cssgrid: true !default;
 
 // Grid breakpoints
-//
-// Define the minimum dimensions at which your layout will change,
-// adapting to different screen sizes, for use in media queries.
 $breakpoint-xs: 0 !default;
 $breakpoint-sm: 600px !default;
 $breakpoint-md: 960px !default;
@@ -70,160 +77,176 @@ $breakpoint-xxl: 2560px !default;
 $grid-breakpoints: ( xs: 0, sm: 600px, md: 960px, lg: 1280px, xl: 1920px, xxl: 2560px ) !default;
 
 // Grid containers
-//
-// Define the maximum width of `.container` for different screen sizes.
 $container-max-widths: ( sm: 568px, md: 928px, lg: 1248px, xl: 1888px, xxl: 2528px ) !default;
 
 // Container padding
 $container-padding-x: 3.0rem !default;
 
-$font-family-sans-serif: "Inter", Roboto, "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+// Typography - Matching MudBlazor Theme
+$font-family-sans-serif: "Inter", sans-serif !default;
 $font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
-$headings-font-family: "Bricolage Grotesque", "Inter", Roboto, "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
-$display-font-family: "Bricolage Grotesque", "Inter", Roboto, "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$headings-font-family: "Bricolage Grotesque", serif !default;
+$display-font-family: "Bricolage Grotesque", serif !default;
 
-// $font-size-root affects the value of `rem`, which is used for as well font sizes, paddings, and margins
-// $font-size-base affects the font size of the body text
-$font-size-base: 0.9rem !default; // Assumes the browser default, typically `16px`
-$font-size-sm: $font-size-base * .875 !default;
-$font-size-lg: $font-size-base * 1.25 !default;
+// Font sizes matching MudBlazor Default typography
+$font-size-base: 0.9rem !default;
+$font-size-sm: 0.85rem !default;
+$font-size-lg: 0.95rem !default;
 
 $font-weight-lighter: lighter !default;
 $font-weight-light: 300 !default;
 $font-weight-normal: 350 !default;
-$font-weight-bold: 700 !default;
+$font-weight-bold: 500 !default;
 $font-weight-bolder: bolder !default;
 
-$font-weight-base: $font-weight-normal !default;
+$font-weight-base: $font-weight-light !default;
+
+$line-height-base: 1.3 !default;
+
+// Headings - Matching MudBlazor Typography
+$h1-font-size: 3.5rem !default;
+$h2-font-size: 3rem !default;
+$h3-font-size: 2.5rem !default;
+$h4-font-size: 2rem !default;
+$h5-font-size: 1.5rem !default;
+$h6-font-size: 1.25rem !default;
+
+$headings-font-weight: 400 !default;
+$headings-line-height: 1.3 !default;
 
 // Tables
-
-$table-color: $white !default;
-$table-accent-bg: rgba($white, .05) !default;
-$table-hover-bg: rgba($white, .075) !default;
-$table-border-color: rgba($black, .6) !default;
-$table-dark-border-color: $table-border-color !default;
-$table-dark-color: $white !default;
-
-$table-bg-scale: 0% !default;
+$table-color: $mudblazor-text-primary !default;
+$table-bg: $mudblazor-surface !default;
+$table-accent-bg: rgba($black, .05) !default;
+$table-hover-bg: rgba($black, .075) !default;
+$table-border-color: rgba($black, .15) !default;
 
 // Buttons
-
 $input-btn-padding-y: .75rem !default;
 $input-btn-padding-x: 1rem !default;
+$btn-font-weight: 500 !default;
 
 // Forms
-
-$input-bg: $white !default;
-$input-color: $gray-900 !default;
-$input-border-color: rgba($black, .6) !default;
-$input-group-addon-color: $gray-500 !default;
-$input-group-addon-bg: $gray-700 !default;
+$input-bg: $mudblazor-surface !default;
+$input-color: $mudblazor-text-primary !default;
+$input-border-color: rgba($black, .2) !default;
+$input-focus-border-color: $mudblazor-primary !default;
+$input-disabled-bg: $gray-200 !default;
 $input-disabled-color: $gray-600 !default;
-$input-disabled-bg: #ccc !default;
 
-$form-check-input-bg: $white !default;
-
+$form-check-input-bg: $mudblazor-surface !default;
 $form-select-disabled-bg: $input-disabled-bg !default;
 $form-select-disabled-color: $input-disabled-color !default;
 
-$form-file-button-color: $input-group-addon-color !default;
-$form-file-button-bg: $input-group-addon-bg !default;
-$form-file-button-hover-bg: darken($form-file-button-bg, 5%) !default;
-
 // Dropdowns
-
-$dropdown-bg: $gray-800 !default;
-$dropdown-border-color: rgba($black, .6) !default;
-$dropdown-divider-bg: rgba($black, .15) !default;
-$dropdown-link-color: $body-color !default;
-$dropdown-link-hover-color: $white !default;
-$dropdown-link-hover-bg: $body-bg !default;
-$dropdown-link-active-color: $dropdown-link-hover-color !default;
-$dropdown-link-active-bg: $dropdown-link-hover-bg !default;
+$dropdown-bg: $mudblazor-surface !default;
+$dropdown-border-color: rgba($black, .15) !default;
+$dropdown-link-color: $mudblazor-text-primary !default;
+$dropdown-link-hover-color: $mudblazor-text-primary !default;
+$dropdown-link-hover-bg: $gray-100 !default;
 
 // Navs
-
-$nav-tabs-border-color: rgba($black, .6) !default;
+$nav-link-color: $mudblazor-text-primary !default;
+$nav-tabs-border-color: rgba($black, .15) !default;
 $nav-tabs-link-hover-border-color: $nav-tabs-border-color !default;
-$nav-tabs-link-active-color: $white !default;
-$nav-tabs-link-active-border-color: $nav-tabs-border-color !default;
 
 // Navbar
-
 $navbar-padding-y: 0 !default;
 $navbar-brand-padding-y: 2px !default;
 $navbar-brand-height: 64px !default;
+$navbar-light-color: $mudblazor-text-primary !default;
+$navbar-light-hover-color: $mudblazor-primary !default;
+$navbar-light-active-color: $mudblazor-primary !default;
+$navbar-dark-color: $mudblazor-dark-text-primary !default;
 
 // Pagination
-$pagination-padding-y: $input-btn-padding-y !default;
-$pagination-padding-x: $input-btn-padding-x !default;
-
-$pagination-color: $white !default;
-$pagination-bg: transparent !default;
-$pagination-border-color: rgba($black, .6) !default;
-$pagination-hover-color: $white !default;
-$pagination-hover-bg: transparent !default;
-$pagination-hover-border-color: rgba($black, .6) !default;
-$pagination-active-bg: transparent !default;
-$pagination-active-border-color: rgba($black, .6) !default;
-$pagination-disabled-bg: transparent !default;
-$pagination-disabled-border-color: rgba($black, .6) !default;
+$pagination-color: $mudblazor-primary !default;
+$pagination-bg: $mudblazor-surface !default;
+$pagination-border-color: rgba($black, .15) !default;
+$pagination-hover-color: $mudblazor-primary !default;
+$pagination-hover-bg: $gray-100 !default;
+$pagination-active-bg: $mudblazor-primary !default;
+$pagination-active-border-color: $mudblazor-primary !default;
 
 // Cards
-
-$card-border-color: rgba($black, .6) !default;
-$card-cap-bg: lighten($gray-800, 10%) !default;
-$card-bg: lighten($body-bg, 5%) !default;
+$card-bg: $mudblazor-surface !default;
+$card-border-color: rgba($black, .125) !default;
+$card-cap-bg: rgba($black, .03) !default;
 
 // Accordions
-
-$accordion-bg: lighten($body-bg, 5%) !default;
-$accordion-border-color: $table-border-color !default;
-$accordion-button-active-color: $white !default;
-
-// Popovers
-
-$popover-bg: lighten($body-bg, 5%) !default;
-
-// Toasts
-
-$toast-background-color: lighten($body-bg, 5%) !default;
-$toast-border-color: rgba(0, 0, 0, .2) !default;
-$toast-header-color: $body-color !default;
-$toast-header-background-color: $toast-background-color !default;
-$toast-header-border-color: $toast-border-color !default;
+$accordion-bg: $mudblazor-surface !default;
+$accordion-border-color: rgba($black, .125) !default;
+$accordion-button-active-bg: lighten($mudblazor-primary, 40%) !default;
+$accordion-button-active-color: $mudblazor-text-primary !default;
 
 // Modals
-
-$modal-content-bg: lighten($body-bg, 5%) !default;
-$modal-header-border-color: rgba(0, 0, 0, .2) !default;
+$modal-content-bg: $mudblazor-surface !default;
+$modal-header-border-color: rgba($black, .125) !default;
+$modal-backdrop-bg: $black !default;
+$modal-backdrop-opacity: .5 !default;
 
 // Progress bars
-
-$progress-bg: darken($gray-900, 5%) !default;
-$progress-bar-color: $gray-600 !default;
+$progress-bg: $gray-200 !default;
+$progress-bar-bg: $mudblazor-primary !default;
 
 // List group
-
-$list-group-color: $white !default;
-$list-group-bg: lighten($body-bg, 5%) !default;
-$list-group-border-color: rgba($black, .6) !default;
-$list-group-item-bg-scale: 0% !default;
-$list-group-hover-bg: lighten($body-bg, 10%) !default;
+$list-group-color: $mudblazor-text-primary !default;
+$list-group-bg: $mudblazor-surface !default;
+$list-group-border-color: rgba($black, .125) !default;
+$list-group-hover-bg: $gray-100 !default;
 $list-group-active-color: $white !default;
-$list-group-active-bg: $list-group-hover-bg !default;
-$list-group-active-border-color: $list-group-border-color !default;
-$list-group-disabled-color: $gray-700 !default;
-$list-group-action-color: $white !default;
+$list-group-active-bg: $mudblazor-primary !default;
+$list-group-active-border-color: $mudblazor-primary !default;
 
 // Breadcrumbs
-
 $breadcrumb-padding-y: .375rem !default;
 $breadcrumb-padding-x: .75rem !default;
-$breadcrumb-active-color: $gray-500 !default;
-$breadcrumb-border-radius: .25rem !default;
+$breadcrumb-bg: $mudblazor-surface !default;
+$breadcrumb-divider-color: $mudblazor-text-secondary !default;
+$breadcrumb-active-color: $mudblazor-text-secondary !default;
 
-// Code
+// Tooltips
+$tooltip-bg: $mudblazor-text-primary !default;
+$tooltip-color: $white !default;
 
-$pre-color: inherit !default;
+// Popovers
+$popover-bg: $mudblazor-surface !default;
+$popover-border-color: rgba($black, .2) !default;
+$popover-header-bg: darken($mudblazor-surface, 3%) !default;
+
+// Toasts
+$toast-background-color: $mudblazor-surface !default;
+$toast-border-color: rgba($black, .1) !default;
+$toast-header-color: $mudblazor-text-primary !default;
+$toast-header-background-color: rgba($white, .85) !default;
+
+// Badges
+$badge-font-weight: 500 !default;
+$badge-padding-y: .25em !default;
+$badge-padding-x: .5em !default;
+
+// Alerts
+$alert-bg-scale: -80% !default;
+$alert-border-scale: -70% !default;
+$alert-color-scale: 40% !default;
+
+//
+// Dark Theme Variables (for dark mode support)
+//
+
+// To be used with data-bs-theme="dark" attribute
+// These will automatically apply when Bootstrap's dark mode is enabled
+
+/*@if $enable-dark-mode {
+    @include color-mode(dark) {
+        // Override Bootstrap dark mode variables with MudBlazor dark palette
+        --bs-body-bg: #{$mudblazor-dark-background};
+        --bs-body-color: #{$mudblazor-dark-text-primary};
+        --bs-secondary-color: #{$mudblazor-dark-text-secondary};
+        --bs-primary: #{$mudblazor-dark-primary};
+        --bs-secondary: #{$mudblazor-dark-secondary};
+        --bs-link-color: #{$mudblazor-dark-primary};
+        --bs-surface-bg: #{$mudblazor-dark-surface};
+    }
+}
+*/
