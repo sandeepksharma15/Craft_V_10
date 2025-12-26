@@ -1,0 +1,23 @@
+{
+  "name": "craft.uiconponents",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "sass Assets/UiComponents.scss wwwroot/css/uicomponents.css --style=compressed",
+    "build:js": "esbuild Scripts/index.js --bundle --minify --outfile=wwwroot/js/uicomponents.bundle.js",
+    "build": "npm run build:css && npm run build:js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bootstrap": "^5.3.8"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.2",
+    "sass": "^1.97.1"
+  }
+}

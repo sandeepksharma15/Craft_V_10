@@ -20,15 +20,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\1. Source\7. UI\Craft.UiConponents\Craft.UiConponents.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Using Include="Xunit" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Base\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\1. Source\7. UI\Craft.UiComponents\Craft.UiComponents.csproj" />
 	</ItemGroup>
 
 </Project>
