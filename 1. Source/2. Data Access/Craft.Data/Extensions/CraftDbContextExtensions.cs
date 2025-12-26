@@ -19,21 +19,18 @@ public static class CraftDbContextExtensions
     /// <param name="optionsAction">Action to configure DbContext options.</param>
     /// <param name="contextLifetime">The lifetime for the DbContext (default: Scoped).</param>
     /// <param name="optionsLifetime">The lifetime for DbContextOptions (default: Scoped).</param>
-    public static IServiceCollection AddCraftDbContext<TContext>(
-        this IServiceCollection services,
-        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-        ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+    public static IServiceCollection AddCraftDbContext<TContext>(this IServiceCollection services, Action<IServiceProvider,
+        DbContextOptionsBuilder> optionsAction, ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
         ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
     {
         services.AddDbContext<TContext>((serviceProvider, options) =>
         {
             // Configure logger factory from DI
+
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             if (loggerFactory != null)
-            {
                 options.UseLoggerFactory(loggerFactory);
-            }
 
             // Configure default tracking behavior
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
@@ -54,20 +51,17 @@ public static class CraftDbContextExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="optionsAction">Action to configure DbContext options.</param>
     /// <param name="poolSize">The maximum number of instances retained by the pool (default: 1024).</param>
-    public static IServiceCollection AddCraftDbContextPool<TContext>(
-        this IServiceCollection services,
-        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-        int poolSize = 1024)
+    public static IServiceCollection AddCraftDbContextPool<TContext>(this IServiceCollection services, Action<IServiceProvider,
+        DbContextOptionsBuilder> optionsAction, int poolSize = 1024)
         where TContext : DbContext
     {
         services.AddDbContextPool<TContext>((serviceProvider, options) =>
         {
             // Configure logger factory from DI
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+
             if (loggerFactory != null)
-            {
                 options.UseLoggerFactory(loggerFactory);
-            }
 
             // Configure default tracking behavior
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
@@ -91,24 +85,17 @@ public static class CraftDbContextExtensions
     /// <param name="enablePooling">Whether to enable DbContext pooling (default: true).</param>
     /// <param name="poolSize">The pool size if pooling is enabled (default: 1024).</param>
     /// <param name="additionalConfiguration">Additional configuration action.</param>
-    public static IServiceCollection AddCraftPostgreSql<TContext>(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        string connectionName,
-        bool enablePooling = true,
-        int poolSize = 1024,
-        Action<DbContextOptionsBuilder>? additionalConfiguration = null)
+    public static IServiceCollection AddCraftPostgreSql<TContext>(this IServiceCollection services, IConfiguration configuration,
+        string connectionName, bool enablePooling = true, int poolSize = 1024, Action<DbContextOptionsBuilder>? additionalConfiguration = null)
         where TContext : DbContext
     {
         // Get connection string from configuration
         var connectionString = configuration.GetConnectionString(connectionName);
 
         if (string.IsNullOrEmpty(connectionString))
-        {
             throw new InvalidOperationException(
                 $"Connection string '{connectionName}' not found in configuration. " +
                 $"Ensure the connection is configured in Aspire AppHost or appsettings.json.");
-        }
 
         // Add NpgsqlDataSource with the connection string
         services.AddNpgsqlDataSource(connectionString);
@@ -132,25 +119,23 @@ public static class CraftDbContextExtensions
         return services;
     }
 
-                    private static void ConfigurePostgreSqlOptions(
-                        IServiceProvider serviceProvider,
-                        DbContextOptionsBuilder options,
-                        Action<DbContextOptionsBuilder>? additionalConfiguration)
-                    {
-                        // Get Aspire's data source
-                        var dataSource = serviceProvider.GetRequiredService<Npgsql.NpgsqlDataSource>();
+    private static void ConfigurePostgreSqlOptions(IServiceProvider serviceProvider, DbContextOptionsBuilder options,
+        Action<DbContextOptionsBuilder>? additionalConfiguration)
+    {
+        // Get Aspire's data source
+        var dataSource = serviceProvider.GetRequiredService<Npgsql.NpgsqlDataSource>();
 
-                        // Use PostgreSQL with Aspire data source
-                        options.UseNpgsql(dataSource, npgsqlOptions =>
-                        {
-                            // Enable retry on failure
-                            npgsqlOptions.EnableRetryOnFailure(
-                                maxRetryCount: 3,
-                                maxRetryDelay: TimeSpan.FromSeconds(5),
-                                errorCodesToAdd: null);
-                        });
+        // Use PostgreSQL with Aspire data source
+        options.UseNpgsql(dataSource, npgsqlOptions =>
+        {
+            // Enable retry on failure
+            npgsqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorCodesToAdd: null);
+        });
 
-                        // Apply additional configuration
-                        additionalConfiguration?.Invoke(options);
-                    }
-                }
+        // Apply additional configuration
+        additionalConfiguration?.Invoke(options);
+    }
+}
