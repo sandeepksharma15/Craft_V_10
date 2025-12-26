@@ -86,21 +86,28 @@ public class AuditTrail : BaseEntity, IAuditTrail
     [MaxLength(MaxChangedColumnsLength)]
     public string? ChangedColumns { get; set; }
 
+    [Required]
     public EntityChangeType ChangeType { get; set; }
+
+    [Required]
     public DateTime DateTimeUTC { get; set; } = DateTime.UtcNow;
 
     [MaxLength(MaxKeyValuesLength)]
     public string? KeyValues { get; set; }
 
-    [Column(TypeName = "nvarchar(max)")]
+    // Use unlimited string without database-specific TypeName for cross-database compatibility
+    // EF Core will use 'nvarchar(max)' for SQL Server and 'text' for PostgreSQL automatically
     public string? NewValues { get; set; }
 
-    [Column(TypeName = "nvarchar(max)")]
+    // Use unlimited string without database-specific TypeName for cross-database compatibility
+    // EF Core will use 'nvarchar(max)' for SQL Server and 'text' for PostgreSQL automatically
     public string? OldValues { get; set; }
 
+    [Required]
     [MaxLength(MaxTableNameLength)]
     public string? TableName { get; set; }
 
+    [Required]
     public KeyType UserId { get; set; }
 
     public DateTime? ArchiveAfter { get; set; }
