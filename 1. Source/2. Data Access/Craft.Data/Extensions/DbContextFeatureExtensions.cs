@@ -1,7 +1,6 @@
 using Craft.Data.DbContextFeatures;
 using Craft.MultiTenant;
 using Craft.Security;
-using Microsoft.AspNetCore.Identity;
 
 namespace Craft.Data;
 
@@ -62,7 +61,7 @@ public static class DbContextFeatureExtensions
     /// <typeparam name="TUser">The user entity type.</typeparam>
     /// <typeparam name="TRole">The role entity type.</typeparam>
     /// <typeparam name="TKey">The primary key type.</typeparam>
-    public static DbContextFeatureCollection AddIdentity<TUser, TRole, TKey>(this DbContextFeatureCollection features, string tablePrefix = "Id_")
+    public static DbContextFeatureCollection AddIdentity<TUser, TRole, TKey>(this DbContextFeatureCollection features, string tablePrefix = "ID_")
         where TUser : CraftUser<TKey>
         where TRole : CraftRole<TKey>
         where TKey : IEquatable<TKey>
@@ -74,7 +73,7 @@ public static class DbContextFeatureExtensions
     /// Adds ASP.NET Core Identity configuration with default CraftUser, CraftRole, and KeyType.
     /// Configures Identity tables with the specified prefix (default: "Id_").
     /// </summary>
-    public static DbContextFeatureCollection AddIdentity(this DbContextFeatureCollection features, string tablePrefix = "Id_")
+    public static DbContextFeatureCollection AddIdentity(this DbContextFeatureCollection features, string tablePrefix = "ID_")
     {
         return features.AddFeature(new IdentityFeature(tablePrefix));
     }
