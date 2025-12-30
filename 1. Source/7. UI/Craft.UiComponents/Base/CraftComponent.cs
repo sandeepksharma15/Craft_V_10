@@ -3,6 +3,7 @@ using Craft.UiComponents.Services;
 using Craft.Utilities.Builders;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.UiComponents;
@@ -18,15 +19,45 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
 
     #region Injected Services
 
+    [Inject] private IServiceProvider ServiceProvider { get; set; } = default!;
+
+    private IThemeService? _themeService;
+    private ILogger<CraftComponent>? _logger;
+    private bool _servicesResolved;
+
     /// <summary>
     /// Gets the theme service for theme-aware components.
+    /// Optional - components will work without theme service registered.
     /// </summary>
-    [Inject] protected IThemeService? ThemeService { get; set; }
+    protected IThemeService? ThemeService
+    {
+        get
+        {
+            if (!_servicesResolved)
+                ResolveServices();
+            return _themeService;
+        }
+    }
 
     /// <summary>
     /// Gets the optional logger for component diagnostics.
     /// </summary>
-    [Inject] protected ILogger<CraftComponent>? Logger { get; set; }
+    protected ILogger<CraftComponent>? Logger
+    {
+        get
+        {
+            if (!_servicesResolved)
+                ResolveServices();
+            return _logger;
+        }
+    }
+
+    private void ResolveServices()
+    {
+        _servicesResolved = true;
+        _themeService = ServiceProvider.GetService<IThemeService>();
+        _logger = ServiceProvider.GetService<ILogger<CraftComponent>>();
+    }
 
     #endregion
 
@@ -127,7 +158,10 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
         Id ??= GenerateId();
         _previousVisible = Visible;
 
-        ThemeService?.ThemeChanged += OnThemeChanged;
+        if (ThemeService != null)
+        {
+            ThemeService.ThemeChanged += OnThemeChanged;
+        }
 
         LogDebug("Component initialized with Id: {Id}", Id);
     }
@@ -319,7 +353,10 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
 
         _disposed = true;
 
-        ThemeService?.ThemeChanged -= OnThemeChanged;
+        if (ThemeService != null)
+        {
+            ThemeService.ThemeChanged -= OnThemeChanged;
+        }
 
         await DisposeAsyncCore();
 
