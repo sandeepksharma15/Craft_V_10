@@ -153,7 +153,6 @@ public class CraftInputComponentTests : ComponentTestBase
             .AddCascadingValue(editContext));
 
         // Assert
-        Assert.NotNull(cut.Instance.GetFieldIdentifier());
         Assert.Equal(nameof(TestModel.StringValue), cut.Instance.GetFieldIdentifier().FieldName);
     }
 
