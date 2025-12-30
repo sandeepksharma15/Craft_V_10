@@ -1,5 +1,5 @@
-using Craft.UiConponents.Enums;
-using Craft.UiConponents.Services;
+using Craft.UiComponents.Enums;
+using Craft.UiComponents.Services;
 
 namespace Craft.UiComponents.Tests.Services;
 

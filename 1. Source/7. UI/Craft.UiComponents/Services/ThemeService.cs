@@ -1,7 +1,7 @@
-using Craft.UiConponents.Enums;
+using Craft.UiComponents.Enums;
 using Microsoft.JSInterop;
 
-namespace Craft.UiConponents.Services;
+namespace Craft.UiComponents.Services;
 
 /// <summary>
 /// Default implementation of <see cref="IThemeService"/> that manages theme state
@@ -40,7 +40,7 @@ public class ThemeService : IThemeService, IAsyncDisposable
         _jsRuntime = jsRuntime;
         _moduleTask = new Lazy<Task<IJSObjectReference>>(() =>
             _jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/Craft.UiConponents/js/craft-theme.js").AsTask());
+                "import", "./_content/Craft.UiComponents/js/craft-theme.js").AsTask());
     }
 
     /// <summary>

@@ -1,10 +1,11 @@
 using Bunit;
+using Craft.UiComponents.Tests.Base;
 using Craft.UiComponents.Semantic;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiComponents.Tests.Semantic;
 
-public class CraftDivTests : BunitContext
+public class CraftDivTests : ComponentTestBase
 {
     [Fact]
     public void CraftDiv_ShouldRenderDivElement()

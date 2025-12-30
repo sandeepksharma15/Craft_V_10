@@ -1,4 +1,4 @@
-namespace Craft.UiConponents.Enums;
+namespace Craft.UiComponents.Enums;
 
 /// <summary>
 /// Defines the standard sizes available for UI components.

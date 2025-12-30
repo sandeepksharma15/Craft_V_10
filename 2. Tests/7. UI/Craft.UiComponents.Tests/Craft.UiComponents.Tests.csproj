@@ -24,10 +24,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Base\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\..\..\1. Source\7. UI\Craft.UiComponents\Craft.UiComponents.csproj" />
 	</ItemGroup>
 

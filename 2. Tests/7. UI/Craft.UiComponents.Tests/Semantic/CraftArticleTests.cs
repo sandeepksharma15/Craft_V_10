@@ -1,10 +1,11 @@
 using Bunit;
+using Craft.UiComponents.Tests.Base;
 using Craft.UiComponents.Semantic;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiComponents.Tests.Semantic;
 
-public class CraftArticleTests : BunitContext
+public class CraftArticleTests : ComponentTestBase
 {
     [Fact]
     public void CraftArticle_ShouldRenderArticleElement()

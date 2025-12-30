@@ -1,4 +1,4 @@
-namespace Craft.UiConponents.Enums;
+namespace Craft.UiComponents.Enums;
 
 /// <summary>
 /// Defines the available themes for the UI component library.

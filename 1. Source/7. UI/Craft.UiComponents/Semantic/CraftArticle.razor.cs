@@ -1,4 +1,4 @@
-using Craft.UiConponents;
+using Craft.UiComponents;
 
 namespace Craft.UiComponents.Semantic;
 

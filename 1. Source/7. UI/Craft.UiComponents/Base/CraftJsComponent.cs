@@ -1,9 +1,9 @@
-using Craft.UiConponents.Abstractions;
-using Craft.UiConponents.Features;
+using Craft.UiComponents.Abstractions;
+using Craft.UiComponents.Features;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace Craft.UiConponents;
+namespace Craft.UiComponents;
 
 /// <summary>
 /// Base component for interactive UI components that require JavaScript interop functionality.

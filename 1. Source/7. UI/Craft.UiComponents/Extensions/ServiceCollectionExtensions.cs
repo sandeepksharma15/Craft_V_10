@@ -1,8 +1,8 @@
-using Craft.UiConponents.Enums;
-using Craft.UiConponents.Services;
+using Craft.UiComponents.Enums;
+using Craft.UiComponents.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Craft.UiConponents;
+namespace Craft.UiComponents;
 
 /// <summary>
 /// Extension methods for configuring Craft UI Components services.

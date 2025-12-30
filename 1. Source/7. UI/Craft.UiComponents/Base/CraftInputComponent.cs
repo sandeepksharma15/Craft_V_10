@@ -4,7 +4,7 @@ using Craft.Utilities.Builders;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace Craft.UiConponents;
+namespace Craft.UiComponents;
 
 /// <summary>
 /// Base component for form input elements that integrates with Blazor's EditContext

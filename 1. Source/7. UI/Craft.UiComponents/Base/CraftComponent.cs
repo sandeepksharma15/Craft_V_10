@@ -1,11 +1,11 @@
-﻿using Craft.UiConponents.Enums;
-using Craft.UiConponents.Services;
+using Craft.UiComponents.Enums;
+using Craft.UiComponents.Services;
 using Craft.Utilities.Builders;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 
-namespace Craft.UiConponents;
+namespace Craft.UiComponents;
 
 /// <summary>
 /// Base component for all Craft UI components providing common functionality
@@ -15,7 +15,6 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
 {
     private bool _disposed;
     private bool _previousVisible;
-    private ElementReference _elementRef;
 
     #region Injected Services
 
@@ -44,26 +43,10 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
     [Parameter] public string? Class { get; set; }
 
     /// <summary>
-    /// Gets or sets the element reference for JavaScript interop.
+    /// Gets the element reference for JavaScript interop.
+    /// This is set automatically when the component renders.
     /// </summary>
-    [Parameter]
-    public ElementReference ElementRef
-    {
-        get => _elementRef;
-        set
-        {
-            if (!_elementRef.Equals(value))
-            {
-                _elementRef = value;
-                ElementRefChanged.InvokeAsync(value);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets the callback invoked when the element reference changes.
-    /// </summary>
-    [Parameter] public EventCallback<ElementReference> ElementRefChanged { get; set; }
+    public ElementReference ElementRef { get; protected set; }
 
     /// <summary>
     /// Gets or sets the unique identifier for this component.

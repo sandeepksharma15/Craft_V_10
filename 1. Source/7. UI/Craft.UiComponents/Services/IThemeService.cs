@@ -1,6 +1,6 @@
-using Craft.UiConponents.Enums;
+using Craft.UiComponents.Enums;
 
-namespace Craft.UiConponents.Services;
+namespace Craft.UiComponents.Services;
 
 /// <summary>
 /// Provides theme management capabilities for the UI component library.

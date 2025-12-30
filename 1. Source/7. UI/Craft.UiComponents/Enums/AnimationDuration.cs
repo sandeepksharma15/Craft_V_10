@@ -1,4 +1,4 @@
-namespace Craft.UiConponents.Enums;
+namespace Craft.UiComponents.Enums;
 
 /// <summary>
 /// Defines the duration presets for animations and transitions.

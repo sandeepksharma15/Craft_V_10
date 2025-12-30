@@ -1,7 +1,7 @@
-using Craft.UiConponents.Abstractions;
+using Craft.UiComponents.Abstractions;
 using Microsoft.JSInterop;
 
-namespace Craft.UiConponents.Features;
+namespace Craft.UiComponents.Features;
 
 /// <summary>
 /// Provides JavaScript module management capabilities for components.

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-namespace Craft.UiConponents.Abstractions;
+namespace Craft.UiComponents.Abstractions;
 
 /// <summary>
 /// Provides touch event handling capabilities.

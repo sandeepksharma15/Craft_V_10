@@ -1,6 +1,6 @@
-using Craft.UiConponents;
-using Craft.UiConponents.Enums;
-using Craft.UiConponents.Services;
+using Craft.UiComponents;
+using Craft.UiComponents.Enums;
+using Craft.UiComponents.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.UiComponents.Tests.Extensions;

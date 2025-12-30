@@ -1,10 +1,11 @@
 using Bunit;
+using Craft.UiComponents.Tests.Base;
 using Craft.UiComponents.Semantic;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiComponents.Tests.Semantic;
 
-public class CraftFigCaptionTests : BunitContext
+public class CraftFigCaptionTests : ComponentTestBase
 {
     [Fact]
     public void CraftFigCaption_ShouldRenderFigcaptionElement()

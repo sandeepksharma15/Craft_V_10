@@ -1,4 +1,4 @@
-using Craft.UiConponents.Enums;
+using Craft.UiComponents.Enums;
 
 namespace Craft.UiComponents.Tests.Enums;
 

@@ -1,8 +1,8 @@
-using Craft.UiConponents.Abstractions;
+using Craft.UiComponents.Abstractions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-namespace Craft.UiConponents;
+namespace Craft.UiComponents;
 
 /// <summary>
 /// Base component for interactive UI components that handle extended user events.

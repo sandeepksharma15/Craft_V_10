@@ -1,6 +1,6 @@
 using Microsoft.JSInterop;
 
-namespace Craft.UiConponents.Abstractions;
+namespace Craft.UiComponents.Abstractions;
 
 /// <summary>
 /// Interface for components that require JavaScript interop functionality.

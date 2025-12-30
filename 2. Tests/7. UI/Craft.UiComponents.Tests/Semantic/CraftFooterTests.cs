@@ -1,10 +1,11 @@
 using Bunit;
+using Craft.UiComponents.Tests.Base;
 using Craft.UiComponents.Semantic;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiComponents.Tests.Semantic;
 
-public class CraftFooterTests : BunitContext
+public class CraftFooterTests : ComponentTestBase
 {
     [Fact]
     public void CraftFooter_ShouldRenderFooterElement()
@@ -82,7 +83,7 @@ public class CraftFooterTests : BunitContext
     public void CraftFooter_ShouldRenderChildContent()
     {
         // Arrange
-        var expectedContent = "© 2024 Company Name";
+        var expectedContent = "ï¿½ 2024 Company Name";
 
         // Act
         var cut = Render(builder =>

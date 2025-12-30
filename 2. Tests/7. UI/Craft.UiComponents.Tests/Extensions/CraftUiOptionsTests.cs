@@ -1,5 +1,5 @@
-using Craft.UiConponents;
-using Craft.UiConponents.Enums;
+using Craft.UiComponents;
+using Craft.UiComponents.Enums;
 
 namespace Craft.UiComponents.Tests.Extensions;
 
