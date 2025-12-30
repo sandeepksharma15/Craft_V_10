@@ -103,7 +103,7 @@ public class CraftFigureTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftFigure_ShouldHaveRoleAttribute()
+    public void CraftFigure_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -112,9 +112,9 @@ public class CraftFigureTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - figure element should not have role attribute (it's implicit)
         var figure = cut.Find("figure");
-        Assert.Equal("contentinfo", figure.GetAttribute("role"));
+        Assert.Null(figure.GetAttribute("role"));
     }
 
     [Fact]

@@ -1,0 +1,10 @@
+@inherits CraftComponent
+
+<span @ref="ElementRef"
+      id="@GetId()"
+      class="@BuildCssClass()"
+      style="@BuildStyle()"
+      @attributes="@UserAttributes"
+      @onclick="HandleClickAsync">
+    @ChildContent
+</span>

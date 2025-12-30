@@ -102,7 +102,7 @@ public class CraftMainTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftMain_ShouldHaveRoleAttribute()
+    public void CraftMain_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftMainTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - main element should not have role attribute (it's implicit)
         var main = cut.Find("main");
-        Assert.Equal("main", main.GetAttribute("role"));
+        Assert.Null(main.GetAttribute("role"));
     }
 
     [Fact]

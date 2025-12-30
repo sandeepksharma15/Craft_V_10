@@ -1,0 +1,11 @@
+@inherits CraftComponent
+
+<blockquote @ref="ElementRef"
+            id="@GetId()"
+            class="@BuildCssClass()"
+            style="@BuildStyle()"
+            cite="@Cite"
+            @attributes="@UserAttributes"
+            @onclick="HandleClickAsync">
+    @ChildContent
+</blockquote>
