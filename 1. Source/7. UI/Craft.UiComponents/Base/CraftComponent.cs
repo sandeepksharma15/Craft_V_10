@@ -312,7 +312,10 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
         if (Disabled)
             return;
 
-        await OnClick.InvokeAsync(args);
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(args);
+        }
     }
 
     /// <summary>

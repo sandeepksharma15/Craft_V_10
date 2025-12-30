@@ -1,5 +1,12 @@
 @inherits CraftComponent
 
-<details @ref="ElementRef" id="@Id" class="@Class" style="@Style" role="contentinfo" @attributes="@UserAttributes">
+<details @ref="ElementRef"
+         id="@GetId()"
+         class="@BuildCssClass()"
+         style="@BuildStyle()"
+         open="@IsOpen"
+         @attributes="@UserAttributes"
+         @onclick="HandleClickAsync"
+         @ontoggle="HandleToggleAsync">
     @ChildContent
 </details>

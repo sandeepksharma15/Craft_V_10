@@ -102,7 +102,7 @@ public class CraftArticleTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftArticle_ShouldHaveRoleAttribute()
+    public void CraftArticle_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftArticleTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - article element should not have role attribute (it's implicit)
         var article = cut.Find("article");
-        Assert.Equal("article", article.GetAttribute("role"));
+        Assert.Null(article.GetAttribute("role"));
     }
 
     [Fact]

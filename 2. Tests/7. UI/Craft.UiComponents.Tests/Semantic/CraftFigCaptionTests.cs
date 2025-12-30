@@ -102,7 +102,7 @@ public class CraftFigCaptionTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftFigCaption_ShouldHaveRoleAttribute()
+    public void CraftFigCaption_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftFigCaptionTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - figcaption element should not have role attribute (it's implicit)
         var figcaption = cut.Find("figcaption");
-        Assert.Equal("contentinfo", figcaption.GetAttribute("role"));
+        Assert.Null(figcaption.GetAttribute("role"));
     }
 
     [Fact]

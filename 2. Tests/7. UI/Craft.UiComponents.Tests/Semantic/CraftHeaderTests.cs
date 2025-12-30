@@ -102,7 +102,7 @@ public class CraftHeaderTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftHeader_ShouldHaveRoleAttribute()
+    public void CraftHeader_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftHeaderTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - header element should not have role attribute (it's implicit)
         var header = cut.Find("header");
-        Assert.Equal("heading", header.GetAttribute("role"));
+        Assert.Null(header.GetAttribute("role"));
     }
 
     [Fact]

@@ -102,7 +102,7 @@ public class CraftSummaryTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftSummary_ShouldHaveRoleAttribute()
+    public void CraftSummary_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftSummaryTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - summary element should not have role attribute (it's implicit)
         var summary = cut.Find("summary");
-        Assert.Equal("article", summary.GetAttribute("role"));
+        Assert.Null(summary.GetAttribute("role"));
     }
 
     [Fact]

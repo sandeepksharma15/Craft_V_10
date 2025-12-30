@@ -102,7 +102,7 @@ public class CraftSectionTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftSection_ShouldHaveRoleAttribute()
+    public void CraftSection_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftSectionTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - section element should not have role attribute (it's implicit)
         var section = cut.Find("section");
-        Assert.Equal("group", section.GetAttribute("role"));
+        Assert.Null(section.GetAttribute("role"));
     }
 
     [Fact]

@@ -1,5 +1,11 @@
 @inherits CraftComponent
 
-<time @ref="ElementRef" id="@Id" class="@Class" style="@Style" role="contentinfo" @attributes="@UserAttributes">
-    @ChildContent
+<time @ref="ElementRef"
+      id="@GetId()"
+      class="@BuildCssClass()"
+      style="@BuildStyle()"
+      datetime="@GetDateTimeString()"
+      @attributes="@UserAttributes"
+      @onclick="HandleClickAsync">
+    @GetDisplayContent()
 </time>

@@ -1,5 +1,12 @@
 @inherits CraftComponent
 
-<nav @ref="ElementRef" id="@Id" class="@Class" style="@Style" role="navigation" @attributes="@UserAttributes">
+<nav @ref="ElementRef"
+     id="@GetId()"
+     class="@BuildCssClass()"
+     style="@BuildStyle()"
+     aria-label="@AriaLabel"
+     aria-labelledby="@AriaLabelledBy"
+     @attributes="@UserAttributes"
+     @onclick="HandleClickAsync">
     @ChildContent
 </nav>

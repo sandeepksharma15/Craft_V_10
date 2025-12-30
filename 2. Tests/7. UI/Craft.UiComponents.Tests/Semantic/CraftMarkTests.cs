@@ -102,7 +102,7 @@ public class CraftMarkTests : ComponentTestBase
     }
 
     [Fact]
-    public void CraftMark_ShouldHaveRoleAttribute()
+    public void CraftMark_ShouldNotHaveRedundantRoleAttribute()
     {
         // Act
         var cut = Render(builder =>
@@ -111,9 +111,9 @@ public class CraftMarkTests : ComponentTestBase
             builder.CloseComponent();
         });
 
-        // Assert
+        // Assert - mark element should not have role attribute (it's implicit)
         var mark = cut.Find("mark");
-        Assert.Equal("contentinfo", mark.GetAttribute("role"));
+        Assert.Null(mark.GetAttribute("role"));
     }
 
     [Fact]
