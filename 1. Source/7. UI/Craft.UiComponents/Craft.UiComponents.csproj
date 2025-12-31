@@ -21,9 +21,10 @@
 		<ProjectReference Include="..\..\1. Core\Craft.Utilities\Craft.Utilities.csproj" />
 	</ItemGroup>
 
-	<Target Name="NpmBuild" BeforeTargets="Build">
+	<!--TODO: Uncomment the following Target if you need to run npm commands during the build process.-->
+	<!--<Target Name="NpmBuild" BeforeTargets="Build">
 		<Exec Command="npm install" />
 		<Exec Command="npm run build" />
-	</Target>
+	</Target>-->
 
 </Project>

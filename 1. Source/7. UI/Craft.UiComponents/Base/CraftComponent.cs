@@ -158,10 +158,7 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
         Id ??= GenerateId();
         _previousVisible = Visible;
 
-        if (ThemeService != null)
-        {
-            ThemeService.ThemeChanged += OnThemeChanged;
-        }
+        ThemeService?.ThemeChanged += OnThemeChanged;
 
         LogDebug("Component initialized with Id: {Id}", Id);
     }
@@ -356,10 +353,7 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
 
         _disposed = true;
 
-        if (ThemeService != null)
-        {
-            ThemeService.ThemeChanged -= OnThemeChanged;
-        }
+        ThemeService?.ThemeChanged -= OnThemeChanged;
 
         await DisposeAsyncCore();
 

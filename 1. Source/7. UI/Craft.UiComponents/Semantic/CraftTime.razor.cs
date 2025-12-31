@@ -94,7 +94,7 @@ public partial class CraftTime : CraftComponent
     /// <summary>
     /// Gets a relative time string (e.g., "2 hours ago", "in 3 days").
     /// </summary>
-    private string GetRelativeTimeString(DateTimeOffset value)
+    private static string GetRelativeTimeString(DateTimeOffset value)
     {
         var now = DateTimeOffset.UtcNow;
         var timeSpan = now - value.ToUniversalTime();
