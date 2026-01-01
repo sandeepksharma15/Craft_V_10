@@ -7,11 +7,11 @@ namespace Craft.UiBuilders.Components;
 public partial class DarkModeToggle : CraftComponent
 {
     [Parameter, Required] public bool DarkMode { get; set; }
-    [Parameter, Required] public EventCallback<bool>? DarkModeChanged { get; set; }
+    [Parameter, Required] public EventCallback<bool> DarkModeChanged { get; set; }
 
-    public void ToggleLightMode(bool changed)
+    public async Task OnDarkModeChanged(bool changed)
     {
         DarkMode = changed;
-        DarkModeChanged?.InvokeAsync(DarkMode);
+        await DarkModeChanged.InvokeAsync(DarkMode);
     }
 }

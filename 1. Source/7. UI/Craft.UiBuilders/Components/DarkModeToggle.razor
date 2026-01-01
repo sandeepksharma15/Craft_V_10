@@ -6,7 +6,7 @@
 @inherits CraftComponent
 
 <MudTooltip Text="Toggle Dark Mode">
-    <MudToggleIconButton Toggled="@DarkMode" ToggledChanged="@ToggleLightMode" Color="Color.Inherit"
+    <MudToggleIconButton Toggled="@DarkMode" ToggledChanged="@OnDarkModeChanged" Color="Color.Inherit"
                          Icon="@Icons.Material.Filled.DarkMode"
                          ToggledIcon="@Icons.Material.Filled.LightMode" Size="MudBlazor.Size.Medium" />
 
