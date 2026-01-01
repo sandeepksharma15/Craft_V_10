@@ -83,7 +83,7 @@ public class ThemeManagerTests
 
         // Assert
         Assert.NotNull(themes);
-        Assert.IsAssignableFrom<IReadOnlyDictionary<string, MudTheme>>(themes);
+        Assert.IsType<IReadOnlyDictionary<string, MudTheme>>(themes, exactMatch: false);
     }
 
     [Fact]

@@ -40,10 +40,11 @@ public class UserPreferencesTests
     public void IsDarkMode_ShouldBeSettable()
     {
         // Arrange
-        var preferences = new UserPreferences();
-
         // Act
-        preferences.IsDarkMode = false;
+        var preferences = new UserPreferences
+        {
+            IsDarkMode = false
+        };
 
         // Assert
         Assert.False(preferences.IsDarkMode);
@@ -53,10 +54,11 @@ public class UserPreferencesTests
     public void IsDrawerOpen_ShouldBeSettable()
     {
         // Arrange
-        var preferences = new UserPreferences();
-
         // Act
-        preferences.IsDrawerOpen = false;
+        var preferences = new UserPreferences
+        {
+            IsDrawerOpen = false
+        };
 
         // Assert
         Assert.False(preferences.IsDrawerOpen);
@@ -66,10 +68,11 @@ public class UserPreferencesTests
     public void ThemeName_ShouldBeSettable()
     {
         // Arrange
-        var preferences = new UserPreferences();
-
         // Act
-        preferences.ThemeName = "CustomTheme";
+        var preferences = new UserPreferences
+        {
+            ThemeName = "CustomTheme"
+        };
 
         // Assert
         Assert.Equal("CustomTheme", preferences.ThemeName);
@@ -346,7 +349,7 @@ public class UserPreferencesTests
         var preferences = new UserPreferences();
 
         // Assert
-        Assert.IsAssignableFrom<IUserPreferences>(preferences);
+        Assert.IsType<IUserPreferences>(preferences, exactMatch: false);
     }
 
     [Fact]
@@ -405,7 +408,7 @@ public class UserPreferencesTests
         // Arrange
         var preferences = new UserPreferences();
         var eventCount = 0;
-        Action handler = () => eventCount++;
+        void handler() => eventCount++;
         preferences.OnDarkModeChange += handler;
         preferences.OnDarkModeChange -= handler;
 
@@ -423,8 +426,8 @@ public class UserPreferencesTests
         var preferences = new UserPreferences();
         var handler1Called = false;
         var handler2Called = false;
-        Action handler1 = () => handler1Called = true;
-        Action handler2 = () => handler2Called = true;
+        void handler1() => handler1Called = true;
+        void handler2() => handler2Called = true;
 
         preferences.OnDarkModeChange += handler1;
         preferences.OnDarkModeChange += handler2;
