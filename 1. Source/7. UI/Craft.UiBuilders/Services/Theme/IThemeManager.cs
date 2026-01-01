@@ -7,6 +7,8 @@ namespace Craft.UiBuilders.Services.Theme;
 /// </summary>
 public interface IThemeManager
 {
+    public const string DefaultThemeName = "Default";
+
     /// <summary>
     /// Gets the currently active theme.
     /// </summary>

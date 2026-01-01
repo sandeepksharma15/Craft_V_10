@@ -17,7 +17,7 @@ public class ThemeManager : IThemeManager
     {
         _logger = logger;
         _themes = new Dictionary<string, MudTheme>(StringComparer.OrdinalIgnoreCase);
-        _currentThemeName = "Default";
+        _currentThemeName = IThemeManager.DefaultThemeName;
         
         // Register default theme
         RegisterDefaultTheme();
@@ -25,7 +25,7 @@ public class ThemeManager : IThemeManager
 
     public MudTheme CurrentTheme => _themes.TryGetValue(_currentThemeName, out var theme) 
         ? theme 
-        : _themes["Default"];
+        : _themes[IThemeManager.DefaultThemeName];
 
     public IReadOnlyDictionary<string, MudTheme> AvailableThemes => _themes;
 
@@ -97,6 +97,6 @@ public class ThemeManager : IThemeManager
             ZIndex = new ZIndex()
         };
 
-        _themes["Default"] = theme;
+        _themes[IThemeManager.DefaultThemeName] = theme;
     }
 }
