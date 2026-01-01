@@ -81,24 +81,20 @@ public class ThemeManager : IThemeManager
 
         _themes[name] = theme;
         _logger.LogInformation("Theme '{ThemeName}' registered successfully", name);
+
         return true;
     }
 
     private void RegisterDefaultTheme()
     {
-        var defaultTheme = new MudTheme()
+        _themes["Default"] = new MudTheme()
         {
-            PaletteLight = new PaletteLight()
-            {
-                Primary = "#594AE2",
-                AppbarBackground = "#594AE2",
-            },
-            PaletteDark = new PaletteDark()
-            {
-                Primary = "#776BE7",
-            }
+            PaletteLight = new PaletteLight(),
+            PaletteDark = new PaletteDark(),
+            Typography = new Typography(),
+            LayoutProperties = new LayoutProperties(),
+            Shadows = new Shadow(),
+            ZIndex = new ZIndex()
         };
-
-        _themes["Default"] = defaultTheme;
     }
 }

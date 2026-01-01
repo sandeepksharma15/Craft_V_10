@@ -3,9 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Craft.UiBuilders.Services.UserPreference;
 
-public class UserPreferencesManager(
-    ProtectedLocalStorage protectedLocalStorage,
-    ILogger<UserPreferencesManager> logger) : IUserPreferencesManager
+public class UserPreferencesManager(ProtectedLocalStorage protectedLocalStorage, ILogger<UserPreferencesManager> logger) : IUserPreferencesManager
 {
     private const string UserPreferencesKey = "_USER_PREFERENCES_";
     private readonly ProtectedLocalStorage _protectedLocalStorage = protectedLocalStorage;
@@ -33,9 +31,7 @@ public class UserPreferencesManager(
                 .GetAsync<UserPreferences>(UserPreferencesKey);
 
             if (result.Success && result.Value != null)
-            {
                 return result.Value;
-            }
 
             _logger.LogDebug("No existing user preferences found, returning defaults");
             return new UserPreferences();

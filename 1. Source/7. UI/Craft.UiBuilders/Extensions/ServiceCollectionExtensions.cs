@@ -17,17 +17,16 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="applicationName">Optional application name for data protection isolation. Defaults to "Craft.UiBuilders".</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddUserPreferences(
-        this IServiceCollection services,
-        string? applicationName = null)
+    public static IServiceCollection AddUserPreferences(this IServiceCollection services, string? applicationName = null)
     {
         // Configure Data Protection for ProtectedBrowserStorage
         // This ensures encrypted local storage persists across app restarts
-        var dataProtectionBuilder = services.AddDataProtection()
-            .SetApplicationName(applicationName ?? "Craft.UiBuilders");
+        services.AddDataProtection()
+            .SetApplicationName(applicationName ?? "Craft.UiBuilders")
+            .PersistKeysToFileSystem(new DirectoryInfo("/var/keys"))
+            .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
         // In production, consider adding:
-        // - .PersistKeysToFileSystem(new DirectoryInfo(@"path-to-keys"))
         // - .PersistKeysToDbContext<YourDbContext>()
         // - .ProtectKeysWithCertificate(certificate)
 
@@ -55,9 +54,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="applicationName">Optional application name for data protection isolation.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddUiBuilders(
-        this IServiceCollection services,
-        string? applicationName = null)
+    public static IServiceCollection AddUiBuilders(this IServiceCollection services, string? applicationName = null)
     {
         services.AddUserPreferences(applicationName);
         services.AddThemeManager();
