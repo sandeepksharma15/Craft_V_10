@@ -87,7 +87,7 @@ public class ThemeManager : IThemeManager
 
     private void RegisterDefaultTheme()
     {
-        _themes["Default"] = new MudTheme()
+        MudTheme theme = new()
         {
             PaletteLight = new PaletteLight(),
             PaletteDark = new PaletteDark(),
@@ -96,5 +96,7 @@ public class ThemeManager : IThemeManager
             Shadows = new Shadow(),
             ZIndex = new ZIndex()
         };
+
+        _themes["Default"] = theme;
     }
 }
