@@ -1,0 +1,506 @@
+// ============================================================================
+// COMPLETE INTEGRATION EXAMPLE
+// This file demonstrates how to integrate all the UserPreference and Theme
+// management services in a Blazor Server application.
+// ============================================================================
+
+// ============================================================================
+// 1. Program.cs - Service Registration
+// ============================================================================
+
+using Craft.UiBuilders.Extensions;
+using MudBlazor.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+// Register MudBlazor
+builder.Services.AddMudServices();
+
+// Register UI Builder services (includes UserPreferences + DataProtection)
+builder.Services.AddUiBuilders("MyApp");
+
+// Configure DataProtection for production
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("MyApp")
+        .PersistKeysToFileSystem(new DirectoryInfo("/var/keys"));
+}
+
+var app = builder.Build();
+
+// Configure middleware
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseAntiforgery();
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+app.Run();
+
+// ============================================================================
+// 2. App.razor - Root Component
+// ============================================================================
+@* 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+</head>
+<body>
+    <Routes />
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+</body>
+</html>
+*@
+
+// ============================================================================
+// 3. MainLayout.razor - Application Layout
+// ============================================================================
+@* 
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject IThemeManager ThemeManager
+@inject IUserPreferencesManager PrefsManager
+
+<MudThemeProvider Theme="@ThemeManager.CurrentTheme" 
+                  IsDarkMode="@_isDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" 
+                       Color="Color.Inherit" 
+                       Edge="Edge.Start" 
+                       OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6">My Application</MudText>
+        <MudSpacer />
+        
+        <!-- Theme Selector -->
+        <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Inherit">
+            @foreach (var theme in ThemeManager.AvailableThemes.Keys)
+            {
+                <MudMenuItem OnClick="@(() => SetTheme(theme))">@theme</MudMenuItem>
+            }
+        </MudMenu>
+        
+        <!-- Dark Mode Toggle -->
+        <MudTooltip Text="@(_isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode")">
+            <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                           Color="Color.Inherit"
+                           OnClick="@ToggleDarkMode" />
+        </MudTooltip>
+    </MudAppBar>
+    
+    <MudDrawer @bind-Open="_drawerOpen" 
+               Elevation="2"
+               ClipMode="DrawerClipMode.Always">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Navigation</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _isDarkMode;
+    private bool _drawerOpen = true;
+    private string _currentTheme = "Default";
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserPreferences();
+        SubscribeToThemeEvents();
+    }
+    
+    private async Task LoadUserPreferences()
+    {
+        try
+        {
+            var prefs = await PrefsManager.GetUserPreferences();
+            
+            if (prefs != null)
+            {
+                _isDarkMode = prefs.IsDarkMode;
+                _drawerOpen = prefs.IsDrawerOpen;
+                _currentTheme = prefs.ThemeName ?? "Default";
+                
+                // Apply saved theme
+                ThemeManager.IsDarkMode = _isDarkMode;
+                if (!string.IsNullOrEmpty(_currentTheme))
+                {
+                    ThemeManager.SetTheme(_currentTheme);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error and use defaults
+            Console.WriteLine($"Error loading preferences: {ex.Message}");
+        }
+    }
+    
+    private void SubscribeToThemeEvents()
+    {
+        ThemeManager.OnThemeChanged += HandleThemeChanged;
+        ThemeManager.OnDarkModeChanged += HandleDarkModeChanged;
+    }
+    
+    private async Task ToggleDarkMode()
+    {
+        try
+        {
+            _isDarkMode = await PrefsManager.ToggleDarkModeAsync();
+            ThemeManager.IsDarkMode = _isDarkMode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling dark mode: {ex.Message}");
+        }
+    }
+    
+    private async Task ToggleDrawer()
+    {
+        try
+        {
+            _drawerOpen = await PrefsManager.ToggleDrawerStateAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling drawer: {ex.Message}");
+        }
+    }
+    
+    private async Task SetTheme(string themeName)
+    {
+        try
+        {
+            if (ThemeManager.SetTheme(themeName))
+            {
+                _currentTheme = themeName;
+                await PrefsManager.SetThemeNameAsync(themeName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting theme: {ex.Message}");
+        }
+    }
+    
+    private void HandleThemeChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void HandleDarkModeChanged(bool isDark)
+    {
+        _isDarkMode = isDark;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    public void Dispose()
+    {
+        ThemeManager.OnThemeChanged -= HandleThemeChanged;
+        ThemeManager.OnDarkModeChanged -= HandleDarkModeChanged;
+    }
+}
+*@
+
+// ============================================================================
+// 4. NavMenu.razor - Navigation Component
+// ============================================================================
+@* 
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+        Home
+    </MudNavLink>
+    <MudNavLink Href="/counter" Icon="@Icons.Material.Filled.Add">
+        Counter
+    </MudNavLink>
+    <MudNavLink Href="/weather" Icon="@Icons.Material.Filled.Cloud">
+        Weather
+    </MudNavLink>
+    <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">
+        Settings
+    </MudNavLink>
+</MudNavMenu>
+*@
+
+// ============================================================================
+// 5. Settings.razor - Settings Page Example
+// ============================================================================
+@* 
+@page "/settings"
+@inject IThemeManager ThemeManager
+@inject IUserPreferencesManager PrefsManager
+
+<PageTitle>Settings</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Settings</MudText>
+
+<MudCard>
+    <MudCardContent>
+        <MudText Typo="Typo.h6" Class="mb-4">Appearance</MudText>
+        
+        <!-- Dark Mode Switch -->
+        <MudSwitch @bind-Checked="@isDarkMode" 
+                   Color="Color.Primary" 
+                   Label="Dark Mode"
+                   CheckedChanged="OnDarkModeChanged" />
+        
+        <!-- Theme Selector -->
+        <MudSelect T="string" 
+                   Label="Theme" 
+                   Value="@selectedTheme"
+                   ValueChanged="OnThemeChanged"
+                   Class="mt-4">
+            @foreach (var theme in ThemeManager.AvailableThemes.Keys)
+            {
+                <MudSelectItem T="string" Value="@theme">@theme</MudSelectItem>
+            }
+        </MudSelect>
+        
+        <!-- Drawer State Switch -->
+        <MudSwitch @bind-Checked="@drawerOpen" 
+                   Color="Color.Primary" 
+                   Label="Keep Navigation Drawer Open"
+                   CheckedChanged="OnDrawerStateChanged"
+                   Class="mt-4" />
+    </MudCardContent>
+</MudCard>
+
+<MudCard Class="mt-4">
+    <MudCardContent>
+        <MudText Typo="Typo.h6" Class="mb-4">Current Preferences</MudText>
+        
+        <MudSimpleTable Dense="true">
+            <tbody>
+                <tr>
+                    <td><strong>Dark Mode</strong></td>
+                    <td>@(isDarkMode ? "Enabled" : "Disabled")</td>
+                </tr>
+                <tr>
+                    <td><strong>Theme</strong></td>
+                    <td>@selectedTheme</td>
+                </tr>
+                <tr>
+                    <td><strong>Drawer</strong></td>
+                    <td>@(drawerOpen ? "Open" : "Closed")</td>
+                </tr>
+            </tbody>
+        </MudSimpleTable>
+        
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Error" 
+                   OnClick="ResetPreferences"
+                   Class="mt-4">
+            Reset to Defaults
+        </MudButton>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private bool isDarkMode;
+    private bool drawerOpen = true;
+    private string selectedTheme = "Default";
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var prefs = await PrefsManager.GetUserPreferences();
+        
+        if (prefs != null)
+        {
+            isDarkMode = prefs.IsDarkMode;
+            drawerOpen = prefs.IsDrawerOpen;
+            selectedTheme = prefs.ThemeName ?? "Default";
+        }
+    }
+    
+    private async Task OnDarkModeChanged(bool value)
+    {
+        isDarkMode = await PrefsManager.ToggleDarkModeAsync();
+        ThemeManager.IsDarkMode = isDarkMode;
+    }
+    
+    private async Task OnThemeChanged(string themeName)
+    {
+        if (ThemeManager.SetTheme(themeName))
+        {
+            selectedTheme = themeName;
+            await PrefsManager.SetThemeNameAsync(themeName);
+        }
+    }
+    
+    private async Task OnDrawerStateChanged(bool value)
+    {
+        drawerOpen = await PrefsManager.ToggleDrawerStateAsync();
+    }
+    
+    private async Task ResetPreferences()
+    {
+        var defaultPrefs = new UserPreferences
+        {
+            IsDarkMode = false,
+            IsDrawerOpen = true,
+            ThemeName = "Default"
+        };
+        
+        await PrefsManager.SetUserPreferences(defaultPrefs);
+        
+        isDarkMode = defaultPrefs.IsDarkMode;
+        drawerOpen = defaultPrefs.IsDrawerOpen;
+        selectedTheme = defaultPrefs.ThemeName;
+        
+        ThemeManager.IsDarkMode = isDarkMode;
+        ThemeManager.SetTheme(selectedTheme);
+    }
+}
+*@
+
+// ============================================================================
+// 6. ThemeConfiguration.cs - Custom Theme Registration
+// ============================================================================
+/*
+using Craft.UiBuilders.Services.Theme;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MudBlazor;
+
+namespace MyApp.Configuration;
+
+public static class ThemeConfiguration
+{
+    public static IServiceCollection RegisterCustomThemes(this IServiceCollection services)
+    {
+        // Override the default ThemeManager registration with custom themes
+        services.AddScoped<IThemeManager>(sp =>
+        {
+            var logger = sp.GetRequiredService<ILogger<ThemeManager>>();
+            var themeManager = new ThemeManager(logger);
+            
+            // Register Corporate Theme
+            themeManager.RegisterTheme("Corporate", new MudTheme
+            {
+                Typography = new Typography
+                {
+                    Default = new Default { FontFamily = new[] { "Inter", "Arial", "sans-serif" } }
+                },
+                PaletteLight = new PaletteLight
+                {
+                    Primary = "#1976D2",
+                    Secondary = "#424242",
+                    AppbarBackground = "#1976D2",
+                    Background = "#F5F5F5",
+                    Surface = "#FFFFFF",
+                    DrawerBackground = "#FFFFFF",
+                },
+                PaletteDark = new PaletteDark
+                {
+                    Primary = "#2196F3",
+                    Secondary = "#616161",
+                    AppbarBackground = "#1565C0",
+                    Background = "#1E1E1E",
+                    Surface = "#2D2D2D",
+                    DrawerBackground = "#252525",
+                }
+            });
+            
+            // Register Nature Theme
+            themeManager.RegisterTheme("Nature", new MudTheme
+            {
+                PaletteLight = new PaletteLight
+                {
+                    Primary = "#2E7D32",
+                    Secondary = "#558B2F",
+                    AppbarBackground = "#2E7D32",
+                },
+                PaletteDark = new PaletteDark
+                {
+                    Primary = "#4CAF50",
+                    Secondary = "#8BC34A",
+                    AppbarBackground = "#1B5E20",
+                }
+            });
+            
+            // Register Ocean Theme
+            themeManager.RegisterTheme("Ocean", new MudTheme
+            {
+                PaletteLight = new PaletteLight
+                {
+                    Primary = "#006064",
+                    Secondary = "#00838F",
+                    AppbarBackground = "#006064",
+                },
+                PaletteDark = new PaletteDark
+                {
+                    Primary = "#00ACC1",
+                    Secondary = "#00BCD4",
+                    AppbarBackground = "#004D51",
+                }
+            });
+            
+            return themeManager;
+        });
+        
+        return services;
+    }
+}
+
+// Usage in Program.cs:
+// builder.Services.AddUiBuilders();
+// builder.Services.RegisterCustomThemes(); // Replaces default ThemeManager
+*/
+
+// ============================================================================
+// 7. Testing Example
+// ============================================================================
+/*
+using Bunit;
+using Craft.UiBuilders.Services.UserPreference;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+public class UserPreferencesIntegrationTests : TestContext
+{
+    [Fact]
+    public async Task UserPreferences_PersistsAcrossComponents()
+    {
+        // Arrange
+        Services.AddUserPreferences("TestApp");
+        
+        // Act - Set preferences in first component
+        var prefsManager = Services.GetRequiredService<IUserPreferencesManager>();
+        await prefsManager.SetThemeNameAsync("Corporate");
+        var isDarkMode = await prefsManager.ToggleDarkModeAsync();
+        
+        // Assert - Verify in second component
+        var prefs = await prefsManager.GetUserPreferences();
+        Assert.NotNull(prefs);
+        Assert.Equal("Corporate", prefs.ThemeName);
+        Assert.True(prefs.IsDarkMode);
+    }
+}
+*/
