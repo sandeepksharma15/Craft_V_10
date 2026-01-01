@@ -16,7 +16,7 @@ namespace Craft.UiBuilders.Tests.Base;
 /// Base class for Craft UI Builder component tests that provides common test infrastructure
 /// including mock services registration and MudBlazor services.
 /// </summary>
-public abstract class ComponentTestBase : TestContext
+public abstract class ComponentTestBase : BunitContext
 {
     protected Mock<IThemeService> MockThemeService { get; }
 

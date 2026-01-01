@@ -143,7 +143,7 @@ public class DarkModeToggleTests : ComponentTestBase
         var component = new DarkModeToggle
         {
             DarkMode = false,
-            DarkModeChanged = default(EventCallback<bool>)
+            DarkModeChanged = default
         };
 
         // Act & Assert
@@ -162,7 +162,7 @@ public class DarkModeToggleTests : ComponentTestBase
         var component = new DarkModeToggle();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
