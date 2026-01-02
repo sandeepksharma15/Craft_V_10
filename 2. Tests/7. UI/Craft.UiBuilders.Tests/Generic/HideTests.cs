@@ -58,7 +58,7 @@ public class HideTests : ComponentTestBase
         var component = new Hide();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]

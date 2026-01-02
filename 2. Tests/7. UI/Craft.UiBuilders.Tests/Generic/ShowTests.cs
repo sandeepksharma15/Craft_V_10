@@ -58,7 +58,7 @@ public class ShowTests : ComponentTestBase
         var component = new Show();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]

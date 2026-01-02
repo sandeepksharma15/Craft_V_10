@@ -204,7 +204,7 @@ public class ForEachTests : ComponentTestBase
         var component = new ForEach<string>();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
@@ -213,8 +213,8 @@ public class ForEachTests : ComponentTestBase
         // Arrange
         var categories = new[]
         {
-            new Category { Name = "Fruits", Items = new[] { "Apple", "Banana" } },
-            new Category { Name = "Vegetables", Items = new[] { "Carrot" } }
+            new Category { Name = "Fruits", Items = ["Apple", "Banana"] },
+            new Category { Name = "Vegetables", Items = ["Carrot"] }
         };
 
         // Act
@@ -414,6 +414,6 @@ public class ForEachTests : ComponentTestBase
     private class Category
     {
         public string Name { get; set; } = string.Empty;
-        public string[] Items { get; set; } = Array.Empty<string>();
+        public string[] Items { get; set; } = [];
     }
 }
