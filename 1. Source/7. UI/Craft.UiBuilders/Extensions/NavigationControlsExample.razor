@@ -1,0 +1,69 @@
+@* Example component demonstrating NavigationExtensions usage *@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using Craft.UiBuilders.Extensions
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<div class="navigation-controls">
+    <button class="btn btn-secondary" @onclick="HandleGoBack" disabled="@_isNavigating">
+        <span class="oi oi-arrow-left"></span> Go Back
+    </button>
+
+    <button class="btn btn-secondary" @onclick="HandleGoForward" disabled="@_isNavigating">
+        <span class="oi oi-arrow-right"></span> Go Forward
+    </button>
+
+    <button class="btn btn-secondary" @onclick="HandleReload" disabled="@_isNavigating">
+        <span class="oi oi-reload"></span> Reload
+    </button>
+</div>
+
+@code {
+    private bool _isNavigating;
+
+    [Parameter]
+    public string FallbackUrl { get; set; } = "/";
+
+    [Parameter]
+    public bool ForceReload { get; set; }
+
+    private async Task HandleGoBack()
+    {
+        _isNavigating = true;
+        try
+        {
+            await Navigation.GoBackAsync(JSRuntime, FallbackUrl);
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+    }
+
+    private async Task HandleGoForward()
+    {
+        _isNavigating = true;
+        try
+        {
+            await Navigation.GoForwardAsync(JSRuntime);
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+    }
+
+    private async Task HandleReload()
+    {
+        _isNavigating = true;
+        try
+        {
+            await Navigation.ReloadAsync(JSRuntime, ForceReload);
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+    }
+}
