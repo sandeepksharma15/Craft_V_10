@@ -351,9 +351,9 @@ public class CraftComponentTests : ComponentTestBase
 }
 
 /// <summary>
-/// Test implementation of CraftComponent for testing purposes.
+/// Test implementation of ThemedCraftComponent for testing purposes.
 /// </summary>
-internal class TestCraftComponent : CraftComponent
+internal class TestCraftComponent : ThemedCraftComponent
 {
     protected override void BuildRenderTree(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder)
     {

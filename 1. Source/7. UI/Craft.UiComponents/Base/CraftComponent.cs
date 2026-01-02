@@ -10,7 +10,8 @@ namespace Craft.UiComponents;
 
 /// <summary>
 /// Base component for all Craft UI components providing common functionality
-/// including styling, theming, element reference, and basic click handling.
+/// including element reference, basic event handling, and lifecycle management.
+/// Implement <see cref="IThemeable"/> for theming support or <see cref="IAnimatable"/> for animation support.
 /// </summary>
 public abstract class CraftComponent : ComponentBase, IAsyncDisposable
 {
@@ -116,40 +117,6 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
 
     #endregion
 
-    #region Theming Parameters
-
-    /// <summary>
-    /// Gets or sets the size variant for this component.
-    /// </summary>
-    [Parameter] public ComponentSize Size { get; set; } = ComponentSize.Medium;
-
-    /// <summary>
-    /// Gets or sets the visual style variant for this component.
-    /// </summary>
-    [Parameter] public ComponentVariant Variant { get; set; } = ComponentVariant.Default;
-
-    #endregion
-
-    #region Animation Parameters
-
-    /// <summary>
-    /// Gets or sets the animation type for this component.
-    /// </summary>
-    [Parameter] public AnimationType Animation { get; set; } = AnimationType.None;
-
-    /// <summary>
-    /// Gets or sets the animation duration.
-    /// </summary>
-    [Parameter] public AnimationDuration AnimationDuration { get; set; } = AnimationDuration.Normal;
-
-    /// <summary>
-    /// Gets or sets a custom animation duration in milliseconds.
-    /// Overrides <see cref="AnimationDuration"/> when set to a positive value.
-    /// </summary>
-    [Parameter] public int? CustomAnimationDurationMs { get; set; }
-
-    #endregion
-
     #region Lifecycle Methods
 
     /// <inheritdoc />
@@ -210,9 +177,6 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
     protected virtual string BuildCssClass()
     {
         var builder = new CssBuilder(GetComponentCssClass() ?? string.Empty)
-            .AddClass(GetSizeCssClass()!, !string.IsNullOrEmpty(GetSizeCssClass()))
-            .AddClass(GetVariantCssClass()!, !string.IsNullOrEmpty(GetVariantCssClass()))
-            .AddClass(GetAnimationCssClass()!, !string.IsNullOrEmpty(GetAnimationCssClass()))
             .AddClass("craft-disabled", Disabled)
             .AddClass("craft-hidden", !Visible)
             .AddClass(Class!, !string.IsNullOrEmpty(Class));
@@ -227,66 +191,12 @@ public abstract class CraftComponent : ComponentBase, IAsyncDisposable
     protected virtual string? GetComponentCssClass() => null;
 
     /// <summary>
-    /// Gets the CSS class for the current size setting.
-    /// </summary>
-    protected virtual string? GetSizeCssClass() => Size switch
-    {
-        ComponentSize.ExtraSmall => "craft-size-xs",
-        ComponentSize.Small => "craft-size-sm",
-        ComponentSize.Medium => null,
-        ComponentSize.Large => "craft-size-lg",
-        ComponentSize.ExtraLarge => "craft-size-xl",
-        _ => null
-    };
-
-    /// <summary>
-    /// Gets the CSS class for the current variant setting.
-    /// </summary>
-    protected virtual string? GetVariantCssClass() => Variant switch
-    {
-        ComponentVariant.Default => null,
-        ComponentVariant.Primary => "craft-variant-primary",
-        ComponentVariant.Secondary => "craft-variant-secondary",
-        ComponentVariant.Success => "craft-variant-success",
-        ComponentVariant.Warning => "craft-variant-warning",
-        ComponentVariant.Danger => "craft-variant-danger",
-        ComponentVariant.Info => "craft-variant-info",
-        ComponentVariant.Light => "craft-variant-light",
-        ComponentVariant.Dark => "craft-variant-dark",
-        ComponentVariant.Outlined => "craft-variant-outlined",
-        ComponentVariant.Text => "craft-variant-text",
-        _ => null
-    };
-
-    /// <summary>
-    /// Gets the CSS class for the current animation setting.
-    /// </summary>
-    protected virtual string? GetAnimationCssClass() => Animation switch
-    {
-        AnimationType.None => null,
-        AnimationType.Fade => "craft-animate-fade",
-        AnimationType.Slide => "craft-animate-slide",
-        AnimationType.Scale => "craft-animate-scale",
-        AnimationType.Collapse => "craft-animate-collapse",
-        AnimationType.Bounce => "craft-animate-bounce",
-        AnimationType.Shake => "craft-animate-shake",
-        AnimationType.Pulse => "craft-animate-pulse",
-        AnimationType.Flip => "craft-animate-flip",
-        AnimationType.Rotate => "craft-animate-rotate",
-        _ => null
-    };
-
-    /// <summary>
     /// Builds the inline style string for the component.
     /// </summary>
     /// <returns>The combined style string.</returns>
     protected virtual string? BuildStyle()
     {
-        var duration = CustomAnimationDurationMs ?? (int)AnimationDuration;
-        var hasAnimationDuration = duration > 0 && Animation != AnimationType.None;
-
         var builder = StyleBuilder.Empty()
-            .AddStyle("--craft-animation-duration", $"{duration}ms", hasAnimationDuration)
             .AddStyle(Style!);
 
         return builder.NullIfEmpty();
