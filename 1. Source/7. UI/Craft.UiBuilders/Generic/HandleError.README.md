@@ -15,6 +15,7 @@ The `HandleError` component is a production-ready error handling wrapper for Bla
 - ? **Error Recovery**: Ability to recover and retry rendering
 - ? **Production-Ready**: Configurable detail levels for different environments
 - ? **.NET 10 Compatible**: Uses latest C# 14 and .NET 10 features
+- ? **Craft Framework Integration**: Uses generic components like `If`, `Show` for declarative rendering
 
 ## Basic Usage
 
@@ -240,6 +241,81 @@ catch (Exception ex)
     </MainLayout>
 </HandleError>
 ```
+
+## Craft Framework Integration
+
+### Generic Components Usage
+
+`HandleError` leverages Craft's generic components for cleaner, more declarative conditional rendering:
+
+#### `If` Component
+Used for mutually exclusive conditional rendering (either/or scenarios):
+
+```razor
+<If Condition="@(CustomErrorContent is not null)">
+    <True>
+        @CustomErrorContent
+    </True>
+    <False>
+        <!-- Default error UI -->
+    </False>
+</If>
+```
+
+#### `Show` Component
+Used for simple conditional rendering (show when true):
+
+```razor
+<Show When="@(ShowDetails && errorContext is not null)">
+    <details class="error-details">
+        <summary>Technical Details</summary>
+        <pre class="error-stack">@errorContext</pre>
+    </details>
+</Show>
+```
+
+#### Benefits of Generic Components
+
+1. **Declarative**: More readable than inline `@if` statements
+2. **Consistent**: Follows Craft framework patterns
+3. **Reusable**: Same components used across the framework
+4. **Testable**: Easier to unit test conditional logic
+5. **Maintainable**: Clear separation of concerns
+
+### Extending with Other Craft Components
+
+You can enhance `HandleError` with additional Craft components:
+
+```razor
+<HandleError ErrorPageUri="/error">
+    <ChildContent>
+        <Timeout Milliseconds="5000">
+            <SlowComponent />
+        </Timeout>
+    </ChildContent>
+    <CustomErrorContent>
+        <Delay Milliseconds="300">
+            <FadeIn>
+                <ErrorMessage />
+            </FadeIn>
+        </Delay>
+    </CustomErrorContent>
+</HandleError>
+```
+
+**Available Generic Components:**
+- `If` - Conditional rendering with True/False branches
+- `Show` - Show content when condition is true
+- `Hide` - Hide content when condition is true
+- `Switch` - Multi-case conditional rendering
+- `ForEach` - Iterate over collections
+- `Repeat` - Repeat content N times
+- `Lazy` - Lazy load components
+- `Timeout` - Timeout wrapper
+- `Delay` - Delayed rendering
+- `Debounce` - Debounced input
+- `DataLoader` - Async data loading
+- `Placeholder` - Loading placeholders
 
 ## Error Page Integration
 

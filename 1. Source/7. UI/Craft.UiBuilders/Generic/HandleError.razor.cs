@@ -9,6 +9,19 @@ namespace Craft.Components.Generic;
 /// A production-ready error handling component that wraps child content with error boundary protection.
 /// Provides error logging, user-friendly error display, and navigation to error pages.
 /// </summary>
+/// <remarks>
+/// This component leverages Craft framework's generic components (<see cref="Craft.UiBuilders.Generic.If"/>, 
+/// <see cref="Craft.UiBuilders.Generic.Show"/>) for declarative conditional rendering, making the markup
+/// more readable and maintainable while following Craft framework conventions.
+/// </remarks>
+/// <example>
+/// Basic usage:
+/// <code>
+/// &lt;HandleError ErrorPageUri="/error" ShowDetails="@IsDevelopment"&gt;
+///     &lt;YourComponent /&gt;
+/// &lt;/HandleError&gt;
+/// </code>
+/// </example>
 public partial class HandleError : ComponentBase
 {
     private ErrorBoundary? _errorBoundary;
@@ -18,14 +31,12 @@ public partial class HandleError : ComponentBase
     /// <summary>
     /// Gets or sets the logger for recording errors.
     /// </summary>
-    [Inject]
-    protected ILogger<HandleError> Logger { get; set; } = default!;
+    [Inject] protected ILogger<HandleError> Logger { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the navigation manager for redirecting to error pages.
     /// </summary>
-    [Inject]
-    protected NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] protected NavigationManager NavigationManager { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the child content to be rendered with error boundary protection.
@@ -38,27 +49,23 @@ public partial class HandleError : ComponentBase
     /// Gets or sets the URI of the error page to navigate to when an error occurs.
     /// If not specified, errors will be displayed inline.
     /// </summary>
-    [Parameter]
-    public string? ErrorPageUri { get; set; }
+    [Parameter] public string? ErrorPageUri { get; set; }
 
     /// <summary>
     /// Gets or sets whether to display detailed error information including stack traces.
     /// Should be false in production environments.
     /// </summary>
-    [Parameter]
-    public bool ShowDetails { get; set; }
+    [Parameter] public bool ShowDetails { get; set; }
 
     /// <summary>
     /// Gets or sets custom error content to display instead of the default error UI.
     /// </summary>
-    [Parameter]
-    public RenderFragment? CustomErrorContent { get; set; }
+    [Parameter] public RenderFragment? CustomErrorContent { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when an error is caught.
     /// </summary>
-    [Parameter]
-    public EventCallback<Exception> OnError { get; set; }
+    [Parameter] public EventCallback<Exception> OnError { get; set; }
 
     /// <summary>
     /// Processes an error with logging and optional navigation to an error page.
@@ -73,12 +80,9 @@ public partial class HandleError : ComponentBase
         _currentErrorId = errorId;
         _currentException = exception;
 
-        Logger.LogError(
-            exception,
+        Logger.LogError(exception,
             "Error caught in HandleError component. Type: {ExceptionType}, Error ID: {ErrorId}",
-            exception.GetType().Name,
-            errorId
-        );
+            exception.GetType().Name, errorId);
 
         var message = customMessage ?? exception.Message;
         var fullMessage = $"{message} [Error ID: {errorId}]";
@@ -102,17 +106,12 @@ public partial class HandleError : ComponentBase
         _currentErrorId = errorId;
         _currentException = exception;
 
-        Logger.LogError(
-            exception,
+        Logger.LogError(exception,
             "Unhandled error caught by HandleError boundary. Type: {ExceptionType}, Error ID: {ErrorId}",
-            exception.GetType().Name,
-            errorId
-        );
+            exception.GetType().Name, errorId);
 
         if (OnError.HasDelegate)
-        {
             InvokeAsync(() => OnError.InvokeAsync(exception));
-        }
     }
 
     /// <summary>
@@ -143,19 +142,14 @@ public partial class HandleError : ComponentBase
         var message = _currentException.Message;
         var encodedMessage = Uri.EscapeDataString(message);
 
-        NavigationManager.NavigateTo(
-            $"{ErrorPageUri}?message={encodedMessage}&id={errorId}",
-            forceLoad: true
-        );
+        NavigationManager.NavigateTo($"{ErrorPageUri}?message={encodedMessage}&id={errorId}", forceLoad: true);
     }
 
     /// <summary>
     /// Reloads the current page.
     /// </summary>
-    private void ReloadPage()
-    {
-        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
-    }
+    private void ReloadPage() 
+        => NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
 
     /// <summary>
     /// Recovers from the error state and attempts to re-render the component.
