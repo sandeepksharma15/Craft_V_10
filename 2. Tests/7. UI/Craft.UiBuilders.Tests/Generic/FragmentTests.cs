@@ -1,6 +1,8 @@
 using Bunit;
 using Craft.UiBuilders.Generic;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
+using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Tests.Generic;
 
@@ -118,7 +120,7 @@ public class FragmentTests : ComponentTestBase
         var component = new Fragment();
 
         // Assert
-        Assert.IsAssignableFrom<Microsoft.AspNetCore.Components.ComponentBase>(component);
+        Assert.IsType<ComponentBase>(component, exactMatch: false);
     }
 
     [Fact]
@@ -215,7 +217,7 @@ public class FragmentTests : ComponentTestBase
         var component = new Fragment();
 
         // Assert - Fragment should be lightweight, not inherit from CraftComponent
-        Assert.IsNotAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsNotType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
@@ -251,11 +253,10 @@ public class FragmentTests : ComponentTestBase
         var cut = Render<Fragment>(parameters => parameters
             .AddChildContent(builder =>
             {
-                int sequence = 0;
                 foreach (var item in items)
                 {
-                    builder.OpenElement(sequence++, "li");
-                    builder.AddContent(sequence++, item);
+                    builder.OpenElement(0, "li");
+                    builder.AddContent(1, item);
                     builder.CloseElement();
                 }
             })

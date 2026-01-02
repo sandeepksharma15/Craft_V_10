@@ -1,6 +1,7 @@
 using Bunit;
 using Craft.UiBuilders.Generic;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
 
 namespace Craft.UiBuilders.Tests.Generic;
 
@@ -58,7 +59,7 @@ public class ErrorBoundaryTests : ComponentTestBase
         var component = new ErrorBoundary();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]

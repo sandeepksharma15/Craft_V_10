@@ -137,7 +137,7 @@ public class EmptyTests : ComponentTestBase
         {
             // Arrange & Act
             var cut = Render<Empty<string>>(parameters => parameters
-                .Add(p => p.Items, new[] { "Item1", "Item2" })
+                .Add(p => p.Items, ["Item1", "Item2"])
                 .AddChildContent("<div>Empty message</div>")
             );
 
@@ -152,7 +152,7 @@ public class EmptyTests : ComponentTestBase
         var component = new Empty<string>();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class EmptyTests : ComponentTestBase
         // Arrange & Act
         var exception = Record.Exception(() =>
             Render<Empty<string>>(parameters => parameters
-                .Add(p => p.Items, Array.Empty<string>())
+                .Add(p => p.Items, [])
             )
         );
 
@@ -205,7 +205,7 @@ public class EmptyTests : ComponentTestBase
     public void Empty_WithIEnumerable_ShouldWork()
     {
         // Arrange
-        IEnumerable<string> GetEmptyEnumerable()
+        static IEnumerable<string> GetEmptyEnumerable()
         {
             yield break;
         }

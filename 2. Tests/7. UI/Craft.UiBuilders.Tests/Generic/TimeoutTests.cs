@@ -1,5 +1,6 @@
 using Bunit;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
 using TimeoutComponent = Craft.UiBuilders.Generic.Timeout;
 
 namespace Craft.UiBuilders.Tests.Generic;
@@ -60,7 +61,7 @@ public class TimeoutTests : ComponentTestBase
         var component = new TimeoutComponent();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]

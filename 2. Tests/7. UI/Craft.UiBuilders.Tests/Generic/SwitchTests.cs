@@ -1,7 +1,9 @@
 using Bunit;
 using Craft.UiBuilders.Generic;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace Craft.UiBuilders.Tests.Generic;
 
@@ -105,7 +107,7 @@ public class SwitchTests : ComponentTestBase
         var component = new Switch<string>();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
@@ -115,7 +117,7 @@ public class SwitchTests : ComponentTestBase
         var component = new Case<string>();
 
         // Assert
-        Assert.IsAssignableFrom<Microsoft.AspNetCore.Components.ComponentBase>(component);
+        Assert.IsType<ComponentBase>(component, exactMatch: false);
     }
 
     [Fact]
@@ -135,7 +137,7 @@ public class SwitchTests : ComponentTestBase
     public void Switch_WithDefaultContent_ShouldAcceptRenderFragment()
     {
         // Arrange
-        RenderFragment fragment = builder => builder.AddMarkupContent(0, "<div>Default</div>");
+        static void fragment(RenderTreeBuilder builder) => builder.AddMarkupContent(0, "<div>Default</div>");
 
         // Act
         var component = new Switch<string>

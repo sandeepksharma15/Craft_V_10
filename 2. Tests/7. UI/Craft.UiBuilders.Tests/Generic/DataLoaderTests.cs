@@ -47,7 +47,7 @@ public class DataLoaderTests : ComponentTestBase
         Assert.Contains("class=\"content\"", cut.Markup);
         
         var overlays = cut.FindComponents<MudOverlay>();
-        Assert.Empty(overlays.Where(o => o.Instance.Visible));
+        Assert.DoesNotContain(overlays, o => o.Instance.Visible);
     }
 
     [Fact]
@@ -215,7 +215,7 @@ public class DataLoaderTests : ComponentTestBase
         var component = new DataLoader();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Theory]

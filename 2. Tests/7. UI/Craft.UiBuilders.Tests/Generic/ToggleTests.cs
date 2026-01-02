@@ -144,7 +144,7 @@ public class ToggleTests : ComponentTestBase
         var component = new Toggle();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]

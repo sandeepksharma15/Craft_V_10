@@ -1,6 +1,7 @@
 using Bunit;
 using Craft.UiBuilders.Generic;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
 
 namespace Craft.UiBuilders.Tests.Generic;
 
@@ -74,7 +75,7 @@ public class DelayTests : ComponentTestBase
         var component = new Delay();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]

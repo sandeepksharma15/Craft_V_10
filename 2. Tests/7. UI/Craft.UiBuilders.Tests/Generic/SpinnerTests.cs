@@ -1,6 +1,7 @@
 using Bunit;
 using Craft.UiBuilders.Generic;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
 using MudBlazor;
 
 namespace Craft.UiBuilders.Tests.Generic;
@@ -95,6 +96,7 @@ public class SpinnerTests : ComponentTestBase
 
         // Assert
         var progressCircular = cut.FindComponent<MudProgressCircular>();
+
         // Just verify that a color is set (it should be one of the random colors)
         Assert.NotNull(progressCircular.Instance.Color);
     }
@@ -119,7 +121,7 @@ public class SpinnerTests : ComponentTestBase
         var component = new Spinner();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
