@@ -9,7 +9,9 @@
 - ? **IDisposable Pattern** - Proper cleanup of event handlers to prevent memory leaks
 - ? **Null Safety** - Full nullable reference type support with guard clauses
 - ? **System.Text.Json** - Modern JSON parsing without external dependencies
+- ? **HttpServiceResult Integration** - Direct support for Craft.HttpServices results (NEW!)
 - ? **Flexible Error Display** - Support for multiple error formats (RFC 7807, dictionaries, custom responses)
+- ? **Smart Error Detection** - Automatically parses field-specific vs form-level errors
 - ? **Single Responsibility** - Focuses purely on validation without UI presentation concerns
 - ? **Framework Agnostic** - No dependency on specific UI frameworks
 - ? **Testable Design** - Clear separation of concerns with dependency injection
@@ -95,6 +97,49 @@ Adds a validation error for a specific field.
 **Parameters:**
 - `fieldName`: The name of the field (use empty string for form-level errors)
 - `errorMessage`: The error message to display
+
+**Example:**
+```csharp
+customValidator.AddError("Email", "Email is already in use");
+```
+
+#### `DisplayErrors<T>(HttpServiceResult<T> serviceResult)` ? NEW
+Displays validation errors directly from an `HttpServiceResult`. Automatically handles field-specific and form-level errors.
+
+**Parameters:**
+- `serviceResult`: The HTTP service result containing validation errors
+
+**Example:**
+```csharp
+var result = await HttpChangeService.AddAsync(model);
+
+if (!result.Success)
+{
+    customValidator?.DisplayErrors(result); // One line!
+    return;
+}
+```
+
+**See:** [HttpServiceResult Integration Guide](./HTTPSERVICERESULT_INTEGRATION.md) for complete documentation.
+
+#### `DisplayErrorsAsync<T>(HttpServiceResult<T>, HttpResponseMessage?, CancellationToken)` ? NEW
+Enhanced version with optional HTTP response message for detailed error parsing.
+
+**Parameters:**
+- `serviceResult`: The HTTP service result containing validation errors
+- `responseMessage`: Optional HTTP response for enhanced error parsing
+- `cancellationToken`: Cancellation token
+
+**Example:**
+```csharp
+var result = await HttpChangeService.AddAsync(model);
+
+if (!result.Success)
+{
+    await customValidator!.DisplayErrorsAsync(result, response);
+    return;
+}
+```
 
 **Example:**
 ```csharp

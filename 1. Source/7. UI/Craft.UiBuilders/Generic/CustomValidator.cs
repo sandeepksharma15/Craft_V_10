@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Craft.Core;
+using Craft.Core.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
@@ -209,6 +210,84 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     }
 
     /// <summary>
+    /// Displays validation errors from an HttpServiceResult.
+    /// Automatically handles form-level and field-specific errors.
+    /// </summary>
+    /// <typeparam name="T">The type of data in the HttpServiceResult.</typeparam>
+    /// <param name="serviceResult">The HTTP service result containing validation errors.</param>
+    /// <exception cref="ArgumentNullException">Thrown when serviceResult is null.</exception>
+    /// <exception cref="ObjectDisposedException">Thrown when the component has been disposed.</exception>
+    public void DisplayErrors<T>(HttpServiceResult<T> serviceResult)
+    {
+        ArgumentNullException.ThrowIfNull(serviceResult);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        if (serviceResult.Success || serviceResult.Errors is null || serviceResult.Errors.Count == 0)
+        {
+            return;
+        }
+
+        // Try to parse errors as validation dictionary format first
+        if (TryParseValidationErrors(serviceResult.Errors, out var validationErrors))
+        {
+            DisplayErrors(validationErrors);
+            return;
+        }
+
+        // Otherwise, treat as form-level errors
+        foreach (var error in serviceResult.Errors)
+        {
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                AddFormLevelError(error);
+            }
+        }
+
+        CurrentEditContext?.NotifyValidationStateChanged();
+    }
+
+    /// <summary>
+    /// Displays validation errors from an HttpServiceResult with enhanced error parsing.
+    /// Attempts to parse detailed validation errors from the HTTP response if available.
+    /// </summary>
+    /// <typeparam name="T">The type of data in the HttpServiceResult.</typeparam>
+    /// <param name="serviceResult">The HTTP service result containing validation errors.</param>
+    /// <param name="responseMessage">Optional HTTP response message for detailed error parsing.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
+    /// <exception cref="ArgumentNullException">Thrown when serviceResult is null.</exception>
+    /// <exception cref="ObjectDisposedException">Thrown when the component has been disposed.</exception>
+    public async Task DisplayErrorsAsync<T>(
+        HttpServiceResult<T> serviceResult,
+        HttpResponseMessage? responseMessage = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(serviceResult);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        if (serviceResult.Success)
+        {
+            return;
+        }
+
+        // If we have a response message, try to parse detailed errors from it
+        if (responseMessage is not null)
+        {
+            try
+            {
+                await DisplayErrorsAsync(responseMessage, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogWarning(ex, "Failed to parse detailed errors from response message, falling back to service result errors");
+            }
+        }
+
+        // Fall back to simple error display from service result
+        DisplayErrors(serviceResult);
+    }
+
+    /// <summary>
     /// Notifies the EditContext that validation state has changed.
     /// Use this when you've manually added errors and want to trigger validation display.
     /// </summary>
@@ -243,4 +322,72 @@ public sealed class CustomValidator : ComponentBase, IDisposable
 
     private void AddFormLevelError(string message)
         => _messageStore?.Add(CurrentEditContext!.Field(string.Empty), message);
+
+    /// <summary>
+    /// Attempts to parse errors from HttpServiceResult into field-specific validation errors.
+    /// </summary>
+    /// <param name="errors">List of error strings from HttpServiceResult.</param>
+    /// <param name="validationErrors">Dictionary of field-specific validation errors if parsing succeeds.</param>
+    /// <returns>True if errors were successfully parsed as validation errors; otherwise, false.</returns>
+    private static bool TryParseValidationErrors(
+        List<string> errors,
+        out Dictionary<string, List<string>> validationErrors)
+    {
+        validationErrors = new Dictionary<string, List<string>>();
+
+        if (errors.Count != 1)
+        {
+            return false;
+        }
+
+        var errorString = errors[0];
+
+        try
+        {
+            // Try to parse as JSON dictionary
+            using var document = JsonDocument.Parse(errorString);
+            var root = document.RootElement;
+
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return false;
+            }
+
+            foreach (var property in root.EnumerateObject())
+            {
+                var errorList = new List<string>();
+
+                if (property.Value.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var element in property.Value.EnumerateArray())
+                    {
+                        var errorMessage = element.GetString();
+                        if (!string.IsNullOrWhiteSpace(errorMessage))
+                        {
+                            errorList.Add(errorMessage);
+                        }
+                    }
+                }
+                else if (property.Value.ValueKind == JsonValueKind.String)
+                {
+                    var errorMessage = property.Value.GetString();
+                    if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        errorList.Add(errorMessage);
+                    }
+                }
+
+                if (errorList.Count > 0)
+                {
+                    validationErrors[property.Name] = errorList;
+                }
+            }
+
+            return validationErrors.Count > 0;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
 }
