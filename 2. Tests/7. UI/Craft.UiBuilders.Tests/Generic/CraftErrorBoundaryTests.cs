@@ -61,7 +61,16 @@ public class CraftErrorBoundaryTests : ComponentTestBase
     public void CraftErrorContext_WithShowDetailsTrue_ShouldExposeStackTrace()
     {
         // Arrange
-        var exception = new InvalidOperationException("Test error");
+        Exception exception;
+        try
+        {
+            throw new InvalidOperationException("Test error");
+        }
+        catch (InvalidOperationException ex)
+        {
+            exception = ex;
+        }
+
         var context = new CraftErrorContext(exception, true);
 
         // Assert

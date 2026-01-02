@@ -18,6 +18,7 @@ namespace Craft.UiBuilders.Tests.Base;
 /// </summary>
 public abstract class ComponentTestBase : BunitContext
 {
+    private bool _disposed;
     protected Mock<IThemeService> MockThemeService { get; }
 
     protected ComponentTestBase()
@@ -38,5 +39,19 @@ public abstract class ComponentTestBase : BunitContext
 
         // Configure JSInterop
         JSInterop.Mode = JSRuntimeMode.Loose;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            // MudBlazor services only implement IAsyncDisposable, so we need to call DisposeAsync
+            // Use GetAwaiter().GetResult() to synchronously wait for async disposal
+            DisposeAsync().AsTask().GetAwaiter().GetResult();
+            _disposed = true;
+        }
     }
 }

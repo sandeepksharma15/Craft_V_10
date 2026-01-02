@@ -13,6 +13,7 @@ public partial class Debounce<TValue> : CraftComponent
     private Timer? _timer;
     private TValue? _lastValue;
     private bool _shouldRender = true;
+    private bool _isInitialized;
 
     /// <summary>
     /// Gets or sets the value to watch for changes.
@@ -35,6 +36,13 @@ public partial class Debounce<TValue> : CraftComponent
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+
+        if (!_isInitialized)
+        {
+            _isInitialized = true;
+            _lastValue = Value;
+            return;
+        }
 
         if (!EqualityComparer<TValue>.Default.Equals(Value, _lastValue))
         {

@@ -146,7 +146,7 @@ public class DataLoaderTests : ComponentTestBase
     {
         // Arrange
         var retryClicked = false;
-        
+
         var cut = Render<DataLoader>(parameters => parameters
             .Add(p => p.IsLoading, false)
             .Add(p => p.HasError, true)
@@ -154,10 +154,13 @@ public class DataLoaderTests : ComponentTestBase
             .AddChildContent("<div>Content</div>")
         );
 
-        var button = cut.FindComponent<MudButton>();
+        var button = cut.Find("button");
 
         // Act
-        await button.Instance.OnClick.InvokeAsync();
+        button.Click();
+
+        // Wait a bit for the event to propagate
+        await Task.Delay(50);
 
         // Assert
         Assert.True(retryClicked);
