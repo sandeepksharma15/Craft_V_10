@@ -1,0 +1,26 @@
+﻿@using Craft.Utilities.Helpers
+
+@namespace Craft.UiBuilders.Generic
+
+@inherits CraftComponent
+
+<Conditional Condition="Visible">
+	<True>
+		<CraftDiv Class="d-flex justify-center">
+			<MudProgressCircular Color="Color" Indeterminate="true" />
+		</CraftDiv>
+	</True>
+</Conditional>
+
+@code {
+	[Parameter] public Color Color { get; set; } = GetRandomColor();
+
+	private static Color GetRandomColor()
+	{
+		// Get all possible Color enum values
+		Color[] colors = EnumExtensions.GetValues<Color>();
+
+		// Return a random color
+		return colors[RandomHelper.GetRandom(colors.Length)];
+	}
+}
