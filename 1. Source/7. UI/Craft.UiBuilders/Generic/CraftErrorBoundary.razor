@@ -1,0 +1,15 @@
+@namespace Craft.UiBuilders.Generic
+@inherits Microsoft.AspNetCore.Components.Web.ErrorBoundary
+
+@if (CurrentException != null && CraftErrorContent != null)
+{
+    @CraftErrorContent(_craftErrorContext!)
+}
+else if (CurrentException != null && ErrorContent != null)
+{
+    @ErrorContent(CurrentException)
+}
+else
+{
+    @ChildContent
+}

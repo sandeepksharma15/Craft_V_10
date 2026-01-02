@@ -1,16 +1,16 @@
-using Craft.UiComponents;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Craft.UiBuilders.Generic;
 
 /// <summary>
 /// A component that catches exceptions from child components and displays custom error UI.
-/// Enhanced version of Blazor's built-in ErrorBoundary with retry support.
+/// Enhanced version of Blazor's built-in ErrorBoundary with retry support and custom callbacks.
+/// Renamed from ErrorBoundary to CraftErrorBoundary to avoid conflicts with Microsoft.AspNetCore.Components.Web.ErrorBoundary.
 /// </summary>
-public partial class ErrorBoundary : CraftComponent
+public partial class CraftErrorBoundary : Microsoft.AspNetCore.Components.Web.ErrorBoundary
 {
-    private bool _hasError;
-    private ErrorContext? _errorContext;
+    private CraftErrorContext? _craftErrorContext;
 
     /// <summary>
     /// Gets or sets the callback invoked when an error occurs.
@@ -26,9 +26,10 @@ public partial class ErrorBoundary : CraftComponent
 
     /// <summary>
     /// Gets or sets the content to display when an error occurs.
+    /// If not specified, the base ErrorBoundary's ErrorContent will be used.
     /// </summary>
     [Parameter]
-    public RenderFragment<ErrorContext>? ErrorContent { get; set; }
+    public RenderFragment<CraftErrorContext>? CraftErrorContent { get; set; }
 
     /// <summary>
     /// Gets or sets whether to automatically retry rendering after an error.
@@ -42,50 +43,52 @@ public partial class ErrorBoundary : CraftComponent
     [Parameter]
     public int RetryDelayMs { get; set; } = 1000;
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-    }
+    /// <summary>
+    /// Gets or sets the maximum number of retry attempts.
+    /// </summary>
+    [Parameter]
+    public int MaxRetryAttempts { get; set; } = 3;
+
+    private int _retryCount;
 
     /// <summary>
-    /// Catches exceptions from child components.
+    /// Called when an error is caught by this error boundary.
     /// </summary>
-    protected override void OnParametersSet()
+    protected override async Task OnErrorAsync(Exception exception)
     {
-        try
-        {
-            base.OnParametersSet();
-        }
-        catch (Exception ex)
-        {
-            HandleException(ex);
-        }
-    }
+        await base.OnErrorAsync(exception);
 
-    private void HandleException(Exception exception)
-    {
-        _hasError = true;
-        _errorContext = new ErrorContext(exception, ShowDetails);
-        
+        _craftErrorContext = new CraftErrorContext(exception, ShowDetails);
+
         if (OnError.HasDelegate)
         {
-            InvokeAsync(() => OnError.InvokeAsync(exception));
+            await OnError.InvokeAsync(exception);
         }
 
-        if (AutoRetry)
+        if (AutoRetry && _retryCount < MaxRetryAttempts)
         {
-            _ = Task.Delay(RetryDelayMs).ContinueWith(_ => Recover());
+            _retryCount++;
+            await Task.Delay(RetryDelayMs);
+            await RecoverAsync();
         }
     }
 
     /// <summary>
     /// Recovers from the error state and attempts to re-render.
     /// </summary>
-    public void Recover()
+    public async Task RecoverAsync()
     {
-        _hasError = false;
-        _errorContext = null;
-        InvokeAsync(StateHasChanged);
+        _craftErrorContext = null;
+        Recover();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Resets the retry counter.
+    /// </summary>
+    public void ResetRetryCount()
+    {
+        _retryCount = 0;
     }
 }
 
@@ -94,7 +97,7 @@ public partial class ErrorBoundary : CraftComponent
 /// </summary>
 /// <param name="Exception">The exception that was thrown.</param>
 /// <param name="ShowDetails">Whether to show detailed error information.</param>
-public record ErrorContext(Exception Exception, bool ShowDetails)
+public record CraftErrorContext(Exception Exception, bool ShowDetails)
 {
     /// <summary>
     /// Gets the error message.
@@ -105,4 +108,9 @@ public record ErrorContext(Exception Exception, bool ShowDetails)
     /// Gets the stack trace if details should be shown.
     /// </summary>
     public string? StackTrace => ShowDetails ? Exception.StackTrace : null;
+
+    /// <summary>
+    /// Gets the full exception details if details should be shown.
+    /// </summary>
+    public string? FullDetails => ShowDetails ? Exception.ToString() : null;
 }
