@@ -5,7 +5,7 @@ namespace Craft.UiBuilders.Generic;
 
 /// <summary>
 /// A component that conditionally renders its child content when the condition is false.
-/// Simpler alternative to <see cref="Conditional"/> when only the "if false" case is needed.
+/// Simpler alternative to <see cref="If"/> when only the "if false" case is needed.
 /// </summary>
 public partial class Hide : CraftComponent
 {

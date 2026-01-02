@@ -4,13 +4,11 @@
 
 @inherits CraftComponent
 
-<Conditional Condition="Visible">
-	<True>
-		<CraftDiv Class="d-flex justify-center">
-			<MudProgressCircular Color="Color" Indeterminate="true" />
-		</CraftDiv>
-	</True>
-</Conditional>
+<Show When="Visible">
+	<CraftDiv Class="d-flex justify-center">
+		<MudProgressCircular Color="Color" Indeterminate="true" />
+	</CraftDiv>
+</Show>
 
 @code {
 	[Parameter] public Color Color { get; set; } = GetRandomColor();

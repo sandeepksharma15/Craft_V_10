@@ -3,7 +3,12 @@ using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Generic;
 
-public partial class Conditional : CraftComponent
+/// <summary>
+/// A component that conditionally renders different content based on a boolean condition.
+/// Renders the <see cref="True"/> content when <see cref="Condition"/> is true,
+/// otherwise renders the <see cref="False"/> content.
+/// </summary>
+public partial class If : CraftComponent
 {
     [Parameter]
     [EditorRequired]
