@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Components;
@@ -57,82 +58,70 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
     /// Property expression for accessing the entity property.
     /// Used for sorting, filtering, and default rendering.
     /// </summary>
-    [Parameter]
-    public Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
+    [Parameter] public Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
 
     /// <summary>
     /// Custom template for rendering cell content.
     /// If not provided, the property value will be rendered with optional formatting.
     /// </summary>
-    [Parameter]
-    public RenderFragment<TEntity>? Template { get; set; }
+    [Parameter] public RenderFragment<TEntity>? Template { get; set; }
 
     /// <summary>
     /// Indicates whether the column is visible.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool Visible { get; set; } = true;
+    [Parameter] public bool Visible { get; set; } = true;
 
     /// <summary>
     /// Indicates whether the column is sortable.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool Sortable { get; set; }
+    [Parameter] public bool Sortable { get; set; }
 
     /// <summary>
     /// Indicates whether the column is searchable.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool Searchable { get; set; }
+    [Parameter] public bool Searchable { get; set; }
 
     /// <summary>
     /// Default sort direction for the column.
     /// Null means no default sorting.
     /// </summary>
-    [Parameter]
-    public GridSortDirection? DefaultSort { get; set; }
+    [Parameter] public GridSortDirection? DefaultSort { get; set; }
 
     /// <summary>
     /// Sort order when multiple columns have default sorting.
     /// Lower values are sorted first.
     /// Default is 0.
     /// </summary>
-    [Parameter]
-    public int SortOrder { get; set; }
+    [Parameter] public int SortOrder { get; set; }
 
     /// <summary>
     /// Column width. CSS value like "100px", "20%", "auto".
     /// </summary>
-    [Parameter]
-    public string? Width { get; set; }
+    [Parameter] public string? Width { get; set; }
 
     /// <summary>
     /// Column minimum width. CSS value like "100px".
     /// </summary>
-    [Parameter]
-    public string? MinWidth { get; set; }
+    [Parameter] public string? MinWidth { get; set; }
 
     /// <summary>
     /// Column maximum width. CSS value like "300px".
     /// </summary>
-    [Parameter]
-    public string? MaxWidth { get; set; }
+    [Parameter] public string? MaxWidth { get; set; }
 
     /// <summary>
     /// Text alignment for the column.
     /// Default is Start (left).
     /// </summary>
-    [Parameter]
-    public Alignment Alignment { get; set; } = Alignment.Start;
+    [Parameter] public Alignment Alignment { get; set; } = Alignment.Start;
 
     /// <summary>
     /// Format string for displaying values (e.g., "N2" for numbers, "d" for dates, "C" for currency).
     /// </summary>
-    [Parameter]
-    public string? Format { get; set; }
+    [Parameter] public string? Format { get; set; }
 
     #endregion
 
@@ -152,6 +141,7 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
                 return null;
 
             _propertyName = GetPropertyName(PropertyExpression);
+
             return _propertyName;
         }
     }
@@ -166,27 +156,17 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
 
         // Validate parameters
         if (Sortable && PropertyExpression is null)
-        {
-            throw new InvalidOperationException(
-                $"Column '{Title}' is marked as sortable but PropertyExpression is not provided."
-            );
-        }
+            throw new InvalidOperationException($"Column '{Title}' is marked as sortable but PropertyExpression is not provided.");
 
         if (Searchable && PropertyExpression is null)
-        {
-            throw new InvalidOperationException(
-                $"Column '{Title}' is marked as searchable but PropertyExpression is not provided."
-            );
-        }
+            throw new InvalidOperationException($"Column '{Title}' is marked as searchable but PropertyExpression is not provided.");
 
         // Register with parent grid
         DataGrid?.AddColumn(this);
 
         // Pre-compile the expression for better performance
         if (PropertyExpression is not null)
-        {
             _compiledExpression = PropertyExpression.Compile();
-        }
     }
 
     #endregion
@@ -254,18 +234,13 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
         if (memberInfo.Length > 0)
         {
             var displayAttribute = memberInfo[0].GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
+
             if (displayAttribute is not null)
-            {
                 return displayAttribute.GetName() ?? enumValue.ToString()!;
-            }
         }
 
         // Convert PascalCase to Title Case with spaces
-        return System.Text.RegularExpressions.Regex.Replace(
-            enumValue.ToString()!,
-            "([a-z])([A-Z])",
-            "$1 $2"
-        );
+        return Regex.Replace(enumValue.ToString()!, "([a-z])([A-Z])", "$1 $2");
     }
 
     #endregion

@@ -329,16 +329,12 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     /// <param name="errors">List of error strings from HttpServiceResult.</param>
     /// <param name="validationErrors">Dictionary of field-specific validation errors if parsing succeeds.</param>
     /// <returns>True if errors were successfully parsed as validation errors; otherwise, false.</returns>
-    private static bool TryParseValidationErrors(
-        List<string> errors,
-        out Dictionary<string, List<string>> validationErrors)
+    private static bool TryParseValidationErrors(List<string> errors, out Dictionary<string, List<string>> validationErrors)
     {
-        validationErrors = new Dictionary<string, List<string>>();
+        validationErrors = [];
 
         if (errors.Count != 1)
-        {
             return false;
-        }
 
         var errorString = errors[0];
 
@@ -349,9 +345,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
             var root = document.RootElement;
 
             if (root.ValueKind != JsonValueKind.Object)
-            {
                 return false;
-            }
 
             foreach (var property in root.EnumerateObject())
             {
@@ -362,25 +356,21 @@ public sealed class CustomValidator : ComponentBase, IDisposable
                     foreach (var element in property.Value.EnumerateArray())
                     {
                         var errorMessage = element.GetString();
+
                         if (!string.IsNullOrWhiteSpace(errorMessage))
-                        {
                             errorList.Add(errorMessage);
-                        }
                     }
                 }
                 else if (property.Value.ValueKind == JsonValueKind.String)
                 {
                     var errorMessage = property.Value.GetString();
+
                     if (!string.IsNullOrWhiteSpace(errorMessage))
-                    {
                         errorList.Add(errorMessage);
-                    }
                 }
 
                 if (errorList.Count > 0)
-                {
                     validationErrors[property.Name] = errorList;
-                }
             }
 
             return validationErrors.Count > 0;

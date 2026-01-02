@@ -1,11 +1,8 @@
 using Craft.Core;
-using Craft.Core.Common;
 using Craft.Domain;
 using Craft.QuerySpec;
-using Craft.UiComponents;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using System.Linq.Expressions;
 
 namespace Craft.UiBuilders.Components;
 
@@ -46,22 +43,18 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// The HTTP service used to load data from the API.
     /// Required parameter.
     /// </summary>
-    [Parameter]
-    [EditorRequired]
-    public IHttpService<TEntity>? HttpService { get; set; }
+    [Parameter, EditorRequired] public IHttpService<TEntity>? HttpService { get; set; }
 
     /// <summary>
     /// Optional custom query builder function to customize the data query.
     /// Use this to add custom filters, includes, or other query specifications.
     /// </summary>
-    [Parameter]
-    public Func<Query<TEntity>, Query<TEntity>>? QueryBuilder { get; set; }
+    [Parameter] public Func<Query<TEntity>, Query<TEntity>>? QueryBuilder { get; set; }
 
     /// <summary>
     /// Child content containing column definitions.
     /// </summary>
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
     #endregion
 
@@ -70,69 +63,59 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// <summary>
     /// Title displayed in the toolbar.
     /// </summary>
-    [Parameter]
-    public string? Title { get; set; }
+    [Parameter] public string? Title { get; set; }
 
     /// <summary>
     /// Custom CSS class applied to the table.
     /// </summary>
-    [Parameter]
-    public string? Class { get; set; }
+    [Parameter] public string? Class { get; set; }
 
     /// <summary>
     /// Custom inline styles applied to the table.
     /// </summary>
-    [Parameter]
-    public string? Style { get; set; }
+    [Parameter] public string? Style { get; set; }
 
     /// <summary>
     /// Enables row hover effect.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool Hover { get; set; } = true;
+    [Parameter] public bool Hover { get; set; } = true;
 
     /// <summary>
     /// Enables striped rows.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool Striped { get; set; } = true;
+    [Parameter] public bool Striped { get; set; } = true;
 
     /// <summary>
     /// Enables dense padding for rows.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool Dense { get; set; }
+    [Parameter] public bool Dense { get; set; }
 
     /// <summary>
     /// Enables borders around table cells.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool Bordered { get; set; }
+    [Parameter] public bool Bordered { get; set; }
 
     /// <summary>
     /// Fixes the header while scrolling.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool FixedHeader { get; set; }
+    [Parameter] public bool FixedHeader { get; set; }
 
     /// <summary>
     /// Height of the table container. Use CSS values like "400px" or "50vh".
     /// Only applies when FixedHeader is true.
     /// </summary>
-    [Parameter]
-    public string? Height { get; set; }
+    [Parameter] public string? Height { get; set; }
 
     /// <summary>
     /// Color of the loading progress bar.
     /// Default is Primary.
     /// </summary>
-    [Parameter]
-    public Color LoadingProgressColor { get; set; } = Color.Primary;
+    [Parameter] public Color LoadingProgressColor { get; set; } = Color.Primary;
 
     #endregion
 
@@ -142,35 +125,30 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// Enables pagination.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool EnablePagination { get; set; } = true;
+    [Parameter] public bool EnablePagination { get; set; } = true;
 
     /// <summary>
     /// Initial page size.
     /// Default is 10.
     /// </summary>
-    [Parameter]
-    public int InitialPageSize { get; set; } = 10;
+    [Parameter] public int InitialPageSize { get; set; } = 10;
 
     /// <summary>
     /// Available page size options.
     /// </summary>
-    [Parameter]
-    public int[] PageSizeOptions { get; set; } = [10, 25, 50, 100];
+    [Parameter] public int[] PageSizeOptions { get; set; } = new int[] { 10, 25, 50, 100 };
 
     /// <summary>
     /// Text displayed before the page size dropdown.
     /// Default is "Rows per page:".
     /// </summary>
-    [Parameter]
-    public string RowsPerPageString { get; set; } = "Rows per page:";
+    [Parameter] public string RowsPerPageString { get; set; } = "Rows per page:";
 
     /// <summary>
     /// Format string for pagination info. Use {first_item}, {last_item}, and {all_items} as placeholders.
     /// Default is "{first_item}-{last_item} of {all_items}".
     /// </summary>
-    [Parameter]
-    public string InfoFormat { get; set; } = "{first_item}-{last_item} of {all_items}";
+    [Parameter] public string InfoFormat { get; set; } = "{first_item}-{last_item} of {all_items}";
 
     #endregion
 
@@ -180,78 +158,67 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// Shows the action column.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool ShowActions { get; set; } = true;
+    [Parameter] public bool ShowActions { get; set; } = true;
 
     /// <summary>
     /// Enables the search box in the toolbar.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool ShowSearch { get; set; } = true;
+    [Parameter] public bool ShowSearch { get; set; } = true;
 
     /// <summary>
     /// Placeholder text for the search box.
     /// Default is "Search...".
     /// </summary>
-    [Parameter]
-    public string SearchPlaceholder { get; set; } = "Search...";
+    [Parameter] public string SearchPlaceholder { get; set; } = "Search...";
 
     /// <summary>
     /// Enables the refresh button.
     /// Default is true.
     /// </summary>
-    [Parameter]
-    public bool AllowRefresh { get; set; } = true;
+    [Parameter] public bool AllowRefresh { get; set; } = true;
 
     /// <summary>
     /// Enables the add button and functionality.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool AllowAdd { get; set; }
+    [Parameter] public bool AllowAdd { get; set; }
 
     /// <summary>
     /// Text displayed on the add button.
     /// Default is "Add New".
     /// </summary>
-    [Parameter]
-    public string AddButtonText { get; set; } = "Add New";
+    [Parameter] public string AddButtonText { get; set; } = "Add New";
 
     /// <summary>
     /// Icon displayed on the add button.
     /// Default is the MudBlazor Add icon.
     /// </summary>
-    [Parameter]
-    public string AddIcon { get; set; } = Icons.Material.Filled.Add;
+    [Parameter] public string AddIcon { get; set; } = Icons.Material.Filled.Add;
 
     /// <summary>
     /// Enables the view action button.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool AllowView { get; set; }
+    [Parameter] public bool AllowView { get; set; }
 
     /// <summary>
     /// Enables the edit action button.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool AllowEdit { get; set; }
+    [Parameter] public bool AllowEdit { get; set; }
 
     /// <summary>
     /// Enables the delete action button.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool AllowDelete { get; set; }
+    [Parameter] public bool AllowDelete { get; set; }
 
     /// <summary>
     /// Enables export functionality.
     /// Default is false.
     /// </summary>
-    [Parameter]
-    public bool AllowExport { get; set; }
+    [Parameter] public bool AllowExport { get; set; }
 
     #endregion
 
@@ -261,22 +228,20 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// Message displayed when no records are found.
     /// Default is "No records to display".
     /// </summary>
-    [Parameter]
-    public string NoRecordsMessage { get; set; } = "No records to display";
+    [Parameter] public string NoRecordsMessage { get; set; } = "No records to display";
 
     /// <summary>
     /// Message displayed while loading data.
     /// Default is "Loading...".
     /// </summary>
-    [Parameter]
-    public string LoadingMessage { get; set; } = "Loading...";
+    [Parameter] public string LoadingMessage { get; set; } = "Loading...";
 
     /// <summary>
     /// Message displayed in the delete confirmation dialog.
     /// Default is "Are you sure you want to delete this record? This action cannot be undone.".
     /// </summary>
-    [Parameter]
-    public string DeleteConfirmationMessage { get; set; } = "Are you sure you want to delete this record? This action cannot be undone.";
+    [Parameter] public string DeleteConfirmationMessage { get; set; } 
+        = "Are you sure you want to delete this record? This action cannot be undone.";
 
     #endregion
 
@@ -285,41 +250,35 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// <summary>
     /// Callback invoked when the add button is clicked.
     /// </summary>
-    [Parameter]
-    public EventCallback OnAdd { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
 
     /// <summary>
     /// Callback invoked when the view button is clicked for a row.
     /// </summary>
-    [Parameter]
-    public EventCallback<TEntity> OnView { get; set; }
+    [Parameter] public EventCallback<TEntity> OnView { get; set; }
 
     /// <summary>
     /// Callback invoked when the edit button is clicked for a row.
     /// </summary>
-    [Parameter]
-    public EventCallback<TEntity> OnEdit { get; set; }
+    [Parameter] public EventCallback<TEntity> OnEdit { get; set; }
 
     /// <summary>
     /// Callback invoked when a row is confirmed for deletion.
     /// Return true if deletion was successful, false otherwise.
     /// </summary>
-    [Parameter]
-    public EventCallback<TEntity> OnDelete { get; set; }
+    [Parameter] public EventCallback<TEntity> OnDelete { get; set; }
 
     /// <summary>
     /// Callback invoked when export is requested.
     /// Receives the export format as a parameter.
     /// </summary>
-    [Parameter]
-    public EventCallback<ExportFormat> OnExport { get; set; }
+    [Parameter] public EventCallback<ExportFormat> OnExport { get; set; }
 
     /// <summary>
     /// Callback invoked when data is successfully loaded.
     /// Receives the page response as a parameter.
     /// </summary>
-    [Parameter]
-    public EventCallback<PageResponse<TEntity>> OnDataLoaded { get; set; }
+    [Parameter] public EventCallback<PageResponse<TEntity>> OnDataLoaded { get; set; }
 
     #endregion
 
@@ -365,9 +324,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         _pageSize = InitialPageSize;
 
         if (HttpService is null)
-        {
-            throw new InvalidOperationException($"{nameof(HttpService)} parameter is required for {nameof(CraftDataGrid<TEntity>)}.");
-        }
+            throw new InvalidOperationException($"{nameof(HttpService)} parameter is required for {nameof(CraftDataGrid<>)}.");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -375,9 +332,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         await base.OnAfterRenderAsync(firstRender);
 
         if (firstRender)
-        {
             await LoadDataAsync();
-        }
     }
 
     protected override async ValueTask DisposeAsyncCore()
@@ -397,6 +352,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     public void AddColumn(ICraftDataGridColumn<TEntity> column)
     {
         ArgumentNullException.ThrowIfNull(column);
+
         Columns.Add(column);
         StateHasChanged();
     }
@@ -407,6 +363,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     public void RemoveColumn(ICraftDataGridColumn<TEntity> column)
     {
         ArgumentNullException.ThrowIfNull(column);
+
         Columns.Remove(column);
         StateHasChanged();
     }
@@ -475,7 +432,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
             if (result.Success && result.Data is not null)
             {
-                _items = result.Data.Items.ToList();
+                _items = [.. result.Data.Items];
                 _totalCount = result.Data.TotalCount;
                 _currentPage = result.Data.CurrentPage;
                 _pageSize = result.Data.PageSize;
@@ -521,18 +478,14 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
         // Apply search if provided
         if (!string.IsNullOrWhiteSpace(_searchString))
-        {
             ApplySearch(query, _searchString);
-        }
 
         // Apply sorting from columns
         ApplySorting(query);
 
         // Apply custom query builder if provided
         if (QueryBuilder is not null)
-        {
             query = QueryBuilder(query);
-        }
 
         return query;
     }
@@ -541,16 +494,12 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     {
         var searchableColumns = Columns.Where(c => c.Searchable && c.PropertyExpression is not null).ToList();
         
-        if (!searchableColumns.Any())
+        if (searchableColumns.Count == 0)
             return;
 
         foreach (var column in searchableColumns)
-        {
             if (column.PropertyExpression is not null)
-            {
                 query.Search(column.PropertyExpression, searchTerm);
-            }
-        }
     }
 
     private void ApplySorting(Query<TEntity> query)
@@ -566,13 +515,9 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
                 continue;
 
             if (column.DefaultSort == GridSortDirection.Descending)
-            {
                 query.OrderByDescending(column.PropertyExpression);
-            }
             else
-            {
                 query.OrderBy(column.PropertyExpression);
-            }
         }
     }
 
@@ -590,25 +535,19 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     private async Task HandleAddAsync()
     {
         if (OnAdd.HasDelegate)
-        {
             await OnAdd.InvokeAsync();
-        }
     }
 
     private async Task HandleViewAsync(TEntity item)
     {
         if (OnView.HasDelegate)
-        {
             await OnView.InvokeAsync(item);
-        }
     }
 
     private async Task HandleEditAsync(TEntity item)
     {
         if (OnEdit.HasDelegate)
-        {
             await OnEdit.InvokeAsync(item);
-        }
     }
 
     private Task HandleDeleteAsync(TEntity item)
@@ -654,56 +593,46 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     private async Task HandleExportAsync(ExportFormat format)
     {
         if (OnExport.HasDelegate)
-        {
             await OnExport.InvokeAsync(format);
-        }
     }
 
     #endregion
 
     #region Private Methods - Styling
 
-    private string? GetColumnStyle(ICraftDataGridColumn<TEntity> column)
+    private static string? GetColumnStyle(ICraftDataGridColumn<TEntity> column)
     {
         var styles = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(column.Width))
-        {
             styles.Add($"width: {column.Width}");
-        }
 
         if (!string.IsNullOrWhiteSpace(column.MinWidth))
-        {
             styles.Add($"min-width: {column.MinWidth}");
-        }
 
         if (!string.IsNullOrWhiteSpace(column.MaxWidth))
-        {
             styles.Add($"max-width: {column.MaxWidth}");
-        }
 
-        return styles.Any() ? string.Join("; ", styles) : null;
+        return styles.Count != 0 ? string.Join("; ", styles) : null;
     }
 
-    private string? GetCellStyle(ICraftDataGridColumn<TEntity> column)
+    private static string? GetCellStyle(ICraftDataGridColumn<TEntity> column)
     {
         var styles = new List<string>();
 
         if (column.Alignment != Alignment.Start)
-        {
             styles.Add($"text-align: {column.Alignment.ToString().ToLowerInvariant()}");
-        }
 
-        return styles.Any() ? string.Join("; ", styles) : null;
+        return styles.Count != 0 ? string.Join("; ", styles) : null;
     }
 
-    private MudBlazor.SortDirection GetSortDirection(ICraftDataGridColumn<TEntity> column)
+    private static MudBlazor.SortDirection GetSortDirection(ICraftDataGridColumn<TEntity> column)
     {
         return column.DefaultSort switch
         {
             GridSortDirection.Ascending => MudBlazor.SortDirection.Ascending,
             GridSortDirection.Descending => MudBlazor.SortDirection.Descending,
-            _ => MudBlazor.SortDirection.None
+            _ => SortDirection.None
         };
     }
 

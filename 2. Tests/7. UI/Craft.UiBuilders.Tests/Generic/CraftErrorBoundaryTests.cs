@@ -54,7 +54,7 @@ public class CraftErrorBoundaryTests : ComponentTestBase
         var component = new CraftErrorBoundary();
 
         // Assert
-        Assert.IsAssignableFrom<ErrorBoundary>(component);
+        Assert.IsType<ErrorBoundary>(component, exactMatch: false);
     }
 
     [Fact]
