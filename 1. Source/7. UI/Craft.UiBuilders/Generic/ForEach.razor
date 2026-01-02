@@ -1,0 +1,37 @@
+﻿@using Craft.UiComponents
+
+@namespace Craft.UiBuilders.Generic
+
+@inherits CraftComponent
+
+@typeparam T
+
+@if (Collection is null || !Collection.Any())
+{
+    @if (Empty is not null)
+    {
+        @Empty
+    }
+}
+else
+{
+    var index = 0;
+    var isFirst = true;
+
+    @foreach (var item in Collection)
+    {
+        @if (!isFirst && Separator is not null)
+        {
+            @Separator
+        }
+
+        @if (ItemContent is not null)
+        {
+            @ItemContent(new ItemContext(item, index))
+        }
+
+        index++;
+        isFirst = false;
+    }
+}
+

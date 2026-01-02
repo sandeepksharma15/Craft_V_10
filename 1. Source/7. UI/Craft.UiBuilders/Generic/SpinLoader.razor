@@ -1,0 +1,38 @@
+﻿@using Craft.UiComponents
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Generic
+
+@inherits CraftComponent
+
+@if (IsLoading)
+{
+    @if (Loading is null)
+    {
+        <div class="position-fixed top-0 start-0 w-100 z-3 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-50">
+            <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        @Loading
+    }
+}
+else
+{
+    @* Display Content If All Goes Well Or Faulted Template Is Not Provided *@
+    if (!IsFaulted)
+    {
+        @Content
+    }
+
+    @* Display Faulted Template If Something Is Wrong *@
+    if (IsFaulted)
+    {
+        <div class="alert alert-danger" role="alert">
+            Something has gone wrong :-( Please contact the administrator or report an issue
+        </div>
+    }
+}

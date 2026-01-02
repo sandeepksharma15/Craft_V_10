@@ -6,7 +6,7 @@ Comprehensive unit tests have been created for all components in the `Craft.UiBu
 
 ## Test Results
 
-? **All 57 tests passed successfully**
+? **All 78 tests passed successfully**
 
 ## Components Tested
 
@@ -197,7 +197,45 @@ Potential areas for additional testing:
 
 ---
 
+---
+
+### 5. ForEach Component (`ForEachTests.cs`)
+**Tests: 21**
+
+The `ForEach<T>` component iterates over a collection and renders content for each item with index support, empty state handling, and separator rendering.
+
+#### Test Coverage:
+- ? Renders all items in simple collections
+- ? Handles null and empty collections
+- ? Renders empty template when collection has no items
+- ? Provides correct index for each item via ItemContext
+- ? IsFirst property correctly identifies first item
+- ? Renders separator between items (not before/after)
+- ? Handles complex objects
+- ? Supports nested ForEach components
+- ? Efficiently handles large collections (100+ items)
+- ? Handles empty strings and nullable items
+- ? ItemContext record with value equality
+- ? Inherits from CraftComponent
+
+**Usage Example:**
+```razor
+<ForEach Collection="products" Context="ctx">
+    <ItemContent>
+        <div>@(ctx.Index + 1). @ctx.Item.Name</div>
+    </ItemContent>
+    <Separator>
+        <hr />
+    </Separator>
+    <Empty>
+        <div>No products available</div>
+    </Empty>
+</ForEach>
+```
+
+---
+
 **Generated on**: {DateTime.UtcNow}
 **Framework Version**: .NET 10
 **bUnit Version**: 2.4.2
-**Test Count**: 57 ?
+**Test Count**: 78 ?
