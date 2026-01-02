@@ -10,7 +10,8 @@
 - ? **Null Safety** - Full nullable reference type support with guard clauses
 - ? **System.Text.Json** - Modern JSON parsing without external dependencies
 - ? **Flexible Error Display** - Support for multiple error formats (RFC 7807, dictionaries, custom responses)
-- ? **Optional Dependencies** - Gracefully handles missing ISnackbar or ILogger
+- ? **Single Responsibility** - Focuses purely on validation without UI presentation concerns
+- ? **Framework Agnostic** - No dependency on specific UI frameworks
 - ? **Testable Design** - Clear separation of concerns with dependency injection
 - ? **Comprehensive API** - Multiple methods for different error scenarios
 - ? **XML Documentation** - Full IntelliSense support
@@ -20,7 +21,6 @@
 The component is part of the `Craft.UiBuilders` library and requires:
 - .NET 10.0
 - Microsoft.AspNetCore.Components.Forms
-- MudBlazor (optional, for Snackbar notifications)
 
 ## Basic Usage
 
@@ -187,10 +187,10 @@ private async Task SubmitForm()
     try
     {
         var response = await HttpClient.PostAsJsonAsync("/api/submit", model);
-        
+
         if (response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Form submitted successfully!", Severity.Success);
+            // Handle success - show notification in your preferred way
             NavigationManager.NavigateTo("/success");
         }
         else
@@ -204,6 +204,39 @@ private async Task SubmitForm()
         Logger.LogError(ex, "Network error during form submission");
         customValidator?.AddError(string.Empty, "Unable to connect to the server. Please try again.");
         customValidator?.NotifyValidationStateChanged();
+    }
+}
+```
+
+### Handling Problem Details with Custom Notification
+
+If you want to display RFC 7807 Problem Details as toast notifications instead of inline errors,
+you can check for them before passing to the validator:
+
+```csharp
+private async Task SubmitForm()
+{
+    var response = await HttpClient.PostAsJsonAsync("/api/submit", model);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        var contentString = await response.Content.ReadAsStringAsync();
+
+        // Check if response is RFC 7807 Problem Details
+        if (contentString.Contains("\"detail\""))
+        {
+            using var document = JsonDocument.Parse(contentString);
+            if (document.RootElement.TryGetProperty("detail", out var detailElement))
+            {
+                var detail = detailElement.GetString();
+                // Show in your preferred notification system (Snackbar, Toast, Alert, etc.)
+                Snackbar?.Add(detail, Severity.Error);
+                return;
+            }
+        }
+
+        // Otherwise, let validator handle validation errors
+        await customValidator!.DisplayErrorsAsync(response);
     }
 }
 ```
@@ -231,10 +264,6 @@ private void ValidateCustomRules()
     }
 }
 ```
-
-### Without MudBlazor (Snackbar)
-
-The component gracefully handles scenarios where MudBlazor's `ISnackbar` is not available. In such cases, RFC 7807 problem details are displayed as form-level validation errors instead of toast notifications.
 
 ## Testing
 
@@ -275,18 +304,32 @@ public void AddError_AddsErrorToField()
    ```csharp
    // Before
    customValidator.DisplayErrors(response);
-   
+
    // After
    await customValidator.DisplayErrorsAsync(response);
    ```
 
-2. **Nullable Snackbar**: `ISnackbar` is now nullable and optional
-   
+2. **Removed Snackbar**: `ISnackbar` dependency removed - component focuses purely on validation
+   ```csharp
+   // Before - Snackbar handled RFC 7807 Problem Details
+   await customValidator.DisplayErrorsAsync(response); // Showed toast
+
+   // After - All errors go to ValidationSummary (consistent behavior)
+   await customValidator.DisplayErrorsAsync(response); // Shows inline
+
+   // If you want toast notifications, handle Problem Details yourself:
+   if (contentString.Contains("\"detail\""))
+   {
+       var detail = /* parse detail */;
+       Snackbar?.Add(detail, Severity.Error); // Your choice of notification
+   }
+   ```
+
 3. **Removed Method**: `DisplayErrors()` (no parameters) - use `NotifyValidationStateChanged()` instead
    ```csharp
    // Before
    customValidator.DisplayErrors();
-   
+
    // After
    customValidator.NotifyValidationStateChanged();
    ```

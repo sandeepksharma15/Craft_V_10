@@ -1,10 +1,8 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Craft.Core;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
-using MudBlazor;
 
 namespace Craft.Components.Generic;
 
@@ -22,13 +20,6 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     /// </summary>
     [CascadingParameter]
     private EditContext? CurrentEditContext { get; set; }
-
-    /// <summary>
-    /// Gets the ISnackbar service for displaying toast notifications.
-    /// Optional: Can be null if MudBlazor is not configured.
-    /// </summary>
-    [Inject]
-    private ISnackbar? Snackbar { get; set; }
 
     /// <summary>
     /// Gets the ILogger service for logging errors and warnings.
@@ -131,13 +122,8 @@ public sealed class CustomValidator : ComponentBase, IDisposable
                     : responseMessage.StatusCode.ToString();
                 var detail = detailElement.GetString() ?? "Unknown error";
 
-                if (Snackbar is not null)
-                    Snackbar.Add($"{status}: {detail}", Severity.Error);
-                else
-                {
-                    AddFormLevelError($"{status}: {detail}");
-                    CurrentEditContext?.NotifyValidationStateChanged();
-                }
+                AddFormLevelError($"{status}: {detail}");
+                CurrentEditContext?.NotifyValidationStateChanged();
             }
             // Check for validation errors dictionary format
             else if (root.ValueKind == JsonValueKind.Object)
