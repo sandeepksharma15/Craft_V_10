@@ -24,11 +24,13 @@ public class DataLoaderTests : ComponentTestBase
         // Assert
         var overlay = cut.FindComponent<MudOverlay>();
         Assert.NotNull(overlay);
+        #pragma warning disable MUD0012 // External access of parameter state property
         Assert.True(overlay.Instance.Visible);
-        
+        #pragma warning restore MUD0012
+
         var spinner = cut.FindComponent<Spinner>();
         Assert.NotNull(spinner);
-        
+
         Assert.DoesNotContain("Content", cut.Markup);
     }
 
@@ -45,9 +47,11 @@ public class DataLoaderTests : ComponentTestBase
         // Assert
         Assert.Contains("Main Content", cut.Markup);
         Assert.Contains("class=\"content\"", cut.Markup);
-        
+
         var overlays = cut.FindComponents<MudOverlay>();
+        #pragma warning disable MUD0012 // External access of parameter state property
         Assert.DoesNotContain(overlays, o => o.Instance.Visible);
+        #pragma warning restore MUD0012
     }
 
     [Fact]
@@ -124,12 +128,10 @@ public class DataLoaderTests : ComponentTestBase
     public async Task DataLoader_WithRetryCallback_ShouldDisplayRetryButton()
     {
         // Arrange
-        var retryClicked = false;
-        
         var cut = Render<DataLoader>(parameters => parameters
             .Add(p => p.IsLoading, false)
             .Add(p => p.HasError, true)
-            .Add(p => p.OnRetry, EventCallback.Factory.Create(this, () => retryClicked = true))
+            .Add(p => p.OnRetry, EventCallback.Factory.Create(this, () => { }))
             .AddChildContent("<div>Content</div>")
         );
 

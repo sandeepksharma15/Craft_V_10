@@ -98,7 +98,9 @@ public class SpinnerTests : ComponentTestBase
         var progressCircular = cut.FindComponent<MudProgressCircular>();
 
         // Just verify that a color is set (it should be one of the random colors)
-        Assert.NotNull(progressCircular.Instance.Color);
+        // Color is a value type (enum), so it will always have a value
+        var color = progressCircular.Instance.Color;
+        Assert.True(Enum.IsDefined(typeof(Color), color));
     }
 
     [Fact]

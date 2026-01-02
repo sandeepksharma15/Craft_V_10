@@ -28,16 +28,11 @@ public class ErrorBoundaryTests : ComponentTestBase
     {
         // Arrange
         var testException = new InvalidOperationException("Test error");
-        var errorOccurred = false;
 
         // Act
         var cut = Render<ErrorBoundary>(parameters => parameters
             .Add(p => p.ShowDetails, true)
-            .Add(p => p.OnError, args =>
-            {
-                errorOccurred = true;
-                return Task.CompletedTask;
-            })
+            .Add(p => p.OnError, args => Task.CompletedTask)
             .Add(p => p.ErrorContent, context => builder =>
             {
                 builder.OpenElement(0, "div");

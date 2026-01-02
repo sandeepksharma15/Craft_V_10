@@ -177,37 +177,46 @@ public class FragmentTests : ComponentTestBase
             })
         );
 
-        // Assert
-        Assert.Contains("Text before", cut.Markup);
-        Assert.Contains("Bold text", cut.Markup);
-        Assert.Contains("Text after", cut.Markup);
-    }
+            // Assert
+            Assert.Contains("Text before", cut.Markup);
+            Assert.Contains("Bold text", cut.Markup);
+            Assert.Contains("Text after", cut.Markup);
+        }
 
-    [Fact]
-    public void Fragment_AsGroupingMechanism_ShouldWork()
-    {
-        // Arrange & Act
-        var cut = Render<Fragment>(parameters => parameters
-            .AddChildContent(builder =>
-            {
-                // Simulate grouping multiple elements without a wrapper
-                for (int i = 1; i <= 3; i++)
+        [Fact]
+        public void Fragment_AsGroupingMechanism_ShouldWork()
+        {
+            // Arrange & Act
+            var cut = Render<Fragment>(parameters => parameters
+                .AddChildContent(builder =>
                 {
-                    builder.OpenElement(i * 2, "div");
-                    builder.AddAttribute(i * 2 + 1, "data-index", i);
-                    builder.AddContent(i * 2 + 2, $"Item {i}");
+                    // Item 1
+                    builder.OpenElement(0, "div");
+                    builder.AddAttribute(1, "data-index", 1);
+                    builder.AddContent(2, "Item 1");
                     builder.CloseElement();
-                }
-            })
-        );
 
-        // Assert
-        Assert.Contains("Item 1", cut.Markup);
-        Assert.Contains("Item 2", cut.Markup);
-        Assert.Contains("Item 3", cut.Markup);
-        Assert.Contains("data-index=\"1\"", cut.Markup);
-        Assert.Contains("data-index=\"2\"", cut.Markup);
-        Assert.Contains("data-index=\"3\"", cut.Markup);
+                    // Item 2
+                    builder.OpenElement(3, "div");
+                    builder.AddAttribute(4, "data-index", 2);
+                    builder.AddContent(5, "Item 2");
+                    builder.CloseElement();
+
+                    // Item 3
+                    builder.OpenElement(6, "div");
+                    builder.AddAttribute(7, "data-index", 3);
+                    builder.AddContent(8, "Item 3");
+                    builder.CloseElement();
+                })
+            );
+
+            // Assert
+            Assert.Contains("Item 1", cut.Markup);
+            Assert.Contains("Item 2", cut.Markup);
+            Assert.Contains("Item 3", cut.Markup);
+            Assert.Contains("data-index=\"1\"", cut.Markup);
+            Assert.Contains("data-index=\"2\"", cut.Markup);
+            Assert.Contains("data-index=\"3\"", cut.Markup);
     }
 
     [Fact]

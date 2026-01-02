@@ -94,25 +94,18 @@ public class DebounceTests : ComponentTestBase
     public async Task Debounce_OnDebouncedCallback_ShouldBeInvokable()
     {
         // Arrange
-        var callbackInvoked = false;
-
         var cut = Render<Debounce<string>>(parameters => parameters
             .Add(p => p.Value, "test")
             .Add(p => p.DelayMs, 100)
-            .Add(p => p.OnDebounced, value =>
-            {
-                callbackInvoked = true;
-                return Task.CompletedTask;
-            })
+            .Add(p => p.OnDebounced, value => Task.CompletedTask)
             .AddChildContent("<div>Content</div>")
         );
 
         // Act - wait for initial debounce
         await Task.Delay(150);
 
-        // Note: Initial render doesn't trigger value change, so callback may not be invoked
-        // This test verifies the callback parameter is accepted
-        Assert.NotNull(cut.Instance.OnDebounced);
+        // Assert - This test verifies the callback parameter is accepted
+        Assert.True(cut.Instance.OnDebounced.HasDelegate);
     }
 
     [Fact]
