@@ -45,9 +45,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         get
         {
             if (_messageStore is null || CurrentEditContext is null)
-            {
                 return false;
-            }
 
             return CurrentEditContext.GetValidationMessages().Any();
         }
@@ -58,8 +56,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     {
         if (CurrentEditContext is null)
         {
-            throw new InvalidOperationException(
-                $"{nameof(CustomValidator)} requires a cascading " +
+            throw new InvalidOperationException($"{nameof(CustomValidator)} requires a cascading " +
                 $"parameter of type {nameof(EditContext)}. " +
                 $"For example, you can use {nameof(CustomValidator)} " +
                 $"inside an {nameof(EditForm)}.");
@@ -135,9 +132,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
                 var detail = detailElement.GetString() ?? "Unknown error";
 
                 if (Snackbar is not null)
-                {
                     Snackbar.Add($"{status}: {detail}", Severity.Error);
-                }
                 else
                 {
                     AddFormLevelError($"{status}: {detail}");
@@ -149,9 +144,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
             {
                 var errors = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(contentString);
                 if (errors is not null && errors.Count > 0)
-                {
                     DisplayErrors(errors);
-                }
                 else
                 {
                     AddFormLevelError("Validation failed but no specific errors were provided.");
@@ -190,20 +183,12 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (!string.IsNullOrWhiteSpace(serverResponse.Message))
-        {
             AddFormLevelError(serverResponse.Message);
-        }
 
         if (serverResponse.Errors is not null && serverResponse.Errors.Count > 0)
-        {
             foreach (var error in serverResponse.Errors)
-            {
                 if (!string.IsNullOrWhiteSpace(error))
-                {
                     AddFormLevelError(error);
-                }
-            }
-        }
 
         CurrentEditContext?.NotifyValidationStateChanged();
     }
@@ -220,25 +205,18 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (errors.Count == 0)
-        {
             return;
-        }
 
         foreach (var (fieldName, errorMessages) in errors)
         {
             if (errorMessages is null || errorMessages.Count == 0)
-            {
                 continue;
-            }
 
             var field = CurrentEditContext!.Field(fieldName);
+
             foreach (var message in errorMessages)
-            {
                 if (!string.IsNullOrWhiteSpace(message))
-                {
                     _messageStore?.Add(field, message);
-                }
-            }
         }
 
         CurrentEditContext?.NotifyValidationStateChanged();
@@ -259,9 +237,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     public void Dispose()
     {
         if (_disposed)
-        {
             return;
-        }
 
         if (CurrentEditContext is not null)
         {
@@ -273,18 +249,12 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         _disposed = true;
     }
 
-    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs args)
-    {
-        _messageStore?.Clear();
-    }
+    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs args) 
+        => _messageStore?.Clear();
 
-    private void OnFieldChanged(object? sender, FieldChangedEventArgs args)
-    {
-        _messageStore?.Clear(args.FieldIdentifier);
-    }
+    private void OnFieldChanged(object? sender, FieldChangedEventArgs args) 
+        => _messageStore?.Clear(args.FieldIdentifier);
 
     private void AddFormLevelError(string message)
-    {
-        _messageStore?.Add(CurrentEditContext!.Field(string.Empty), message);
-    }
+        => _messageStore?.Add(CurrentEditContext!.Field(string.Empty), message);
 }
