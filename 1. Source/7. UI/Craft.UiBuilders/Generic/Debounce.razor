@@ -1,0 +1,12 @@
+@using Craft.UiComponents
+
+@namespace Craft.UiBuilders.Generic
+
+@typeparam TValue
+
+@inherits CraftComponent
+
+@if (_shouldRender)
+{
+    @ChildContent
+}

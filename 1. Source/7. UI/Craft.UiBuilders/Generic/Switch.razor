@@ -1,0 +1,19 @@
+@using Craft.UiComponents
+
+@namespace Craft.UiBuilders.Generic
+
+@typeparam TValue
+
+@inherits CraftComponent
+
+@{
+    var matchedCase = Cases.FirstOrDefault(c => EqualityComparer<TValue>.Default.Equals(c.When, Value));
+    if (matchedCase != null)
+    {
+        @matchedCase.ChildContent
+    }
+    else
+    {
+        @Default
+    }
+}

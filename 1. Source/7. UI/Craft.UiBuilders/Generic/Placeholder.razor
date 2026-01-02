@@ -1,0 +1,19 @@
+@using Craft.UiComponents
+
+@namespace Craft.UiBuilders.Generic
+
+@inherits CraftComponent
+
+@if (Loading)
+{
+    <div class="craft-placeholder">
+        @for (int i = 0; i < Lines; i++)
+        {
+            <div class="craft-placeholder-line craft-placeholder-@Variant.ToString().ToLower()"></div>
+        }
+    </div>
+}
+else
+{
+    @Content
+}

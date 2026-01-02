@@ -1,0 +1,13 @@
+@using Craft.UiComponents
+@implements IAsyncDisposable
+
+@namespace Craft.UiBuilders.Generic
+
+@inherits CraftComponent
+
+@if (_isVisible)
+{
+    @ChildContent
+}
+
+<div @ref="_elementRef"></div>

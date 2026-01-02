@@ -1,0 +1,22 @@
+@using Craft.UiComponents
+
+@namespace Craft.UiBuilders.Generic
+
+@typeparam TItem
+
+@inherits CraftComponent
+
+@if (Items != null && Items.Any())
+{
+    @if (ItemTemplate != null)
+    {
+        @foreach (var item in Items)
+        {
+            @ItemTemplate(item)
+        }
+    }
+}
+else
+{
+    @EmptyTemplate
+}

@@ -1,0 +1,12 @@
+@using Craft.UiComponents
+
+@namespace Craft.UiBuilders.Generic
+
+@typeparam TItem
+
+@inherits CraftComponent
+
+@if (Items == null || !Items.Any())
+{
+    @ChildContent
+}
