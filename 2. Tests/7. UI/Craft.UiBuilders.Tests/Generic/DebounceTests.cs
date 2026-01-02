@@ -1,6 +1,7 @@
 using Bunit;
 using Craft.UiBuilders.Generic;
 using Craft.UiBuilders.Tests.Base;
+using Craft.UiComponents;
 
 namespace Craft.UiBuilders.Tests.Generic;
 
@@ -59,7 +60,7 @@ public class DebounceTests : ComponentTestBase
         var component = new Debounce<string>();
 
         // Assert
-        Assert.IsAssignableFrom<Craft.UiComponents.CraftComponent>(component);
+        Assert.IsType<CraftComponent>(component, exactMatch: false);
     }
 
     [Fact]
