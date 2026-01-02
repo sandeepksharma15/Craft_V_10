@@ -1,0 +1,50 @@
+﻿@using Craft.UiComponents
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Generic
+
+@inherits CraftComponent
+
+<If Condition="IsLoading">
+    <True>
+        @if (Loading is not null)
+        {
+            @Loading
+        }
+        else
+        {
+            <MudOverlay Visible="true" DarkBackground="true" Absolute="false">
+                <Spinner Color="LoadingColor" />
+            </MudOverlay>
+        }
+    </True>
+    <False>
+        <If Condition="HasError">
+            <True>
+                @if (Error is not null)
+                {
+                    @Error
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Error" Variant="MudBlazor.Variant.Filled" Class="my-4">
+                        <MudText Typo="Typo.h6">@ErrorTitle</MudText>
+                        <MudText Typo="Typo.body2">@ErrorMessage</MudText>
+                        <Show When="OnRetry.HasDelegate">
+                            <MudButton Variant="MudBlazor.Variant.Outlined" 
+                                       Color="Color.Error" 
+                                       StartIcon="@Icons.Material.Filled.Refresh"
+                                       OnClick="HandleRetryAsync"
+                                       Class="mt-2">
+                                @RetryText
+                            </MudButton>
+                        </Show>
+                    </MudAlert>
+                }
+            </True>
+            <False>
+                @ChildContent
+            </False>
+        </If>
+    </False>
+</If>

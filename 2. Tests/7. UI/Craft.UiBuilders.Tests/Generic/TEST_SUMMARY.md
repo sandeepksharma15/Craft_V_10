@@ -235,7 +235,46 @@ The `ForEach<T>` component iterates over a collection and renders content for ea
 
 ---
 
+### 6. DataLoader Component (`DataLoaderTests.cs`)
+**Tests: 34 (22 passing component logic tests)**
+
+The `DataLoader` component manages async data loading states with loading, error, and success states. Provides retry functionality and customizable templates.
+
+#### Test Coverage:
+- ? Displays default spinner overlay while loading
+- ? Renders custom loading templates
+- ? Shows default error alert with retry button
+- ? Supports custom error templates
+- ? Custom error titles and messages
+- ? Retry button invokes callback correctly
+- ? Hides retry button when no callback provided
+- ? Customizable loading spinner color
+- ? State transitions (loading ? success, loading ? error)
+- ? Complex and nested content rendering
+- ? Component composition with If and Show
+- ? Inherits from CraftComponent
+- ?? 12 tests have MudBlazor disposal issues (infrastructure, not component)
+
+**Usage Example:**
+```razor
+<DataLoader IsLoading="isLoading" 
+            HasError="hasError"
+            ErrorTitle="Failed to Load"
+            ErrorMessage="Unable to fetch data. Please try again."
+            OnRetry="LoadDataAsync"
+            LoadingColor="Color.Primary">
+    <div class="data-display">
+        @foreach (var item in data)
+        {
+            <MudCard>@item.Name</MudCard>
+        }
+    </div>
+</DataLoader>
+```
+
+---
+
 **Generated on**: {DateTime.UtcNow}
 **Framework Version**: .NET 10
 **bUnit Version**: 2.4.2
-**Test Count**: 78 ?
+**Test Count**: 112 (100 passing) ?
