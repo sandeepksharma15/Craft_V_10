@@ -31,6 +31,35 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     #endregion
 
+    #region Computed Properties for Declarative UI
+
+    /// <summary>
+    /// Determines if the title should be shown.
+    /// </summary>
+    private bool _showTitle => !string.IsNullOrWhiteSpace(Title);
+
+    /// <summary>
+    /// Determines if the add button should be shown.
+    /// </summary>
+    private bool _showAddButton => AllowAdd && OnAdd.HasDelegate;
+
+    /// <summary>
+    /// Determines if the export menu should be shown.
+    /// </summary>
+    private bool _showExportMenu => AllowExport && OnExport.HasDelegate;
+
+    /// <summary>
+    /// Determines if the actions column should be shown.
+    /// </summary>
+    private bool _showActionsColumn => ShowActions && (AllowEdit || AllowDelete || AllowView);
+
+    /// <summary>
+    /// Determines if any items are loaded.
+    /// </summary>
+    private bool _hasItems => _items?.Count > 0;
+
+    #endregion
+
     #region Injected Services
 
     [Inject] private ISnackbar? Snackbar { get; set; }

@@ -22,7 +22,7 @@
 				  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style">
 
 			<ToolBarContent>
-				<Show When="@(!string.IsNullOrWhiteSpace(Title))">
+				<Show When="@_showTitle">
 					<MudText Typo="Typo.h6">@Title</MudText>
 				</Show>
 
@@ -34,13 +34,13 @@
 								  DebounceInterval="300" OnDebounceIntervalElapsed="@SearchAsync" Class="mt-0" />
 				</Show>
 
-				<Show When="@(AllowAdd && OnAdd.HasDelegate)">
+				<Show When="@_showAddButton">
 					<MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync" Class="ms-2">
 						@AddButtonText
 					</MudButton>
 				</Show>
 
-				<Show When="@(AllowExport && OnExport.HasDelegate)">
+				<Show When="@_showExportMenu">
 					<MudMenu Icon="@Icons.Material.Filled.FileDownload" Color="Color.Default" Variant="Variant.Outlined" Size="Size.Medium" Class="ms-2">
 						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Csv))"
 									 Icon="@Icons.Material.Filled.Description">
@@ -63,7 +63,7 @@
 			</ToolBarContent>
 
 			<HeaderContent>
-				<Show When="@(ShowActions && (AllowEdit || AllowDelete || AllowView))">
+				<Show When="@_showActionsColumn">
 					<MudTh Style="width: 120px;">
 						<MudTableSortLabel T="TEntity" SortLabel="actions" Enabled="false">
 							Actions
@@ -74,55 +74,51 @@
 				@foreach (var column in Columns.Where(c => c.Visible))
 				{
 					<MudTh Style="@GetColumnStyle(column)">
-						@if (column.Sortable)
-						{
-							<MudTableSortLabel T="TEntity" SortLabel="@column.PropertyName" InitialDirection="@GetSortDirection(column)">
+						<If Condition="@column.Sortable">
+							<True>
+								<MudTableSortLabel T="TEntity" SortLabel="@column.PropertyName" InitialDirection="@GetSortDirection(column)">
+									@column.Title
+								</MudTableSortLabel>
+							</True>
+							<False>
 								@column.Title
-							</MudTableSortLabel>
-						}
-						else
-						{
-							@column.Title
-						}
+							</False>
+						</If>
 					</MudTh>
 				}
 			</HeaderContent>
 
 			<RowTemplate Context="item">
-				@if (ShowActions && (AllowEdit || AllowDelete || AllowView))
-				{
+				<Show When="@_showActionsColumn">
 					<MudTd DataLabel="Actions">
-						@if (AllowView)
-						{
+						<Show When="@AllowView">
 							<MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small"
-										   OnClick="@(() => HandleViewAsync(item))" />
-						}
+										   OnClick="@(() => HandleViewAsync(item))" Title="View" />
+						</Show>
 
-						@if (AllowEdit)
-						{
+						<Show When="@AllowEdit">
 							<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
-										   OnClick="@(() => HandleEditAsync(item))" />
-						}
+										   OnClick="@(() => HandleEditAsync(item))" Title="Edit" />
+						</Show>
 
-						@if (AllowDelete)
-						{
+						<Show When="@AllowDelete">
 							<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-										   OnClick="@(() => HandleDeleteAsync(item))" />
-						}
+										   OnClick="@(() => HandleDeleteAsync(item))" Title="Delete" />
+						</Show>
 					</MudTd>
-				}
+				</Show>
 
 				@foreach (var column in Columns.Where(c => c.Visible))
 				{
 					<MudTd DataLabel="@column.Title" Style="@GetCellStyle(column)">
-						@if (column.Template != null)
-						{
-							@column.Template(item)
-						}
-						else
-						{
-							@column.Render(item)
-						}
+						<If Condition="@(column.Template != null)">
+							<True>
+								@column.Template(item)
+							</True>
+							<False>
+								@column.Render(item)
+							</False>
+						</If>
 					</MudTd>
 				}
 			</RowTemplate>
@@ -138,13 +134,12 @@
 			</LoadingContent>
 
 			<PagerContent>
-				@if (EnablePagination)
-				{
+				<Show When="@EnablePagination">
 					<MudTablePager PageSizeOptions="@PageSizeOptions"
 								   RowsPerPageString="@RowsPerPageString"
 								   InfoFormat="@InfoFormat"
 								   HorizontalAlignment="HorizontalAlignment.End" />
-				}
+				</Show>
 			</PagerContent>
 		</MudTable>
 	</Show>
