@@ -1,0 +1,29 @@
+﻿namespace ChalkBlazor
+{
+    public interface IDataGrid
+    {
+        public bool Hoverable { get; set; }
+        public bool Striped { get; set; }
+        public bool Bordered { get; set; }
+        public bool FullWidth { get; set; }
+        public string Class { get; set; }
+
+        int PageSize { get; }
+        int CurrentPage { get; }
+
+        void FirstPage();
+        void NextPage();
+        void PreviousPage();
+        void LastPage();
+        Task DeleteEntityAsync(bool isDelete);
+    }
+
+    public interface IDataGrid<T> : IDataGrid
+    {
+        List<IColumn<T>> Columns { get; }
+
+        void AddColumn(IColumn<T> column);
+        void RemoveColumn(IColumn<T> column);
+        void SortTable(IColumn<T> column);
+    }
+}

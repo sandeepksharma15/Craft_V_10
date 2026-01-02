@@ -1,0 +1,321 @@
+@* 
+    CraftDataGrid Usage Example
+    
+    This example demonstrates how to use the CraftDataGrid component 
+    with a Product entity.
+*@
+
+@page "/products"
+@using Craft.QuerySpec
+@using Craft.UiBuilders.Components
+@using YourApp.Models
+@inject IHttpService<Product> ProductService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<PageTitle>Products</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
+    <CraftDataGrid TEntity="Product" 
+                   HttpService="@ProductService"
+                   Title="Product Management"
+                   QueryBuilder="@BuildProductQuery"
+                   AllowAdd="true"
+                   AllowView="true"
+                   AllowEdit="true"
+                   AllowDelete="true"
+                   AllowExport="true"
+                   AllowRefresh="true"
+                   ShowSearch="true"
+                   EnablePagination="true"
+                   InitialPageSize="25"
+                   PageSizeOptions="@(new[] { 10, 25, 50, 100 })"
+                   Hover="true"
+                   Striped="true"
+                   OnAdd="@HandleAddProduct"
+                   OnView="@HandleViewProduct"
+                   OnEdit="@HandleEditProduct"
+                   OnDelete="@HandleDeleteProduct"
+                   OnExport="@HandleExportProducts"
+                   OnDataLoaded="@HandleDataLoaded">
+        
+        @* ID Column - Hidden from display but used for actions *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Id)" 
+                             Title="ID"
+                             Visible="false" />
+        
+        @* SKU Column - Sortable and Searchable *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.SKU)" 
+                             Title="SKU"
+                             Width="120px"
+                             Sortable="true"
+                             Searchable="true" />
+        
+        @* Name Column - Sortable, Searchable, Default Sort *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Product Name"
+                             Sortable="true"
+                             Searchable="true"
+                             DefaultSort="SortDirection.Ascending"
+                             SortOrder="0" />
+        
+        @* Category Column - Custom Template *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Category)"
+                             Title="Category"
+                             Width="150px">
+            <Template Context="product">
+                <MudChip Color="Color.Primary" 
+                         Size="Size.Small" 
+                         Variant="Variant.Outlined">
+                    @product.Category?.Name
+                </MudChip>
+            </Template>
+        </CraftDataGridColumn>
+        
+        @* Price Column - Formatted, Right-Aligned, Sortable *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2"
+                             Width="120px"
+                             Alignment="Alignment.End"
+                             Sortable="true" />
+        
+        @* Stock Column - Right-Aligned with Custom Template *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Stock)"
+                             Title="Stock"
+                             Width="100px"
+                             Alignment="Alignment.End">
+            <Template Context="product">
+                <MudChip Color="@GetStockColor(product.Stock)" 
+                         Size="Size.Small">
+                    @product.Stock
+                </MudChip>
+            </Template>
+        </CraftDataGridColumn>
+        
+        @* Status Column - Custom Template with Icon *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.IsActive)"
+                             Title="Status"
+                             Width="100px"
+                             Alignment="Alignment.Center">
+            <Template Context="product">
+                @if (product.IsActive)
+                {
+                    <MudChip Color="Color.Success" 
+                             Size="Size.Small" 
+                             Icon="@Icons.Material.Filled.CheckCircle">
+                        Active
+                    </MudChip>
+                }
+                else
+                {
+                    <MudChip Color="Color.Default" 
+                             Size="Size.Small" 
+                             Icon="@Icons.Material.Filled.Cancel">
+                        Inactive
+                    </MudChip>
+                }
+            </Template>
+        </CraftDataGridColumn>
+        
+        @* Created Date Column - Formatted *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.CreatedDate)" 
+                             Title="Created"
+                             Format="d"
+                             Width="120px"
+                             Sortable="true" />
+        
+        @* Last Updated Column - Formatted with relative time *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.UpdatedDate)"
+                             Title="Last Updated"
+                             Width="150px">
+            <Template Context="product">
+                <MudTooltip Text="@product.UpdatedDate.ToString("F")">
+                    <MudText Typo="Typo.body2">
+                        @GetRelativeTime(product.UpdatedDate)
+                    </MudText>
+                </MudTooltip>
+            </Template>
+        </CraftDataGridColumn>
+        
+    </CraftDataGrid>
+</MudContainer>
+
+@code {
+    // Custom query builder to add default filters
+    private Query<Product> BuildProductQuery(Query<Product> query)
+    {
+        // Only show active products by default (can be overridden by search)
+        // query.Where(p => p.IsActive, true);
+        
+        // Always exclude deleted items
+        query.Where(p => p.IsDeleted, false);
+        
+        // Default sort by name if no other sort is specified
+        // query.OrderBy(p => p.Name);
+        
+        return query;
+    }
+
+    private void HandleAddProduct()
+    {
+        NavigationManager.NavigateTo("/products/new");
+    }
+
+    private void HandleViewProduct(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/view/{product.Id}");
+    }
+
+    private void HandleEditProduct(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/edit/{product.Id}");
+    }
+
+    private async Task HandleDeleteProduct(Product product)
+    {
+        try
+        {
+            // Create a query to delete the specific product
+            var query = new Query<Product>()
+                .Where(p => p.Id, product.Id);
+
+            var result = await ProductService.DeleteAsync(query);
+
+            if (!result.IsSuccess)
+            {
+                Snackbar.Add(result.ErrorMessage ?? "Failed to delete product", Severity.Error);
+                throw new Exception(result.ErrorMessage);
+            }
+
+            Snackbar.Add($"Product '{product.Name}' deleted successfully", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting product: {ex.Message}", Severity.Error);
+            throw; // Re-throw to prevent grid refresh on error
+        }
+    }
+
+    private async Task HandleExportProducts(ExportFormat format)
+    {
+        try
+        {
+            // Get all products for export (without pagination)
+            var query = BuildProductQuery(new Query<Product>());
+            var result = await ProductService.GetAllAsync(query);
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                Snackbar.Add("Failed to export products", Severity.Error);
+                return;
+            }
+
+            var products = result.Data;
+
+            switch (format)
+            {
+                case ExportFormat.Csv:
+                    await ExportToCsv(products);
+                    break;
+                case ExportFormat.Excel:
+                    await ExportToExcel(products);
+                    break;
+                case ExportFormat.Pdf:
+                    await ExportToPdf(products);
+                    break;
+            }
+
+            Snackbar.Add($"Exported {products.Count} products to {format}", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Export failed: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void HandleDataLoaded(PageResponse<Product> pageResponse)
+    {
+        // Optional: Do something after data is loaded
+        Console.WriteLine($"Loaded {pageResponse.Items.Count()} products out of {pageResponse.TotalCount} total");
+    }
+
+    // Helper method to get stock color based on quantity
+    private Color GetStockColor(int stock)
+    {
+        return stock switch
+        {
+            0 => Color.Error,
+            <= 10 => Color.Warning,
+            _ => Color.Success
+        };
+    }
+
+    // Helper method to format relative time
+    private string GetRelativeTime(DateTime dateTime)
+    {
+        var timeSpan = DateTime.Now - dateTime;
+
+        return timeSpan switch
+        {
+            { TotalMinutes: < 1 } => "Just now",
+            { TotalMinutes: < 60 } => $"{(int)timeSpan.TotalMinutes} minutes ago",
+            { TotalHours: < 24 } => $"{(int)timeSpan.TotalHours} hours ago",
+            { TotalDays: < 7 } => $"{(int)timeSpan.TotalDays} days ago",
+            { TotalDays: < 30 } => $"{(int)(timeSpan.TotalDays / 7)} weeks ago",
+            { TotalDays: < 365 } => $"{(int)(timeSpan.TotalDays / 30)} months ago",
+            _ => $"{(int)(timeSpan.TotalDays / 365)} years ago"
+        };
+    }
+
+    // Export methods (implement based on your requirements)
+    private async Task ExportToCsv(List<Product> products)
+    {
+        // Implement CSV export logic
+        // You can use a library like CsvHelper
+        await Task.CompletedTask;
+    }
+
+    private async Task ExportToExcel(List<Product> products)
+    {
+        // Implement Excel export logic
+        // You can use a library like EPPlus or ClosedXML
+        await Task.CompletedTask;
+    }
+
+    private async Task ExportToPdf(List<Product> products)
+    {
+        // Implement PDF export logic
+        // You can use a library like QuestPDF or iTextSharp
+        await Task.CompletedTask;
+    }
+}
+
+@* 
+    Example Product Model:
+    
+    public class Product : IEntity, IModel
+    {
+        public KeyType Id { get; set; }
+        public string SKU { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public Category? Category { get; set; }
+        public KeyType CategoryId { get; set; }
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
+    }
+*@

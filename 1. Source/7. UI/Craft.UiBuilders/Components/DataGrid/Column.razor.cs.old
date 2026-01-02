@@ -1,0 +1,136 @@
+﻿using System.Globalization;
+using System.Linq.Expressions;
+
+#nullable disable
+
+namespace ChalkBlazor
+{
+    public partial class Column<TableItem> : IColumn<TableItem>
+    {
+        private string _caption;
+        private bool _visible;
+
+        [CascadingParameter(Name = "Table")] public IDataGrid<TableItem> Table { get; set; }
+
+        [Parameter]
+        public string Caption
+        {
+            get => _caption ?? Field.GetPropertyMemberInfo()?.Name;
+            set => _caption = value;
+        }
+
+        [Parameter] public string Width { get; set; }
+        [Parameter] public bool Sortable { get; set; }
+        [Parameter] public bool Filterable { get; set; }
+        [Parameter] public bool Hideable { get; set; }
+        [Parameter] public RenderFragment<TableItem> Template { get; set; }
+        [Parameter] public Expression<Func<TableItem, object>> Field { get; set; }
+        [Parameter] public Alignment Align { get; set; }
+        [Parameter] public string Format { get; set; }
+        [Parameter] public Type Type { get; set; }
+
+        [Parameter]
+        public bool Visible
+        {
+            get => _visible;
+            set { _visible = value; StateHasChanged(); }
+        }
+
+        [Parameter] public bool? DefaultSortColumn { get; set; }
+        [Parameter] public bool? DefaultSortDescending { get; set; }
+        [Parameter] public SortDirection SortDirection { get; set; }
+
+        protected override void OnInitialized()
+        {
+            Table.AddColumn(this);
+
+            if (DefaultSortColumn.HasValue)
+            {
+                SortDirection = SortDirection.Ascending;
+            }
+
+            if (DefaultSortDescending.HasValue)
+            {
+                SortDirection = SortDirection.Descending;
+            }
+        }
+
+        protected override void OnParametersSet()
+        {
+            if ((Sortable && Field == null) || (Filterable && Field == null))
+            {
+                throw new InvalidOperationException($"Column {Caption} Property parameter is null");
+            }
+
+            if (Caption == null && Field == null)
+            {
+                throw new InvalidOperationException("A Column has both Caption and Property parameters null");
+            }
+
+            if (Type == null)
+            {
+                Type = Field?.GetPropertyMemberInfo().GetMemberUnderlyingType();
+            }
+        }
+
+        public string Render(TableItem item)
+        {
+            if (item == null || Field == null)
+            {
+                return string.Empty;
+            }
+
+            if (renderCompiled == null)
+            {
+                renderCompiled = Field.Compile();
+            }
+
+            object value = null;
+
+            try
+            {
+                value = renderCompiled.Invoke(item);
+            }
+            catch (NullReferenceException ex)
+            {
+                Console.WriteLine($"[Should Not Happen]: {ex.Message}");
+            }
+
+            if (value == null)
+            {
+                return string.Empty;
+            }
+
+            if (Field?.GetPropertyMemberInfo().GetMemberUnderlyingType() == typeof(bool))
+            {
+                return ((bool)value) ? "Yes" : "No";
+            }
+
+            if (Field?.GetPropertyMemberInfo().GetMemberUnderlyingType().IsEnum == true)
+            {
+                return ((Enum)value).GetDescription();
+            }
+
+            if (string.IsNullOrEmpty(Format))
+            {
+                return value.ToString();
+            }
+
+            return string.Format(CultureInfo.CurrentCulture, $"{{0:{Format}}}", value);
+        }
+
+        public bool FilterOpen { get; private set; }
+
+        public void ToggleFilter()
+        {
+            FilterOpen = !FilterOpen;
+        }
+
+        /// <summary>
+        /// Save compiled renderCompiled property to avoid repeated Compile() calls
+        /// </summary>
+        private Func<TableItem, object> renderCompiled;
+    }
+}
+
+#nullable enable
