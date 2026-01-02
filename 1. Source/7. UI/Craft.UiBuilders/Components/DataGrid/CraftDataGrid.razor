@@ -93,17 +93,17 @@
 					<MudTd DataLabel="Actions">
 						<Show When="@AllowView">
 							<MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small"
-										   OnClick="@(() => HandleViewAsync(item))" Title="View" />
+										   OnClick="@(() => HandleViewAsync(item))" />
 						</Show>
 
 						<Show When="@AllowEdit">
 							<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
-										   OnClick="@(() => HandleEditAsync(item))" Title="Edit" />
+										   OnClick="@(() => HandleEditAsync(item))" />
 						</Show>
 
 						<Show When="@AllowDelete">
 							<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-										   OnClick="@(() => HandleDeleteAsync(item))" Title="Delete" />
+										   OnClick="@(() => HandleDeleteAsync(item))" />
 						</Show>
 					</MudTd>
 				</Show>
@@ -113,7 +113,7 @@
 					<MudTd DataLabel="@column.Title" Style="@GetCellStyle(column)">
 						<If Condition="@(column.Template != null)">
 							<True>
-								@column.Template(item)
+								@column.Template!(item)
 							</True>
 							<False>
 								@column.Render(item)
