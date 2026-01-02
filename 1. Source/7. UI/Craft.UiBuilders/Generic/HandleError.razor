@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+
+@namespace Craft.Components.Generic
+
+@inherits ComponentBase
+
+<Microsoft.AspNetCore.Components.Web.ErrorBoundary @ref="_errorBoundary">
+    <ChildContent>
+        <CascadingValue Value="this" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    </ChildContent>
+    <ErrorContent Context="errorContext">
+        @{
+            HandleErrorInternal(errorContext);
+        }
+        @if (CustomErrorContent is not null)
+        {
+            @CustomErrorContent
+        }
+        else
+        {
+            <div class="error-container" role="alert" aria-live="assertive">
+                <div class="error-content">
+                    <div class="error-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h2 class="error-title">An Error Has Occurred</h2>
+                    <p class="error-message">@GetErrorMessage(errorContext)</p>
+
+                    @if (ShowDetails && errorContext is not null)
+                    {
+                        <details class="error-details">
+                            <summary>Technical Details</summary>
+                            <pre class="error-stack">@errorContext</pre>
+                        </details>
+                    }
+
+                    @if (!string.IsNullOrEmpty(ErrorPageUri))
+                    {
+                        <div class="error-actions">
+                            <button class="error-button" @onclick="NavigateToErrorPage">Go to Error Page</button>
+                            <button class="error-button error-button-secondary" @onclick="ReloadPage">Reload Page</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="error-actions">
+                            <button class="error-button" @onclick="ReloadPage">Reload Page</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </ErrorContent>
+</Microsoft.AspNetCore.Components.Web.ErrorBoundary>
+

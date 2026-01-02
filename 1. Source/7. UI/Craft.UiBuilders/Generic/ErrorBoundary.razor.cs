@@ -1,6 +1,5 @@
 using Craft.UiComponents;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace Craft.UiBuilders.Generic;
 
