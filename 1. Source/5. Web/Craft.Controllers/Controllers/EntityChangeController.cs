@@ -84,7 +84,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     /// <response code="400">If the model is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost]
-    [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<T>> AddAsync(DataTransferT model, CancellationToken cancellationToken = default)
@@ -285,7 +285,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     /// <response code="409">If a concurrency conflict occurs.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPut]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]

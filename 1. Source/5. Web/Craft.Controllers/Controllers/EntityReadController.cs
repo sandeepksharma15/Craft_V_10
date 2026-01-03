@@ -69,7 +69,7 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     /// <response code="200">Returns the collection of entities.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpGet("{includeDetails:bool}")]
-    [ProducesResponseType(typeof(IEnumerable<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<IAsyncEnumerable<T>>> GetAllAsync(bool includeDetails, CancellationToken cancellationToken = default)
     {
@@ -116,7 +116,7 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     /// <response code="404">If the entity is not found.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpGet("{id}/{includeDetails:bool}")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<T>> GetAsync(TKey id, bool includeDetails, CancellationToken cancellationToken = default)
@@ -230,7 +230,7 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
     /// <response code="500">If an internal server error occurs.</response>
     [HttpGet]
     [Route("getpaged/{page:int}/{pageSize:int}/{includeDetails:bool}")]
-    [ProducesResponseType(typeof(PageResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false,

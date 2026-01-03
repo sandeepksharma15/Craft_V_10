@@ -143,7 +143,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     /// <response code="400">If the query specification is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost("searchall")]
-    [ProducesResponseType(typeof(List<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<List<T>>> GetAllAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
@@ -205,7 +205,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     /// <response code="400">If the query specification or projection is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost("searchallselect")]
-    [ProducesResponseType(typeof(List<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<List<TResult>>> GetAllAsync<TResult>([FromBody] IQuery<T, TResult> query,
@@ -257,7 +257,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     /// <response code="400">If the query specification is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost("queryone")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -315,7 +315,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     /// <response code="400">If the query specification or projection is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost("queryoneselect")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -457,7 +457,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     /// <response code="400">If the query specification is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost("querypaged")]
-    [ProducesResponseType(typeof(PageResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<PageResponse<T>>> GetPagedListAsync([FromBody] IQuery<T> query, CancellationToken cancellationToken = default)
@@ -532,7 +532,7 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     /// <response code="400">If the query specification is invalid.</response>
     /// <response code="500">If an internal server error occurs.</response>
     [HttpPost("querypagedselect")]
-    [ProducesResponseType(typeof(PageResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<PageResponse<TResult>>> GetPagedListAsync<TResult>([FromBody] IQuery<T, TResult> query,
