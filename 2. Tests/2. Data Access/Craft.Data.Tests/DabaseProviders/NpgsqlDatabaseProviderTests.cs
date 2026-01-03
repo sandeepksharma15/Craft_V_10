@@ -126,17 +126,6 @@ public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderT
     public sealed class PostgreSqlContainerFixture : IAsyncLifetime
     {
         private PostgreSqlContainer? _container;
-        private readonly PostgreSqlBuilder _builder;
-
-        public PostgreSqlContainerFixture()
-        {
-            // Configure builder only; actual Build/Start deferred to InitializeAsync so we can catch Docker issues.
-            _builder = new PostgreSqlBuilder()
-                .WithImage("postgres:16-alpine")
-                .WithDatabase("craft_test")
-                .WithUsername("postgres")
-                .WithPassword("postgres");
-        }
 
         public string? ConnectionString => _container?.GetConnectionString();
         public bool IsAvailable { get; private set; }
@@ -145,7 +134,14 @@ public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderT
         {
             try
             {
-                _container = _builder.Build();
+                // Configure and build the container
+                _container = new PostgreSqlBuilder("postgres:16-alpine")
+                    .WithImage("postgres:16-alpine")
+                    .WithDatabase("craft_test")
+                    .WithUsername("postgres")
+                    .WithPassword("postgres")
+                    .Build();
+
                 await _container.StartAsync();
                 IsAvailable = true;
             }

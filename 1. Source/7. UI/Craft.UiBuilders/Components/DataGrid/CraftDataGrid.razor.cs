@@ -165,7 +165,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// <summary>
     /// Available page size options.
     /// </summary>
-    [Parameter] public int[] PageSizeOptions { get; set; } = new int[] { 10, 25, 50, 100 };
+    [Parameter] public int[] PageSizeOptions { get; set; } = [10, 25, 50, 100];
 
     /// <summary>
     /// Text displayed before the page size dropdown.
