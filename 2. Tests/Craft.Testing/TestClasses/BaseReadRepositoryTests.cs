@@ -2,44 +2,66 @@ using AutoFixture;
 using Craft.Core;
 using Craft.Domain;
 using Craft.Repositories;
+using Craft.Repositories.Services;
+using Craft.Testing.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Craft.Testing.TestClasses;
 
 /// <summary>
 /// Base class for read-only repository integration tests.
 /// Provides standard test methods for read operations on repositories.
-/// Inherit from this class and provide DbContext setup to test any entity repository.
+/// Inherit from this class and provide a fixture that implements IRepositoryTestFixture.
 /// </summary>
 /// <typeparam name="TEntity">The entity type being tested</typeparam>
 /// <typeparam name="TKey">The primary key type of the entity</typeparam>
+/// <typeparam name="TFixture">The database fixture type that implements IRepositoryTestFixture</typeparam>
 /// <remarks>
 /// Example usage:
 /// <code>
-/// public class ProductRepositoryTests : BaseReadRepositoryTests&lt;Product, int&gt;
+/// [Collection(nameof(DatabaseTestCollection))]
+/// public class ProductRepositoryTests : BaseReadRepositoryTests&lt;Product, int, DatabaseFixture&gt;
 /// {
-///     protected override IReadRepository&lt;Product, int&gt; CreateRepository()
-///     {
-///         // Setup and return your repository with DbContext
-///         return new ReadRepository&lt;Product, int&gt;(dbContext, logger);
-///     }
+///     public ProductRepositoryTests(DatabaseFixture fixture) : base(fixture) { }
 ///     
 ///     protected override Product CreateValidEntity()
 ///     {
-///         // Customize entity creation if needed
-///         return base.CreateValidEntity();
+///         return new Product { Name = "Test Product" };
 ///     }
 /// }
 /// </code>
 /// </remarks>
-public abstract class BaseReadRepositoryTests<TEntity, TKey> : IAsyncLifetime 
+public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncLifetime 
     where TEntity : class, IEntity<TKey>, new()
+    where TFixture : class, IRepositoryTestFixture
 {
     /// <summary>
-    /// Creates an instance of the repository to be tested.
-    /// Derived classes must implement this to provide the repository instance.
+    /// The database fixture providing DbContext and service provider.
     /// </summary>
-    protected abstract IReadRepository<TEntity, TKey> CreateRepository();
+    protected readonly TFixture Fixture;
+
+    /// <summary>
+    /// Initializes a new instance of the BaseReadRepositoryTests class.
+    /// </summary>
+    /// <param name="fixture">The database fixture</param>
+    protected BaseReadRepositoryTests(TFixture fixture)
+    {
+        Fixture = fixture;
+    }
+
+    /// <summary>
+    /// Creates an instance of the repository to be tested.
+    /// Default implementation creates a ReadRepository using the fixture's DbContext.
+    /// Override this method if you need custom repository initialization.
+    /// </summary>
+    protected virtual IReadRepository<TEntity, TKey> CreateRepository()
+    {
+        var logger = Fixture.ServiceProvider
+            .GetRequiredService<ILogger<ReadRepository<TEntity, TKey>>>();
+        return new ReadRepository<TEntity, TKey>(Fixture.DbContext, logger);
+    }
 
     /// <summary>
     /// Creates a valid entity instance for testing.
@@ -85,15 +107,30 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey> : IAsyncLifetime
 
     /// <summary>
     /// Helper method to seed the database with test entities.
-    /// Derived classes should implement this to add entities to the DbContext.
+    /// Default implementation adds entities to DbContext and saves changes.
+    /// Override this method if you need custom seeding logic.
     /// </summary>
-    protected abstract Task SeedDatabaseAsync(params TEntity[] entities);
+    protected virtual async Task SeedDatabaseAsync(params TEntity[] entities)
+    {
+        if (entities == null || entities.Length == 0)
+            return;
+
+        Fixture.DbContext.Set<TEntity>().AddRange(entities);
+        await Fixture.DbContext.SaveChangesAsync();
+
+        // Clear change tracker to avoid tracking issues
+        Fixture.DbContext.ChangeTracker.Clear();
+    }
 
     /// <summary>
     /// Helper method to clear the database before each test.
-    /// Derived classes should implement this to reset database state.
+    /// Default implementation calls the fixture's ResetDatabaseAsync method.
+    /// Override this method if you need custom cleanup logic.
     /// </summary>
-    protected abstract Task ClearDatabaseAsync();
+    protected virtual async Task ClearDatabaseAsync()
+    {
+        await Fixture.ResetDatabaseAsync();
+    }
 
     /// <summary>
     /// Called before each test - clears the database to ensure test isolation.

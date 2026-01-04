@@ -49,27 +49,27 @@ The base class provides automated tests for:
 using Craft.Testing.TestClasses;
 
 [Collection(nameof(DatabaseTestCollection))]
-public class YourEntityRepositoryTests : BaseReadRepositoryTests<YourEntity, KeyType>
+public class YourEntityRepositoryTests : BaseReadRepositoryTests<YourEntity, KeyType, DatabaseFixture>
 {
-    private readonly DatabaseFixture _fixture;
-
-    public YourEntityRepositoryTests(DatabaseFixture fixture)
+    public YourEntityRepositoryTests(DatabaseFixture fixture) : base(fixture)
     {
-        _fixture = fixture;
     }
-    
+
     // Implement required abstract methods below...
 }
 ```
+
+**?? Key Improvement**: Just pass the fixture to the base constructor - no need for your own `_fixture` field!
 
 ### 2. Implement Required Abstract Methods
 
 ```csharp
 protected override IReadRepository<YourEntity, KeyType> CreateRepository()
 {
-    var logger = _fixture.ServiceProvider
+    // Access the fixture via the protected Fixture property (managed by base class)
+    var logger = Fixture.ServiceProvider
         .GetRequiredService<ILogger<ReadRepository<YourEntity, KeyType>>>();
-    return new ReadRepository<YourEntity, KeyType>(_fixture.DbContext, logger);
+    return new ReadRepository<YourEntity, KeyType>(Fixture.DbContext, logger);
 }
 
 protected override YourEntity CreateValidEntity()
@@ -86,16 +86,18 @@ protected override async Task SeedDatabaseAsync(params YourEntity[] entities)
     if (entities == null || entities.Length == 0)
         return;
 
-    _fixture.DbContext.Set<YourEntity>().AddRange(entities);
-    await _fixture.DbContext.SaveChangesAsync();
-    _fixture.DbContext.ChangeTracker.Clear();
+    Fixture.DbContext.Set<YourEntity>().AddRange(entities);
+    await Fixture.DbContext.SaveChangesAsync();
+    Fixture.DbContext.ChangeTracker.Clear();
 }
 
 protected override async Task ClearDatabaseAsync()
 {
-    await _fixture.ResetDatabaseAsync();
+    await Fixture.ResetDatabaseAsync();
 }
 ```
+
+**?? Key Improvement**: The `DatabaseFixture` is now managed by the base class via the `Fixture` property. No need to declare your own `_fixture` field!
 
 ### 3. Add Entity-Specific Tests (Optional)
 
