@@ -220,7 +220,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
         await SeedDatabaseAsync(entities.ToArray());
 
         var query = CreateSimpleQuery();
-        query.SetPage(0, 5); // First page, 5 items
+        query.SetPage(1, 5); // First page, 5 items
 
         // Act
         var result = await repository.GetPagedListAsync(query);
@@ -239,7 +239,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
         await ClearDatabaseAsync();
 
         var query = CreateSimpleQuery();
-        query.SetPage(0, 10);
+        query.SetPage(1, 10);
 
         // Act
         var result = await repository.GetPagedListAsync(query);
