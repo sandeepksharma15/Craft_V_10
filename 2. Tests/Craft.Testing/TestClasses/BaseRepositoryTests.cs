@@ -66,7 +66,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
     /// Creates a simple query for testing.
     /// Override this to provide entity-specific query logic.
     /// </summary>
-    protected virtual Query<TEntity> CreateSimpleQuery() => new Query<TEntity>();
+    protected virtual Query<TEntity> CreateSimpleQuery() => new();
 
     /// <summary>
     /// Creates a query with a filter.
@@ -137,7 +137,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
         // Arrange
         var repository = GetFullRepository();
         var entities = CreateValidEntities(5);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
 
@@ -176,7 +176,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
         // Arrange
         var repository = GetFullRepository();
         var entities = CreateValidEntities(7);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
 
@@ -213,7 +213,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
         // Arrange
         var repository = GetFullRepository();
         var entities = CreateValidEntities(10);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
         query.SetPage(1, 5); // First page, 5 items

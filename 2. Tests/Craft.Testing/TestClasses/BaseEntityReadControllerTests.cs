@@ -209,7 +209,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var entities = Assert.IsAssignableFrom<IEnumerable<TEntity>>(okResult.Value);
+        var entities = Assert.IsType<List<TEntity>>(okResult.Value, exactMatch: false);
         Assert.Empty(entities);
     }
 
@@ -219,15 +219,15 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(5);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await controller.GetAllAsync(includeDetails: false);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var returnedEntities = Assert.IsAssignableFrom<IEnumerable<TEntity>>(okResult.Value);
-        Assert.Equal(5, returnedEntities.Count());
+        var returnedEntities = Assert.IsType<List<TEntity>>(okResult.Value, exactMatch: false);
+        Assert.Equal(5, returnedEntities.Count);
     }
 
     [Fact]
@@ -236,15 +236,15 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await controller.GetAllAsync(includeDetails: true);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var returnedEntities = Assert.IsAssignableFrom<IEnumerable<TEntity>>(okResult.Value);
-        Assert.Equal(3, returnedEntities.Count());
+        var returnedEntities = Assert.IsType<List<TEntity>>(okResult.Value, exactMatch: false);
+        Assert.Equal(3, returnedEntities.Count);
     }
 
     #endregion
@@ -273,7 +273,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(7);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await controller.GetCountAsync();
@@ -294,7 +294,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(10);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await controller.GetPagedListAsync(page: 1, pageSize: 5, includeDetails: false);
@@ -314,7 +314,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(12);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await controller.GetPagedListAsync(page: 3, pageSize: 5, includeDetails: false);
@@ -353,7 +353,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(8);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await controller.GetPagedListAsync(page: 1, pageSize: 5, includeDetails: true);

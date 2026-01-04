@@ -156,7 +156,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(5);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
 
@@ -165,7 +165,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var returnedEntities = Assert.IsAssignableFrom<List<TEntity>>(okResult.Value);
+        var returnedEntities = Assert.IsType<List<TEntity>>(okResult.Value, exactMatch: false);
         Assert.NotEmpty(returnedEntities);
         Assert.Equal(5, returnedEntities.Count);
     }
@@ -184,7 +184,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var returnedEntities = Assert.IsAssignableFrom<List<TEntity>>(okResult.Value);
+        var returnedEntities = Assert.IsType<List<TEntity>>(okResult.Value, exactMatch: false);
         Assert.Empty(returnedEntities);
     }
 
@@ -198,7 +198,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(7);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
 
@@ -239,7 +239,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(10);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
         query.SetPage(1, 5); // First page (1-based), 5 items
@@ -286,7 +286,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Create query to delete specific entities
         var query = CreateSimpleQuery();
@@ -305,7 +305,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         var query = CreateSimpleQuery();
 

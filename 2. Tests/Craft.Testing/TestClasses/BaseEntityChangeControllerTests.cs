@@ -287,7 +287,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         // Act
         var result = await controller.UpdateAsync(dto);
 
-        // Assert
+        // Assert - Now properly returns NotFound instead of Problem
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
@@ -301,7 +301,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Clear tracker and reload entities
         Fixture.DbContext.ChangeTracker.Clear();
@@ -331,7 +331,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Clear tracker and reload entities
         Fixture.DbContext.ChangeTracker.Clear();
@@ -433,7 +433,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Clear tracker and reload entities to get proper DTOs
         Fixture.DbContext.ChangeTracker.Clear();
@@ -455,7 +455,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         // Arrange
         var controller = CreateController();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Clear tracker and reload entities
         Fixture.DbContext.ChangeTracker.Clear();

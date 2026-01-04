@@ -297,6 +297,12 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
 
         try
         {
+            // Check if entity exists before attempting update
+            T? existingEntity = await repository.GetAsync(model.Id, cancellationToken: cancellationToken);
+
+            if (existingEntity == null)
+                return NotFound();
+
             return Ok(await repository.UpdateAsync(model.Adapt<T>(), cancellationToken: cancellationToken));
         }
         catch (DbUpdateConcurrencyException ex)
@@ -345,6 +351,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     [HttpPost("updaterange")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult> UpdateRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default)
@@ -354,8 +361,26 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
 
         try
         {
-            await repository.UpdateRangeAsync(models.Adapt<IEnumerable<T>>(), cancellationToken: cancellationToken);
+            // Validate that all entities exist before attempting batch update
+            var modelsList = models.ToList();
+            var ids = modelsList.Select(m => m.Id).ToList();
+            var existingEntities = new List<T>();
+
+            foreach (var id in ids)
+            {
+                var entity = await repository.GetAsync(id, cancellationToken: cancellationToken);
+                if (entity == null)
+                    return NotFound($"Entity with ID {id} not found");
+                existingEntities.Add(entity);
+            }
+
+            await repository.UpdateRangeAsync(modelsList.Adapt<IEnumerable<T>>(), cancellationToken: cancellationToken);
             return Ok();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            logger.LogError(ex.Message);
+            return Problem("The values in database have changed. Please update again with updated values.", statusCode: StatusCodes.Status409Conflict);
         }
         catch (Exception ex)
         {
