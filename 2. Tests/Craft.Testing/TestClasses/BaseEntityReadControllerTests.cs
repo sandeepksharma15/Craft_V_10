@@ -1,4 +1,3 @@
-using AutoFixture;
 using Craft.Controllers;
 using Craft.Core;
 using Craft.Domain;
@@ -51,10 +50,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     /// Initializes a new instance of the BaseEntityReadControllerTests class.
     /// </summary>
     /// <param name="fixture">The test fixture</param>
-    protected BaseEntityReadControllerTests(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected BaseEntityReadControllerTests(TFixture fixture) => Fixture = fixture;
 
     /// <summary>
     /// Creates an instance of the controller to be tested.
@@ -66,13 +62,11 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         var repository = CreateRepository();
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<EntityReadController<TEntity, TDto, TKey>>>();
-        
-        var controller = new EntityReadController<TEntity, TDto, TKey>(repository, logger);
-        
-        // Set up HttpContext for the controller
-        controller.ControllerContext = new ControllerContext
+
+        var controller = new EntityReadController<TEntity, TDto, TKey>(repository, logger)
         {
-            HttpContext = new DefaultHttpContext()
+            // Set up HttpContext for the controller
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
         return controller;
@@ -87,6 +81,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     {
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<ReadRepository<TEntity, TKey>>>();
+
         return new ReadRepository<TEntity, TKey>(Fixture.DbContext, logger);
     }
 
@@ -103,10 +98,10 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     protected virtual List<TEntity> CreateValidEntities(int count)
     {
         var entities = new List<TEntity>();
+
         for (int i = 0; i < count; i++)
-        {
             entities.Add(CreateValidEntity());
-        }
+
         return entities;
     }
 
@@ -128,26 +123,17 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     /// Helper method to clear the database before each test.
     /// Default implementation calls the fixture's ResetDatabaseAsync method.
     /// </summary>
-    protected virtual async Task ClearDatabaseAsync()
-    {
-        await Fixture.ResetDatabaseAsync();
-    }
+    protected virtual async Task ClearDatabaseAsync() => await Fixture.ResetDatabaseAsync();
 
     /// <summary>
     /// Called before each test - clears the database to ensure test isolation.
     /// </summary>
-    public virtual async Task InitializeAsync()
-    {
-        await ClearDatabaseAsync();
-    }
+    public virtual async Task InitializeAsync() => await ClearDatabaseAsync();
 
     /// <summary>
     /// Called after each test - clears the database to clean up.
     /// </summary>
-    public virtual async Task DisposeAsync()
-    {
-        await ClearDatabaseAsync();
-    }
+    public virtual async Task DisposeAsync() => await ClearDatabaseAsync();
 
     #region GetAsync Tests
 
@@ -178,13 +164,9 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
 
         // For numeric types, use a large number that won't exist
         if (typeof(TKey) == typeof(long) || typeof(TKey) == typeof(int))
-        {
             nonExistentId = (TKey)(object)999999L;
-        }
         else if (typeof(TKey) == typeof(Guid))
-        {
             nonExistentId = (TKey)(object)Guid.NewGuid();
-        }
 
         // Act
         var result = await controller.GetAsync(nonExistentId, includeDetails: false);
