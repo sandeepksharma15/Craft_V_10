@@ -32,7 +32,8 @@ namespace Craft.Testing.TestClasses;
 /// }
 /// </code>
 /// </remarks>
-public abstract class BaseReadRepositoryTests<TEntity, TKey> where TEntity : class, IEntity<TKey>, new()
+public abstract class BaseReadRepositoryTests<TEntity, TKey> : IAsyncLifetime 
+    where TEntity : class, IEntity<TKey>, new()
 {
     /// <summary>
     /// Creates an instance of the repository to be tested.
@@ -92,6 +93,22 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey> where TEntity : cla
     /// Derived classes should implement this to reset database state.
     /// </summary>
     protected abstract Task ClearDatabaseAsync();
+
+    /// <summary>
+    /// Called before each test - clears the database to ensure test isolation.
+    /// </summary>
+    public virtual async Task InitializeAsync()
+    {
+        await ClearDatabaseAsync();
+    }
+
+    /// <summary>
+    /// Called after each test - clears the database to clean up.
+    /// </summary>
+    public virtual async Task DisposeAsync()
+    {
+        await ClearDatabaseAsync();
+    }
 
     #region GetAsync Tests
 
