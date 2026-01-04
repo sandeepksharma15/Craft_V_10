@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Craft.Controllers;
 using Craft.Core;
 using Craft.Domain;
@@ -38,8 +39,7 @@ namespace Craft.Testing.TestClasses;
 /// </code>
 /// This provides 12 read + 13 write + 8 query tests = 33 comprehensive tests automatically!
 /// </remarks>
-public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> 
-    : BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixture>
+public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> : BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixture>
     where TEntity : class, IEntity<TKey>, new()
     where TDto : class, IModel<TKey>, new()
     where TFixture : class, IRepositoryTestFixture
@@ -48,9 +48,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture>
     /// Initializes a new instance of the BaseEntityControllerTests class.
     /// </summary>
     /// <param name="fixture">The database fixture</param>
-    protected BaseEntityControllerTests(TFixture fixture) : base(fixture)
-    {
-    }
+    protected BaseEntityControllerTests(TFixture fixture) : base(fixture) { }
 
     /// <summary>
     /// Creates an instance of the full controller to be tested.
@@ -59,15 +57,14 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture>
     protected virtual new EntityController<TEntity, TDto, TKey> CreateController()
     {
         var repository = CreateFullRepository();
+
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<EntityController<TEntity, TDto, TKey>>>();
-        
-        var controller = new TestEntityController<TEntity, TDto, TKey>(repository, logger);
-        
-        // Set up HttpContext for the controller
-        controller.ControllerContext = new ControllerContext
+
+        var controller = new TestEntityController<TEntity, TDto, TKey>(repository, logger)
         {
-            HttpContext = new DefaultHttpContext()
+            // Set up HttpContext for the controller
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
         return controller;
@@ -80,6 +77,7 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture>
     {
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<Repository<TEntity, TKey>>>();
+
         return new Repository<TEntity, TKey>(Fixture.DbContext, logger);
     }
 
@@ -87,16 +85,13 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture>
     /// Creates a simple query for testing.
     /// Override this to provide entity-specific query logic.
     /// </summary>
-    protected virtual Query<TEntity> CreateSimpleQuery()
-    {
-        return new Query<TEntity>();
-    }
+    protected virtual Query<TEntity> CreateSimpleQuery() => new();
 
     /// <summary>
     /// Creates a query with a filter.
     /// Override this for custom filtering logic.
     /// </summary>
-    protected virtual Query<TEntity> CreateFilteredQuery(System.Linq.Expressions.Expression<Func<TEntity, bool>> filter)
+    protected virtual Query<TEntity> CreateFilteredQuery(Expression<Func<TEntity, bool>> filter)
     {
         var query = new Query<TEntity>();
         query.Where(filter);
@@ -336,7 +331,5 @@ internal class TestEntityController<TEntity, TDto, TKey> : EntityController<TEnt
     where TDto : class, IModel<TKey>, new()
 {
     public TestEntityController(IRepository<TEntity, TKey> repository, ILogger<EntityController<TEntity, TDto, TKey>> logger)
-        : base(repository, logger)
-    {
-    }
+        : base(repository, logger) { }
 }
