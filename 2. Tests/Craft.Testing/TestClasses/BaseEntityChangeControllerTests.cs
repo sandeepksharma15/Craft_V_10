@@ -1,14 +1,10 @@
-using AutoFixture;
 using Craft.Controllers;
-using Craft.Core;
 using Craft.Domain;
 using Craft.Repositories;
-using Craft.Repositories.Services;
 using Craft.Testing.Abstractions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -39,8 +35,7 @@ namespace Craft.Testing.TestClasses;
 /// </code>
 /// This provides 12 read + 13 write tests = 25 comprehensive controller tests automatically!
 /// </remarks>
-public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixture> 
-    : BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixture>
+public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixture> : BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixture>
     where TEntity : class, IEntity<TKey>, new()
     where TDto : class, IModel<TKey>, new()
     where TFixture : class, IRepositoryTestFixture
@@ -49,21 +44,15 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
     /// Initializes a new instance of the BaseEntityChangeControllerTests class.
     /// </summary>
     /// <param name="fixture">The test fixture</param>
-    protected BaseEntityChangeControllerTests(TFixture fixture) : base(fixture)
-    {
-        // Configure Mapster for DTO <-> Entity mapping if not already configured
-        ConfigureMapping();
-    }
+    protected BaseEntityChangeControllerTests(TFixture fixture) : base(fixture) 
+        => ConfigureMapping();
 
     /// <summary>
     /// Configures Mapster mapping between Entity and DTO.
     /// Override this to provide custom mapping configuration.
     /// </summary>
-    protected virtual void ConfigureMapping()
-    {
-        // Default configuration - maps by convention
-        TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
-    }
+    protected virtual void ConfigureMapping() 
+        => TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
 
     /// <summary>
     /// Creates an instance of the change controller to be tested.
@@ -74,13 +63,11 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         var repository = CreateChangeRepository();
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<EntityChangeController<TEntity, TDto, TKey>>>();
-        
-        var controller = new TestEntityChangeController<TEntity, TDto, TKey>(repository, logger);
-        
-        // Set up HttpContext for the controller
-        controller.ControllerContext = new ControllerContext
+
+        var controller = new TestEntityChangeController<TEntity, TDto, TKey>(repository, logger)
         {
-            HttpContext = new DefaultHttpContext()
+            // Set up HttpContext for the controller
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
         return controller;
@@ -94,6 +81,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
     {
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<ChangeRepository<TEntity, TKey>>>();
+
         return new ChangeRepository<TEntity, TKey>(Fixture.DbContext, logger);
     }
 
@@ -101,10 +89,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
     /// Creates a valid DTO instance from an entity.
     /// Override this if you need custom DTO creation logic.
     /// </summary>
-    protected virtual TDto CreateValidDto(TEntity entity)
-    {
-        return entity.Adapt<TDto>();
-    }
+    protected virtual TDto CreateValidDto(TEntity entity) => entity.Adapt<TDto>();
 
     /// <summary>
     /// Creates a valid DTO instance for testing.
@@ -207,9 +192,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         var controller = CreateController();
         var dtos = new List<TDto>();
         for (int i = 0; i < 5; i++)
-        {
             dtos.Add(CreateValidDto());
-        }
 
         // Act
         await controller.AddRangeAsync(dtos);
@@ -240,12 +223,11 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         Assert.NotNull(existingEntity);
 
         var dto = CreateValidDto(existingEntity);
+
         // Modify DTO (assuming Name property exists)
         var nameProperty = typeof(TDto).GetProperty("Name");
         if (nameProperty != null && nameProperty.CanWrite)
-        {
             nameProperty.SetValue(dto, "Updated Name");
-        }
 
         // Act
         var result = await controller.UpdateAsync(dto);
@@ -271,11 +253,10 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         Assert.NotNull(existingEntity);
 
         var dto = CreateValidDto(existingEntity);
+
         var nameProperty = typeof(TDto).GetProperty("Name");
         if (nameProperty != null && nameProperty.CanWrite)
-        {
             nameProperty.SetValue(dto, "Updated Name");
-        }
 
         // Act
         await controller.UpdateAsync(dto);
@@ -287,9 +268,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
 
         var entityNameProperty = typeof(TEntity).GetProperty("Name");
         if (entityNameProperty != null)
-        {
             Assert.Equal("Updated Name", entityNameProperty.GetValue(updatedEntity));
-        }
     }
 
     [Fact]
@@ -301,13 +280,9 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
 
         // Set a non-existing ID
         if (typeof(TKey) == typeof(long) || typeof(TKey) == typeof(int))
-        {
             dto.Id = (TKey)(object)999999L;
-        }
         else if (typeof(TKey) == typeof(Guid))
-        {
             dto.Id = (TKey)(object)Guid.NewGuid();
-        }
 
         // Act
         var result = await controller.UpdateAsync(dto);
@@ -337,10 +312,9 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         foreach (var dto in dtos)
         {
             var nameProperty = typeof(TDto).GetProperty("Name");
+
             if (nameProperty != null && nameProperty.CanWrite)
-            {
                 nameProperty.SetValue(dto, $"Updated {nameProperty.GetValue(dto)}");
-            }
         }
 
         // Act
@@ -368,10 +342,9 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         foreach (var dto in dtos)
         {
             var nameProperty = typeof(TDto).GetProperty("Name");
+
             if (nameProperty != null && nameProperty.CanWrite)
-            {
                 nameProperty.SetValue(dto, $"Updated {nameProperty.GetValue(dto)}");
-            }
         }
 
         // Act
@@ -439,13 +412,9 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         var nonExistentId = default(TKey)!;
 
         if (typeof(TKey) == typeof(long) || typeof(TKey) == typeof(int))
-        {
             nonExistentId = (TKey)(object)999999L;
-        }
         else if (typeof(TKey) == typeof(Guid))
-        {
             nonExistentId = (TKey)(object)Guid.NewGuid();
-        }
 
         // Act
         var result = await controller.DeleteAsync(nonExistentId);
