@@ -53,6 +53,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey> : IAsyncLifetime
         fixture.Behaviors.OfType<ThrowingRecursionBehavior>()
             .ToList()
             .ForEach(b => fixture.Behaviors.Remove(b));
+
         fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
         try
@@ -75,10 +76,10 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey> : IAsyncLifetime
     protected virtual List<TEntity> CreateValidEntities(int count)
     {
         var entities = new List<TEntity>();
+
         for (int i = 0; i < count; i++)
-        {
             entities.Add(CreateValidEntity());  // Now uses the overridden method
-        }
+
         return entities;
     }
 
@@ -97,18 +98,12 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey> : IAsyncLifetime
     /// <summary>
     /// Called before each test - clears the database to ensure test isolation.
     /// </summary>
-    public virtual async Task InitializeAsync()
-    {
-        await ClearDatabaseAsync();
-    }
+    public virtual async Task InitializeAsync() => await ClearDatabaseAsync();
 
     /// <summary>
     /// Called after each test - clears the database to clean up.
     /// </summary>
-    public virtual async Task DisposeAsync()
-    {
-        await ClearDatabaseAsync();
-    }
+    public virtual async Task DisposeAsync() => await ClearDatabaseAsync();
 
     #region GetAsync Tests
 
