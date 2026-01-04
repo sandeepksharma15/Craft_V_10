@@ -1,11 +1,7 @@
-using AutoFixture;
-using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec;
 using Craft.Repositories;
-using Craft.Repositories.Services;
 using Craft.Testing.Abstractions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
