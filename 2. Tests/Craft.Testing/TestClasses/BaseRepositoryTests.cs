@@ -35,8 +35,7 @@ namespace Craft.Testing.TestClasses;
 /// </code>
 /// This provides 15 read + 13 write + 8 query tests = 36 comprehensive tests automatically!
 /// </remarks>
-public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> 
-    : BaseChangeRepositoryTests<TEntity, TKey, TFixture>
+public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeRepositoryTests<TEntity, TKey, TFixture>
     where TEntity : class, IEntity<TKey>, new()
     where TFixture : class, IRepositoryTestFixture
 {
@@ -58,25 +57,20 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture>
         // Create Repository from Craft.QuerySpec
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<Repository<TEntity, TKey>>>();
+
         return new Repository<TEntity, TKey>(Fixture.DbContext, logger);
     }
 
     /// <summary>
     /// Helper method to get the repository as IRepository (QuerySpec).
     /// </summary>
-    protected IRepository<TEntity, TKey> GetFullRepository()
-    {
-        return (IRepository<TEntity, TKey>)CreateRepository();
-    }
+    protected IRepository<TEntity, TKey> GetFullRepository() => (IRepository<TEntity, TKey>)CreateRepository();
 
     /// <summary>
     /// Creates a simple query for testing.
     /// Override this to provide entity-specific query logic.
     /// </summary>
-    protected virtual Query<TEntity> CreateSimpleQuery()
-    {
-        return new Query<TEntity>();
-    }
+    protected virtual Query<TEntity> CreateSimpleQuery() => new Query<TEntity>();
 
     /// <summary>
     /// Creates a query with a filter.
@@ -117,6 +111,7 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture>
 
         // Create query that filters by impossible condition
         var query = new Query<TEntity>();
+
         // Add a filter that will match nothing
         var nameProperty = typeof(TEntity).GetProperty("Name");
         if (nameProperty != null)
