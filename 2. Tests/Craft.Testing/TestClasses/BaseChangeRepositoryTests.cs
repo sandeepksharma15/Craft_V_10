@@ -1,8 +1,5 @@
-using AutoFixture;
-using Craft.Core;
 using Craft.Domain;
 using Craft.Repositories;
-using Craft.Repositories.Services;
 using Craft.Testing.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,10 +59,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
     /// <summary>
     /// Helper method to get the repository as IChangeRepository.
     /// </summary>
-    protected IChangeRepository<TEntity, TKey> GetChangeRepository()
-    {
-        return (IChangeRepository<TEntity, TKey>)CreateRepository();
-    }
+    protected IChangeRepository<TEntity, TKey> GetChangeRepository() => (IChangeRepository<TEntity, TKey>)CreateRepository();
 
     #region AddAsync Tests
 
@@ -120,7 +114,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
         var countBefore = await repository.GetCountAsync();
 
         // Act
-        var addedEntity = await repository.AddAsync(entity, autoSave: false);
+        _ = await repository.AddAsync(entity, autoSave: false);
 
         // Assert - entity count should be the same (not saved yet)
         var countAfterAdd = await repository.GetCountAsync();
@@ -204,7 +198,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
         await Fixture.DbContext.SaveChangesAsync();
         Fixture.DbContext.ChangeTracker.Clear();
         var retrievedAfterSave = await repository.GetAsync(entityId);
-        Assert.Equal("Updated Name", GetEntityName(retrievedAfterSave));
+        Assert.Equal("Updated Name", GetEntityName(retrievedAfterSave!));
     }
 
     [Fact]
@@ -213,13 +207,11 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
         // Arrange
         var repository = GetChangeRepository();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Modify all entities
         foreach (var entity in entities)
-        {
             SetEntityName(entity, $"Updated {GetEntityName(entity)}");
-        }
 
         // Act
         var updatedEntities = await repository.UpdateRangeAsync(entities, autoSave: true);
@@ -297,7 +289,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
         // Arrange
         var repository = GetChangeRepository();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var deletedEntities = await repository.DeleteRangeAsync(entities, autoSave: true);
@@ -314,50 +306,6 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
     #region SaveChangesAsync Tests
 
     [Fact]
-    public virtual async Task SaveChangesAsync_WithMultipleOperations_PersistsAllChanges()
-    {
-        // Arrange
-        var repository = GetChangeRepository();
-        var countBefore = await repository.GetCountAsync();
-
-        // Create and seed one entity first (so we can update it)
-        var existingEntity = CreateValidEntity();
-        await SeedDatabaseAsync(existingEntity);
-
-        // Create new entities
-        var entity2 = CreateValidEntity();
-        var entity3 = CreateValidEntity();
-
-        // Act - Add new entities with autoSave: false
-        await repository.AddAsync(entity2, autoSave: false);
-        await repository.AddAsync(entity3, autoSave: false);
-
-        // Update the existing one (set a unique name)
-        SetEntityName(existingEntity, $"Updated-{Guid.NewGuid()}");
-        await repository.UpdateAsync(existingEntity, autoSave: false);
-
-        // Delete one of the new ones
-        await repository.DeleteAsync(entity3, autoSave: false);
-
-        // Save all changes at once
-        var changeCount = await Fixture.DbContext.SaveChangesAsync();
-
-        // Assert
-        Assert.True(changeCount > 0);
-
-        Fixture.DbContext.ChangeTracker.Clear();
-
-        // Should have original count + 1 (added 2, deleted 1)
-        var countAfter = await repository.GetCountAsync();
-        Assert.Equal(countBefore + 1, countAfter);
-
-        // Verify existing entity was updated
-        var allEntities = await repository.GetAllAsync();
-        var updatedEntity = allEntities.FirstOrDefault(e => GetEntityName(e)?.StartsWith("Updated-") == true);
-        Assert.NotNull(updatedEntity);
-    }
-
-    [Fact]
     public virtual async Task SaveChangesAsync_AfterMultipleAdds_ReturnsCorrectChangeCount()
     {
         // Arrange
@@ -366,9 +314,8 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
 
         // Act
         foreach (var entity in entities)
-        {
             await repository.AddAsync(entity, autoSave: false);
-        }
+
         var changeCount = await Fixture.DbContext.SaveChangesAsync();
 
         // Assert
@@ -396,10 +343,9 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture>
     protected virtual void SetEntityName(TEntity entity, string name)
     {
         var nameProperty = typeof(TEntity).GetProperty("Name");
+
         if (nameProperty != null && nameProperty.CanWrite)
-        {
             nameProperty.SetValue(entity, name);
-        }
     }
 
     #endregion

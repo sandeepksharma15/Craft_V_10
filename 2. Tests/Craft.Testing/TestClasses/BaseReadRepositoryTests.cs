@@ -1,10 +1,8 @@
 using AutoFixture;
-using Craft.Core;
 using Craft.Domain;
 using Craft.Repositories;
 using Craft.Repositories.Services;
 using Craft.Testing.Abstractions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -46,10 +44,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     /// Initializes a new instance of the BaseReadRepositoryTests class.
     /// </summary>
     /// <param name="fixture">The database fixture</param>
-    protected BaseReadRepositoryTests(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected BaseReadRepositoryTests(TFixture fixture) => Fixture = fixture;
 
     /// <summary>
     /// Creates an instance of the repository to be tested.
@@ -60,6 +55,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     {
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<ReadRepository<TEntity, TKey>>>();
+
         return new ReadRepository<TEntity, TKey>(Fixture.DbContext, logger);
     }
 
@@ -127,10 +123,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     /// Default implementation calls the fixture's ResetDatabaseAsync method.
     /// Override this method if you need custom cleanup logic.
     /// </summary>
-    protected virtual async Task ClearDatabaseAsync()
-    {
-        await Fixture.ResetDatabaseAsync();
-    }
+    protected virtual async Task ClearDatabaseAsync() => await Fixture.ResetDatabaseAsync();
 
     /// <summary>
     /// Called before each test - clears the database to ensure test isolation.
@@ -216,7 +209,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(5);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await repository.GetAllAsync();
@@ -232,7 +225,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(3);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await repository.GetAllAsync(includeDetails: true);
@@ -251,11 +244,9 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         
         // Mark one entity as deleted if it implements ISoftDelete
         if (entities[0] is ISoftDelete softDeleteEntity)
-        {
             softDeleteEntity.IsDeleted = true;
-        }
         
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await repository.GetAllAsync();
@@ -265,13 +256,9 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         
         // If entity supports soft delete, should exclude the deleted one
         if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
-        {
             Assert.Equal(entities.Count - 1, result.Count);
-        }
         else
-        {
             Assert.Equal(entities.Count, result.Count);
-        }
     }
 
     #endregion
@@ -298,7 +285,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(7);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var count = await repository.GetCountAsync();
@@ -321,7 +308,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
             softDelete2.IsDeleted = true;
         }
         
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var count = await repository.GetCountAsync();
@@ -329,13 +316,9 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Assert
         // If entity supports soft delete, should exclude the deleted ones
         if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
-        {
             Assert.Equal(entities.Count - 2, count);
-        }
         else
-        {
             Assert.Equal(entities.Count, count);
-        }
     }
 
     #endregion
@@ -348,7 +331,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(10);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await repository.GetPagedListAsync(currentPage: 1, pageSize: 5);
@@ -368,7 +351,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(8);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await repository.GetPagedListAsync(currentPage: 2, pageSize: 5);
@@ -407,7 +390,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(15);
-        await SeedDatabaseAsync(entities.ToArray());
+        await SeedDatabaseAsync([.. entities]);
 
         // Act
         var result = await repository.GetPagedListAsync(currentPage: 2, pageSize: 5, includeDetails: true);
