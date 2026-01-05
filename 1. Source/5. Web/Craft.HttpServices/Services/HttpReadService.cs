@@ -77,14 +77,18 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize, nameof(pageSize));
 
-        var uri = new Uri($"{_apiURL}/items?page={page}&pageSize={pageSize}&includeDetails={includeDetails}");
+        var uri = new Uri($"{_apiURL}/getpaged/{page}/{pageSize}/{includeDetails}");
 
         return await GetAndParseAsync(
             ct => _httpClient.GetAsync(uri, ct),
             async (content, ct) =>
             {
                 var str = await content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                return JsonSerializer.Deserialize<PageResponse<T>>(str);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                return JsonSerializer.Deserialize<PageResponse<T>>(str, options);
             },
             cancellationToken
         );
