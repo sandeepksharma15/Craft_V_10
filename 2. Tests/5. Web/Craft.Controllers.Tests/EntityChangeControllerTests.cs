@@ -50,7 +50,7 @@ public class EntityChangeControllerTests
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
         var entity = new TestEntity { Id = 1, Name = "A" };
-        _repoMock.Setup(r => r.AddAsync(It.IsAny<TestEntity>(), true, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.AddAsync(It.IsAny<TestEntity>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
 
         // Act
         var result = await _controller.AddAsync(model);
@@ -65,7 +65,7 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
-        _repoMock.Setup(r => r.AddAsync(It.IsAny<TestEntity>(), true, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+        _repoMock.Setup(r => r.AddAsync(It.IsAny<TestEntity>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
         // Act
         var result = await _controller.AddAsync(model);
@@ -80,7 +80,7 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
-        _repoMock.Setup(r => r.AddRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), true, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _repoMock.Setup(r => r.AddRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         // Act
         var result = await _controller.AddRangeAsync(models);
@@ -94,7 +94,7 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
-        _repoMock.Setup(r => r.AddRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), true, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+        _repoMock.Setup(r => r.AddRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
         // Act
         var result = await _controller.AddRangeAsync(models);
@@ -109,8 +109,8 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var entity = new TestEntity { Id = 1, Name = "A" };
-        _repoMock.Setup(r => r.GetAsync(1, false, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
-        _repoMock.Setup(r => r.DeleteAsync(entity, true, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.DeleteAsync(entity, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
 
         // Act
         var result = await _controller.DeleteAsync(1);
@@ -123,7 +123,7 @@ public class EntityChangeControllerTests
     public async Task DeleteAsync_ReturnsNotFound_WhenEntityNotFound()
     {
         // Arrange
-        _repoMock.Setup(r => r.GetAsync(1, false, It.IsAny<CancellationToken>())).ReturnsAsync((TestEntity?)null);
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((TestEntity?)null);
 
         // Act
         var result = await _controller.DeleteAsync(1);
@@ -136,7 +136,7 @@ public class EntityChangeControllerTests
     public async Task DeleteAsync_ReturnsProblem_OnException()
     {
         // Arrange
-        _repoMock.Setup(r => r.GetAsync(1, false, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
         // Act
         var result = await _controller.DeleteAsync(1);
@@ -151,7 +151,7 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
-        _repoMock.Setup(r => r.DeleteRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), true, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _repoMock.Setup(r => r.DeleteRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         // Act
         var result = await _controller.DeleteRangeAsync(models);
@@ -165,7 +165,7 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
-        _repoMock.Setup(r => r.DeleteRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), true, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+        _repoMock.Setup(r => r.DeleteRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
         // Act
         var result = await _controller.DeleteRangeAsync(models);
@@ -181,7 +181,8 @@ public class EntityChangeControllerTests
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
         var entity = new TestEntity { Id = 1, Name = "A" };
-        _repoMock.Setup(r => r.UpdateAsync(It.IsAny<TestEntity>(), true, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.UpdateAsync(It.IsAny<TestEntity>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
 
         // Act
         var result = await _controller.UpdateAsync(model);
@@ -196,7 +197,9 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
-        _repoMock.Setup(r => r.UpdateAsync(It.IsAny<TestEntity>(), true, It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException("concurrency"));
+        var entity = new TestEntity { Id = 1, Name = "A" };
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.UpdateAsync(It.IsAny<TestEntity>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException("concurrency"));
 
         // Act
         var result = await _controller.UpdateAsync(model);
@@ -212,7 +215,9 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
-        _repoMock.Setup(r => r.UpdateAsync(It.IsAny<TestEntity>(), true, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+        var entity = new TestEntity { Id = 1, Name = "A" };
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.UpdateAsync(It.IsAny<TestEntity>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
         // Act
         var result = await _controller.UpdateAsync(model);
@@ -227,7 +232,9 @@ public class EntityChangeControllerTests
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
-        _repoMock.Setup(r => r.UpdateRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), true, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        var entity = new TestEntity { Id = 1, Name = "A" };
+        _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+        _repoMock.Setup(r => r.UpdateRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         // Act
         var result = await _controller.UpdateRangeAsync(models);
@@ -236,18 +243,66 @@ public class EntityChangeControllerTests
         Assert.IsType<OkResult>(result);
     }
 
-    [Fact]
-    public async Task UpdateRangeAsync_ReturnsProblem_OnException()
-    {
-        // Arrange
-        var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
-        _repoMock.Setup(r => r.UpdateRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), true, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+        [Fact]
+        public async Task UpdateRangeAsync_ReturnsProblem_OnException()
+        {
+            // Arrange
+            var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
+            var entity = new TestEntity { Id = 1, Name = "A" };
+            _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+            _repoMock.Setup(r => r.UpdateRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
-        // Act
-        var result = await _controller.UpdateRangeAsync(models);
+            // Act
+            var result = await _controller.UpdateRangeAsync(models);
 
-        // Assert
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, problem.StatusCode);
-    }
-}
+            // Assert
+            var problem = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, problem.StatusCode);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsNotFound_WhenEntityNotFound()
+        {
+            // Arrange
+            var model = new TestEntityModel { Id = 1, Name = "A" };
+            _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((TestEntity?)null);
+
+            // Act
+            var result = await _controller.UpdateAsync(model);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task UpdateRangeAsync_ReturnsNotFound_WhenEntityNotFound()
+        {
+            // Arrange
+            var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
+            _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((TestEntity?)null);
+
+            // Act
+            var result = await _controller.UpdateRangeAsync(models);
+
+            // Assert
+            var notFound = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Contains("Entity with ID 1 not found", notFound.Value?.ToString());
+        }
+
+            [Fact]
+            public async Task UpdateRangeAsync_ReturnsProblem_OnDbUpdateConcurrencyException()
+            {
+                // Arrange
+                var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
+                var entity = new TestEntity { Id = 1, Name = "A" };
+                _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+                _repoMock.Setup(r => r.UpdateRangeAsync(It.IsAny<IEnumerable<TestEntity>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException("concurrency"));
+
+                // Act
+                var result = await _controller.UpdateRangeAsync(models);
+
+                // Assert
+                var problem = Assert.IsType<ObjectResult>(result);
+                Assert.Equal(409, problem.StatusCode);
+            }
+        }
