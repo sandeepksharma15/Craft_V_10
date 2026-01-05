@@ -9,7 +9,7 @@ public interface IEntityChangeController<T, DataTransferT, TKey> : IEntityReadCo
 {
     Task<ActionResult<T>> AddAsync(DataTransferT model, CancellationToken cancellationToken = default);
 
-    Task<ActionResult> AddRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default);
+    Task<ActionResult<List<T>>> AddRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default);
 
     Task<ActionResult> DeleteAsync(TKey id, CancellationToken cancellationToken = default);
 
@@ -17,7 +17,7 @@ public interface IEntityChangeController<T, DataTransferT, TKey> : IEntityReadCo
 
     Task<ActionResult<T>> UpdateAsync(DataTransferT model, CancellationToken cancellationToken = default);
 
-    Task<ActionResult> UpdateRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default);
+    Task<ActionResult<List<T>>> UpdateRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default);
 }
 
 public interface IEntityChangeController<T, DataTransferT> : IEntityChangeController<T, DataTransferT, KeyType>

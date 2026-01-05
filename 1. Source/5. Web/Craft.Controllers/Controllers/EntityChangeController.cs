@@ -138,15 +138,15 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public virtual async Task<ActionResult> AddRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default)
+    public virtual async Task<ActionResult<List<T>>> AddRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityChangeController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"AddRangeAsync\"]");
 
         try
         {
-            await repository.AddRangeAsync(models.Adapt<IEnumerable<T>>(), cancellationToken: cancellationToken);
-            return Ok();
+            var addedEntities = await repository.AddRangeAsync(models.Adapt<IEnumerable<T>>(), cancellationToken: cancellationToken);
+            return Ok(addedEntities);
         }
         catch (Exception ex)
         {
@@ -354,7 +354,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public virtual async Task<ActionResult> UpdateRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default)
+    public virtual async Task<ActionResult<List<T>>> UpdateRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default)
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug($"[EntityChangeController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"UpdateRangeAsync\"]");
@@ -374,8 +374,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
                 existingEntities.Add(entity);
             }
 
-            await repository.UpdateRangeAsync(modelsList.Adapt<IEnumerable<T>>(), cancellationToken: cancellationToken);
-            return Ok();
+            var updatedEntities = await repository.UpdateRangeAsync(modelsList.Adapt<IEnumerable<T>>(), cancellationToken: cancellationToken);
+            return Ok(updatedEntities);
         }
         catch (DbUpdateConcurrencyException ex)
         {

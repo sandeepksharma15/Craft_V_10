@@ -7,9 +7,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Builders\**" />
-	  <EmbeddedResource Remove="Builders\**" />
-	  <None Remove="Builders\**" />
+		<Compile Remove="Builders\**" />
+		<EmbeddedResource Remove="Builders\**" />
+		<None Remove="Builders\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -30,14 +30,14 @@
 		<PackageReference Include="AutoFixture" Version="5.0.0-preview0012" />
 	</ItemGroup>
 
-					<ItemGroup>
-					  <ProjectReference Include="..\..\1. Source\1. Core\Craft.Core\Craft.Core.csproj" />
-					  <ProjectReference Include="..\..\1. Source\1. Core\Craft.Domain\Craft.Domain.csproj" />
-					  <ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Data\Craft.Data.csproj" />
-					  <ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Repositories\Craft.Repositories.csproj" />
-					  <ProjectReference Include="..\..\1. Source\2. Data Access\Craft.QuerySpec\Craft.QuerySpec.csproj" />
-					  <ProjectReference Include="..\..\1. Source\5. Web\Craft.Controllers\Craft.Controllers.csproj" />
-					  <ProjectReference Include="..\..\1. Source\5. Web\Craft.HttpServices\Craft.HttpServices.csproj" />
-					</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\1. Source\1. Core\Craft.Core\Craft.Core.csproj" />
+		<ProjectReference Include="..\..\1. Source\1. Core\Craft.Domain\Craft.Domain.csproj" />
+		<ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Data\Craft.Data.csproj" />
+		<ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Repositories\Craft.Repositories.csproj" />
+		<ProjectReference Include="..\..\1. Source\2. Data Access\Craft.QuerySpec\Craft.QuerySpec.csproj" />
+		<ProjectReference Include="..\..\1. Source\5. Web\Craft.Controllers\Craft.Controllers.csproj" />
+		<ProjectReference Include="..\..\1. Source\5. Web\Craft.HttpServices\Craft.HttpServices.csproj" />
+	</ItemGroup>
 
-				</Project>
+</Project>

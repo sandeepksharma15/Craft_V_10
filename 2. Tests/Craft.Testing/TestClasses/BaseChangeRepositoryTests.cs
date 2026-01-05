@@ -31,8 +31,7 @@ namespace Craft.Testing.TestClasses;
 /// </code>
 /// This provides 15 read tests + 13 write tests = 28 comprehensive tests automatically!
 /// </remarks>
-public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> 
-    : BaseReadRepositoryTests<TEntity, TKey, TFixture>
+public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseReadRepositoryTests<TEntity, TKey, TFixture>
     where TEntity : class, IEntity<TKey>, new()
     where TFixture : class, IRepositoryTestFixture
 {
