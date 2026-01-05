@@ -181,7 +181,7 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         var result = await controller.AddRangeAsync(dtos);
 
         // Assert
-        var okResult = Assert.IsType<OkResult>(result);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(200, okResult.StatusCode);
     }
 
@@ -308,22 +308,22 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         var repository = CreateChangeRepository();
         var existingEntities = await repository.GetAllAsync();
 
-        var dtos = existingEntities.Select(e => CreateValidDto(e)).ToList();
-        foreach (var dto in dtos)
-        {
-            var nameProperty = typeof(TDto).GetProperty("Name");
+            var dtos = existingEntities.Select(e => CreateValidDto(e)).ToList();
+            foreach (var dto in dtos)
+            {
+                var nameProperty = typeof(TDto).GetProperty("Name");
 
-            if (nameProperty != null && nameProperty.CanWrite)
-                nameProperty.SetValue(dto, $"Updated {nameProperty.GetValue(dto)}");
+                if (nameProperty != null && nameProperty.CanWrite)
+                    nameProperty.SetValue(dto, $"Updated {nameProperty.GetValue(dto)}");
+            }
+
+            // Act
+            var result = await controller.UpdateRangeAsync(dtos);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            Assert.Equal(200, okResult.StatusCode);
         }
-
-        // Act
-        var result = await controller.UpdateRangeAsync(dtos);
-
-        // Assert
-        var okResult = Assert.IsType<OkResult>(result);
-        Assert.Equal(200, okResult.StatusCode);
-    }
 
     [Fact]
     public virtual async Task UpdateRangeAsync_ExistingEntities_AllChangesArePersisted()

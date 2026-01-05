@@ -86,7 +86,7 @@ public class EntityChangeControllerTests
         var result = await _controller.AddRangeAsync(models);
 
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<OkObjectResult>(result.Result);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class EntityChangeControllerTests
         var result = await _controller.AddRangeAsync(models);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result);
+        var problem = Assert.IsType<ObjectResult>(result.Result);
         Assert.Equal(500, problem.StatusCode);
     }
 
@@ -240,7 +240,7 @@ public class EntityChangeControllerTests
         var result = await _controller.UpdateRangeAsync(models);
 
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<OkObjectResult>(result.Result);
     }
 
         [Fact]
@@ -256,7 +256,7 @@ public class EntityChangeControllerTests
             var result = await _controller.UpdateRangeAsync(models);
 
             // Assert
-            var problem = Assert.IsType<ObjectResult>(result);
+            var problem = Assert.IsType<ObjectResult>(result.Result);
             Assert.Equal(500, problem.StatusCode);
         }
 
@@ -285,7 +285,7 @@ public class EntityChangeControllerTests
             var result = await _controller.UpdateRangeAsync(models);
 
             // Assert
-            var notFound = Assert.IsType<NotFoundObjectResult>(result);
+            var notFound = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Contains("Entity with ID 1 not found", notFound.Value?.ToString());
         }
 
@@ -302,7 +302,7 @@ public class EntityChangeControllerTests
                 var result = await _controller.UpdateRangeAsync(models);
 
                 // Assert
-                var problem = Assert.IsType<ObjectResult>(result);
+                var problem = Assert.IsType<ObjectResult>(result.Result);
                 Assert.Equal(409, problem.StatusCode);
             }
         }
