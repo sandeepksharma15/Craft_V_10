@@ -1,4 +1,5 @@
 ﻿using Craft.Domain;
+using System.Reflection;
 
 namespace Craft.Auditing;
 
@@ -40,7 +41,8 @@ public static class AuditingHelpers
         where TAttribute : Attribute
     {
         return [.. AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
+            .Where(a => !ShouldSkipAssembly(a))
+            .SelectMany(s => GetTypesFromAssembly(s))
             .Where(t =>
                 t.IsClass &&
                 (includeAbstract || !t.IsAbstract) &&
@@ -61,7 +63,8 @@ public static class AuditingHelpers
         where TAttribute : Attribute
     {
         return [.. AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
+            .Where(a => !ShouldSkipAssembly(a))
+            .SelectMany(s => GetTypesFromAssembly(s))
             .Where(t =>
                 t.IsClass &&
                 (includeAbstract || !t.IsAbstract) &&
@@ -70,5 +73,43 @@ public static class AuditingHelpers
                     ? typeof(TBase).IsAssignableFrom(t)
                     : !typeof(TBase).IsAssignableFrom(t)))
             .Select(t => t.Name)];
+    }
+
+    /// <summary>
+    /// Determines if an assembly should be skipped during type scanning.
+    /// Skips system assemblies, WebAssembly, and JSInterop assemblies that can cause issues.
+    /// </summary>
+    private static bool ShouldSkipAssembly(Assembly assembly)
+    {
+        var name = assembly.GetName().Name;
+        if (name == null)
+            return true;
+
+        return name.StartsWith("System.", StringComparison.Ordinal) ||
+               name.StartsWith("Microsoft.Extensions.", StringComparison.Ordinal) ||
+               name.StartsWith("Microsoft.AspNetCore.", StringComparison.Ordinal) ||
+               name.StartsWith("Microsoft.JSInterop", StringComparison.Ordinal) ||
+               name.StartsWith("WebAssembly", StringComparison.Ordinal) ||
+               name.Equals("netstandard", StringComparison.Ordinal) ||
+               name.Equals("mscorlib", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Safely gets types from an assembly, handling potential exceptions.
+    /// </summary>
+    private static Type[] GetTypesFromAssembly(Assembly assembly)
+    {
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            return ex.Types.Where(t => t != null).ToArray()!;
+        }
+        catch
+        {
+            return [];
+        }
     }
 }
