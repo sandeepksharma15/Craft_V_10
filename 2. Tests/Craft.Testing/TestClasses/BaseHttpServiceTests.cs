@@ -1,8 +1,4 @@
-using Craft.Core;
-using Craft.Core.Common;
 using Craft.Domain;
-using Craft.HttpServices;
-using Craft.HttpServices.Services;
 using Craft.QuerySpec;
 using Craft.Testing.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -44,8 +40,7 @@ namespace Craft.Testing.TestClasses;
 /// </code>
 /// This provides 15 read + 13 write + 8 query tests = 36 comprehensive tests automatically!
 /// </remarks>
-public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFixture> 
-    : BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFixture>
+public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFixture> : BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFixture>
     where TEntity : class, IEntity<TKey>, IModel<TKey>, new()
     where TViewModel : class, IModel<TKey>, new()
     where TDto : class, IModel<TKey>, new()
@@ -91,7 +86,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
 
     #region GetAsync with Query Tests
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetAsync_WithQuery_ReturnsSuccessWithMatchingEntity()
     {
         // Arrange
@@ -112,7 +107,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         Assert.Equal(200, result.StatusCode);
     }
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetAsync_WithQueryNoMatch_ReturnsNotFoundResult()
     {
         // Arrange
@@ -150,7 +145,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
 
     #region GetAllAsync with Query Tests
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetAllAsync_WithQuery_ReturnsSuccessWithMatchingEntities()
     {
         // Arrange
@@ -172,7 +167,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         Assert.Equal(200, result.StatusCode);
     }
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetAllAsync_WithQueryNoMatch_ReturnsSuccessWithEmptyList()
     {
         // Arrange
@@ -197,7 +192,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
 
     #region GetCountAsync with Query Tests
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetCountAsync_WithQuery_ReturnsSuccessWithCorrectCount()
     {
         // Arrange
@@ -218,7 +213,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         Assert.Equal(200, result.StatusCode);
     }
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetCountAsync_WithQueryNoMatch_ReturnsSuccessWithZero()
     {
         // Arrange
@@ -242,7 +237,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
 
     #region GetPagedListAsync with Query Tests
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetPagedListAsync_WithQuery_ReturnsSuccessWithPaginatedResults()
     {
         // Arrange
@@ -265,7 +260,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         Assert.Equal(200, result.StatusCode);
     }
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task GetPagedListAsync_WithQueryNoMatch_ReturnsSuccessWithEmptyPage()
     {
         // Arrange
@@ -291,7 +286,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
 
     #region DeleteAsync with Query Tests
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task DeleteAsync_WithQuery_ReturnsSuccessResult()
     {
         // Arrange
@@ -331,7 +326,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         }
     }
 
-    [Fact(Skip = "Query serialization not supported over HTTP - Expression trees cannot be serialized to JSON")]
+    [Fact]
     public virtual async Task DeleteAsync_WithQueryNoMatch_ReturnsSuccessResult()
     {
         // Arrange
