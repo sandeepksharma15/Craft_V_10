@@ -115,11 +115,11 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         await ClearDatabaseAsync();
 
         // Create query that filters by impossible condition
-        var query = new Query<TEntity>();
-        query.Take = 1; // Add Take to ensure we have a valid query
+        var query = new Query<TEntity> { Take = 1 };
 
         // Add a filter that will match nothing
         var nameProperty = typeof(TEntity).GetProperty("Name");
+
         if (nameProperty != null)
         {
             var parameter = System.Linq.Expressions.Expression.Parameter(typeof(TEntity), "e");
@@ -334,10 +334,10 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         await ClearDatabaseAsync();
 
         // Create query that matches nothing
-        var query = new Query<TEntity>();
-        query.Take = 100; // Add Take to ensure we have a valid query
+        var query = new Query<TEntity> { Take = 100 };
 
         var nameProperty = typeof(TEntity).GetProperty("Name");
+
         if (nameProperty != null)
         {
             var parameter = System.Linq.Expressions.Expression.Parameter(typeof(TEntity), "e");

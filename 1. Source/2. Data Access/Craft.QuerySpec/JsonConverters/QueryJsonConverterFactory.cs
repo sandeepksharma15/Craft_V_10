@@ -26,7 +26,6 @@ public class QueryJsonConverterFactory : JsonConverterFactory
     public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
         var genericArguments = typeToConvert.GetGenericArguments();
-        var isInterface = typeToConvert.IsInterface;
 
         if (genericArguments.Length == 1)
         {
