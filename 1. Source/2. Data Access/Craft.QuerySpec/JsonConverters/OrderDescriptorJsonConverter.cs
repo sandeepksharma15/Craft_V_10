@@ -40,8 +40,26 @@ public sealed class OrderDescriptorJsonConverter<T> : JsonConverter<OrderDescrip
                     if (string.IsNullOrWhiteSpace(memberName))
                         throw new JsonException("OrderItem property cannot be null or empty.");
 
-                    orderItem = typeof(T).CreateMemberExpression(memberName) 
+                    // Create the member expression
+                    var memberExpression = typeof(T).CreateMemberExpression(memberName) 
                         ?? throw new JsonException($"Could not create member expression for '{memberName}'.");
+
+                    // Convert to Expression<Func<T, object>> by boxing if necessary
+                    var parameter = memberExpression.Parameters[0];
+                    var body = memberExpression.Body;
+
+                    // Box value types to object
+                    if (body.Type.IsValueType)
+                    {
+                        body = Expression.Convert(body, typeof(object));
+                    }
+                    else if (body.Type != typeof(object))
+                    {
+                        // For reference types, cast to object
+                        body = Expression.Convert(body, typeof(object));
+                    }
+
+                    orderItem = Expression.Lambda<Func<T, object>>(body, parameter);
                 }
                 else if (propertyName == nameof(OrderDescriptor<>.OrderType))
                 {
