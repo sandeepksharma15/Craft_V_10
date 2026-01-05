@@ -459,7 +459,7 @@ public class HttpReadServiceTests
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri!.ToString().Contains("includeDetails=True")),
+                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri!.ToString().EndsWith("/1/10/True")),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(response)
             .Verifiable();
