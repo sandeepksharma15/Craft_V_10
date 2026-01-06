@@ -84,10 +84,11 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
             async (content, ct) =>
             {
                 var str = await content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                var options = new JsonSerializerOptions
+                JsonSerializerOptions jsonSerializerOptions = new()
                 {
                     PropertyNameCaseInsensitive = true
                 };
+                var options = jsonSerializerOptions;
                 return JsonSerializer.Deserialize<PageResponse<T>>(str, options);
             },
             cancellationToken
