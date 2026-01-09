@@ -27,13 +27,6 @@ public partial class CraftGrid<TEntity>
     /// </summary>
     [Parameter] public Func<Query<TEntity>, Query<TEntity>>? QueryBuilder { get; set; }
 
-    /// <summary>
-    /// Child content containing unified column definitions.
-    /// Columns automatically adapt to table or card view.
-    /// Use CraftGridColumn components.
-    /// </summary>
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-
     #endregion
 
     #region Public Properties
