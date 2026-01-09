@@ -42,14 +42,14 @@
                         @foreach (var field in Fields.Where(f => f.Sortable && f.Visible))
                         {
                             <MudMenuItem OnClick="@(() => ToggleSortAsync(field))">
-                                <div class="d-flex align-center justify-space-between" style="min-width: 150px;">
-                                    <span>@field.Caption</span>
+                                <CraftDiv Class="d-flex align-center justify-space-between" Style="min-width: 150px;">
+                                    <CraftSpan>@field.Caption</CraftSpan>
                                     <Show When="@(_currentSortField == field)">
                                         <MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending 
                                             ? Icons.Material.Filled.ArrowUpward 
                                             : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
                                     </Show>
-                                </div>
+                                </CraftDiv>
                             </MudMenuItem>
                         }
                     </MudMenu>
@@ -100,8 +100,8 @@
                             <MudCard Elevation="@CardElevation" Class="@CardClass" Style="@CardStyle">
                                 <MudCardContent>
                                     @* Title and Actions Row *@
-                                    <div class="d-flex align-start mb-2">
-                                        <div style="flex: 1; min-width: 0;">
+                                    <CraftDiv Class="d-flex align-start mb-2">
+                                        <CraftDiv Style="flex: 1; min-width: 0;">
                                             <Show When="@(titleField != null)">
                                                 <MudText Typo="Typo.h6" Class="text-truncate">
                                                     <If Condition="@(titleField!.Template != null)">
@@ -114,10 +114,10 @@
                                                     </If>
                                                 </MudText>
                                             </Show>
-                                        </div>
+                                        </CraftDiv>
 
                                         <Show When="@_showActionsInCard">
-                                            <div class="ms-2 d-flex align-center">
+                                            <CraftDiv Class="ms-2 d-flex align-center">
                                                 <Show When="@AllowView">
                                                     <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" 
                                                                    Size="Size.Small" OnClick="@(() => HandleViewAsync(item))" />
@@ -130,9 +130,9 @@
                                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" 
                                                                    Size="Size.Small" OnClick="@(() => HandleDeleteAsync(item))" />
                                                 </Show>
-                                            </div>
+                                            </CraftDiv>
                                         </Show>
-                                    </div>
+                                    </CraftDiv>
 
                                     @* Subtitle *@
                                     <Show When="@(subTitleField != null)">

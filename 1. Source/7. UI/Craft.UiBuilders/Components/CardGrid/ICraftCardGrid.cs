@@ -1,6 +1,5 @@
-using Craft.Core;
+using System.Linq.Expressions;
 using Craft.Domain;
-using Craft.QuerySpec;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Components;
@@ -81,7 +80,7 @@ public interface ICraftCardGridField<TEntity> where TEntity : class, IEntity, IM
     /// <summary>
     /// Property expression for accessing the entity property.
     /// </summary>
-    System.Linq.Expressions.Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
+    Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
 
     /// <summary>
     /// Custom template for rendering field content.
