@@ -1,0 +1,468 @@
+// ===================================================================================
+// CraftCardGrid Example Usage
+// ===================================================================================
+
+// ===================================================================================
+// Example 1: Basic Card Grid
+// ===================================================================================
+
+@page "/products"
+@inject IHttpService<Product> ProductService
+@inject NavigationManager NavigationManager
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Products"
+               AllowAdd="true"
+               AllowEdit="true"
+               AllowDelete="true"
+               OnAdd="@HandleAdd"
+               OnEdit="@HandleEdit"
+               OnDelete="@HandleDelete">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title"
+                        Sortable="true"
+                        Searchable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Category.Name)" 
+                        Caption="Category"
+                        FieldType="CardFieldType.SubTitle"
+                        Searchable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2"
+                        Sortable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Stock)" 
+                        Caption="In Stock"
+                        Sortable="true" />
+</CraftCardGrid>
+
+@code {
+    private void HandleAdd()
+    {
+        NavigationManager.NavigateTo("/products/new");
+    }
+
+    private void HandleEdit(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/edit/{product.Id}");
+    }
+
+    private async Task HandleDelete(Product product)
+    {
+        var query = new Query<Product>().Where(p => p.Id, product.Id);
+        await ProductService.DeleteAsync(query);
+    }
+}
+
+// ===================================================================================
+// Example 2: Card Grid with Custom Templates
+// ===================================================================================
+
+@page "/products-custom"
+@inject IHttpService<Product> ProductService
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Products"
+               CardElevation="4"
+               CardSpacing="4">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Category.Name)" 
+                        Caption="Category"
+                        FieldType="CardFieldType.SubTitle" />
+    
+    @* Custom template for Status with color coding *@
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Status)">
+        <Template Context="product">
+            <MudChip Color="@GetStatusColor(product.Status)" Size="Size.Small">
+                @product.Status.ToString()
+            </MudChip>
+        </Template>
+    </CraftCardGridField>
+    
+    @* Custom template for Rating *@
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Rating)">
+        <Template Context="product">
+            <MudRating ReadOnly="true" SelectedValue="@product.Rating" Size="Size.Small" />
+        </Template>
+    </CraftCardGridField>
+    
+    @* Custom template with image *@
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.ImageUrl)">
+        <Template Context="product">
+            <MudAvatar Image="@product.ImageUrl" Size="Size.Medium" />
+        </Template>
+    </CraftCardGridField>
+</CraftCardGrid>
+
+@code {
+    private Color GetStatusColor(ProductStatus status)
+    {
+        return status switch
+        {
+            ProductStatus.Active => Color.Success,
+            ProductStatus.Inactive => Color.Default,
+            ProductStatus.Discontinued => Color.Error,
+            _ => Color.Default
+        };
+    }
+}
+
+// ===================================================================================
+// Example 3: Card Grid with Custom Query Builder
+// ===================================================================================
+
+@page "/active-products"
+@inject IHttpService<Product> ProductService
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Active Products"
+               QueryBuilder="@BuildCustomQuery"
+               AllowRefresh="true">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title"
+                        Sortable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2" />
+</CraftCardGrid>
+
+@code {
+    private Query<Product> BuildCustomQuery(Query<Product> query)
+    {
+        return query
+            .Where(p => p.IsActive, true)
+            .Where(p => p.Stock, ComparisonType.GreaterThan, 0)
+            .OrderByDescending(p => p.CreatedDate);
+    }
+}
+
+// ===================================================================================
+// Example 4: Card Grid with Export Functionality
+// ===================================================================================
+
+@page "/products-export"
+@inject IHttpService<Product> ProductService
+@inject IExportService ExportService
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Products"
+               AllowExport="true"
+               OnExport="@HandleExport">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2" />
+</CraftCardGrid>
+
+@code {
+    private async Task HandleExport(ExportFormat format)
+    {
+        var query = new Query<Product>();
+        var result = await ProductService.GetAllAsync(query);
+        
+        if (result.Success && result.Data != null)
+        {
+            switch (format)
+            {
+                case ExportFormat.Csv:
+                    await ExportService.ExportToCsvAsync(result.Data, "products.csv");
+                    break;
+                case ExportFormat.Excel:
+                    await ExportService.ExportToExcelAsync(result.Data, "products.xlsx");
+                    break;
+                case ExportFormat.Pdf:
+                    await ExportService.ExportToPdfAsync(result.Data, "products.pdf");
+                    break;
+            }
+        }
+    }
+}
+
+// ===================================================================================
+// Example 5: Customized Card Layout
+// ===================================================================================
+
+@page "/products-custom-layout"
+@inject IHttpService<Product> ProductService
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Products"
+               CardElevation="6"
+               CardSpacing="5"
+               CardXs="12"
+               CardSm="6"
+               CardMd="4"
+               CardLg="3"
+               CardXl="2"
+               CardClass="custom-product-card"
+               CardStyle="border-radius: 16px; border: 1px solid #e0e0e0;">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2" />
+</CraftCardGrid>
+
+// ===================================================================================
+// Example 6: Card Grid with Data Loaded Callback
+// ===================================================================================
+
+@page "/products-analytics"
+@inject IHttpService<Product> ProductService
+
+<MudText Typo="Typo.h6">Total Products: @_totalCount</MudText>
+<MudText Typo="Typo.body2">Average Price: @_averagePrice.ToString("C2")</MudText>
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Products"
+               OnDataLoaded="@HandleDataLoaded">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2" />
+</CraftCardGrid>
+
+@code {
+    private long _totalCount;
+    private decimal _averagePrice;
+
+    private void HandleDataLoaded(PageResponse<Product> pageResponse)
+    {
+        _totalCount = pageResponse.TotalCount;
+        _averagePrice = pageResponse.Items.Any() 
+            ? pageResponse.Items.Average(p => p.Price) 
+            : 0;
+    }
+}
+
+// ===================================================================================
+// Example 7: Minimal Read-Only Card Grid
+// ===================================================================================
+
+@page "/products-catalog"
+@inject IHttpService<Product> ProductService
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Product Catalog"
+               ShowActions="false"
+               AllowRefresh="false">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Category.Name)" 
+                        Caption="Category"
+                        FieldType="CardFieldType.SubTitle" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Description)" 
+                        Caption="Description" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2" />
+</CraftCardGrid>
+
+// ===================================================================================
+// Example 8: Card Grid with All Features
+// ===================================================================================
+
+@page "/products-full"
+@inject IHttpService<Product> ProductService
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<CraftCardGrid TEntity="Product" 
+               HttpService="@ProductService"
+               Title="Products Management"
+               QueryBuilder="@BuildQuery"
+               ShowSearch="true"
+               SearchPlaceholder="Search products..."
+               AllowRefresh="true"
+               AllowAdd="true"
+               AddButtonText="New Product"
+               AllowView="true"
+               AllowEdit="true"
+               AllowDelete="true"
+               AllowExport="true"
+               EnablePagination="true"
+               InitialPageSize="16"
+               CardElevation="3"
+               CardSpacing="3"
+               OnAdd="@HandleAdd"
+               OnView="@HandleView"
+               OnEdit="@HandleEdit"
+               OnDelete="@HandleDelete"
+               OnExport="@HandleExport"
+               OnDataLoaded="@HandleDataLoaded">
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Id)" 
+                        FieldType="CardFieldType.Id" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Name)" 
+                        FieldType="CardFieldType.Title"
+                        Sortable="true"
+                        Searchable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Category.Name)" 
+                        Caption="Category"
+                        FieldType="CardFieldType.SubTitle"
+                        Searchable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Price)" 
+                        Caption="Price"
+                        Format="C2"
+                        Sortable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Stock)" 
+                        Caption="Stock"
+                        Sortable="true" />
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.Status)">
+        <Template Context="product">
+            <MudChip Color="@GetStatusColor(product.Status)" Size="Size.Small">
+                @product.Status.ToString()
+            </MudChip>
+        </Template>
+    </CraftCardGridField>
+    
+    <CraftCardGridField TEntity="Product" 
+                        PropertyExpression="@(p => p.CreatedDate)" 
+                        Caption="Created"
+                        Format="d"
+                        Sortable="true"
+                        DefaultSort="GridSortDirection.Descending"
+                        SortOrder="0" />
+</CraftCardGrid>
+
+@code {
+    private Query<Product> BuildQuery(Query<Product> query)
+    {
+        // Apply any custom filters here
+        return query;
+    }
+
+    private void HandleAdd()
+    {
+        NavigationManager.NavigateTo("/products/new");
+    }
+
+    private async Task HandleView(Product product)
+    {
+        var parameters = new DialogParameters<ProductViewDialog>
+        {
+            { x => x.ProductId, product.Id }
+        };
+        
+        await DialogService.ShowAsync<ProductViewDialog>("View Product", parameters);
+    }
+
+    private void HandleEdit(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/edit/{product.Id}");
+    }
+
+    private async Task HandleDelete(Product product)
+    {
+        var query = new Query<Product>().Where(p => p.Id, product.Id);
+        await ProductService.DeleteAsync(query);
+    }
+
+    private async Task HandleExport(ExportFormat format)
+    {
+        // Export logic here
+    }
+
+    private void HandleDataLoaded(PageResponse<Product> pageResponse)
+    {
+        // Analytics or logging
+    }
+
+    private Color GetStatusColor(ProductStatus status)
+    {
+        return status switch
+        {
+            ProductStatus.Active => Color.Success,
+            ProductStatus.Inactive => Color.Default,
+            ProductStatus.Discontinued => Color.Error,
+            _ => Color.Default
+        };
+    }
+}

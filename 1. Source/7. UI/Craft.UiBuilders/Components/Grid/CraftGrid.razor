@@ -1,0 +1,97 @@
+@using Craft.Core
+@using Craft.Domain
+@using Craft.QuerySpec
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Components
+
+@inherits CraftComponent
+
+@typeparam TEntity where TEntity : class, IEntity, IModel, new()
+
+<MudHidden Breakpoint="@SwitchBreakpoint" Invert="@(!ShowCardViewOnSmallScreens)">
+    @* Table View (DataGrid) *@
+    <CraftDataGrid TEntity="TEntity"
+                   HttpService="@HttpService"
+                   QueryBuilder="@QueryBuilder"
+                   Title="@Title"
+                   Class="@Class"
+                   Hover="@Hover"
+                   Striped="@Striped"
+                   Dense="@Dense"
+                   Bordered="@Bordered"
+                   FixedHeader="@FixedHeader"
+                   Height="@Height"
+                   LoadingProgressColor="@LoadingProgressColor"
+                   EnablePagination="@EnablePagination"
+                   InitialPageSize="@InitialPageSize"
+                   PageSizeOptions="@PageSizeOptions"
+                   RowsPerPageString="@RowsPerPageString"
+                   InfoFormat="@InfoFormat"
+                   ShowActions="@ShowActions"
+                   ShowSearch="@ShowSearch"
+                   SearchPlaceholder="@SearchPlaceholder"
+                   AllowRefresh="@AllowRefresh"
+                   AllowAdd="@AllowAdd"
+                   AddButtonText="@AddButtonText"
+                   AddIcon="@AddIcon"
+                   AllowView="@AllowView"
+                   AllowEdit="@AllowEdit"
+                   AllowDelete="@AllowDelete"
+                   AllowExport="@AllowExport"
+                   NoRecordsMessage="@NoRecordsMessage"
+                   LoadingMessage="@LoadingMessage"
+                   DeleteConfirmationMessage="@DeleteConfirmationMessage"
+                   OnAdd="@OnAdd"
+                   OnView="@OnView"
+                   OnEdit="@OnEdit"
+                   OnDelete="@OnDelete"
+                   OnExport="@OnExport"
+                   OnDataLoaded="@OnDataLoaded">
+        @Columns
+    </CraftDataGrid>
+</MudHidden>
+
+<MudHidden Breakpoint="@SwitchBreakpoint" Invert="@ShowCardViewOnSmallScreens">
+    @* Card View (CardGrid) *@
+    <CraftCardGrid TEntity="TEntity"
+                   HttpService="@HttpService"
+                   QueryBuilder="@QueryBuilder"
+                   Title="@Title"
+                   Class="@Class"
+                   CardClass="@CardClass"
+                   CardStyle="@CardStyle"
+                   CardGridClass="@CardGridClass"
+                   CardElevation="@CardElevation"
+                   CardSpacing="@CardSpacing"
+                   CardXs="@CardXs"
+                   CardSm="@CardSm"
+                   CardMd="@CardMd"
+                   CardLg="@CardLg"
+                   CardXl="@CardXl"
+                   EnablePagination="@EnablePagination"
+                   InitialPageSize="@InitialPageSize"
+                   PaginationInfoFormat="@PaginationInfoFormat"
+                   ShowActions="@ShowActions"
+                   ShowSearch="@ShowSearch"
+                   SearchPlaceholder="@SearchPlaceholder"
+                   AllowRefresh="@AllowRefresh"
+                   AllowAdd="@AllowAdd"
+                   AddButtonText="@AddButtonText"
+                   AddIcon="@AddIcon"
+                   AllowView="@AllowView"
+                   AllowEdit="@AllowEdit"
+                   AllowDelete="@AllowDelete"
+                   AllowExport="@AllowExport"
+                   NoRecordsMessage="@NoRecordsMessage"
+                   LoadingMessage="@LoadingMessage"
+                   DeleteConfirmationMessage="@DeleteConfirmationMessage"
+                   OnAdd="@OnAdd"
+                   OnView="@OnView"
+                   OnEdit="@OnEdit"
+                   OnDelete="@OnDelete"
+                   OnExport="@OnExport"
+                   OnDataLoaded="@OnDataLoaded">
+        @Fields
+    </CraftCardGrid>
+</MudHidden>

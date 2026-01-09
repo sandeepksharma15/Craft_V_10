@@ -1,0 +1,522 @@
+// ===================================================================================
+// CraftGrid Example Usage - Responsive Grid Wrapper
+// ===================================================================================
+
+// ===================================================================================
+// Example 1: Basic Responsive Grid (Default: Cards on Mobile, Table on Desktop)
+// ===================================================================================
+
+@page "/products"
+@inject IHttpService<Product> ProductService
+@inject NavigationManager NavigationManager
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products"
+           AllowEdit="true"
+           AllowDelete="true"
+           OnEdit="@HandleEdit"
+           OnDelete="@HandleDelete">
+    
+    @* Columns for DataGrid (Table View - shown on md+ screens) *@
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Product Name"
+                             Sortable="true"
+                             Searchable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Category.Name)" 
+                             Title="Category"
+                             Sortable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2"
+                             Sortable="true"
+                             Alignment="Alignment.End" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Stock)" 
+                             Title="Stock"
+                             Sortable="true"
+                             Alignment="Alignment.Center" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.CreatedDate)" 
+                             Title="Created"
+                             Format="d"
+                             Sortable="true" />
+    </Columns>
+    
+    @* Fields for CardGrid (Card View - shown on xs/sm screens) *@
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title"
+                            Sortable="true"
+                            Searchable="true" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Category.Name)" 
+                            Caption="Category"
+                            FieldType="CardFieldType.SubTitle"
+                            Searchable="true" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Price)" 
+                            Caption="Price"
+                            Format="C2"
+                            Sortable="true" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Stock)" 
+                            Caption="In Stock"
+                            Sortable="true" />
+    </Fields>
+</CraftGrid>
+
+@code {
+    private void HandleEdit(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/edit/{product.Id}");
+    }
+
+    private async Task HandleDelete(Product product)
+    {
+        var query = new Query<Product>().Where(p => p.Id, product.Id);
+        await ProductService.DeleteAsync(query);
+    }
+}
+
+// ===================================================================================
+// Example 2: Custom Breakpoint (Switch at Large Screen)
+// ===================================================================================
+
+@page "/products-large-switch"
+@inject IHttpService<Product> ProductService
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products"
+           SwitchBreakpoint="Breakpoint.Lg"
+           ShowCardViewOnSmallScreens="true">
+    
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Name"
+                             Sortable="true" />
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2" />
+    </Columns>
+    
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Price)" 
+                            Caption="Price"
+                            Format="C2" />
+    </Fields>
+</CraftGrid>
+
+@* Result: Cards on xs/sm/md, Table on lg/xl *@
+
+// ===================================================================================
+// Example 3: Inverted (Table on Mobile, Cards on Desktop)
+// ===================================================================================
+
+@page "/products-inverted"
+@inject IHttpService<Product> ProductService
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products"
+           SwitchBreakpoint="Breakpoint.Md"
+           ShowCardViewOnSmallScreens="false">
+    
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Name" />
+    </Columns>
+    
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title" />
+    </Fields>
+</CraftGrid>
+
+@* Result: Table on xs/sm, Cards on md/lg/xl *@
+
+// ===================================================================================
+// Example 4: Different Content for Table and Card Views
+// ===================================================================================
+
+@page "/products-optimized"
+@inject IHttpService<Product> ProductService
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products Catalog">
+    
+    @* Table view - show more columns (more space available) *@
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Sku)" 
+                             Title="SKU"
+                             Width="100px" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Product Name"
+                             Sortable="true"
+                             Searchable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Category.Name)" 
+                             Title="Category"
+                             Sortable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Supplier.Name)" 
+                             Title="Supplier"
+                             Sortable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2"
+                             Sortable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Stock)" 
+                             Title="Stock"
+                             Sortable="true" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.MinStock)" 
+                             Title="Min Stock" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.LastRestocked)" 
+                             Title="Last Restocked"
+                             Format="d" />
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.IsActive)" 
+                             Title="Active" />
+    </Columns>
+    
+    @* Card view - show fewer fields (limited space) *@
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title"
+                            Sortable="true"
+                            Searchable="true" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Category.Name)" 
+                            Caption="Category"
+                            FieldType="CardFieldType.SubTitle" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Price)" 
+                            Caption="Price"
+                            Format="C2"
+                            Sortable="true" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Stock)" 
+                            Caption="Stock"
+                            Sortable="true" />
+    </Fields>
+</CraftGrid>
+
+// ===================================================================================
+// Example 5: With Custom Styling for Each View
+// ===================================================================================
+
+@page "/products-styled"
+@inject IHttpService<Product> ProductService
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products"
+           @* DataGrid specific styling *@
+           Striped="true"
+           Dense="true"
+           Hover="true"
+           Bordered="false"
+           @* CardGrid specific styling *@
+           CardElevation="4"
+           CardSpacing="4"
+           CardXs="12"
+           CardSm="6"
+           CardMd="4"
+           CardLg="3"
+           CardXl="2"
+           CardClass="custom-product-card"
+           CardStyle="border-radius: 12px;">
+    
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Name" />
+    </Columns>
+    
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title" />
+    </Fields>
+</CraftGrid>
+
+// ===================================================================================
+// Example 6: With Custom Query Builder
+// ===================================================================================
+
+@page "/active-products"
+@inject IHttpService<Product> ProductService
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Active Products"
+           QueryBuilder="@BuildCustomQuery">
+    
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Product Name"
+                             Sortable="true" />
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2" />
+    </Columns>
+    
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Price)" 
+                            Caption="Price"
+                            Format="C2" />
+    </Fields>
+</CraftGrid>
+
+@code {
+    private Query<Product> BuildCustomQuery(Query<Product> query)
+    {
+        return query
+            .Where(p => p.IsActive, true)
+            .Where(p => p.Stock, ComparisonType.GreaterThan, 0)
+            .OrderByDescending(p => p.CreatedDate);
+    }
+}
+
+// ===================================================================================
+// Example 7: With All CRUD Operations
+// ===================================================================================
+
+@page "/products-full"
+@inject IHttpService<Product> ProductService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products Management"
+           AllowAdd="true"
+           AddButtonText="New Product"
+           AllowView="true"
+           AllowEdit="true"
+           AllowDelete="true"
+           AllowExport="true"
+           OnAdd="@HandleAdd"
+           OnView="@HandleView"
+           OnEdit="@HandleEdit"
+           OnDelete="@HandleDelete"
+           OnExport="@HandleExport">
+    
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Name"
+                             Sortable="true"
+                             Searchable="true" />
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Category.Name)" 
+                             Title="Category" />
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2"
+                             Sortable="true" />
+    </Columns>
+    
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title"
+                            Sortable="true"
+                            Searchable="true" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Category.Name)" 
+                            Caption="Category"
+                            FieldType="CardFieldType.SubTitle" />
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Price)" 
+                            Caption="Price"
+                            Format="C2" />
+    </Fields>
+</CraftGrid>
+
+@code {
+    private void HandleAdd()
+    {
+        NavigationManager.NavigateTo("/products/new");
+    }
+
+    private void HandleView(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/{product.Id}");
+    }
+
+    private void HandleEdit(Product product)
+    {
+        NavigationManager.NavigateTo($"/products/edit/{product.Id}");
+    }
+
+    private async Task HandleDelete(Product product)
+    {
+        var query = new Query<Product>().Where(p => p.Id, product.Id);
+        var result = await ProductService.DeleteAsync(query);
+        
+        if (result.Success)
+            Snackbar.Add("Product deleted successfully", Severity.Success);
+        else
+            Snackbar.Add("Failed to delete product", Severity.Error);
+    }
+
+    private async Task HandleExport(ExportFormat format)
+    {
+        Snackbar.Add($"Exporting to {format}...", Severity.Info);
+        // Export implementation
+    }
+}
+
+// ===================================================================================
+// Example 8: With Custom Templates (Different for Each View)
+// ===================================================================================
+
+@page "/products-advanced"
+@inject IHttpService<Product> ProductService
+
+<CraftGrid TEntity="Product" 
+           HttpService="@ProductService"
+           Title="Products">
+    
+    <Columns>
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Name)" 
+                             Title="Name" />
+        
+        @* Custom template for table view *@
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Status)">
+            <Template Context="product">
+                <MudChip Color="@GetStatusColor(product.Status)" Size="Size.Small">
+                    @product.Status.ToString()
+                </MudChip>
+            </Template>
+        </CraftDataGridColumn>
+        
+        <CraftDataGridColumn TEntity="Product" 
+                             PropertyExpression="@(p => p.Price)" 
+                             Title="Price"
+                             Format="C2" />
+    </Columns>
+    
+    <Fields>
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Id)" 
+                            FieldType="CardFieldType.Id" />
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Name)" 
+                            FieldType="CardFieldType.Title" />
+        
+        @* Custom template for card view *@
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Status)">
+            <Template Context="product">
+                <MudChip Color="@GetStatusColor(product.Status)" Size="Size.Small">
+                    <MudIcon Icon="@GetStatusIcon(product.Status)" Size="Size.Small" />
+                    @product.Status.ToString()
+                </MudChip>
+            </Template>
+        </CraftCardGridField>
+        
+        <CraftCardGridField TEntity="Product" 
+                            PropertyExpression="@(p => p.Price)" 
+                            Caption="Price"
+                            Format="C2" />
+    </Fields>
+</CraftGrid>
+
+@code {
+    private Color GetStatusColor(ProductStatus status)
+    {
+        return status switch
+        {
+            ProductStatus.Active => Color.Success,
+            ProductStatus.Inactive => Color.Default,
+            ProductStatus.Discontinued => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private string GetStatusIcon(ProductStatus status)
+    {
+        return status switch
+        {
+            ProductStatus.Active => Icons.Material.Filled.CheckCircle,
+            ProductStatus.Inactive => Icons.Material.Filled.Circle,
+            ProductStatus.Discontinued => Icons.Material.Filled.Cancel,
+            _ => Icons.Material.Filled.Circle
+        };
+    }
+}
