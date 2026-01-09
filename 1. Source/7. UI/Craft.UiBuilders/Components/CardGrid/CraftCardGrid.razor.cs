@@ -27,7 +27,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     private TEntity? _itemToDelete;
     private bool _showDeleteDialog;
     private CancellationTokenSource? _cts;
-    private ICraftCardGridField<TEntity>? _currentSortField;
+    private ICraftCardGridColumn<TEntity>? _currentSortColumn;
     private GridSortDirection _currentSortDirection = GridSortDirection.None;
     private readonly DialogOptions _dialogOptions = new() { CloseButton = true, MaxWidth = MaxWidth.Small };
 
@@ -58,7 +58,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     /// <summary>
     /// Determines if the sort menu should be shown.
     /// </summary>
-    private bool _showSortMenu => Fields.Any(f => f.Sortable && f.Visible);
+    private bool _showSortMenu => Columns.Any(c => c.Sortable && c.Visible);
 
     /// <summary>
     /// Determines if any items are loaded.
@@ -88,7 +88,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     [Parameter] public Func<Query<TEntity>, Query<TEntity>>? QueryBuilder { get; set; }
 
     /// <summary>
-    /// Child content containing field definitions.
+    /// Child content containing column definitions.
     /// </summary>
     [Parameter] public new RenderFragment? ChildContent { get; set; }
 
@@ -320,9 +320,9 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     #region Public Properties
 
     /// <summary>
-    /// List of fields in the card grid.
+    /// List of columns in the card grid.
     /// </summary>
-    public List<ICraftCardGridField<TEntity>> Fields { get; } = [];
+    public List<ICraftCardGridColumn<TEntity>> Columns { get; } = [];
 
     /// <summary>
     /// Current page number (1-based).
@@ -382,24 +382,24 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     #region Public Methods
 
     /// <summary>
-    /// Adds a field to the card grid.
+    /// Adds a column to the card grid.
     /// </summary>
-    public void AddField(ICraftCardGridField<TEntity> field)
+    public void AddColumn(ICraftCardGridColumn<TEntity> column)
     {
-        ArgumentNullException.ThrowIfNull(field);
+        ArgumentNullException.ThrowIfNull(column);
 
-        Fields.Add(field);
+        Columns.Add(column);
         StateHasChanged();
     }
 
     /// <summary>
-    /// Removes a field from the card grid.
+    /// Removes a column from the card grid.
     /// </summary>
-    public void RemoveField(ICraftCardGridField<TEntity> field)
+    public void RemoveColumn(ICraftCardGridColumn<TEntity> column)
     {
-        ArgumentNullException.ThrowIfNull(field);
+        ArgumentNullException.ThrowIfNull(column);
 
-        Fields.Remove(field);
+        Columns.Remove(column);
         StateHasChanged();
     }
 
@@ -525,43 +525,43 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
 
     private void ApplySearch(Query<TEntity> query, string searchTerm)
     {
-        var searchableFields = Fields.Where(f => f.Searchable && f.PropertyExpression is not null).ToList();
+        var searchableColumns = Columns.Where(c => c.Searchable && c.PropertyExpression is not null).ToList();
 
-        if (searchableFields.Count == 0)
+        if (searchableColumns.Count == 0)
             return;
 
-        foreach (var field in searchableFields)
-            if (field.PropertyExpression is not null)
-                query.Search(field.PropertyExpression, searchTerm);
+        foreach (var column in searchableColumns)
+            if (column.PropertyExpression is not null)
+                query.Search(column.PropertyExpression, searchTerm);
     }
 
     private void ApplySorting(Query<TEntity> query)
     {
         // Apply current sort if set
-        if (_currentSortField is not null && _currentSortField.PropertyExpression is not null)
+        if (_currentSortColumn is not null && _currentSortColumn.PropertyExpression is not null)
         {
             if (_currentSortDirection == GridSortDirection.Descending)
-                query.OrderByDescending(_currentSortField.PropertyExpression);
+                query.OrderByDescending(_currentSortColumn.PropertyExpression);
             else if (_currentSortDirection == GridSortDirection.Ascending)
-                query.OrderBy(_currentSortField.PropertyExpression);
+                query.OrderBy(_currentSortColumn.PropertyExpression);
         }
         else
         {
-            // Apply default sorting from fields
-            var sortableFields = Fields
-                .Where(f => f.Sortable && f.DefaultSort is not null && f.PropertyExpression is not null)
-                .OrderBy(f => f.SortOrder)
+            // Apply default sorting from columns
+            var sortableColumns = Columns
+                .Where(c => c.Sortable && c.DefaultSort is not null && c.PropertyExpression is not null)
+                .OrderBy(c => c.SortOrder)
                 .ToList();
 
-            foreach (var field in sortableFields)
+            foreach (var column in sortableColumns)
             {
-                if (field.PropertyExpression is null)
+                if (column.PropertyExpression is null)
                     continue;
 
-                if (field.DefaultSort == GridSortDirection.Descending)
-                    query.OrderByDescending(field.PropertyExpression);
+                if (column.DefaultSort == GridSortDirection.Descending)
+                    query.OrderByDescending(column.PropertyExpression);
                 else
-                    query.OrderBy(field.PropertyExpression);
+                    query.OrderBy(column.PropertyExpression);
             }
         }
     }
@@ -577,9 +577,9 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
         await LoadDataAsync();
     }
 
-    private async Task ToggleSortAsync(ICraftCardGridField<TEntity> field)
+    private async Task ToggleSortAsync(ICraftCardGridColumn<TEntity> column)
     {
-        if (field == _currentSortField)
+        if (column == _currentSortColumn)
         {
             // Toggle sort direction
             _currentSortDirection = _currentSortDirection switch
@@ -591,12 +591,12 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
             };
 
             if (_currentSortDirection == GridSortDirection.None)
-                _currentSortField = null;
+                _currentSortColumn = null;
         }
         else
         {
-            // Set new sort field
-            _currentSortField = field;
+            // Set new sort column
+            _currentSortColumn = column;
             _currentSortDirection = GridSortDirection.Ascending;
         }
 

@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Components;
 namespace Craft.UiBuilders.Components;
 
 /// <summary>
-/// Represents a field in the CraftCardGrid component.
+/// Represents a column in the CraftCardGrid component.
 /// </summary>
 /// <typeparam name="TEntity">The entity type displayed in the card grid.</typeparam>
-public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGridField<TEntity>
+public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGridColumn<TEntity>
     where TEntity : class, IEntity, IModel, new()
 {
     private string? _caption;
@@ -28,7 +28,7 @@ public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGrid
     #region Parameters
 
     /// <summary>
-    /// Field caption displayed in the card.
+    /// Column caption displayed in the card.
     /// If not provided, it will be auto-derived from the property name.
     /// </summary>
     [Parameter]
@@ -46,7 +46,7 @@ public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGrid
                 return Regex.Replace(PropertyName, "([a-z])([A-Z])", "$1 $2");
             }
 
-            return "Field";
+            return "Column";
         }
         set => _caption = value;
     }
@@ -58,37 +58,37 @@ public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGrid
     [Parameter] public Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
 
     /// <summary>
-    /// Custom template for rendering field content.
+    /// Custom template for rendering column content.
     /// If not provided, the property value will be rendered with optional formatting.
     /// </summary>
     [Parameter] public RenderFragment<TEntity>? Template { get; set; }
 
     /// <summary>
-    /// Indicates whether the field is visible.
+    /// Indicates whether the column is visible.
     /// Default is true.
     /// </summary>
     [Parameter] public bool Visible { get; set; } = true;
 
     /// <summary>
-    /// Indicates whether the field is sortable.
+    /// Indicates whether the column is sortable.
     /// Default is false.
     /// </summary>
     [Parameter] public bool Sortable { get; set; }
 
     /// <summary>
-    /// Indicates whether the field is searchable.
+    /// Indicates whether the column is searchable.
     /// Default is false.
     /// </summary>
     [Parameter] public bool Searchable { get; set; }
 
     /// <summary>
-    /// Default sort direction for the field.
+    /// Default sort direction for the column.
     /// Null means no default sorting.
     /// </summary>
     [Parameter] public GridSortDirection? DefaultSort { get; set; }
 
     /// <summary>
-    /// Sort order when multiple fields have default sorting.
+    /// Sort order when multiple columns have default sorting.
     /// Lower values are sorted first.
     /// Default is 0.
     /// </summary>
@@ -100,7 +100,7 @@ public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGrid
     [Parameter] public string? Format { get; set; }
 
     /// <summary>
-    /// Type of field (Id, Title, SubTitle, or Field).
+    /// Type of column (Id, Title, SubTitle, or Field).
     /// Default is Field.
     /// </summary>
     [Parameter] public CardFieldType FieldType { get; set; } = CardFieldType.Field;
@@ -138,16 +138,16 @@ public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGrid
 
         // Validate parameters
         if (Sortable && PropertyExpression is null)
-            throw new InvalidOperationException($"Field '{Caption}' is marked as sortable but PropertyExpression is not provided.");
+            throw new InvalidOperationException($"Column '{Caption}' is marked as sortable but PropertyExpression is not provided.");
 
         if (Searchable && PropertyExpression is null)
-            throw new InvalidOperationException($"Field '{Caption}' is marked as searchable but PropertyExpression is not provided.");
+            throw new InvalidOperationException($"Column '{Caption}' is marked as searchable but PropertyExpression is not provided.");
 
         if (FieldType == CardFieldType.Id && PropertyExpression is null)
-            throw new InvalidOperationException($"Field '{Caption}' is marked as Id but PropertyExpression is not provided.");
+            throw new InvalidOperationException($"Column '{Caption}' is marked as Id but PropertyExpression is not provided.");
 
         // Register with parent card grid
-        CardGrid?.AddField(this);
+        CardGrid?.AddColumn(this);
 
         // Pre-compile the expression for better performance
         if (PropertyExpression is not null)
@@ -159,7 +159,7 @@ public partial class CraftCardGridField<TEntity> : ComponentBase, ICraftCardGrid
     #region Public Methods
 
     /// <summary>
-    /// Renders the field content for the given item.
+    /// Renders the column content for the given item.
     /// </summary>
     public string Render(TEntity item)
     {

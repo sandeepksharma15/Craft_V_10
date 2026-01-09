@@ -28,16 +28,34 @@ public partial class CraftGrid<TEntity>
     [Parameter] public Func<Query<TEntity>, Query<TEntity>>? QueryBuilder { get; set; }
 
     /// <summary>
-    /// Child content containing column definitions for DataGrid.
-    /// Use CraftDataGridColumn components.
+    /// Child content containing unified column definitions.
+    /// Columns automatically adapt to table or card view.
+    /// Use CraftGridColumn components.
     /// </summary>
-    [Parameter] public RenderFragment? Columns { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    #endregion
+
+    #region Public Properties
 
     /// <summary>
-    /// Child content containing field definitions for CardGrid.
-    /// Use CraftCardGridField components.
+    /// List of columns registered by CraftGridColumn components.
     /// </summary>
-    [Parameter] public RenderFragment? Fields { get; set; }
+    public List<CraftGridColumn<TEntity>> Columns { get; } = [];
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Adds a column to the grid.
+    /// Called by CraftGridColumn during initialization.
+    /// </summary>
+    public void AddColumn(CraftGridColumn<TEntity> column)
+    {
+        ArgumentNullException.ThrowIfNull(column);
+        Columns.Add(column);
+    }
 
     #endregion
 
@@ -345,18 +363,15 @@ public partial class CraftGrid<TEntity>
 
     #endregion
 
-    #region Lifecycle Methods
+        #region Lifecycle Methods
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
 
-        if (HttpService is null)
-            throw new InvalidOperationException($"{nameof(HttpService)} parameter is required for {nameof(CraftGrid<>)}.");
+            if (HttpService is null)
+                throw new InvalidOperationException($"{nameof(HttpService)} parameter is required for {nameof(CraftGrid<>)}.");
+        }
 
-        if (Columns is null && Fields is null)
-            throw new InvalidOperationException($"Either {nameof(Columns)} or {nameof(Fields)} parameter must be provided for {nameof(CraftGrid<>)}.");
+        #endregion
     }
-
-    #endregion
-}

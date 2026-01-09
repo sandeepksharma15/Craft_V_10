@@ -11,19 +11,19 @@ namespace Craft.UiBuilders.Components;
 public interface ICraftCardGrid<TEntity> where TEntity : class, IEntity, IModel
 {
     /// <summary>
-    /// List of fields in the card grid.
+    /// List of columns in the card grid.
     /// </summary>
-    List<ICraftCardGridField<TEntity>> Fields { get; }
+    List<ICraftCardGridColumn<TEntity>> Columns { get; }
 
     /// <summary>
-    /// Adds a field to the card grid.
+    /// Adds a column to the card grid.
     /// </summary>
-    void AddField(ICraftCardGridField<TEntity> field);
+    void AddColumn(ICraftCardGridColumn<TEntity> column);
 
     /// <summary>
-    /// Removes a field from the card grid.
+    /// Removes a column from the card grid.
     /// </summary>
-    void RemoveField(ICraftCardGridField<TEntity> field);
+    void RemoveColumn(ICraftCardGridColumn<TEntity> column);
 
     /// <summary>
     /// Refreshes the card grid data.
@@ -57,10 +57,10 @@ public interface ICraftCardGrid<TEntity> where TEntity : class, IEntity, IModel
 }
 
 /// <summary>
-/// Interface for a card grid field.
+/// Interface for a card grid column.
 /// </summary>
 /// <typeparam name="TEntity">The entity type displayed in the card grid.</typeparam>
-public interface ICraftCardGridField<TEntity> where TEntity : class, IEntity, IModel
+public interface ICraftCardGridColumn<TEntity> where TEntity : class, IEntity, IModel
 {
     /// <summary>
     /// The parent card grid.
@@ -68,7 +68,7 @@ public interface ICraftCardGridField<TEntity> where TEntity : class, IEntity, IM
     ICraftCardGrid<TEntity>? CardGrid { get; set; }
 
     /// <summary>
-    /// Field caption displayed in the card.
+    /// Column caption displayed in the card.
     /// </summary>
     string Caption { get; set; }
 
@@ -83,36 +83,36 @@ public interface ICraftCardGridField<TEntity> where TEntity : class, IEntity, IM
     Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
 
     /// <summary>
-    /// Custom template for rendering field content.
+    /// Custom template for rendering column content.
     /// </summary>
     RenderFragment<TEntity>? Template { get; set; }
 
     /// <summary>
-    /// Indicates whether the field is visible.
+    /// Indicates whether the column is visible.
     /// Default is true.
     /// </summary>
     bool Visible { get; set; }
 
     /// <summary>
-    /// Indicates whether the field is sortable.
+    /// Indicates whether the column is sortable.
     /// Default is false.
     /// </summary>
     bool Sortable { get; set; }
 
     /// <summary>
-    /// Indicates whether the field is searchable.
+    /// Indicates whether the column is searchable.
     /// Default is false.
     /// </summary>
     bool Searchable { get; set; }
 
     /// <summary>
-    /// Default sort direction for the field.
+    /// Default sort direction for the column.
     /// Null means no default sorting.
     /// </summary>
     GridSortDirection? DefaultSort { get; set; }
 
     /// <summary>
-    /// Sort order when multiple fields have default sorting.
+    /// Sort order when multiple columns have default sorting.
     /// Lower values are sorted first.
     /// Default is 0.
     /// </summary>
@@ -124,12 +124,12 @@ public interface ICraftCardGridField<TEntity> where TEntity : class, IEntity, IM
     string? Format { get; set; }
 
     /// <summary>
-    /// Type of field (Id, Title, SubTitle, or Field).
+    /// Type of column (Id, Title, SubTitle, or Field).
     /// </summary>
     CardFieldType FieldType { get; set; }
 
     /// <summary>
-    /// Renders the field content for the given item.
+    /// Renders the column content for the given item.
     /// </summary>
     string Render(TEntity item);
 }

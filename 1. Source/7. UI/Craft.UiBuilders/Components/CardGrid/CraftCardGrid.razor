@@ -17,7 +17,7 @@
         @ChildContent
     </CascadingValue>
 
-    <Show When="@Fields.Any()">
+    <Show When="@Columns.Any()">
         <MudContainer MaxWidth="MaxWidth.False" Class="@($"pa-0 {Class}")">
 
             @* Toolbar *@
@@ -39,17 +39,17 @@
                              Size="Size.Medium" Class="ms-2" AnchorOrigin="Origin.BottomRight">
                         <MudText Typo="Typo.caption" Class="px-4 py-2">Sort By</MudText>
                         <MudDivider />
-                        @foreach (var field in Fields.Where(f => f.Sortable && f.Visible))
+                        @foreach (var column in Columns.Where(c => c.Sortable && c.Visible))
                         {
-                            <MudMenuItem OnClick="@(() => ToggleSortAsync(field))">
-                                <CraftDiv Class="d-flex align-center justify-space-between" Style="min-width: 150px;">
-                                    <CraftSpan>@field.Caption</CraftSpan>
-                                    <Show When="@(_currentSortField == field)">
+                            <MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
+                                <div class="d-flex align-center justify-space-between" style="min-width: 150px;">
+                                    <span>@column.Caption</span>
+                                    <Show When="@(_currentSortColumn == column)">
                                         <MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending 
                                             ? Icons.Material.Filled.ArrowUpward 
                                             : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
                                     </Show>
-                                </CraftDiv>
+                                </div>
                             </MudMenuItem>
                         }
                     </MudMenu>
@@ -91,33 +91,33 @@
                 <MudGrid Spacing="@CardSpacing" Class="@CardGridClass">
                     @foreach (var item in _items)
                     {
-                        var idField = Fields.FirstOrDefault(f => f.FieldType == CardFieldType.Id);
-                        var titleField = Fields.FirstOrDefault(f => f.FieldType == CardFieldType.Title);
-                        var subTitleField = Fields.FirstOrDefault(f => f.FieldType == CardFieldType.SubTitle);
-                        var regularFields = Fields.Where(f => f.FieldType == CardFieldType.Field && f.Visible).ToList();
+                        var idColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.Id);
+                        var titleColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.Title);
+                        var subTitleColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.SubTitle);
+                        var regularColumns = Columns.Where(c => c.FieldType == CardFieldType.Field && c.Visible).ToList();
 
                         <MudItem xs="@CardXs" sm="@CardSm" md="@CardMd" lg="@CardLg" xl="@CardXl">
                             <MudCard Elevation="@CardElevation" Class="@CardClass" Style="@CardStyle">
                                 <MudCardContent>
                                     @* Title and Actions Row *@
-                                    <CraftDiv Class="d-flex align-start mb-2">
-                                        <CraftDiv Style="flex: 1; min-width: 0;">
-                                            <Show When="@(titleField != null)">
+                                    <div class="d-flex align-start mb-2">
+                                        <div style="flex: 1; min-width: 0;">
+                                            <Show When="@(titleColumn != null)">
                                                 <MudText Typo="Typo.h6" Class="text-truncate">
-                                                    <If Condition="@(titleField!.Template != null)">
+                                                    <If Condition="@(titleColumn!.Template != null)">
                                                         <True>
-                                                            @titleField.Template!(item)
+                                                            @titleColumn.Template!(item)
                                                         </True>
                                                         <False>
-                                                            @titleField.Render(item)
+                                                            @titleColumn.Render(item)
                                                         </False>
                                                     </If>
                                                 </MudText>
                                             </Show>
-                                        </CraftDiv>
+                                        </div>
 
                                         <Show When="@_showActionsInCard">
-                                            <CraftDiv Class="ms-2 d-flex align-center">
+                                            <div class="ms-2 d-flex align-center">
                                                 <Show When="@AllowView">
                                                     <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" 
                                                                    Size="Size.Small" OnClick="@(() => HandleViewAsync(item))" />
@@ -129,37 +129,37 @@
                                                 <Show When="@AllowDelete">
                                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" 
                                                                    Size="Size.Small" OnClick="@(() => HandleDeleteAsync(item))" />
-                                                </Show>
-                                            </CraftDiv>
-                                        </Show>
-                                    </CraftDiv>
+                                                            </Show>
+                                                        </div>
+                                                    </Show>
+                                                </div>
 
                                     @* Subtitle *@
-                                    <Show When="@(subTitleField != null)">
+                                    <Show When="@(subTitleColumn != null)">
                                         <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-truncate mb-3">
-                                            <If Condition="@(subTitleField!.Template != null)">
+                                            <If Condition="@(subTitleColumn!.Template != null)">
                                                 <True>
-                                                    @subTitleField.Template!(item)
+                                                    @subTitleColumn.Template!(item)
                                                 </True>
                                                 <False>
-                                                    @subTitleField.Render(item)
+                                                    @subTitleColumn.Render(item)
                                                 </False>
                                             </If>
                                         </MudText>
                                     </Show>
 
-                                    @* Regular Fields *@
-                                    @foreach (var field in regularFields)
+                                    @* Regular Columns *@
+                                    @foreach (var column in regularColumns)
                                     {
                                         <div class="mb-2">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@field.Caption</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@column.Caption</MudText>
                                             <MudText Typo="Typo.body2" Class="text-truncate">
-                                                <If Condition="@(field.Template != null)">
+                                                <If Condition="@(column.Template != null)">
                                                     <True>
-                                                        @field.Template!(item)
+                                                        @column.Template!(item)
                                                     </True>
                                                     <False>
-                                                        @field.Render(item)
+                                                        @column.Render(item)
                                                     </False>
                                                 </If>
                                             </MudText>

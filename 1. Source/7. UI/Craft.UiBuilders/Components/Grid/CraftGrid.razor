@@ -9,6 +9,10 @@
 
 @typeparam TEntity where TEntity : class, IEntity, IModel, new()
 
+<CascadingValue Value="this" Name="Grid" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
 <MudHidden Breakpoint="@SwitchBreakpoint" Invert="@(!ShowCardViewOnSmallScreens)">
     @* Table View (DataGrid) *@
     <CraftDataGrid TEntity="TEntity"
@@ -48,7 +52,22 @@
                    OnDelete="@OnDelete"
                    OnExport="@OnExport"
                    OnDataLoaded="@OnDataLoaded">
-        @Columns
+        @foreach (var column in Columns.Where(c => c.Visible))
+        {
+            <CraftDataGridColumn TEntity="TEntity"
+                                 PropertyExpression="@column.PropertyExpression"
+                                 Title="@column.Title"
+                                 Sortable="@column.Sortable"
+                                 Searchable="@column.Searchable"
+                                 Format="@column.Format"
+                                 Width="@column.Width"
+                                 MinWidth="@column.MinWidth"
+                                 MaxWidth="@column.MaxWidth"
+                                 Alignment="@column.Alignment"
+                                 DefaultSort="@column.DefaultSort"
+                                 SortOrder="@column.SortOrder"
+                                 Template="@column.Template" />
+        }
     </CraftDataGrid>
 </MudHidden>
 
@@ -92,6 +111,19 @@
                    OnDelete="@OnDelete"
                    OnExport="@OnExport"
                    OnDataLoaded="@OnDataLoaded">
-        @Fields
+        @foreach (var column in Columns.Where(c => c.IsVisibleInCardView))
+        {
+            <CraftCardGridColumn TEntity="TEntity"
+                                 PropertyExpression="@column.PropertyExpression"
+                                 Caption="@column.Title"
+                                 FieldType="@column.ResolvedCardFieldType"
+                                 Sortable="@column.Sortable"
+                                 Searchable="@column.Searchable"
+                                 Format="@column.Format"
+                                 DefaultSort="@column.DefaultSort"
+                                 SortOrder="@column.SortOrder"
+                                 Template="@column.Template"
+                                 Visible="@column.Visible" />
+        }
     </CraftCardGrid>
 </MudHidden>
