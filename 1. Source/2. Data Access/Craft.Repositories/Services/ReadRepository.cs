@@ -64,6 +64,7 @@ public class ReadRepository<T, TKey>(IDbContext dbContext, ILogger<ReadRepositor
         var pagedItems = await _dbSet
             .IncludeDetails(includeDetails)
             .AsNoTracking()
+            .OrderBy(x => x.Id)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken)

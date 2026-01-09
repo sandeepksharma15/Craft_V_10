@@ -111,6 +111,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (query.Skip is null or < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
 
+        // Add OrderBy if not specified to ensure consistent paging
+        if (query.SortOrderBuilder is null || query.SortOrderBuilder.Count == 0)
+            query.OrderBy(e => e.Id!);
+
         var items = await _dbSet.WithQuery(query)
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -140,6 +144,10 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
             throw new ArgumentOutOfRangeException(nameof(query), "Page size (Take) must be set and greater than zero.");
         if (query.Skip is null or < 0)
             throw new ArgumentOutOfRangeException(nameof(query), "Skip must be set and non-negative.");
+
+        // Add OrderBy if not specified to ensure consistent paging
+        if (query.SortOrderBuilder is null || query.SortOrderBuilder.Count == 0)
+            query.OrderBy(e => e.Id!);
 
         var items = await _dbSet
             .WithQuery(query)
