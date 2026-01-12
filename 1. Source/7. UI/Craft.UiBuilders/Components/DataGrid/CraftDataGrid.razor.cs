@@ -83,7 +83,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// <summary>
     /// Child content containing column definitions.
     /// </summary>
-    [Parameter] public new RenderFragment? ChildContent { get; set; }
+    //[Parameter] public new RenderFragment? ChildContent { get; set; }
 
     #endregion
 
@@ -97,12 +97,12 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// <summary>
     /// Custom CSS class applied to the table.
     /// </summary>
-    [Parameter] public new string? Class { get; set; }
+    // [Parameter] public new string? Class { get; set; }
 
     /// <summary>
     /// Custom inline styles applied to the table.
     /// </summary>
-    [Parameter] public new string? Style { get; set; }
+    //[Parameter] public new string? Style { get; set; }
 
     /// <summary>
     /// Enables row hover effect.

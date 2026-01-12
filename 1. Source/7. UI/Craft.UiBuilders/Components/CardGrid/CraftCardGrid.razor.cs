@@ -90,7 +90,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     /// <summary>
     /// Child content containing column definitions.
     /// </summary>
-    [Parameter] public new RenderFragment? ChildContent { get; set; }
+    // [Parameter] public new RenderFragment? ChildContent { get; set; }
 
     #endregion
 
@@ -104,7 +104,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     /// <summary>
     /// Custom CSS class applied to the container.
     /// </summary>
-    [Parameter] public new string? Class { get; set; }
+    // [Parameter] public new string? Class { get; set; }
 
     /// <summary>
     /// Custom CSS class applied to each card.
