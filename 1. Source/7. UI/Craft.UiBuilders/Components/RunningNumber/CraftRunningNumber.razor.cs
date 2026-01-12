@@ -1,6 +1,6 @@
 using Craft.UiComponents;
+using Craft.Utilities.Helpers;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace Craft.UiBuilders.Components.RunningNumber;
 
@@ -9,134 +9,112 @@ public partial class CraftRunningNumber : CraftComponent, IDisposable
     [Parameter] public int TotalTime { get; set; } = 1;         // In Seconds
     [Parameter] public long FirstNumber { get; set; } = 0;
     [Parameter] public long LastNumber { get; set; } = 100;
-    [Parameter] public Typo TextType { get; set; } = Typo.h5;
-    [Parameter] public Color TextColor { get; set; } = Color.Primary;
     [Parameter] public bool UseThousandsSeparator { get; set; } = true;
+    [Parameter] public bool UseSmoothEasing { get; set; } = true;
 
-    private Timer? _animationTimer;
-    private DateTime _startTime;
+    private CountdownTimer? _countdownTimer;
     private long _currentValue;
-    private int _digitCount;
-    private bool _isCountingDown;
-    private const int FramesPerSecond = 60;
+    private bool _isInitialized;
+    private const int TotalTicks = 60; // Increased for smoother animation
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         _currentValue = FirstNumber;
-        _isCountingDown = FirstNumber > LastNumber;
-        
-        // Calculate digit count based on the larger absolute value
-        var maxValue = Math.Max(Math.Abs(FirstNumber), Math.Abs(LastNumber));
-        _digitCount = maxValue == 0 ? 1 : (int)Math.Floor(Math.Log10(maxValue)) + 1;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnParametersSet()
     {
-        await base.OnAfterRenderAsync(firstRender);
+        base.OnParametersSet();
         
-        if (firstRender)
-            StartAnimation();
+        // Only start timer once
+        if (_isInitialized)
+            return;
+            
+        _isInitialized = true;
+        InitializeTimer();
     }
 
-    private void StartAnimation()
+    private void InitializeTimer()
     {
-        _startTime = DateTime.UtcNow;
-        var intervalMs = 1000 / FramesPerSecond;
+        _countdownTimer?.Dispose();
         
-        _animationTimer = new Timer(_ =>
+        _countdownTimer = new CountdownTimer(TotalTime, TotalTicks);
+        _countdownTimer.OnTick += UpdateNumber;
+        _countdownTimer.OnElapsed += OnAnimationComplete;
+        _countdownTimer.Start();
+    }
+
+    private async void UpdateNumber(int tickNumber)
+    {
+        // tickNumber goes from 1 to TotalTicks
+        // Convert to progress from 0.0 to 1.0
+        var progress = Math.Min(tickNumber / (double)TotalTicks, 1.0);
+
+        // Apply easing if enabled
+        if (UseSmoothEasing)
+            progress = EaseInOutQuad(progress);
+
+        // Calculate the range
+        var range = LastNumber - FirstNumber;
+
+        // Calculate current value based on progress
+        var newValue = FirstNumber + (long)(range * progress);
+        
+        // Only update if value changed to reduce unnecessary renders
+        if (newValue != _currentValue)
         {
-            UpdateValue();
-            InvokeAsync(StateHasChanged);
-        }, null, intervalMs, intervalMs);
-    }
-
-    private void UpdateValue()
-    {
-        var elapsed = DateTime.UtcNow - _startTime;
-        var progress = Math.Min(elapsed.TotalSeconds / TotalTime, 1.0);
-        
-        // Apply smooth easing (ease-in-out)
-        var easedProgress = EaseInOutCubic(progress);
-        
-        // Calculate current value based on direction
-        if (_isCountingDown)
-            _currentValue = FirstNumber - (long)((FirstNumber - LastNumber) * easedProgress);
-        else
-            _currentValue = FirstNumber + (long)((LastNumber - FirstNumber) * easedProgress);
-        
-        // Stop animation when complete
-        if (progress >= 1.0)
-        {
-            _currentValue = LastNumber;
-            _animationTimer?.Dispose();
-            _animationTimer = null;
+            _currentValue = newValue;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
+    private async void OnAnimationComplete()
+    {
+        // Ensure we end exactly at LastNumber
+        if (_currentValue != LastNumber)
+        {
+            _currentValue = LastNumber;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Quadratic ease-in-out - smoother and less aggressive than cubic
+    /// </summary>
+    private static double EaseInOutQuad(double t)
+    {
+        return t < 0.5
+            ? 2 * t * t
+            : 1 - Math.Pow(-2 * t + 2, 2) / 2;
+    }
+
+    /// <summary>
+    /// Cubic ease-in-out - more dramatic easing (kept for reference)
+    /// </summary>
     private static double EaseInOutCubic(double t)
     {
-        return t < 0.5 
-            ? 4 * t * t * t 
+        return t < 0.5
+            ? 4 * t * t * t
             : 1 - Math.Pow(-2 * t + 2, 3) / 2;
     }
 
-    private List<DigitInfo> GetDigitInfos()
+    private string GetFormattedValue()
     {
-        var digits = new List<DigitInfo>();
-        var absValue = Math.Abs(_currentValue);
-        var valueStr = absValue.ToString().PadLeft(_digitCount, '0');
+        if (UseThousandsSeparator)
+            return _currentValue.ToString("N0");
         
-        for (int i = 0; i < valueStr.Length; i++)
-        {
-            var digit = int.Parse(valueStr[i].ToString());
-            var position = valueStr.Length - i - 1;
-            
-            var needsComma = UseThousandsSeparator && position > 0 && position % 3 == 0;
-            
-            digits.Add(new DigitInfo
-            {
-                Value = digit,
-                Position = position,
-                NeedsComma = needsComma
-            });
-        }
-        
-        return digits;
-    }
-
-    private string GetDigitHeight()
-    {
-        // Map MudBlazor Typo to approximate heights
-        return TextType switch
-        {
-            Typo.h1 => "6rem",
-            Typo.h2 => "3.75rem",
-            Typo.h3 => "3rem",
-            Typo.h4 => "2.125rem",
-            Typo.h5 => "1.5rem",
-            Typo.h6 => "1.25rem",
-            Typo.subtitle1 => "1rem",
-            Typo.subtitle2 => "0.875rem",
-            Typo.body1 => "1rem",
-            Typo.body2 => "0.875rem",
-            Typo.button => "0.875rem",
-            Typo.caption => "0.75rem",
-            Typo.overline => "0.625rem",
-            _ => "1.5rem"
-        };
+        return _currentValue.ToString();
     }
 
     public void Dispose()
     {
-        _animationTimer?.Dispose();
-        _animationTimer = null;
-    }
-
-    private class DigitInfo
-    {
-        public int Value { get; set; }
-        public int Position { get; set; }
-        public bool NeedsComma { get; set; }
+        if (_countdownTimer != null)
+        {
+            _countdownTimer.OnTick -= UpdateNumber;
+            _countdownTimer.OnElapsed -= OnAnimationComplete;
+            _countdownTimer.Dispose();
+            _countdownTimer = null;
+        }
     }
 }

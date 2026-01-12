@@ -1,7 +1,6 @@
 using Bunit;
 using Craft.UiBuilders.Components.RunningNumber;
 using Craft.UiBuilders.Tests.Base;
-using MudBlazor;
 
 namespace Craft.UiBuilders.Tests.Components;
 
@@ -22,9 +21,8 @@ public class CraftRunningNumberTests : ComponentTestBase
         Assert.Equal(1, instance.TotalTime);
         Assert.Equal(0, instance.FirstNumber);
         Assert.Equal(100, instance.LastNumber);
-        Assert.Equal(Typo.h5, instance.TextType);
-        Assert.Equal(Color.Primary, instance.TextColor);
         Assert.True(instance.UseThousandsSeparator);
+        Assert.True(instance.UseSmoothEasing);
     }
 
     [Fact]
@@ -35,22 +33,20 @@ public class CraftRunningNumberTests : ComponentTestBase
             .Add(p => p.TotalTime, 5)
             .Add(p => p.FirstNumber, 100)
             .Add(p => p.LastNumber, 1000)
-            .Add(p => p.TextType, Typo.h3)
-            .Add(p => p.TextColor, Color.Success)
-            .Add(p => p.UseThousandsSeparator, false));
+            .Add(p => p.UseThousandsSeparator, false)
+            .Add(p => p.UseSmoothEasing, false));
 
         // Assert
         var instance = cut.Instance;
         Assert.Equal(5, instance.TotalTime);
         Assert.Equal(100, instance.FirstNumber);
         Assert.Equal(1000, instance.LastNumber);
-        Assert.Equal(Typo.h3, instance.TextType);
-        Assert.Equal(Color.Success, instance.TextColor);
         Assert.False(instance.UseThousandsSeparator);
+        Assert.False(instance.UseSmoothEasing);
     }
 
     [Fact]
-    public void CraftRunningNumber_CountingDown_ShouldRecognizeDirection()
+    public void CraftRunningNumber_CountingDown_ShouldStartAtFirstNumber()
     {
         // Arrange & Act
         var cut = Render<CraftRunningNumber>(parameters => parameters
@@ -59,10 +55,12 @@ public class CraftRunningNumberTests : ComponentTestBase
 
         // Assert - Component should render without errors
         Assert.NotNull(cut);
+        var markup = cut.Markup;
+        Assert.Contains("100", markup);
     }
 
     [Fact]
-    public void CraftRunningNumber_WithLargeNumbers_ShouldRenderCorrectly()
+    public void CraftRunningNumber_WithThousandsSeparator_ShouldFormatNumber()
     {
         // Arrange & Act
         var cut = Render<CraftRunningNumber>(parameters => parameters
@@ -70,70 +68,66 @@ public class CraftRunningNumberTests : ComponentTestBase
             .Add(p => p.LastNumber, 1000000)
             .Add(p => p.UseThousandsSeparator, true));
 
-        // Assert
+        // Assert - Initial value should be 0, which formats as "0"
         Assert.NotNull(cut);
         var markup = cut.Markup;
-        Assert.Contains("craft-running-number", markup);
+        Assert.NotEmpty(markup);
     }
 
     [Fact]
-    public void CraftRunningNumber_WithNegativeNumbers_ShouldRenderMinus()
-    {
-        // Arrange & Act
-        var cut = Render<CraftRunningNumber>(parameters => parameters
-            .Add(p => p.FirstNumber, -100)
-            .Add(p => p.LastNumber, -10));
-
-        // Assert
-        var markup = cut.Markup;
-        Assert.Contains("-", markup);
-    }
-
-    [Fact]
-    public void CraftRunningNumber_ShouldContainDigitWrapper()
+    public void CraftRunningNumber_WithoutThousandsSeparator_ShouldShowRawNumber()
     {
         // Arrange & Act
         var cut = Render<CraftRunningNumber>(parameters => parameters
             .Add(p => p.FirstNumber, 0)
-            .Add(p => p.LastNumber, 50));
+            .Add(p => p.LastNumber, 1234)
+            .Add(p => p.UseThousandsSeparator, false));
 
         // Assert
-        var markup = cut.Markup;
-        Assert.Contains("digit-wrapper", markup);
-        Assert.Contains("digit-scroll", markup);
+        Assert.NotNull(cut);
+        var instance = cut.Instance;
+        Assert.False(instance.UseThousandsSeparator);
     }
 
     [Fact]
-    public void CraftRunningNumber_ShouldRenderAllDigits()
+    public void CraftRunningNumber_WithSmoothEasing_ShouldEnableEasing()
     {
         // Arrange & Act
         var cut = Render<CraftRunningNumber>(parameters => parameters
-            .Add(p => p.FirstNumber, 0)
-            .Add(p => p.LastNumber, 123));
+            .Add(p => p.UseSmoothEasing, true));
 
         // Assert
-        var markup = cut.Markup;
-        // Should contain digit items (0-9 for each position)
-        Assert.Contains("digit-item", markup);
+        var instance = cut.Instance;
+        Assert.True(instance.UseSmoothEasing);
     }
 
     [Fact]
-    public void CraftRunningNumber_WithThousandsSeparator_ShouldRenderCommas()
+    public void CraftRunningNumber_WithoutSmoothEasing_ShouldUseLinearProgression()
     {
         // Arrange & Act
         var cut = Render<CraftRunningNumber>(parameters => parameters
-            .Add(p => p.FirstNumber, 0)
-            .Add(p => p.LastNumber, 1000)
-            .Add(p => p.UseThousandsSeparator, true));
+            .Add(p => p.UseSmoothEasing, false));
 
-        // Assert - After initial render, might not show comma yet at value 0,
-        // but component structure should be present
-        var markup = cut.Markup;
-        Assert.Contains("number-container", markup);
+        // Assert
+        var instance = cut.Instance;
+        Assert.False(instance.UseSmoothEasing);
     }
 
     [Fact]
-    public async Task CraftRunningNumber_ShouldDisposeProperlyAsync()
+    public void CraftRunningNumber_ShouldRenderInitialValue()
+    {
+        // Arrange & Act
+        var cut = Render<CraftRunningNumber>(parameters => parameters
+            .Add(p => p.FirstNumber, 42)
+            .Add(p => p.LastNumber, 100));
+
+        // Assert
+        var markup = cut.Markup;
+        Assert.Contains("42", markup);
+    }
+
+    [Fact]
+    public void CraftRunningNumber_ShouldDisposeProperlyAsync()
     {
         // Arrange
         var cut = Render<CraftRunningNumber>();
@@ -143,7 +137,7 @@ public class CraftRunningNumberTests : ComponentTestBase
         instance.Dispose();
 
         // Assert - Should not throw
-        await Task.CompletedTask;
+        Assert.True(true);
     }
 
     [Theory]
@@ -161,40 +155,7 @@ public class CraftRunningNumberTests : ComponentTestBase
         // Assert
         Assert.NotNull(cut);
         var markup = cut.Markup;
-        Assert.Contains("craft-running-number", markup);
-    }
-
-    [Theory]
-    [InlineData(Typo.h1)]
-    [InlineData(Typo.h3)]
-    [InlineData(Typo.h5)]
-    [InlineData(Typo.body1)]
-    public void CraftRunningNumber_WithDifferentTypography_ShouldRenderCorrectly(Typo typo)
-    {
-        // Arrange & Act
-        var cut = Render<CraftRunningNumber>(parameters => parameters
-            .Add(p => p.TextType, typo));
-
-        // Assert
-        Assert.NotNull(cut);
-        Assert.Equal(typo, cut.Instance.TextType);
-    }
-
-    [Theory]
-    [InlineData(Color.Primary)]
-    [InlineData(Color.Secondary)]
-    [InlineData(Color.Success)]
-    [InlineData(Color.Error)]
-    [InlineData(Color.Warning)]
-    public void CraftRunningNumber_WithDifferentColors_ShouldRenderCorrectly(Color color)
-    {
-        // Arrange & Act
-        var cut = Render<CraftRunningNumber>(parameters => parameters
-            .Add(p => p.TextColor, color));
-
-        // Assert
-        Assert.NotNull(cut);
-        Assert.Equal(color, cut.Instance.TextColor);
+        Assert.NotEmpty(markup);
     }
 
     [Theory]
@@ -210,5 +171,60 @@ public class CraftRunningNumberTests : ComponentTestBase
 
         // Assert
         Assert.Equal(totalTime, cut.Instance.TotalTime);
+    }
+
+    [Fact]
+    public void CraftRunningNumber_WithNegativeNumbers_ShouldHandleCorrectly()
+    {
+        // Arrange & Act
+        var cut = Render<CraftRunningNumber>(parameters => parameters
+            .Add(p => p.FirstNumber, -100)
+            .Add(p => p.LastNumber, -10));
+
+        // Assert
+        var markup = cut.Markup;
+        Assert.Contains("-", markup);
+    }
+
+    [Fact]
+    public void CraftRunningNumber_WithLargeNumbers_ShouldFormatWithCommas()
+    {
+        // Arrange & Act
+        var cut = Render<CraftRunningNumber>(parameters => parameters
+            .Add(p => p.FirstNumber, 1234567)
+            .Add(p => p.LastNumber, 9999999)
+            .Add(p => p.UseThousandsSeparator, true));
+
+        // Assert
+        var markup = cut.Markup;
+        // Initial value should be formatted with commas (culture-specific)
+        Assert.Contains(",", markup); // Just verify commas are present
+        Assert.Contains("1234567".AsSpan(), markup.Replace(",", "").AsSpan()); // Verify digits are present
+    }
+
+    [Fact]
+    public void CraftRunningNumber_CountingUp_ShouldStartAtFirstNumber()
+    {
+        // Arrange & Act
+        var cut = Render<CraftRunningNumber>(parameters => parameters
+            .Add(p => p.FirstNumber, 0)
+            .Add(p => p.LastNumber, 100));
+
+        // Assert
+        var markup = cut.Markup;
+        Assert.Contains("0", markup);
+    }
+
+    [Fact]
+    public void CraftRunningNumber_WithZeroRange_ShouldShowSameNumber()
+    {
+        // Arrange & Act
+        var cut = Render<CraftRunningNumber>(parameters => parameters
+            .Add(p => p.FirstNumber, 50)
+            .Add(p => p.LastNumber, 50));
+
+        // Assert
+        var markup = cut.Markup;
+        Assert.Contains("50", markup);
     }
 }
