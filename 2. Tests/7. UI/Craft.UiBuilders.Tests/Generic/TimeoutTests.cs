@@ -267,15 +267,27 @@ public class TimeoutTests : ComponentTestBase
     }
 
     [Fact]
-    public void Timeout_WithZeroDuration_ShouldStillInitiallyRender()
+    public async Task Timeout_WithZeroDuration_ShouldExpireImmediately()
     {
-        // Arrange & Act
+        // Arrange
+        var callbackInvoked = false;
+
+        // Act
         var cut = Render<TimeoutComponent>(parameters => parameters
             .Add(p => p.DurationMs, 0)
+            .Add(p => p.OnExpired, () =>
+            {
+                callbackInvoked = true;
+                return Task.CompletedTask;
+            })
             .AddChildContent("<div>Instant timeout</div>")
         );
 
-        // Assert - should render initially even with 0ms
-        Assert.Contains("Instant timeout", cut.Markup);
+        // Small delay to allow timer to fire
+        await Task.Delay(50);
+
+        // Assert - content should be expired and callback invoked
+        Assert.DoesNotContain("Instant timeout", cut.Markup);
+        Assert.True(callbackInvoked);
     }
 }
