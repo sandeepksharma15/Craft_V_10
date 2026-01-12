@@ -36,9 +36,7 @@ public partial class CraftRunningNumber : CraftComponent, IDisposable
         await base.OnAfterRenderAsync(firstRender);
         
         if (firstRender)
-        {
             StartAnimation();
-        }
     }
 
     private void StartAnimation()
@@ -63,13 +61,9 @@ public partial class CraftRunningNumber : CraftComponent, IDisposable
         
         // Calculate current value based on direction
         if (_isCountingDown)
-        {
             _currentValue = FirstNumber - (long)((FirstNumber - LastNumber) * easedProgress);
-        }
         else
-        {
             _currentValue = FirstNumber + (long)((LastNumber - FirstNumber) * easedProgress);
-        }
         
         // Stop animation when complete
         if (progress >= 1.0)
@@ -98,7 +92,6 @@ public partial class CraftRunningNumber : CraftComponent, IDisposable
             var digit = int.Parse(valueStr[i].ToString());
             var position = valueStr.Length - i - 1;
             
-            // Add comma separator before this digit if needed
             var needsComma = UseThousandsSeparator && position > 0 && position % 3 == 0;
             
             digits.Add(new DigitInfo
@@ -112,10 +105,26 @@ public partial class CraftRunningNumber : CraftComponent, IDisposable
         return digits;
     }
 
-    private string GetFormattedNumber()
+    private string GetDigitHeight()
     {
-        var format = UseThousandsSeparator ? "N0" : "F0";
-        return _currentValue.ToString(format);
+        // Map MudBlazor Typo to approximate heights
+        return TextType switch
+        {
+            Typo.h1 => "6rem",
+            Typo.h2 => "3.75rem",
+            Typo.h3 => "3rem",
+            Typo.h4 => "2.125rem",
+            Typo.h5 => "1.5rem",
+            Typo.h6 => "1.25rem",
+            Typo.subtitle1 => "1rem",
+            Typo.subtitle2 => "0.875rem",
+            Typo.body1 => "1rem",
+            Typo.body2 => "0.875rem",
+            Typo.button => "0.875rem",
+            Typo.caption => "0.75rem",
+            Typo.overline => "0.625rem",
+            _ => "1.5rem"
+        };
     }
 
     public void Dispose()
