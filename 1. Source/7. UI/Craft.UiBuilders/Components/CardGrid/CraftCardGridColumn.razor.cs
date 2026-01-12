@@ -11,12 +11,13 @@ namespace Craft.UiBuilders.Components;
 /// Represents a column in the CraftCardGrid component.
 /// </summary>
 /// <typeparam name="TEntity">The entity type displayed in the card grid.</typeparam>
-public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGridColumn<TEntity>
+public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGridColumn<TEntity>, IDisposable
     where TEntity : class, IEntity, IModel, new()
 {
     private string? _caption;
     private string? _propertyName;
     private Func<TEntity, object>? _compiledExpression;
+    private bool _disposed;
 
     #region Cascading Parameters
 
@@ -152,6 +153,21 @@ public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGri
         // Pre-compile the expression for better performance
         if (PropertyExpression is not null)
             _compiledExpression = PropertyExpression.Compile();
+    }
+
+    /// <summary>
+    /// Disposes the component and removes it from the parent card grid.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        // Unregister from parent card grid to prevent duplicates
+        CardGrid?.RemoveColumn(this);
+
+        _disposed = true;
+        GC.SuppressFinalize(this);
     }
 
     #endregion

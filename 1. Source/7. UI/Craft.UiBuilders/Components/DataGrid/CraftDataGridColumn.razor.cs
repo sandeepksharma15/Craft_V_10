@@ -10,12 +10,13 @@ namespace Craft.UiBuilders.Components;
 /// Represents a column in the CraftDataGrid component.
 /// </summary>
 /// <typeparam name="TEntity">The entity type displayed in the grid.</typeparam>
-public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGridColumn<TEntity>
+public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGridColumn<TEntity>, IDisposable
     where TEntity : class
 {
     private string? _title;
     private string? _propertyName;
     private Func<TEntity, object>? _compiledExpression;
+    private bool _disposed;
 
     #region Cascading Parameters
 
@@ -167,6 +168,21 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
         // Pre-compile the expression for better performance
         if (PropertyExpression is not null)
             _compiledExpression = PropertyExpression.Compile();
+    }
+
+    /// <summary>
+    /// Disposes the component and removes it from the parent grid.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        // Unregister from parent grid to prevent duplicates
+        DataGrid?.RemoveColumn(this);
+
+        _disposed = true;
+        GC.SuppressFinalize(this);
     }
 
     #endregion
