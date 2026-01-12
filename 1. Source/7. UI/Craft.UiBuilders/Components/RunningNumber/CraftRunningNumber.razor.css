@@ -1,0 +1,104 @@
+﻿body {
+}
+
+.craft-running-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.number-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.digit-static {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 2px;
+    line-height: 1;
+}
+
+.digit-wrapper {
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    height: 1em;
+    line-height: 1;
+}
+
+.digit-scroll {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    position: relative;
+}
+
+.digit-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* Position the scroll container to show the active digit */
+.digit-scroll[data-value="0"] {
+    transform: translateY(0);
+}
+
+.digit-scroll[data-value="1"] {
+    transform: translateY(-1em);
+}
+
+.digit-scroll[data-value="2"] {
+    transform: translateY(-2em);
+}
+
+.digit-scroll[data-value="3"] {
+    transform: translateY(-3em);
+}
+
+.digit-scroll[data-value="4"] {
+    transform: translateY(-4em);
+}
+
+.digit-scroll[data-value="5"] {
+    transform: translateY(-5em);
+}
+
+.digit-scroll[data-value="6"] {
+    transform: translateY(-6em);
+}
+
+.digit-scroll[data-value="7"] {
+    transform: translateY(-7em);
+}
+
+.digit-scroll[data-value="8"] {
+    transform: translateY(-8em);
+}
+
+.digit-scroll[data-value="9"] {
+    transform: translateY(-9em);
+}
+
+/* Smooth animation with hardware acceleration */
+.digit-scroll {
+    will-change: transform;
+}
+
+/* Ensure MudText inside doesn't add extra spacing */
+.digit-item .mud-typography {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
+.digit-static .mud-typography {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}

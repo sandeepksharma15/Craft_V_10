@@ -1,0 +1,32 @@
+﻿@using Craft.UiComponents
+@inherits CraftComponent
+
+<div class="craft-running-number" style="@BuildStyle()">
+    <div class="number-container">
+        @if (_currentValue < 0)
+        {
+            <MudText Typo="@TextType" Color="@TextColor" Class="digit-static">-</MudText>
+        }
+        
+        @foreach (var digitInfo in GetDigitInfos())
+        {
+            @if (digitInfo.NeedsComma)
+            {
+                <MudText Typo="@TextType" Color="@TextColor" Class="digit-static">,</MudText>
+            }
+            
+            <div class="digit-wrapper">
+                <div class="digit-scroll" data-value="@digitInfo.Value">
+                    @for (int i = 0; i <= 9; i++)
+                    {
+                        <div class="digit-item">
+                            <MudText Typo="@TextType" Color="@TextColor">@i</MudText>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
