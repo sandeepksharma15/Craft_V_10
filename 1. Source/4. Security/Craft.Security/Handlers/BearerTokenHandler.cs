@@ -29,9 +29,7 @@ public class BearerTokenHandler(IHttpContextAccessor httpContextAccessor) : Dele
 
         // Attach token if available
         if (!string.IsNullOrEmpty(token))
-        {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        }
 
         // Continue with the request
         return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);

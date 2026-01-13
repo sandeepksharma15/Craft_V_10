@@ -20,12 +20,25 @@
     <Show When="@Columns.Any()">
         <MudContainer MaxWidth="MaxWidth.False" Class="@($"pa-0 {Class}")">
 
+            @* Title and Add Button Section *@
+            <Show When="@(_showTitle || _showAddButton)">
+                <CraftDiv Class="d-flex justify-space-between align-center mb-3">
+                    <Show When="@_showTitle">
+                        <MudText Typo="Typo.h5" Color="Color.Primary">@Title</MudText>
+                    </Show>
+                    <Show When="@(!_showTitle)">
+                        <CraftDiv></CraftDiv>
+                    </Show>
+                    <Show When="@_showAddButton">
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync">
+                            @AddButtonText
+                        </MudButton>
+                    </Show>
+                </CraftDiv>
+            </Show>
+
             @* Toolbar *@
             <MudPaper Elevation="0" Class="d-flex align-center mb-3 pa-3">
-                <Show When="@_showTitle">
-                    <MudText Typo="Typo.h6">@Title</MudText>
-                </Show>
-
                 <MudSpacer />
 
                 <Show When="@ShowSearch">
@@ -42,24 +55,17 @@
                         @foreach (var column in Columns.Where(c => c.Sortable && c.Visible))
                         {
                             <MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
-                                <div class="d-flex align-center justify-space-between" style="min-width: 150px;">
-                                    <span>@column.Caption</span>
+                                <CraftDiv Class="d-flex align-center justify-space-between" style="min-width: 150px;">
+                                    <CraftSpan>@column.Caption</CraftSpan>
                                     <Show When="@(_currentSortColumn == column)">
                                         <MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending 
                                             ? Icons.Material.Filled.ArrowUpward 
                                             : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
                                     </Show>
-                                </div>
+                                </CraftDiv>
                             </MudMenuItem>
                         }
                     </MudMenu>
-                </Show>
-
-                <Show When="@_showAddButton">
-                    <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" 
-                               OnClick="@HandleAddAsync" Class="ms-2">
-                        @AddButtonText
-                    </MudButton>
                 </Show>
 
                 <Show When="@_showExportMenu">

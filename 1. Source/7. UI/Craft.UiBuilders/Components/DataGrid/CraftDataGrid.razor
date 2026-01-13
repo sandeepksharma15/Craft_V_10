@@ -18,27 +18,35 @@
 	</CascadingValue>
 
 	<Show When="@Columns.Any()">
+
+		<!-- Title and Add Button Section -->
+		<Show When="@(_showTitle || _showAddButton)">
+			<CraftDiv Class="d-flex justify-space-between align-center mb-3">
+				<Show When="@_showTitle">
+					<MudText Typo="Typo.h5" Color="Color.Primary">@Title</MudText>
+				</Show>
+				<Show When="@(!_showTitle)">
+					<CraftDiv></CraftDiv>
+				</Show>
+				<Show When="@_showAddButton">
+					<MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync">
+						@AddButtonText
+					</MudButton>
+				</Show>
+			</CraftDiv>
+		</Show>
+
 		<MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
 				  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"
 				  CurrentPage="@(_currentPage - 1)" SortLabel="@_currentSortColumn">
 
 			<ToolBarContent>
-				<Show When="@_showTitle">
-					<MudText Typo="Typo.h6">@Title</MudText>
-				</Show>
-
 				<MudSpacer />
 
 				<Show When="@ShowSearch">
 					<MudTextField @bind-Value="_searchString" Placeholder="@SearchPlaceholder" Adornment="Adornment.Start"
 								  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Immediate="true"
 								  DebounceInterval="300" OnDebounceIntervalElapsed="@SearchAsync" Class="mt-0" />
-				</Show>
-
-				<Show When="@_showAddButton">
-					<MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync" Class="ms-2">
-						@AddButtonText
-					</MudButton>
 				</Show>
 
 				<Show When="@_showExportMenu">
