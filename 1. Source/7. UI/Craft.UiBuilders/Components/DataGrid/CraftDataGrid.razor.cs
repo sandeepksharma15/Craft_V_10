@@ -26,8 +26,11 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     private long _totalCount;
     private TEntity? _itemToDelete;
     private bool _showDeleteDialog;
-    private CancellationTokenSource? _cts;
     private readonly DialogOptions _dialogOptions = new() { CloseButton = true, MaxWidth = MaxWidth.Small };
+    private string? _currentSortColumn;
+    private GridSortDirection _currentSortDirection = GridSortDirection.None;
+    private MudTable<TEntity>? _table;
+    private CancellationTokenSource? _cts;
 
     #endregion
 
@@ -359,7 +362,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-
+        
         if (firstRender)
             await LoadDataAsync();
     }
@@ -439,12 +442,10 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         if (HttpService is null)
             return;
 
-        // Cancel any pending operation
+        // Cancel previous request if still running
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = new CancellationTokenSource();
-
-        var cancellationToken = _cts.Token;
 
         try
         {
@@ -457,7 +458,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
             var query = BuildQuery();
 
             // Execute the query
-            var result = await HttpService.GetPagedListAsync(query, cancellationToken);
+            var result = await HttpService.GetPagedListAsync(query, _cts.Token);
 
             if (result.Success && result.Data is not null)
             {
@@ -468,9 +469,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
                 // Invoke the OnDataLoaded callback
                 if (OnDataLoaded.HasDelegate)
-                {
                     await OnDataLoaded.InvokeAsync(result.Data);
-                }
             }
             else
             {
@@ -482,7 +481,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         }
         catch (OperationCanceledException)
         {
-            // Operation was cancelled, ignore
+            // Request was cancelled - this is normal when a new request supersedes an old one
         }
         catch (Exception ex)
         {
@@ -533,6 +532,23 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     private void ApplySorting(Query<TEntity> query)
     {
+        // First, apply user-initiated sorting if present
+        if (!string.IsNullOrWhiteSpace(_currentSortColumn) && _currentSortDirection != GridSortDirection.None)
+        {
+            var sortColumn = Columns.FirstOrDefault(c => c.PropertyName == _currentSortColumn);
+            
+            if (sortColumn?.PropertyExpression is not null)
+            {
+                if (_currentSortDirection == GridSortDirection.Descending)
+                    query.OrderByDescending(sortColumn.PropertyExpression);
+                else
+                    query.OrderBy(sortColumn.PropertyExpression);
+                
+                return; // User sorting takes precedence, skip default sorting
+            }
+        }
+
+        // If no user sorting, apply default sorting from columns
         var sortableColumns = Columns
             .Where(c => c.Sortable && c.DefaultSort is not null && c.PropertyExpression is not null)
             .OrderBy(c => c.SortOrder)
@@ -558,6 +574,27 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     {
         _searchString = searchValue;
         _currentPage = 1; // Reset to first page when searching
+        await LoadDataAsync();
+    }
+
+    private async Task HandleSortChangedAsync(string? sortLabel, MudBlazor.SortDirection direction)
+    {
+        if (string.IsNullOrWhiteSpace(sortLabel))
+            return;
+
+        // Update current sort state
+        _currentSortColumn = sortLabel;
+        _currentSortDirection = direction switch
+        {
+            MudBlazor.SortDirection.Ascending => GridSortDirection.Ascending,
+            MudBlazor.SortDirection.Descending => GridSortDirection.Descending,
+            _ => GridSortDirection.None
+        };
+
+        // Reset to first page when sorting changes
+        _currentPage = 1;
+        
+        // Reload data with new sorting
         await LoadDataAsync();
     }
 
@@ -655,14 +692,21 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         return styles.Count != 0 ? string.Join("; ", styles) : null;
     }
 
-    private static MudBlazor.SortDirection GetSortDirection(ICraftDataGridColumn<TEntity> column)
+    private MudBlazor.SortDirection GetSortDirection(ICraftDataGridColumn<TEntity> column)
     {
-        return column.DefaultSort switch
+        // If this column is the currently sorted column, use the current sort direction
+        if (_currentSortColumn == column.PropertyName)
         {
-            GridSortDirection.Ascending => MudBlazor.SortDirection.Ascending,
-            GridSortDirection.Descending => MudBlazor.SortDirection.Descending,
-            _ => SortDirection.None
-        };
+            return _currentSortDirection switch
+            {
+                GridSortDirection.Ascending => MudBlazor.SortDirection.Ascending,
+                GridSortDirection.Descending => MudBlazor.SortDirection.Descending,
+                _ => MudBlazor.SortDirection.None
+            };
+        }
+
+        // Otherwise, use the default sort direction (typically None for initial display)
+        return MudBlazor.SortDirection.None;
     }
 
     #endregion

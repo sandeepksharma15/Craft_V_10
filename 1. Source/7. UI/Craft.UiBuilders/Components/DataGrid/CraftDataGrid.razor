@@ -11,15 +11,16 @@
 
 @typeparam TEntity where TEntity : class, IEntity, IModel, new()
 
-<DataLoader IsLoading="@_isLoading" HasError="@_hasError" ErrorMessage="@_errorMessage" OnRetry="@LoadDataAsync">
+<DataLoader IsLoading="@_isLoading" HasError="@_hasError" ErrorMessage="@_errorMessage" OnRetry="@RefreshAsync">
 
 	<CascadingValue Value="(ICraftDataGrid<TEntity>)this" Name="DataGrid" IsFixed="true">
 		@ChildContent
 	</CascadingValue>
 
 	<Show When="@Columns.Any()">
-		<MudTable Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
-				  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style">
+		<MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
+				  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"
+				  CurrentPage="@(_currentPage - 1)" SortLabel="@_currentSortColumn">
 
 			<ToolBarContent>
 				<Show When="@_showTitle">
@@ -76,7 +77,9 @@
 					<MudTh Style="@GetColumnStyle(column)">
 						<If Condition="@column.Sortable">
 							<True>
-								<MudTableSortLabel T="TEntity" SortLabel="@column.PropertyName" InitialDirection="@GetSortDirection(column)">
+								<MudTableSortLabel T="TEntity" SortLabel="@column.PropertyName" 
+												   InitialDirection="@GetSortDirection(column)"
+												   SortDirectionChanged="@(async (direction) => await HandleSortChangedAsync(column.PropertyName, direction))">
 									@column.Title
 								</MudTableSortLabel>
 							</True>
