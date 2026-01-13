@@ -369,7 +369,9 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     protected override async ValueTask DisposeAsyncCore()
     {
-        _cts?.Cancel();
+        // Don't cancel active requests during disposal to avoid errors when navigating away
+        // (e.g., browser back button). Just dispose the token source cleanly.
+        // The HTTP pipeline will handle cleanup of in-flight requests.
         _cts?.Dispose();
         await base.DisposeAsyncCore();
     }
