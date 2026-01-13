@@ -13,210 +13,210 @@
 
 <DataLoader IsLoading="@_isLoading" HasError="@_hasError" ErrorMessage="@_errorMessage" OnRetry="@LoadDataAsync">
 
-    <CascadingValue Value="(ICraftCardGrid<TEntity>)this" Name="CardGrid" IsFixed="true">
-        @ChildContent
-    </CascadingValue>
+	<CascadingValue Value="(ICraftCardGrid<TEntity>)this" Name="CardGrid" IsFixed="true">
+		@ChildContent
+	</CascadingValue>
 
-    <Show When="@Columns.Any()">
-        <MudContainer MaxWidth="MaxWidth.False" Class="@($"pa-0 {Class}")">
+	<Show When="@Columns.Any()">
+		<MudContainer MaxWidth="MaxWidth.False" Class="@($"pa-0 {Class}")">
 
-            @* Title and Add Button Section *@
-            <Show When="@(_showTitle || _showAddButton)">
-                <CraftDiv Class="d-flex justify-space-between align-center mb-3">
-                    <Show When="@_showTitle">
-                        <MudText Typo="Typo.h5" Color="Color.Primary">@Title</MudText>
-                    </Show>
-                    <Show When="@(!_showTitle)">
-                        <CraftDiv></CraftDiv>
-                    </Show>
-                    <Show When="@_showAddButton">
-                        <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync">
-                            @AddButtonText
-                        </MudButton>
-                    </Show>
-                </CraftDiv>
-            </Show>
+			@* Title and Add Button Section *@
+			<Show When="@(_showTitle || _showAddButton)">
+				<CraftDiv Class="d-flex justify-space-between align-center mb-3">
+					<Show When="@_showTitle">
+						<MudText Typo="Typo.h5" Color="Color.Primary">@Title</MudText>
+					</Show>
+					<Show When="@(!_showTitle)">
+						<CraftDiv></CraftDiv>
+					</Show>
+					<Show When="@_showAddButton">
+						<MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync">
+							@AddButtonText
+						</MudButton>
+					</Show>
+				</CraftDiv>
+			</Show>
 
-            @* Toolbar *@
-            <MudPaper Elevation="0" Class="d-flex align-center mb-3 pa-3">
-                <MudSpacer />
+			@* Toolbar *@
+			<MudPaper Elevation="0" Class="d-flex align-center mb-3 pa-3">
+				<MudSpacer />
 
-                <Show When="@ShowSearch">
-                    <MudTextField @bind-Value="_searchString" Placeholder="@SearchPlaceholder" Adornment="Adornment.Start"
-                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Immediate="true"
-                                  DebounceInterval="300" OnDebounceIntervalElapsed="@SearchAsync" Class="mt-0" Style="max-width: 300px;" />
-                </Show>
+				<Show When="@ShowSearch">
+					<MudTextField @bind-Value="_searchString" Placeholder="@SearchPlaceholder" Adornment="Adornment.Start"
+								  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Immediate="true"
+								  DebounceInterval="300" OnDebounceIntervalElapsed="@SearchAsync" Class="mt-0" Style="max-width: 300px;" />
+				</Show>
 
-                <Show When="@_showSortMenu">
-                    <MudMenu Icon="@Icons.Material.Filled.Sort" Color="Color.Default" Variant="Variant.Outlined" 
-                             Size="Size.Medium" Class="ms-2" AnchorOrigin="Origin.BottomRight">
-                        <MudText Typo="Typo.caption" Class="px-4 py-2">Sort By</MudText>
-                        <MudDivider />
-                        @foreach (var column in Columns.Where(c => c.Sortable && c.Visible))
-                        {
-                            <MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
-                                <CraftDiv Class="d-flex align-center justify-space-between" style="min-width: 150px;">
-                                    <CraftSpan>@column.Caption</CraftSpan>
-                                    <Show When="@(_currentSortColumn == column)">
-                                        <MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending 
-                                            ? Icons.Material.Filled.ArrowUpward 
-                                            : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
-                                    </Show>
-                                </CraftDiv>
-                            </MudMenuItem>
-                        }
-                    </MudMenu>
-                </Show>
+				<Show When="@_showSortMenu">
+					<MudMenu Icon="@Icons.Material.Filled.Sort" Color="Color.Default" Variant="Variant.Outlined"
+							 Size="Size.Medium" Class="ms-2" AnchorOrigin="Origin.BottomRight">
+						<MudText Typo="Typo.caption" Class="px-4 py-2">Sort By</MudText>
+						<MudDivider />
+						@foreach (var column in Columns.Where(c => c.Sortable && c.Visible))
+						{
+							<MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
+								<CraftDiv Class="d-flex align-center justify-space-between" style="min-width: 150px;">
+									<CraftSpan>@column.Caption</CraftSpan>
+									<Show When="@(_currentSortColumn == column)">
+										<MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending
+																  ? Icons.Material.Filled.ArrowUpward
+																  : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
+								</Show>
+							</CraftDiv>
+						</MudMenuItem>
+												}
+					</MudMenu>
+				</Show>
 
-                <Show When="@_showExportMenu">
-                    <MudMenu Icon="@Icons.Material.Filled.FileDownload" Color="Color.Default" Variant="Variant.Outlined" 
-                             Size="Size.Medium" Class="ms-2">
-                        <MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Csv))"
-                                     Icon="@Icons.Material.Filled.Description">
-                            Export to CSV
-                        </MudMenuItem>
-                        <MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Excel))"
-                                     Icon="@Icons.Material.Filled.TableChart">
-                            Export to Excel
-                        </MudMenuItem>
-                        <MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Pdf))"
-                                     Icon="@Icons.Material.Filled.PictureAsPdf">
-                            Export to PDF
-                        </MudMenuItem>
-                    </MudMenu>
-                </Show>
+				<Show When="@_showExportMenu">
+					<MudMenu Icon="@Icons.Material.Filled.FileDownload" Color="Color.Default" Variant="Variant.Outlined"
+							 Size="Size.Medium" Class="ms-2">
+						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Csv))"
+									 Icon="@Icons.Material.Filled.Description">
+							Export to CSV
+						</MudMenuItem>
+						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Excel))"
+									 Icon="@Icons.Material.Filled.TableChart">
+							Export to Excel
+						</MudMenuItem>
+						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Pdf))"
+									 Icon="@Icons.Material.Filled.PictureAsPdf">
+							Export to PDF
+						</MudMenuItem>
+					</MudMenu>
+				</Show>
 
-                <Show When="@AllowRefresh">
-                    <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" 
-                                   OnClick="@RefreshAsync" Class="ms-2" />
-                </Show>
-            </MudPaper>
+				<Show When="@AllowRefresh">
+					<MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default"
+								   OnClick="@RefreshAsync" Class="ms-2" />
+				</Show>
+			</MudPaper>
 
-            @* Cards Grid *@
-            <Show When="@_hasItems">
-                <MudGrid Spacing="@CardSpacing" Class="@CardGridClass">
-                    @foreach (var item in _items)
-                    {
-                        var idColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.Id);
-                        var titleColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.Title);
-                        var subTitleColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.SubTitle);
-                        var regularColumns = Columns.Where(c => c.FieldType == CardFieldType.Field && c.Visible).ToList();
+			@* Cards Grid *@
+			<Show When="@_hasItems">
+				<MudGrid Spacing="@CardSpacing" Class="@CardGridClass">
+					@foreach (var item in _items)
+					{
+						var idColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.Id);
+						var titleColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.Title);
+						var subTitleColumn = Columns.FirstOrDefault(c => c.FieldType == CardFieldType.SubTitle);
+						var regularColumns = Columns.Where(c => c.FieldType == CardFieldType.Field && c.Visible).ToList();
 
-                        <MudItem xs="@CardXs" sm="@CardSm" md="@CardMd" lg="@CardLg" xl="@CardXl">
-                            <MudCard Elevation="@CardElevation" Class="@CardClass" Style="@CardStyle">
-                                <MudCardContent>
-                                    @* Title and Actions Row *@
-                                    <div class="d-flex align-start mb-2">
-                                        <div style="flex: 1; min-width: 0;">
-                                            <Show When="@(titleColumn != null)">
-                                                <MudText Typo="Typo.h6" Class="text-truncate">
-                                                    <If Condition="@(titleColumn!.Template != null)">
-                                                        <True>
-                                                            @titleColumn.Template!(item)
-                                                        </True>
-                                                        <False>
-                                                            @titleColumn.Render(item)
-                                                        </False>
-                                                    </If>
-                                                </MudText>
-                                            </Show>
-                                        </div>
+						<MudItem xs="@CardXs" sm="@CardSm" md="@CardMd" lg="@CardLg" xl="@CardXl">
+							<MudCard Elevation="@CardElevation" Class="@CardClass" Style="@CardStyle">
+								<MudCardContent>
+									@* Title and Actions Row *@
+									<CraftDiv Class="d-flex align-start mb-2">
+										<CraftDiv Style="flex: 1; min-width: 0;">
+											<Show When="@(titleColumn != null)">
+												<MudText Typo="Typo.h6" Class="text-truncate">
+													<If Condition="@(titleColumn!.Template != null)">
+														<True>
+															@titleColumn.Template!(item)
+														</True>
+														<False>
+															@titleColumn.Render(item)
+														</False>
+													</If>
+												</MudText>
+											</Show>
+										</CraftDiv>
 
-                                        <Show When="@_showActionsInCard">
-                                            <div class="ms-2 d-flex align-center">
-                                                <Show When="@AllowView">
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" 
-                                                                   Size="Size.Small" OnClick="@(() => HandleViewAsync(item))" />
-                                                </Show>
-                                                <Show When="@AllowEdit">
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" 
-                                                                   Size="Size.Small" OnClick="@(() => HandleEditAsync(item))" />
-                                                </Show>
-                                                <Show When="@AllowDelete">
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" 
-                                                                   Size="Size.Small" OnClick="@(() => HandleDeleteAsync(item))" />
-                                                            </Show>
-                                                        </div>
-                                                    </Show>
-                                                </div>
+										<Show When="@_showActionsInCard">
+											<CraftDiv Class="ms-2 d-flex align-center">
+												<Show When="@AllowView">
+													<MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info"
+																   Size="Size.Small" OnClick="@(() => HandleViewAsync(item))" />
+												</Show>
+												<Show When="@AllowEdit">
+													<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+																   Size="Size.Small" OnClick="@(() => HandleEditAsync(item))" />
+												</Show>
+												<Show When="@AllowDelete">
+													<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+																   Size="Size.Small" OnClick="@(() => HandleDeleteAsync(item))" />
+												</Show>
+											</CraftDiv>
+										</Show>
+									</CraftDiv>
 
-                                    @* Subtitle *@
-                                    <Show When="@(subTitleColumn != null)">
-                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-truncate mb-3">
-                                            <If Condition="@(subTitleColumn!.Template != null)">
-                                                <True>
-                                                    @subTitleColumn.Template!(item)
-                                                </True>
-                                                <False>
-                                                    @subTitleColumn.Render(item)
-                                                </False>
-                                            </If>
-                                        </MudText>
-                                    </Show>
+									@* Subtitle *@
+									<Show When="@(subTitleColumn != null)">
+										<MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-truncate mb-3">
+											<If Condition="@(subTitleColumn!.Template != null)">
+												<True>
+													@subTitleColumn.Template!(item)
+												</True>
+												<False>
+													@subTitleColumn.Render(item)
+												</False>
+											</If>
+										</MudText>
+									</Show>
 
-                                    @* Regular Columns *@
-                                    @foreach (var column in regularColumns)
-                                    {
-                                        <div class="mb-2">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@column.Caption</MudText>
-                                            <MudText Typo="Typo.body2" Class="text-truncate">
-                                                <If Condition="@(column.Template != null)">
-                                                    <True>
-                                                        @column.Template!(item)
-                                                    </True>
-                                                    <False>
-                                                        @column.Render(item)
-                                                    </False>
-                                                </If>
-                                            </MudText>
-                                        </div>
-                                    }
-                                </MudCardContent>
-                            </MudCard>
-                        </MudItem>
-                    }
-                </MudGrid>
-            </Show>
+									@* Regular Columns *@
+									@foreach (var column in regularColumns)
+									{
+										<div class="mb-2">
+											<MudText Typo="Typo.caption" Color="Color.Secondary">@column.Caption</MudText>
+											<MudText Typo="Typo.body2" Class="text-truncate">
+												<If Condition="@(column.Template != null)">
+													<True>
+														@column.Template!(item)
+													</True>
+													<False>
+														@column.Render(item)
+													</False>
+												</If>
+											</MudText>
+										</div>
+									}
+								</MudCardContent>
+							</MudCard>
+						</MudItem>
+					}
+				</MudGrid>
+			</Show>
 
-            @* No Records Message *@
-            <Show When="@(!_hasItems && !_isLoading)">
-                <MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="my-4">
-                    @NoRecordsMessage
-                </MudAlert>
-            </Show>
+			@* No Records Message *@
+			<Show When="@(!_hasItems && !_isLoading)">
+				<MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="my-4">
+					@NoRecordsMessage
+				</MudAlert>
+			</Show>
 
-            @* Pagination *@
-            <Show When="@(EnablePagination && _hasItems)">
-                <MudPaper Elevation="0" Class="d-flex align-center justify-end mt-3 pa-3">
-                    <MudText Typo="Typo.body2" Class="me-4">
-                        @GetPaginationInfo()
-                    </MudText>
-                    <MudPagination Count="@TotalPages" Selected="@_currentPage" SelectedChanged="@OnPageChangedAsync" 
-                                   Color="Color.Primary" Size="Size.Medium" ShowFirstButton="true" ShowLastButton="true" />
-                </MudPaper>
-            </Show>
-        </MudContainer>
-    </Show>
+			@* Pagination *@
+			<Show When="@(EnablePagination && _hasItems)">
+				<MudPaper Elevation="0" Class="d-flex align-center justify-end mt-3 pa-3">
+					<MudText Typo="Typo.body2" Class="me-4">
+						@GetPaginationInfo()
+					</MudText>
+					<MudPagination Count="@TotalPages" Selected="@_currentPage" SelectedChanged="@OnPageChangedAsync"
+								   Color="Color.Primary" Size="Size.Medium" ShowFirstButton="true" ShowLastButton="true" />
+				</MudPaper>
+			</Show>
+		</MudContainer>
+	</Show>
 </DataLoader>
 
 @* Delete Confirmation Dialog *@
 <MudDialog @bind-Visible="_showDeleteDialog" Options="_dialogOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="me-2" />
-            Confirm Delete
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudText>@DeleteConfirmationMessage</MudText>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="@CancelDeleteAsync" Variant="Variant.Text">Cancel</MudButton>
-        <MudButton OnClick="@ConfirmDeleteAsync"
-                   Color="Color.Error"
-                   Variant="Variant.Filled"
-                   StartIcon="@Icons.Material.Filled.Delete">
-            Delete
-        </MudButton>
-    </DialogActions>
+	<TitleContent>
+		<MudText Typo="Typo.h6">
+			<MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="me-2" />
+			Confirm Delete
+		</MudText>
+	</TitleContent>
+	<DialogContent>
+		<MudText>@DeleteConfirmationMessage</MudText>
+	</DialogContent>
+	<DialogActions>
+		<MudButton OnClick="@CancelDeleteAsync" Variant="Variant.Text">Cancel</MudButton>
+		<MudButton OnClick="@ConfirmDeleteAsync"
+				   Color="Color.Error"
+				   Variant="Variant.Filled"
+				   StartIcon="@Icons.Material.Filled.Delete">
+			Delete
+		</MudButton>
+	</DialogActions>
 </MudDialog>
