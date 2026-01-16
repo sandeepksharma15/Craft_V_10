@@ -137,9 +137,8 @@ public static class ColumnTypeHelper
         if (!underlyingType.IsEnum)
             return [];
 
-        return Enum.GetValues(underlyingType)
+        return [.. Enum.GetValues(underlyingType)
             .Cast<object>()
-            .Select(value => (Name: value.ToString() ?? string.Empty, Value: value))
-            .ToList();
+            .Select(value => (Name: value.ToString() ?? string.Empty, Value: value))];
     }
 }

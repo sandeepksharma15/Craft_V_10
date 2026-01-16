@@ -326,7 +326,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// List of searchable columns available for filtering.
     /// </summary>
     public List<ICraftDataGridColumn<TEntity>> SearchableColumns =>
-        Columns.Where(c => c.Searchable && c.PropertyExpression is not null && c.PropertyType is not null).ToList();
+        [.. Columns.Where(c => c.Searchable && c.PropertyExpression is not null && c.PropertyType is not null)];
 
     /// <summary>
     /// Current page number (1-based).
