@@ -1,0 +1,47 @@
+@using Craft.UiBuilders.Models
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Components
+
+@typeparam TEntity where TEntity : class
+
+<MudStack Spacing="2">
+    @* Add Filter Button *@
+    <CraftDiv Class="d-flex justify-start align-center">
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Outlined" 
+                   StartIcon="@Icons.Material.Filled.FilterAlt"
+                   OnClick="@OpenFilterBuilder"
+                   Size="Size.Small">
+            Add Filter
+        </MudButton>
+        
+        <Show When="@(Filters.Count > 0)">
+            <MudButton Color="Color.Default" 
+                       Variant="Variant.Text" 
+                       StartIcon="@Icons.Material.Filled.Clear"
+                       OnClick="@ClearAllFilters"
+                       Size="Size.Small"
+                       Class="ms-2">
+                Clear All
+            </MudButton>
+        </Show>
+    </CraftDiv>
+
+    @* Applied Filters Display *@
+    <Show When="@(Filters.Count > 0)">
+        <CraftDiv Class="d-flex flex-wrap align-center">
+            @foreach (var filter in Filters)
+            {
+                <CraftFilterChip Filter="@filter" OnRemove="@(() => RemoveFilter(filter))" />
+            }
+        </CraftDiv>
+    </Show>
+</MudStack>
+
+@* Filter Builder Dialog *@
+<CraftFilterBuilder TEntity="TEntity"
+                   @bind-Visible="_showFilterBuilder"
+                   SearchableColumns="@SearchableColumns"
+                   IsFirstFilter="@(Filters.Count == 0)"
+                   OnFilterAdded="@HandleFilterAdded" />

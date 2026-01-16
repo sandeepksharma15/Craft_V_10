@@ -1,6 +1,7 @@
 using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec;
+using Craft.UiBuilders.Models;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -19,7 +20,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
-    private string? _searchString;
+    private List<FilterModel> _filters = [];
     private List<TEntity> _items = [];
     private int _currentPage = 1;
     private int _pageSize = 10;
@@ -322,6 +323,12 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     public List<ICraftDataGridColumn<TEntity>> Columns { get; } = [];
 
     /// <summary>
+    /// List of searchable columns available for filtering.
+    /// </summary>
+    public List<ICraftDataGridColumn<TEntity>> SearchableColumns =>
+        Columns.Where(c => c.Searchable && c.PropertyExpression is not null && c.PropertyType is not null).ToList();
+
+    /// <summary>
     /// Current page number (1-based).
     /// </summary>
     public int CurrentPage => _currentPage;
@@ -506,9 +513,8 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         // Set pagination
         query.SetPage(_currentPage, _pageSize);
 
-        // Apply search if provided
-        if (!string.IsNullOrWhiteSpace(_searchString))
-            ApplySearch(query, _searchString);
+        // Apply filters from advanced search
+        ApplyFilters(query);
 
         // Apply sorting from columns
         ApplySorting(query);
@@ -520,16 +526,19 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         return query;
     }
 
-    private void ApplySearch(Query<TEntity> query, string searchTerm)
+    private void ApplyFilters(Query<TEntity> query)
     {
-        var searchableColumns = Columns.Where(c => c.Searchable && c.PropertyExpression is not null).ToList();
-        
-        if (searchableColumns.Count == 0)
+        if (_filters.Count == 0 || query.EntityFilterBuilder is null)
             return;
 
-        foreach (var column in searchableColumns)
-            if (column.PropertyExpression is not null)
-                query.Search(column.PropertyExpression, searchTerm);
+        foreach (var filter in _filters)
+        {
+            query.EntityFilterBuilder.Add(
+                filter.ColumnName,
+                filter.Value ?? string.Empty,
+                filter.Operator
+            );
+        }
     }
 
     private void ApplySorting(Query<TEntity> query)
@@ -572,10 +581,10 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     #region Private Methods - Event Handlers
 
-    private async Task SearchAsync(string searchValue)
+    private async Task HandleFiltersChangedAsync(List<FilterModel> filters)
     {
-        _searchString = searchValue;
-        _currentPage = 1; // Reset to first page when searching
+        _filters = filters;
+        _currentPage = 1; // Reset to first page when filters change
         await LoadDataAsync();
     }
 

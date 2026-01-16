@@ -1,0 +1,130 @@
+@using Craft.QuerySpec
+@using Craft.UiBuilders.Helpers
+@using Craft.UiBuilders.Models
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Components
+
+@typeparam TEntity where TEntity : class
+
+<MudDialog @bind-Visible="@Visible" Options="@_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.FilterAlt" Class="me-2" />
+            Add Filter
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            @* Logical Operator - Only show if not the first filter *@
+            <Show When="@(!IsFirstFilter)">
+                <MudSelect T="LogicalOperatorType" 
+                          Label="Combine with previous filter using" 
+                          @bind-Value="_logicalOperator" 
+                          Variant="Variant.Outlined">
+                    <MudSelectItem Value="LogicalOperatorType.And">AND (Both conditions must match)</MudSelectItem>
+                    <MudSelectItem Value="LogicalOperatorType.Or">OR (Either condition can match)</MudSelectItem>
+                </MudSelect>
+            </Show>
+
+            @* Column Selector *@
+            <MudSelect T="ICraftDataGridColumn<TEntity>" 
+                      Label="Column" 
+                      @bind-Value="_selectedColumn" 
+                      Variant="Variant.Outlined"
+                      ToStringFunc="@(col => col?.Title ?? string.Empty)"
+                      Required="true"
+                      RequiredError="Please select a column">
+                @foreach (var column in SearchableColumns)
+                {
+                    <MudSelectItem Value="@column">@column.Title</MudSelectItem>
+                }
+            </MudSelect>
+
+            @* Operator Selector *@
+            <Show When="@(_selectedColumn != null)">
+                <MudSelect T="ComparisonType" 
+                          Label="Operator" 
+                          @bind-Value="_selectedOperator" 
+                          Variant="Variant.Outlined"
+                          ToStringFunc="@(op => ColumnTypeHelper.GetOperatorDisplayName(op))">
+                    @foreach (var op in _availableOperators)
+                    {
+                        <MudSelectItem Value="@op">@ColumnTypeHelper.GetOperatorDisplayName(op)</MudSelectItem>
+                    }
+                </MudSelect>
+
+                @* Value Input - Type-specific *@
+                @if (_selectedColumn.PropertyType != null)
+                {
+                    <If Condition="@ColumnTypeHelper.IsNumericType(_selectedColumn.PropertyType)">
+                        <True>
+                            <MudNumericField T="decimal?" 
+                                           Label="Value" 
+                                           @bind-Value="_numericValue" 
+                                           Variant="Variant.Outlined"
+                                           Required="true" />
+                        </True>
+                        <False>
+                            <If Condition="@ColumnTypeHelper.IsDateTimeType(_selectedColumn.PropertyType)">
+                                <True>
+                                    <MudDatePicker Label="Value" 
+                                                  @bind-Date="_dateValue" 
+                                                  Variant="Variant.Outlined"
+                                                  Required="true" />
+                                </True>
+                                <False>
+                                    <If Condition="@ColumnTypeHelper.IsBooleanType(_selectedColumn.PropertyType)">
+                                        <True>
+                                            <MudSelect T="bool?" 
+                                                      Label="Value" 
+                                                      @bind-Value="_boolValue" 
+                                                      Variant="Variant.Outlined"
+                                                      Required="true">
+                                                <MudSelectItem Value="@((bool?)true)">Yes</MudSelectItem>
+                                                <MudSelectItem Value="@((bool?)false)">No</MudSelectItem>
+                                            </MudSelect>
+                                        </True>
+                                        <False>
+                                            <If Condition="@ColumnTypeHelper.IsEnumType(_selectedColumn.PropertyType)">
+                                                <True>
+                                                    <MudSelect T="object?" 
+                                                              Label="Value" 
+                                                              @bind-Value="_enumValue" 
+                                                              Variant="Variant.Outlined"
+                                                              Required="true">
+                                                        @foreach (var enumVal in _enumValues)
+                                                        {
+                                                            <MudSelectItem Value="@enumVal.Value">@enumVal.Name</MudSelectItem>
+                                                        }
+                                                    </MudSelect>
+                                                </True>
+                                                <False>
+                                                    @* Default to string input *@
+                                                    <MudTextField T="string" 
+                                                                 Label="Value" 
+                                                                 @bind-Value="_stringValue" 
+                                                                 Variant="Variant.Outlined"
+                                                                 Required="true" />
+                                                </False>
+                                            </If>
+                                        </False>
+                                    </If>
+                                </False>
+                            </If>
+                        </False>
+                    </If>
+                }
+            </Show>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="@AddFilter" 
+                   Color="Color.Primary" 
+                   Variant="Variant.Filled"
+                   Disabled="@(!CanAddFilter)">
+            Add Filter
+        </MudButton>
+    </DialogActions>
+</MudDialog>

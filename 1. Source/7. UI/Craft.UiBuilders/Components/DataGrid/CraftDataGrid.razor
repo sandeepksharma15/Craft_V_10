@@ -36,18 +36,20 @@
 			</CraftDiv>
 		</Show>
 
+		@* Advanced Search Section *@
+		<Show When="@ShowSearch">
+			<CraftAdvancedSearch TEntity="TEntity"
+							   SearchableColumns="@SearchableColumns"
+							   @bind-Filters="_filters"
+							   OnFiltersChanged="@HandleFiltersChangedAsync" />
+		</Show>
+
 		<MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
 				  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"
 				  CurrentPage="@(_currentPage - 1)" SortLabel="@_currentSortColumn">
 
 			<ToolBarContent>
 				<MudSpacer />
-
-				<Show When="@ShowSearch">
-					<MudTextField @bind-Value="_searchString" Placeholder="@SearchPlaceholder" Adornment="Adornment.Start"
-								  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Immediate="true"
-								  DebounceInterval="300" OnDebounceIntervalElapsed="@SearchAsync" Class="mt-0" />
-				</Show>
 
 				<Show When="@_showExportMenu">
 					<MudMenu Icon="@Icons.Material.Filled.FileDownload" Color="Color.Default" Variant="Variant.Outlined" Size="Size.Medium" Class="ms-2">

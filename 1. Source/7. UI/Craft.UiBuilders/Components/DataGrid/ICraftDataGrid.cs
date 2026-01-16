@@ -52,6 +52,12 @@ public interface ICraftDataGridColumn<TEntity> where TEntity : class
     string? PropertyName { get; }
 
     /// <summary>
+    /// Property type. Auto-derived from PropertyExpression if not set.
+    /// Used for determining appropriate search operators and input types.
+    /// </summary>
+    Type? PropertyType { get; }
+
+    /// <summary>
     /// Property expression for accessing the entity property.
     /// </summary>
     Expression<Func<TEntity, object>>? PropertyExpression { get; set; }
