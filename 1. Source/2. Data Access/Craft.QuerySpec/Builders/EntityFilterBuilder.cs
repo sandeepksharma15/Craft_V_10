@@ -166,9 +166,30 @@ public class EntityFilterBuilder<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(propExpr);
 
-        var expression = GetExpression(propExpr, compareWith, comparisonType);
+        // Create filter info for comparison
+        var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
+        
+        // Try to find by metadata first (more reliable), then fall back to expression comparison
+        var toRemove = EntityFilterList.Find(x =>
+        {
+            if (x.Metadata is not null)
+            {
+                // Compare by metadata
+                return x.Metadata.Name == filterInfo.Name &&
+                       x.Metadata.Comparison == filterInfo.Comparison &&
+                       Equals(x.Metadata.Value, filterInfo.Value);
+            }
+            
+            // Fallback to expression comparison
+            var expression = GetExpression(propExpr, compareWith, comparisonType);
+            var comparer = new ExpressionSemanticEqualityComparer();
+            return comparer.Equals(x.Filter, expression);
+        });
 
-        return Remove(expression);
+        if (toRemove is not null)
+            EntityFilterList.Remove(toRemove);
+
+        return this;
     }
 
     /// <summary>
@@ -183,9 +204,10 @@ public class EntityFilterBuilder<T> where T : class
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(propName);
 
-        var expression = GetExpression(propName, compareWith, comparisonType);
+        var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName)
+            ?? throw new ArgumentException($"Property '{propName}' does not exist on type '{typeof(T).Name}'.", nameof(propName));
 
-        return Remove(expression);
+        return Remove(propExpr, compareWith, comparisonType);
     }
 
     /// <summary>

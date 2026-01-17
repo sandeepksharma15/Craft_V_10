@@ -9,6 +9,8 @@ namespace Craft.QuerySpec;
 public static class ExpressionBuilder
 {
     // Cached MethodInfo references for string operations
+    private static readonly MethodInfo _toLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)
+        ?? throw new InvalidOperationException("Could not find 'ToLower' method on string.");
     private static readonly MethodInfo _containsMethod = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])
         ?? throw new InvalidOperationException("Could not find 'Contains' method on string.");
     private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])
@@ -123,18 +125,22 @@ public static class ExpressionBuilder
         };
     }
 
-    // Creates the body of the filter expression for string types, using case-sensitive comparison.
+    // Creates the body of the filter expression for string types, using case-insensitive comparison via ToLower().
+    // Note: EF Core cannot translate StringComparison overloads, so we use ToLower() which it can translate to SQL.
     private static Expression CreateStringExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
-        var constantValue = Expression.Constant(value, dataType);
+        // Convert both sides to lowercase for case-insensitive comparison
+        var leftLower = Expression.Call(leftExpression, _toLowerMethod);
+        var valueLower = value?.ToString()?.ToLower();
+        var constantValue = Expression.Constant(valueLower, dataType);
 
         return comparison switch
         {
-            ComparisonType.EqualTo => Expression.Equal(leftExpression, constantValue),
-            ComparisonType.NotEqualTo => Expression.NotEqual(leftExpression, constantValue),
-            ComparisonType.Contains => Expression.Call(leftExpression, _containsMethod, constantValue),
-            ComparisonType.StartsWith => Expression.Call(leftExpression, _startsWithMethod, constantValue),
-            ComparisonType.EndsWith => Expression.Call(leftExpression, _endsWithMethod, constantValue),
+            ComparisonType.EqualTo => Expression.Equal(leftLower, constantValue),
+            ComparisonType.NotEqualTo => Expression.NotEqual(leftLower, constantValue),
+            ComparisonType.Contains => Expression.Call(leftLower, _containsMethod, constantValue),
+            ComparisonType.StartsWith => Expression.Call(leftLower, _startsWithMethod, constantValue),
+            ComparisonType.EndsWith => Expression.Call(leftLower, _endsWithMethod, constantValue),
             _ => throw new ArgumentException("String type doesn't support this comparison", nameof(comparison)),
         };
     }
