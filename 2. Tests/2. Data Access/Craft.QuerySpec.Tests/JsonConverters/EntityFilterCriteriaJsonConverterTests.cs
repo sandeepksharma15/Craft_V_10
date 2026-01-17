@@ -254,7 +254,7 @@ public class EntityFilterCriteriaJsonConverterTests
         }
 
         Assert.NotNull(exception);
-        Assert.Contains("Required property 'Filter' not found", exception.Message);
+        Assert.Contains("Required property 'Filter' or 'Metadata'", exception.Message);
     }
 
     [Fact]

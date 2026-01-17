@@ -90,9 +90,10 @@ public class EntityFilterBuilder<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(propExpr);
 
-        var expression = GetExpression(propExpr, compareWith, comparisonType);
+        var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
+        var expression = FilterCriteria.GetExpression<T>(filterInfo);
 
-        EntityFilterList.Add(new EntityFilterCriteria<T>(expression));
+        EntityFilterList.Add(new EntityFilterCriteria<T>(expression, filterInfo));
 
         return this;
     }
@@ -109,9 +110,13 @@ public class EntityFilterBuilder<T> where T : class
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(propName);
 
-        var expression = GetExpression(propName, compareWith, comparisonType);
+        var propExpr = ExpressionBuilder.GetPropertyExpression<T>(propName)
+            ?? throw new ArgumentException($"Property '{propName}' does not exist on type '{typeof(T).Name}'.", nameof(propName));
 
-        EntityFilterList.Add(new EntityFilterCriteria<T>(expression));
+        var filterInfo = FilterCriteria.GetFilterInfo(propExpr, compareWith, comparisonType);
+        var expression = FilterCriteria.GetExpression<T>(filterInfo);
+
+        EntityFilterList.Add(new EntityFilterCriteria<T>(expression, filterInfo));
 
         return this;
     }

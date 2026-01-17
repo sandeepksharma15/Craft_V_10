@@ -23,6 +23,9 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
     /// <summary>The JSON property name for the filter expression.</summary>
     private const string FilterPropertyName = "Filter";
 
+    /// <summary>The JSON property name for the filter metadata.</summary>
+    private const string MetadataPropertyName = "Metadata";
+
     /// <summary>Cached regex pattern for removing parameter accessors from expression strings.</summary>
     private static readonly Regex ParameterAccessorRegex = new(@"\((\w+)\.", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -49,6 +52,7 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
             throw new JsonException($"Expected StartObject token, but found {reader.TokenType}.");
 
         Expression<Func<T, bool>>? filter = null;
+        FilterCriteria? metadata = null;
 
         var propertyCount = 0;
 
@@ -67,7 +71,9 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
                     if (!reader.Read())
                         throw new JsonException("Unexpected end of JSON input while reading property value.");
 
-                    if (string.Equals(propertyName, FilterPropertyName, StringComparison.Ordinal))
+                    if (string.Equals(propertyName, MetadataPropertyName, StringComparison.Ordinal))
+                        metadata = JsonSerializer.Deserialize<FilterCriteria>(ref reader, options);
+                    else if (string.Equals(propertyName, FilterPropertyName, StringComparison.Ordinal))
                         filter = ReadFilterExpression(ref reader);
                     else
                         // Skip unknown properties gracefully instead of throwing
@@ -77,14 +83,36 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
                     throw new JsonException($"Unexpected token {reader.TokenType} while reading object properties.");
             }
 
-            // Validate that we found the required Filter property
-            if (filter is null)
-                if (propertyCount == 0)
-                    throw new JsonException("Empty JSON object is not valid for EntityFilterCriteria.");
-                else
-                    throw new JsonException($"Required property '{FilterPropertyName}' not found in JSON object.");
+            // Strategy: Try filter expression first (faster for simple expressions),
+            // then fall back to metadata (more reliable for complex expressions with method calls)
+            
+            // First, try to use the filter expression string if available
+            if (filter is not null)
+            {
+                try
+                {
+                    // Try to create EntityFilterCriteria from the expression
+                    // This works for simple expressions like "Name == 'John' && Age > 18"
+                    return new EntityFilterCriteria<T>(filter, metadata);
+                }
+                catch (ArgumentException)
+                {
+                    // Expression validation failed, fall through to metadata approach
+                }
+            }
 
-            return new EntityFilterCriteria<T>(filter);
+            // Second, try to recreate from metadata (handles complex expressions with method calls)
+            if (metadata is not null)
+            {
+                filter = FilterCriteria.GetExpression<T>(metadata);
+                return new EntityFilterCriteria<T>(filter, metadata);
+            }
+
+            // If we have neither valid filter nor metadata, throw
+            if (propertyCount == 0)
+                throw new JsonException("Empty JSON object is not valid for EntityFilterCriteria.");
+            else
+                throw new JsonException($"Required property '{FilterPropertyName}' or '{MetadataPropertyName}' not found in JSON object.");
         }
         catch (ArgumentException ex)
         {
