@@ -40,7 +40,7 @@
 		<Show When="@ShowSearch">
 			<CraftAdvancedSearch TEntity="TEntity"
 							   SearchableColumns="@SearchableColumns"
-							   @bind-Filters="_filters"
+							   @bind-FilterBuilder="_filterBuilder"
 							   OnFiltersChanged="@HandleFiltersChangedAsync" />
 		</Show>
 

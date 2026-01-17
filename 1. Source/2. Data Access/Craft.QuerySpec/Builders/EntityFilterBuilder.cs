@@ -47,6 +47,23 @@ public class EntityFilterBuilder<T> where T : class
     }
 
     /// <summary>
+    /// Adds a filter criteria based on a FilterCriteria object.
+    /// </summary>
+    /// <param name="criteria">The filter criteria containing property information, value, and comparison type.</param>
+    /// <returns>The builder instance.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="criteria"/> is null.</exception>
+    public EntityFilterBuilder<T> Add(FilterCriteria criteria)
+    {
+        ArgumentNullException.ThrowIfNull(criteria);
+
+        var expression = FilterCriteria.GetExpression<T>(criteria);
+
+        EntityFilterList.Add(new EntityFilterCriteria<T>(expression, criteria));
+
+        return this;
+    }
+
+    /// <summary>
     /// Adds a filter criteria based on a property expression, value, and comparison type.
     /// </summary>
     /// <param name="propExpr">The property expression.</param>

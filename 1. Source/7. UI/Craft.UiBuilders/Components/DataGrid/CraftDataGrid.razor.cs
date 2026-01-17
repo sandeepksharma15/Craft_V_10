@@ -1,7 +1,6 @@
 using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec;
-using Craft.UiBuilders.Models;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -20,7 +19,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
-    private List<FilterModel> _filters = [];
+    private EntityFilterBuilder<TEntity> _filterBuilder = new();
     private List<TEntity> _items = [];
     private int _currentPage = 1;
     private int _pageSize = 10;
@@ -528,16 +527,13 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     private void ApplyFilters(Query<TEntity> query)
     {
-        if (_filters.Count == 0 || query.EntityFilterBuilder is null)
+        if (_filterBuilder.Count == 0 || query.EntityFilterBuilder is null)
             return;
 
-        foreach (var filter in _filters)
+        // Copy filters from our builder to the query's builder
+        foreach (var filterCriteria in _filterBuilder.EntityFilterList)
         {
-            query.EntityFilterBuilder.Add(
-                filter.ColumnName,
-                filter.Value ?? string.Empty,
-                filter.Operator
-            );
+            query.EntityFilterBuilder.Add(filterCriteria.Filter);
         }
     }
 
@@ -581,9 +577,9 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     #region Private Methods - Event Handlers
 
-    private async Task HandleFiltersChangedAsync(List<FilterModel> filters)
+    private async Task HandleFiltersChangedAsync(EntityFilterBuilder<TEntity> filterBuilder)
     {
-        _filters = filters;
+        _filterBuilder = filterBuilder;
         _currentPage = 1; // Reset to first page when filters change
         await LoadDataAsync();
     }

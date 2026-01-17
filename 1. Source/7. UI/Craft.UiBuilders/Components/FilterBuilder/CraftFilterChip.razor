@@ -1,0 +1,45 @@
+@using Craft.QuerySpec
+@using Craft.UiBuilders.Generic
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Components
+
+<MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" OnClose="@HandleRemove" Class="ma-1">
+    @GetFilterDescription()
+</MudChip>
+
+@code {
+    [Parameter, EditorRequired] public FilterCriteria Filter { get; set; } = null!;
+
+    [Parameter] public EventCallback OnRemove { get; set; }
+
+    private async Task HandleRemove() 
+        => await OnRemove.InvokeAsync();
+
+    private string GetFilterDescription()
+    {
+        string operatorText = Filter.Comparison switch
+        {
+            ComparisonType.EqualTo => "=",
+            ComparisonType.NotEqualTo => "≠",
+            ComparisonType.GreaterThan => ">",
+            ComparisonType.GreaterThanOrEqualTo => "≥",
+            ComparisonType.LessThan => "<",
+            ComparisonType.LessThanOrEqualTo => "≤",
+            ComparisonType.Contains => "contains",
+            ComparisonType.StartsWith => "starts with",
+            ComparisonType.EndsWith => "ends with",
+            _ => "="
+        };
+
+        string valueText = Filter.Value switch
+        {
+            null => "null",
+            DateTime dt => dt.ToString("yyyy-MM-dd"),
+            bool b => b ? "Yes" : "No",
+            _ => Filter.Value.ToString() ?? string.Empty
+        };
+
+        return $"{Filter.DisplayTitle} {operatorText} {valueText}";
+    }
+}

@@ -1,7 +1,6 @@
 @using Craft.QuerySpec
 @using Craft.UiBuilders.Generic
 @using Craft.UiBuilders.Helpers
-@using Craft.UiBuilders.Models
 @using MudBlazor
 
 @namespace Craft.UiBuilders.Components
@@ -17,17 +16,6 @@
     </TitleContent>
     <DialogContent>
         <MudStack Spacing="3">
-            @* Logical Operator - Only show if not the first filter *@
-            <Show When="@(!IsFirstFilter)">
-                <MudSelect T="LogicalOperatorType" 
-                          Label="Combine with previous filter using" 
-                          @bind-Value="_logicalOperator" 
-                          Variant="Variant.Outlined">
-                    <MudSelectItem Value="LogicalOperatorType.And">AND (Both conditions must match)</MudSelectItem>
-                    <MudSelectItem Value="LogicalOperatorType.Or">OR (Either condition can match)</MudSelectItem>
-                </MudSelect>
-            </Show>
-
             @* Column Selector *@
             <MudSelect T="ICraftDataGridColumn<TEntity>" 
                       Label="Column" 

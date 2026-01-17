@@ -1,79 +1,88 @@
-using Craft.UiBuilders.Models;
+using Craft.QuerySpec;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Components;
 
 /// <summary>
-/// Reusable advanced search component with filter builder functionality.
+/// Advanced search component that manages filters for data grids.
 /// </summary>
 /// <typeparam name="TEntity">The entity type being filtered.</typeparam>
 public partial class CraftAdvancedSearch<TEntity> : ComponentBase
     where TEntity : class
 {
-    private bool _showFilterBuilder;
+    private bool _showFilterDialog;
 
     #region Parameters
 
     /// <summary>
-    /// List of searchable columns available for filtering.
+    /// List of searchable columns to choose from.
     /// </summary>
     [Parameter, EditorRequired]
     public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
 
     /// <summary>
-    /// List of currently applied filters.
+    /// The filter builder containing all active filters.
     /// </summary>
     [Parameter]
-    public List<FilterModel> Filters { get; set; } = [];
+    public EntityFilterBuilder<TEntity> FilterBuilder { get; set; } = new();
 
     /// <summary>
-    /// Callback invoked when the filters list changes.
+    /// Callback invoked when the FilterBuilder changes.
     /// </summary>
     [Parameter]
-    public EventCallback<List<FilterModel>> FiltersChanged { get; set; }
+    public EventCallback<EntityFilterBuilder<TEntity>> FilterBuilderChanged { get; set; }
 
     /// <summary>
-    /// Callback invoked when filters are applied or removed.
+    /// Callback invoked when filters are changed (added, removed, or cleared).
     /// </summary>
     [Parameter]
-    public EventCallback<List<FilterModel>> OnFiltersChanged { get; set; }
+    public EventCallback<EntityFilterBuilder<TEntity>> OnFiltersChanged { get; set; }
 
     #endregion
 
     #region Methods
 
-    private void OpenFilterBuilder()
+    private void OpenFilterDialog()
     {
-        _showFilterBuilder = true;
+        _showFilterDialog = true;
     }
 
-    private async Task HandleFilterAdded(FilterModel filter)
+    private async Task HandleFilterAddedAsync(FilterCriteria criteria)
     {
-        Filters.Add(filter);
-        await NotifyFiltersChanged();
+        // Add the filter to the builder with metadata
+        FilterBuilder.Add(criteria);
+
+        // Notify parent of the change
+        await FilterBuilderChanged.InvokeAsync(FilterBuilder);
+        await OnFiltersChanged.InvokeAsync(FilterBuilder);
     }
 
-    private async Task RemoveFilter(FilterModel filter)
+    private async Task RemoveFilterAsync(FilterCriteria criteria)
     {
-        Filters.Remove(filter);
+        // Find and remove the matching filter using metadata
+        var toRemove = FilterBuilder.EntityFilterList
+            .FirstOrDefault(f => f.Metadata is not null 
+                              && f.Metadata.Name == criteria.Name 
+                              && Equals(f.Metadata.Value, criteria.Value) 
+                              && f.Metadata.Comparison == criteria.Comparison);
 
-        // Update logical operators for remaining filters
-        if (Filters.Count > 0)
-            Filters[0].LogicalOperator = null;
+        if (toRemove is not null)
+        {
+            FilterBuilder.EntityFilterList.Remove(toRemove);
 
-        await NotifyFiltersChanged();
+            // Notify parent of the change
+            await FilterBuilderChanged.InvokeAsync(FilterBuilder);
+            await OnFiltersChanged.InvokeAsync(FilterBuilder);
+        }
     }
 
-    private async Task ClearAllFilters()
+    private async Task ClearAllFiltersAsync()
     {
-        Filters.Clear();
-        await NotifyFiltersChanged();
-    }
+        FilterBuilder.Clear();
 
-    private async Task NotifyFiltersChanged()
-    {
-        await FiltersChanged.InvokeAsync(Filters);
-        await OnFiltersChanged.InvokeAsync(Filters);
+        // Notify parent of the change
+        await FilterBuilderChanged.InvokeAsync(FilterBuilder);
+        await OnFiltersChanged.InvokeAsync(FilterBuilder);
     }
 
     #endregion

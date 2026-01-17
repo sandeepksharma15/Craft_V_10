@@ -6,6 +6,10 @@ namespace Craft.UiBuilders.Models;
 /// Represents a filter model for advanced search functionality.
 /// Contains column information, comparison operator, value, and logical operator for combining with other filters.
 /// </summary>
+/// <remarks>
+/// This class is obsolete. Use <see cref="FilterCriteria"/> from Craft.QuerySpec and <see cref="EntityFilterBuilder{T}"/> instead.
+/// </remarks>
+[Obsolete("Use FilterCriteria from Craft.QuerySpec and EntityFilterBuilder<T> instead. This class will be removed in a future version.")]
 public sealed class FilterModel
 {
     /// <summary>
@@ -81,6 +85,10 @@ public sealed class FilterModel
 /// <summary>
 /// Represents logical operators for combining multiple filters.
 /// </summary>
+/// <remarks>
+/// This enum is obsolete. Logical operator support has been temporarily removed and will be reimplemented in a future version.
+/// </remarks>
+[Obsolete("Logical operator support has been temporarily removed. This enum will be removed or reimplemented in a future version.")]
 public enum LogicalOperatorType
 {
     /// <summary>

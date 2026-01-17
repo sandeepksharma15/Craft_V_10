@@ -26,6 +26,9 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     /// Gets the compiled predicate function for efficient entity evaluation.
     public Func<T, bool> FilterFunc => _filterFunc.Value;
 
+    /// Gets the optional metadata about the filter for UI display purposes.
+    public FilterCriteria? Metadata { get; }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="EntityFilterCriteria{T}"/> class.
     /// </summary>
@@ -33,12 +36,25 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="filter"/> is null.</exception>
     /// <exception cref="ArgumentException">Thrown when the filter expression is invalid or cannot be compiled.</exception>
     public EntityFilterCriteria([NotNull] Expression<Func<T, bool>> filter)
+        : this(filter, null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntityFilterCriteria{T}"/> class with optional metadata.
+    /// </summary>
+    /// <param name="filter">The LINQ expression that defines the filter criteria.</param>
+    /// <param name="metadata">Optional metadata about the filter for UI display purposes.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="filter"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the filter expression is invalid or cannot be compiled.</exception>
+    public EntityFilterCriteria([NotNull] Expression<Func<T, bool>> filter, FilterCriteria? metadata)
     {
         ArgumentNullException.ThrowIfNull(filter, nameof(filter));
 
         ValidateExpression(filter);
 
         Filter = filter;
+        Metadata = metadata;
         _filterFunc = new Lazy<Func<T, bool>>(CompileExpression, LazyThreadSafetyMode.ExecutionAndPublication);
         _hashCode = ComputeHashCode(filter);
     }

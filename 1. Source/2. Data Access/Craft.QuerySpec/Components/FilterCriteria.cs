@@ -29,14 +29,20 @@ public sealed record FilterCriteria
     public ComparisonType Comparison { get; }
 
     /// <summary>
+    /// Optional display title for UI components. Defaults to the property name if not provided.
+    /// </summary>
+    public string DisplayTitle { get; }
+
+    /// <summary>
     /// Initializes a new instance of <see cref="FilterCriteria"/>.
     /// </summary>
     /// <param name="propertyType">The type of the property.</param>
     /// <param name="name">The property name.</param>
     /// <param name="value">The value to compare with.</param>
     /// <param name="comparison">The comparison type.</param>
+    /// <param name="displayTitle">Optional display title for UI components. If null, uses the property name.</param>
     /// <exception cref="ArgumentNullException">Thrown if any required argument is null.</exception>
-    public FilterCriteria(Type propertyType, string name, object? value, ComparisonType comparison = ComparisonType.EqualTo)
+    public FilterCriteria(Type propertyType, string name, object? value, ComparisonType comparison = ComparisonType.EqualTo, string? displayTitle = null)
     {
         ArgumentNullException.ThrowIfNull(propertyType, nameof(propertyType));
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
@@ -56,6 +62,7 @@ public sealed record FilterCriteria
         Name = name;
         Value = value;
         Comparison = comparison;
+        DisplayTitle = displayTitle ?? name;
     }
 
     /// <summary>

@@ -15,7 +15,6 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
 {
     private ICraftDataGridColumn<TEntity>? _selectedColumn;
     private ComparisonType _selectedOperator = ComparisonType.EqualTo;
-    private LogicalOperatorType _logicalOperator = LogicalOperatorType.And;
     private List<ComparisonType> _availableOperators = [];
     private List<(string Name, object Value)> _enumValues = [];
 
@@ -53,16 +52,10 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
     public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
 
     /// <summary>
-    /// Indicates if this is the first filter (affects logical operator display).
-    /// </summary>
-    [Parameter]
-    public bool IsFirstFilter { get; set; } = true;
-
-    /// <summary>
     /// Callback invoked when a filter is added.
     /// </summary>
     [Parameter]
-    public EventCallback<FilterModel> OnFilterAdded { get; set; }
+    public EventCallback<FilterCriteria> OnFilterAdded { get; set; }
 
     #endregion
 
@@ -128,15 +121,13 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
         if (value is null && !CanValueBeNull(_selectedColumn.PropertyType))
             return;
 
-        var filter = new FilterModel
-        {
-            ColumnName = _selectedColumn.PropertyName ?? string.Empty,
-            ColumnTitle = _selectedColumn.Title,
-            PropertyType = _selectedColumn.PropertyType,
-            Operator = _selectedOperator,
-            Value = value,
-            LogicalOperator = IsFirstFilter ? null : _logicalOperator
-        };
+        var filter = new FilterCriteria(
+            propertyType: _selectedColumn.PropertyType,
+            name: _selectedColumn.PropertyName ?? string.Empty,
+            value: value,
+            comparison: _selectedOperator,
+            displayTitle: _selectedColumn.Title
+        );
 
         await OnFilterAdded.InvokeAsync(filter);
         await CloseDialog();
@@ -204,7 +195,6 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
     {
         _selectedColumn = null;
         _selectedOperator = ComparisonType.EqualTo;
-        _logicalOperator = LogicalOperatorType.And;
         _stringValue = null;
         _numericValue = null;
         _dateValue = null;
