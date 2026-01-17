@@ -369,7 +369,8 @@ public class EntityFilterCriteriaJsonConverterTests
         }
 
         Assert.NotNull(exception);
-        Assert.Contains("Unable to parse filter expression", exception.Message);
+        // With metadata fallback, invalid filter without metadata results in this error
+        Assert.Contains("Required property 'Filter' or 'Metadata'", exception.Message);
     }
 
     [Fact]

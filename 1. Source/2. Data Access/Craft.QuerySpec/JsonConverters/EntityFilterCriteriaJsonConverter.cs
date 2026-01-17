@@ -78,7 +78,21 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
                         metadata = JsonSerializer.Deserialize<FilterCriteria>(ref reader, localOptions);
                     }
                     else if (string.Equals(propertyName, FilterPropertyName, StringComparison.Ordinal))
-                        filter = ReadFilterExpression(ref reader);
+                    {
+                        try
+                        {
+                            // Try to read and parse the filter expression
+                            filter = ReadFilterExpression(ref reader);
+                        }
+                        catch (JsonException ex) when (ex.Message.Contains("Unable to parse filter expression") || 
+                                                        ex.Message.Contains("Failed to parse filter expression"))
+                        {
+                            // Filter string cannot be parsed (e.g., contains method calls)
+                            // Skip it and rely on metadata for reconstruction
+                            filter = null;
+                        }
+                        // Let other JsonExceptions (validation errors) propagate
+                    }
                     else
                         // Skip unknown properties gracefully instead of throwing
                         SkipJsonValue(ref reader);
@@ -154,8 +168,14 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
             {
                 var localOptions = new JsonSerializerOptions(options);
                 localOptions.Converters.Add(new FilterCriteriaJsonConverter());
+
+                // Write metadata for reliable deserialization of complex expressions
                 writer.WritePropertyName(MetadataPropertyName);
                 JsonSerializer.Serialize(writer, value.Metadata, localOptions);
+
+                // Also write filter string for fast-path optimization during deserialization
+                var filterString = SerializeFilterExpression(value.Filter);
+                writer.WriteString(FilterPropertyName, filterString);
             }
             else
             {
