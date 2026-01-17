@@ -72,7 +72,11 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
                         throw new JsonException("Unexpected end of JSON input while reading property value.");
 
                     if (string.Equals(propertyName, MetadataPropertyName, StringComparison.Ordinal))
-                        metadata = JsonSerializer.Deserialize<FilterCriteria>(ref reader, options);
+                    {
+                        var localOptions = new JsonSerializerOptions(options);
+                        localOptions.Converters.Add(new FilterCriteriaJsonConverter());
+                        metadata = JsonSerializer.Deserialize<FilterCriteria>(ref reader, localOptions);
+                    }
                     else if (string.Equals(propertyName, FilterPropertyName, StringComparison.Ordinal))
                         filter = ReadFilterExpression(ref reader);
                     else
@@ -145,8 +149,20 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
         {
             writer.WriteStartObject();
 
-            var filterString = SerializeFilterExpression(value.Filter);
-            writer.WriteString(FilterPropertyName, filterString);
+            // Serialize metadata if available (preferred for reliable deserialization)
+            if (value.Metadata is not null)
+            {
+                var localOptions = new JsonSerializerOptions(options);
+                localOptions.Converters.Add(new FilterCriteriaJsonConverter());
+                writer.WritePropertyName(MetadataPropertyName);
+                JsonSerializer.Serialize(writer, value.Metadata, localOptions);
+            }
+            else
+            {
+                // Fallback to serializing filter expression string (for backward compatibility)
+                var filterString = SerializeFilterExpression(value.Filter);
+                writer.WriteString(FilterPropertyName, filterString);
+            }
 
             writer.WriteEndObject();
         }
