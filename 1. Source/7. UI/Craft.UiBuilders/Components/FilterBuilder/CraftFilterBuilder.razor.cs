@@ -94,6 +94,14 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
             UpdateAvailableOperators(_selectedColumn.PropertyType);
     }
 
+    private Task OnColumnSelectedAsync()
+    {
+        if (_selectedColumn?.PropertyType is not null)
+            UpdateAvailableOperators(_selectedColumn.PropertyType);
+
+        return Task.CompletedTask;
+    }
+
     private void UpdateAvailableOperators(Type propertyType)
     {
         _availableOperators = propertyType.GetValidComparisonOperators();

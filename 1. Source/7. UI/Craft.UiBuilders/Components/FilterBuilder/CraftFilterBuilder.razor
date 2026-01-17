@@ -20,7 +20,8 @@
             @* Column Selector *@
             <MudSelect T="ICraftDataGridColumn<TEntity>" 
                       Label="Column" 
-                      @bind-Value="_selectedColumn" 
+                      @bind-Value="_selectedColumn"
+                      @bind-Value:after="OnColumnSelectedAsync"
                       Variant="Variant.Outlined"
                       ToStringFunc="@(col => col?.Title ?? string.Empty)"
                       Required="true"

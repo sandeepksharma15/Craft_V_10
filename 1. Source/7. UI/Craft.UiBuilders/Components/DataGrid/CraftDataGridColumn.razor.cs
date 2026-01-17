@@ -268,7 +268,8 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
         return expression switch
         {
             MemberExpression memberExpression => GetMemberType(memberExpression.Member),
-            UnaryExpression unaryExpression when unaryExpression.Operand is MemberExpression operand => GetMemberType(operand.Member),
+            UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression when unaryExpression.Operand is MemberExpression operand 
+                => GetMemberType(operand.Member),
             LambdaExpression lambdaExpression => GetPropertyType(lambdaExpression.Body),
             _ => null
         };

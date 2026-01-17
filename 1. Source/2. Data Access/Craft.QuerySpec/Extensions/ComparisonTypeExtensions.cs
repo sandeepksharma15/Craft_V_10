@@ -37,8 +37,7 @@ public static class ComparisonTypeExtensions
         var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
         if (underlyingType.IsNumeric())
-            return
-            [
+            return [
                 ComparisonType.EqualTo,
                 ComparisonType.NotEqualTo,
                 ComparisonType.GreaterThan,
@@ -48,8 +47,7 @@ public static class ComparisonTypeExtensions
             ];
 
         if (underlyingType == typeof(string))
-            return
-            [
+            return [
                 ComparisonType.EqualTo,
                 ComparisonType.NotEqualTo,
                 ComparisonType.Contains,
@@ -58,8 +56,7 @@ public static class ComparisonTypeExtensions
             ];
 
         if (underlyingType.IsDateTime())
-            return
-            [
+            return [
                 ComparisonType.EqualTo,
                 ComparisonType.NotEqualTo,
                 ComparisonType.GreaterThan,
@@ -74,6 +71,13 @@ public static class ComparisonTypeExtensions
         if (underlyingType.IsEnumType())
             return [ComparisonType.EqualTo];
 
-        return [ComparisonType.EqualTo, ComparisonType.NotEqualTo, ComparisonType.StartsWith, ComparisonType.EndsWith, ComparisonType.Contains];
+        // Default fallback for unknown types (treat as string-like for search flexibility)
+        return [
+            ComparisonType.EqualTo,
+            ComparisonType.NotEqualTo,
+            ComparisonType.Contains,
+            ComparisonType.StartsWith,
+            ComparisonType.EndsWith
+        ];
     }
 }
