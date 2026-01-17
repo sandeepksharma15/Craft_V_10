@@ -267,4 +267,46 @@ public static class TypeExtensions
     /// determined.</returns>
     public static string? GetClassName(this Type type)
         => type.ToString().GetStringAfterLastDelimiter();
+
+    /// <summary>
+    /// Determines if a type is a date/time type.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns><see langword="true"/> if the type is DateTime, DateTimeOffset, DateOnly, or a nullable version of these types; otherwise, <see langword="false"/>.</returns>
+    public static bool IsDateTime(this Type? type)
+    {
+        if (type is null) return false;
+
+        var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+
+        return underlyingType == typeof(DateTime)
+            || underlyingType == typeof(DateTimeOffset)
+            || underlyingType == typeof(DateOnly);
+    }
+
+    /// <summary>
+    /// Determines if a type is a boolean.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns><see langword="true"/> if the type is bool or bool?; otherwise, <see langword="false"/>.</returns>
+    public static bool IsBoolean(this Type? type)
+    {
+        if (type is null) return false;
+
+        var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+        return underlyingType == typeof(bool);
+    }
+
+    /// <summary>
+    /// Determines if a type is an enum.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns><see langword="true"/> if the type is an enum or nullable enum; otherwise, <see langword="false"/>.</returns>
+    public static bool IsEnumType(this Type? type)
+    {
+        if (type is null) return false;
+
+        var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+        return underlyingType.IsEnum;
+    }
 }

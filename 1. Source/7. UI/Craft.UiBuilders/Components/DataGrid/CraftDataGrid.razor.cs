@@ -272,7 +272,8 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// Message displayed in the delete confirmation dialog.
     /// Default is "Are you sure you want to delete this record? This action cannot be undone.".
     /// </summary>
-    [Parameter] public string DeleteConfirmationMessage { get; set; } 
+    [Parameter]
+    public string DeleteConfirmationMessage { get; set; }
         = "Are you sure you want to delete this record? This action cannot be undone.";
 
     #endregion
@@ -368,7 +369,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        
+
         if (firstRender)
             await LoadDataAsync();
     }
@@ -483,7 +484,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
             {
                 _hasError = true;
                 _errorMessage = result.Errors?.FirstOrDefault() ?? "Failed to load data.";
-                
+
                 Snackbar?.Add(_errorMessage, Severity.Error);
             }
         }
@@ -495,7 +496,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         {
             _hasError = true;
             _errorMessage = $"An error occurred while loading data: {ex.Message}";
-            
+
             Snackbar?.Add(_errorMessage, Severity.Error);
         }
         finally
@@ -532,9 +533,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
         // Copy filters from our builder to the query's builder
         foreach (var filterCriteria in _filterBuilder.EntityFilterList)
-        {
             query.EntityFilterBuilder.Add(filterCriteria);
-        }
     }
 
     private void ApplySorting(Query<TEntity> query)
@@ -543,14 +542,14 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         if (!string.IsNullOrWhiteSpace(_currentSortColumn) && _currentSortDirection != GridSortDirection.None)
         {
             var sortColumn = Columns.FirstOrDefault(c => c.PropertyName == _currentSortColumn);
-            
+
             if (sortColumn?.PropertyExpression is not null)
             {
                 if (_currentSortDirection == GridSortDirection.Descending)
                     query.OrderByDescending(sortColumn.PropertyExpression);
                 else
                     query.OrderBy(sortColumn.PropertyExpression);
-                
+
                 return; // User sorting takes precedence, skip default sorting
             }
         }
@@ -600,7 +599,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
         // Reset to first page when sorting changes
         _currentPage = 1;
-        
+
         // Reload data with new sorting
         await LoadDataAsync();
     }
@@ -640,9 +639,9 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         try
         {
             await OnDelete.InvokeAsync(_itemToDelete);
-            
+
             Snackbar?.Add("Record deleted successfully", Severity.Success);
-            
+
             // Refresh the grid
             await LoadDataAsync();
         }

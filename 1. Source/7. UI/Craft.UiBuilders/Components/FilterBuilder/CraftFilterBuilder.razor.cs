@@ -1,5 +1,4 @@
 using Craft.QuerySpec;
-using Craft.UiBuilders.Helpers;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -67,16 +66,16 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
             if (_selectedColumn?.PropertyType is null)
                 return false;
 
-            if (ColumnTypeHelper.IsNumericType(_selectedColumn.PropertyType))
+            if (_selectedColumn.PropertyType.IsNumeric())
                 return _numericValue.HasValue;
 
-            if (ColumnTypeHelper.IsDateTimeType(_selectedColumn.PropertyType))
+            if (_selectedColumn.PropertyType.IsDateTime())
                 return _dateValue.HasValue;
 
-            if (ColumnTypeHelper.IsBooleanType(_selectedColumn.PropertyType))
+            if (_selectedColumn.PropertyType.IsBoolean())
                 return _boolValue.HasValue;
 
-            if (ColumnTypeHelper.IsEnumType(_selectedColumn.PropertyType))
+            if (_selectedColumn.PropertyType.IsEnumType())
                 return _enumValue is not null;
 
             return !string.IsNullOrWhiteSpace(_stringValue);
@@ -97,13 +96,13 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
 
     private void UpdateAvailableOperators(Type propertyType)
     {
-        _availableOperators = ColumnTypeHelper.GetValidOperators(propertyType);
+        _availableOperators = propertyType.GetValidComparisonOperators();
 
         if (!_availableOperators.Contains(_selectedOperator))
             _selectedOperator = _availableOperators.FirstOrDefault();
 
-        if (ColumnTypeHelper.IsEnumType(propertyType))
-            _enumValues = ColumnTypeHelper.GetEnumValues(propertyType);
+        if (propertyType.IsEnumType())
+            _enumValues = propertyType.GetEnumNameValuePairs();
     }
 
     private async Task AddFilter()
@@ -134,16 +133,16 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
         if (_selectedColumn?.PropertyType is null)
             return null;
 
-        if (ColumnTypeHelper.IsNumericType(_selectedColumn.PropertyType))
+        if (_selectedColumn.PropertyType.IsNumeric())
             return ConvertNumericValue(_selectedColumn.PropertyType, _numericValue);
 
-        if (ColumnTypeHelper.IsDateTimeType(_selectedColumn.PropertyType))
+        if (_selectedColumn.PropertyType.IsDateTime())
             return _dateValue;
 
-        if (ColumnTypeHelper.IsBooleanType(_selectedColumn.PropertyType))
+        if (_selectedColumn.PropertyType.IsBoolean())
             return _boolValue;
 
-        if (ColumnTypeHelper.IsEnumType(_selectedColumn.PropertyType))
+        if (_selectedColumn.PropertyType.IsEnumType())
             return _enumValue;
 
         return _stringValue;

@@ -186,4 +186,24 @@ public static class EnumExtensions
             .GetFlags()
             .Any(item => value.Contains(item.ToStringInvariant(), StringComparison.InvariantCultureIgnoreCase));
     }
+
+    /// <summary>
+    /// Gets all enum values for a given enum type along with their names.
+    /// </summary>
+    /// <param name="enumType">The enum type to get values from.</param>
+    /// <returns>A list of tuples containing the name and value of each enum member. Returns an empty list if the type is not an enum.</returns>
+    /// <remarks>
+    /// This method handles nullable enum types by extracting the underlying enum type.
+    /// </remarks>
+    public static List<(string Name, object Value)> GetEnumNameValuePairs(this Type enumType)
+    {
+        var underlyingType = Nullable.GetUnderlyingType(enumType) ?? enumType;
+
+        if (!underlyingType.IsEnum)
+            return [];
+
+        return [.. Enum.GetValues(underlyingType)
+            .Cast<object>()
+            .Select(value => (Name: value.ToString() ?? string.Empty, Value: value))];
+    }
 }
