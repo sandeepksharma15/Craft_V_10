@@ -38,10 +38,8 @@
 
 		@* Advanced Search Section *@
 		<Show When="@ShowSearch">
-			<CraftAdvancedSearch TEntity="TEntity"
-							   SearchableColumns="@SearchableColumns"
-							   @bind-FilterBuilder="_filterBuilder"
-							   OnFiltersChanged="@HandleFiltersChangedAsync" />
+			<CraftAdvancedSearch TEntity="TEntity" SearchableColumns="@SearchableColumns"
+							   @bind-FilterBuilder="_filterBuilder" OnFiltersChanged="@HandleFiltersChangedAsync" />
 		</Show>
 
 		<MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"

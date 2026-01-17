@@ -50,8 +50,7 @@ public sealed record FilterCriteria
         // Check if value is null and propertyType is not nullable
         if (value is null)
         {
-            bool isNullable =
-                !propertyType.IsValueType // Reference type
+            bool isNullable = !propertyType.IsValueType // Reference type
                 || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>));
 
             if (!isNullable)

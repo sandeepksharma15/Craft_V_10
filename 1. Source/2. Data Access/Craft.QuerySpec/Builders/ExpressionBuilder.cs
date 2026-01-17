@@ -13,12 +13,8 @@ public static class ExpressionBuilder
         ?? throw new InvalidOperationException("Could not find 'Contains' method on string.");
     private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])
         ?? throw new InvalidOperationException("Could not find 'EndsWith' method on string.");
-    private static readonly MethodInfo _equalsMethod = typeof(string).GetMethod(nameof(string.Equals), [typeof(string)])
-        ?? throw new InvalidOperationException("Could not find 'Equals' method on string.");
     private static readonly MethodInfo _startsWithMethod = typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])
         ?? throw new InvalidOperationException("Could not find 'StartsWith' method on string.");
-    private static readonly MethodInfo _toUpperMethod = typeof(string).GetMethod(nameof(string.ToUpper), [])
-        ?? throw new InvalidOperationException("Could not find 'ToUpper' method on string.");
 
     /// <summary>
     /// Creates a LINQ where expression for the given filter criteria.
@@ -127,19 +123,18 @@ public static class ExpressionBuilder
         };
     }
 
-    // Creates the body of the filter expression for string types, using case-insensitive comparison.
+    // Creates the body of the filter expression for string types, using case-sensitive comparison.
     private static Expression CreateStringExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
-        var upperCaseValue = Expression.Call(Expression.Constant(value, dataType), _toUpperMethod);
-        var upperMember = Expression.Call(leftExpression, _toUpperMethod);
+        var constantValue = Expression.Constant(value, dataType);
 
         return comparison switch
         {
-            ComparisonType.EndsWith => Expression.Call(upperMember, _endsWithMethod, upperCaseValue),
-            ComparisonType.Contains => Expression.Call(upperMember, _containsMethod, upperCaseValue),
-            ComparisonType.StartsWith => Expression.Call(upperMember, _startsWithMethod, upperCaseValue),
-            ComparisonType.EqualTo => Expression.Call(upperMember, _equalsMethod, upperCaseValue),
-            ComparisonType.NotEqualTo => Expression.Not(Expression.Call(upperMember, _equalsMethod, upperCaseValue)),
+            ComparisonType.EqualTo => Expression.Equal(leftExpression, constantValue),
+            ComparisonType.NotEqualTo => Expression.NotEqual(leftExpression, constantValue),
+            ComparisonType.Contains => Expression.Call(leftExpression, _containsMethod, constantValue),
+            ComparisonType.StartsWith => Expression.Call(leftExpression, _startsWithMethod, constantValue),
+            ComparisonType.EndsWith => Expression.Call(leftExpression, _endsWithMethod, constantValue),
             _ => throw new ArgumentException("String type doesn't support this comparison", nameof(comparison)),
         };
     }

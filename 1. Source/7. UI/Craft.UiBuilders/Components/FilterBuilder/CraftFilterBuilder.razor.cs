@@ -35,26 +35,22 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
     /// <summary>
     /// Controls the visibility of the dialog.
     /// </summary>
-    [Parameter]
-    public bool Visible { get; set; }
+    [Parameter] public bool Visible { get; set; }
 
     /// <summary>
     /// Callback invoked when visibility changes.
     /// </summary>
-    [Parameter]
-    public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
 
     /// <summary>
     /// List of searchable columns to choose from.
     /// </summary>
-    [Parameter, EditorRequired]
-    public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
+    [Parameter, EditorRequired] public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
 
     /// <summary>
     /// Callback invoked when a filter is added.
     /// </summary>
-    [Parameter]
-    public EventCallback<FilterCriteria> OnFilterAdded { get; set; }
+    [Parameter] public EventCallback<FilterCriteria> OnFilterAdded { get; set; }
 
     #endregion
 

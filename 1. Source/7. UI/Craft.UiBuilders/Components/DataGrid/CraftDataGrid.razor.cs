@@ -533,7 +533,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         // Copy filters from our builder to the query's builder
         foreach (var filterCriteria in _filterBuilder.EntityFilterList)
         {
-            query.EntityFilterBuilder.Add(filterCriteria.Filter);
+            query.EntityFilterBuilder.Add(filterCriteria);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
+using iText.Signatures.Validation.Lotl.Criteria;
 
 namespace Craft.QuerySpec;
 
@@ -42,6 +43,20 @@ public class EntityFilterBuilder<T> where T : class
             expression = (Expression<Func<T, bool>>)expression.ReduceAndCheck();
 
         EntityFilterList.Add(new EntityFilterCriteria<T>(expression));
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds the specified filter criteria to the builder.
+    /// </summary>
+    /// <param name="entityFilterCriteria">The filter criteria to add. Cannot be null.</param>
+    /// <returns>The current <see cref="EntityFilterBuilder{T}"/> instance with the added filter criteria.</returns>
+    public EntityFilterBuilder<T> Add(EntityFilterCriteria<T> entityFilterCriteria)
+    {
+        ArgumentNullException.ThrowIfNull(entityFilterCriteria);
+
+        EntityFilterList.Add(entityFilterCriteria);
 
         return this;
     }

@@ -17,26 +17,22 @@ public partial class CraftAdvancedSearch<TEntity> : ComponentBase
     /// <summary>
     /// List of searchable columns to choose from.
     /// </summary>
-    [Parameter, EditorRequired]
-    public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
+    [Parameter, EditorRequired] public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
 
     /// <summary>
     /// The filter builder containing all active filters.
     /// </summary>
-    [Parameter]
-    public EntityFilterBuilder<TEntity> FilterBuilder { get; set; } = new();
+    [Parameter] public EntityFilterBuilder<TEntity> FilterBuilder { get; set; } = new();
 
     /// <summary>
     /// Callback invoked when the FilterBuilder changes.
     /// </summary>
-    [Parameter]
-    public EventCallback<EntityFilterBuilder<TEntity>> FilterBuilderChanged { get; set; }
+    [Parameter] public EventCallback<EntityFilterBuilder<TEntity>> FilterBuilderChanged { get; set; }
 
     /// <summary>
     /// Callback invoked when filters are changed (added, removed, or cleared).
     /// </summary>
-    [Parameter]
-    public EventCallback<EntityFilterBuilder<TEntity>> OnFiltersChanged { get; set; }
+    [Parameter] public EventCallback<EntityFilterBuilder<TEntity>> OnFiltersChanged { get; set; }
 
     #endregion
 
