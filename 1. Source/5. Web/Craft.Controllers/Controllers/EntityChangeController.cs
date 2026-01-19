@@ -1,5 +1,6 @@
 ﻿using Craft.Domain;
 using Craft.Repositories;
+using Humanizer;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -91,7 +92,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     /// <returns>A user-friendly error message.</returns>
     private string HandleDatabaseException(Exception innerException)
     {
-        string entityName = typeof(T).Name;
+        string entityName = typeof(T).Name.Humanize();  // "Location", "Customer Order"
         string exceptionTypeName = innerException.GetType().Name;
 
         // Extract common properties using reflection (works for PostgreSQL, SQL Server, etc.)
@@ -131,8 +132,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         {
             // Unique constraint violation
             "23505" => fieldName != null
-                ? $"A {entityName.ToLower()} with this {fieldName} already exists. Please use a different value."
-                : $"A {entityName.ToLower()} with this value already exists. Please use a different value.",
+                ? $"A {entityName} with this {fieldName} already exists. Please use a different value."
+                : $"A {entityName} with this value already exists. Please use a different value.",
 
             // Foreign key violation (on insert/update)
             "23503" => fieldName != null
@@ -199,8 +200,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         {
             // Unique constraint/index violation
             2601 or 2627 => fieldName != null
-                ? $"A {entityName.ToLower()} with this {fieldName} already exists. Please use a different value."
-                : $"A {entityName.ToLower()} with this value already exists. Please use a different value.",
+                ? $"A {entityName} with this {fieldName} already exists. Please use a different value."
+                : $"A {entityName} with this value already exists. Please use a different value.",
 
             // Foreign key violation / Check constraint violation (both use 547)
             547 => messageText.ToLower().Contains("foreign key")
@@ -247,8 +248,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         if (lowerMessage.Contains("unique") || lowerMessage.Contains("duplicate"))
         {
             return fieldName != null
-                ? $"A {entityName.ToLower()} with this {fieldName} already exists. Please use a different value."
-                : $"A {entityName.ToLower()} with this value already exists. Please use a different value.";
+                ? $"A {entityName} with this {fieldName} already exists. Please use a different value."
+                : $"A {entityName} with this value already exists. Please use a different value.";
         }
 
         if (lowerMessage.Contains("foreign key") || lowerMessage.Contains("reference"))
@@ -308,27 +309,49 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
 
     /// <summary>
     /// Attempts to extract a field name from a database constraint name.
-    /// Common patterns: IX_TableName_FieldName, FK_TableName_FieldName, CK_TableName_FieldName, etc.
+    /// Supports EF Core default naming: IX_TableName_FieldName, FK_TableName_FieldName, etc.
+    /// Also handles composite keys and humanizes the field names.
     /// </summary>
     /// <param name="constraintName">The constraint name from the database.</param>
-    /// <returns>The extracted field name, or null if extraction fails.</returns>
+    /// <returns>The extracted and humanized field name(s), or null if extraction fails.</returns>
     private static string? ExtractFieldNameFromConstraint(string? constraintName)
     {
         if (string.IsNullOrWhiteSpace(constraintName))
             return null;
 
-        // Pattern: IX_TableName_FieldName, FK_TableName_FieldName, etc.
-        // Matches patterns like IX_MD_Locations_Name, FK_Orders_CustomerId
-        var match = Regex.Match(constraintName, @"^[A-Z]{2}_[^_]+_(.+)$");
-
-        if (match.Success)
+        try
         {
-            string fieldName = match.Groups[1].Value;
+            // EF Core default pattern (case-insensitive): IX_TableName_FieldName(s)
+            // Examples: IX_Locations_Name, FK_Orders_CustomerId, IX_Weeks_YearId_WeekNumber
             
-            // Convert PascalCase to readable format (e.g., "CustomerName" -> "customer name")
-            fieldName = Regex.Replace(fieldName, "([a-z])([A-Z])", "$1 $2").ToLower();
+            // Match pattern: PREFIX_TableName_FieldName(s)
+            // Prefix can be: IX (index), FK (foreign key), PK (primary key), CK (check), UQ (unique)
+            var match = Regex.Match(constraintName, @"^[A-Z]{2}_[^_]+_(.+)$", RegexOptions.IgnoreCase);
             
-            return fieldName;
+            if (match.Success)
+            {
+                string fieldsPart = match.Groups[1].Value;
+                
+                // Handle composite keys (multiple fields separated by underscores)
+                // Examples: "YearId_WeekNumber", "LocationId_BorderOrgId"
+                var fields = fieldsPart.Split('_', StringSplitOptions.RemoveEmptyEntries);
+                
+                if (fields.Length == 1)
+                {
+                    // Single field - humanize it
+                    return fields[0].Humanize(LetterCasing.Title);
+                }
+                else if (fields.Length > 1)
+                {
+                    // Multiple fields - humanize each and join with "and"
+                    var humanizedFields = fields.Select(f => f.Humanize(LetterCasing.Title));
+                    return string.Join(" and ", humanizedFields);
+                }
+            }
+        }
+        catch
+        {
+            // Silently ignore parsing errors
         }
 
         return null;

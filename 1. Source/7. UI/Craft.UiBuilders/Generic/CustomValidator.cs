@@ -223,9 +223,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (serviceResult.Success || serviceResult.Errors is null || serviceResult.Errors.Count == 0)
-        {
             return;
-        }
 
         // Try to parse errors as validation dictionary format first
         if (TryParseValidationErrors(serviceResult.Errors, out var validationErrors))
@@ -236,12 +234,8 @@ public sealed class CustomValidator : ComponentBase, IDisposable
 
         // Otherwise, treat as form-level errors
         foreach (var error in serviceResult.Errors)
-        {
             if (!string.IsNullOrWhiteSpace(error))
-            {
                 AddFormLevelError(error);
-            }
-        }
 
         CurrentEditContext?.NotifyValidationStateChanged();
     }
@@ -265,9 +259,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
 
         if (serviceResult.Success)
-        {
             return;
-        }
 
         // If we have a response message, try to parse detailed errors from it
         if (responseMessage is not null)
