@@ -355,7 +355,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
         // Core properties needed for filtering
         public Expression<Func<TEntity, object>>? PropertyExpression { get => _source.PropertyExpression; set { } }
         public string? PropertyName => _source.PropertyName;
-        public Type? PropertyType => _source.PropertyExpression?.ReturnType;
+        public Type? PropertyType => (_source as CraftCardGridColumn<TEntity>)?.PropertyType;
         public string Title { get => _source.Caption; set { } }
         public bool Searchable { get => true; set { } }
         public bool Visible { get => true; set { } }

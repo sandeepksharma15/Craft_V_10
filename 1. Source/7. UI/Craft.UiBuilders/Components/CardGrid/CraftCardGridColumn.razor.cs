@@ -16,6 +16,7 @@ public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGri
 {
     private string? _caption;
     private string? _propertyName;
+    private Type? _propertyType;
     private Func<TEntity, object>? _compiledExpression;
     private bool _disposed;
 
@@ -129,6 +130,26 @@ public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGri
         }
     }
 
+    /// <summary>
+    /// Property type derived from the PropertyExpression.
+    /// Used for determining appropriate search operators and input types.
+    /// </summary>
+    public Type? PropertyType
+    {
+        get
+        {
+            if (_propertyType is not null)
+                return _propertyType;
+
+            if (PropertyExpression is null)
+                return null;
+
+            _propertyType = GetPropertyType(PropertyExpression);
+
+            return _propertyType;
+        }
+    }
+
     #endregion
 
     #region Lifecycle Methods
@@ -224,6 +245,28 @@ public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGri
             UnaryExpression unaryExpression when unaryExpression.Operand is MemberExpression operand => operand.Member.Name,
             LambdaExpression lambdaExpression => GetPropertyName(lambdaExpression.Body),
             _ => throw new ArgumentException($"Cannot determine property name from expression: {expression}")
+        };
+    }
+
+    private static Type? GetPropertyType(Expression expression)
+    {
+        return expression switch
+        {
+            MemberExpression memberExpression => GetMemberType(memberExpression.Member),
+            UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression when unaryExpression.Operand is MemberExpression operand 
+                => GetMemberType(operand.Member),
+            LambdaExpression lambdaExpression => GetPropertyType(lambdaExpression.Body),
+            _ => null
+        };
+    }
+
+    private static Type? GetMemberType(MemberInfo member)
+    {
+        return member switch
+        {
+            PropertyInfo propertyInfo => propertyInfo.PropertyType,
+            FieldInfo fieldInfo => fieldInfo.FieldType,
+            _ => null
         };
     }
 
