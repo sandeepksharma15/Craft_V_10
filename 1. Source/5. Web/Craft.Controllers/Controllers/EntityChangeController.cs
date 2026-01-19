@@ -321,30 +321,27 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
 
         try
         {
-            // EF Core default pattern (case-insensitive): IX_TableName_FieldName(s)
+            // EF Core default pattern: PREFIX_TableName_FieldName(s)
             // Examples: IX_Locations_Name, FK_Orders_CustomerId, IX_Weeks_YearId_WeekNumber
+            // Prefix: IX, FK, PK, CK, UQ, etc.
             
-            // Match pattern: PREFIX_TableName_FieldName(s)
-            // Prefix can be: IX (index), FK (foreign key), PK (primary key), CK (check), UQ (unique)
-            var match = Regex.Match(constraintName, @"^[A-Z]{2}_[^_]+_(.+)$", RegexOptions.IgnoreCase);
+            // Split by underscore and skip the first two parts (prefix and table name)
+            var parts = constraintName.Split('_', StringSplitOptions.RemoveEmptyEntries);
             
-            if (match.Success)
+            if (parts.Length >= 3)
             {
-                string fieldsPart = match.Groups[1].Value;
+                // Take everything after PREFIX_TableName_ (starting from index 2)
+                var fieldParts = parts.Skip(2).ToArray();
                 
-                // Handle composite keys (multiple fields separated by underscores)
-                // Examples: "YearId_WeekNumber", "LocationId_BorderOrgId"
-                var fields = fieldsPart.Split('_', StringSplitOptions.RemoveEmptyEntries);
-                
-                if (fields.Length == 1)
+                if (fieldParts.Length == 1)
                 {
-                    // Single field - humanize it
-                    return fields[0].Humanize(LetterCasing.Title);
+                    // Single field: IX_Locations_Name → "Name"
+                    return fieldParts[0].Humanize(LetterCasing.Title);
                 }
-                else if (fields.Length > 1)
+                else if (fieldParts.Length > 1)
                 {
-                    // Multiple fields - humanize each and join with "and"
-                    var humanizedFields = fields.Select(f => f.Humanize(LetterCasing.Title));
+                    // Composite key: IX_Weeks_YearId_WeekNumber → "Year Id and Week Number"
+                    var humanizedFields = fieldParts.Select(f => f.Humanize(LetterCasing.Title));
                     return string.Join(" and ", humanizedFields);
                 }
             }
