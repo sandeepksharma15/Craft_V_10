@@ -396,6 +396,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     /// <summary>
     /// Currently loaded items in the card grid.
     /// </summary>
+    /// [PersistentState]
     public IReadOnlyList<TEntity> Items => _items.AsReadOnly();
 
     #endregion

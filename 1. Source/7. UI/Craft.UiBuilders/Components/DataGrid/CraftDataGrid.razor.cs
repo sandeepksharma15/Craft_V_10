@@ -351,6 +351,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// <summary>
     /// Currently loaded items in the grid.
     /// </summary>
+    ///[PersistentState]
     public IReadOnlyList<TEntity> Items => _items.AsReadOnly();
 
     #endregion
