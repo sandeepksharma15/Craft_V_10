@@ -17,7 +17,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_WithDarkModeFalse_ShouldSetPropertyCorrectly()
     {
         // Arrange
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = false,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, _ => { })
@@ -31,7 +31,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_WithDarkModeTrue_ShouldSetPropertyCorrectly()
     {
         // Arrange
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = true,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, _ => { })
@@ -48,7 +48,7 @@ public class DarkModeToggleTests : ComponentTestBase
         bool callbackInvoked = false;
         bool receivedValue = false;
 
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = false,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, value =>
@@ -73,7 +73,7 @@ public class DarkModeToggleTests : ComponentTestBase
         bool callbackInvoked = false;
         bool receivedValue = true;
 
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = true,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, value =>
@@ -95,7 +95,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public async Task DarkModeToggle_WhenOnDarkModeChangedCalled_ShouldUpdateInternalState()
     {
         // Arrange
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = false,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, _ => { })
@@ -114,7 +114,7 @@ public class DarkModeToggleTests : ComponentTestBase
         // Arrange
         var states = new List<bool>();
 
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = false,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, value =>
@@ -140,7 +140,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public async Task DarkModeToggle_WithDefaultCallback_ShouldNotThrow()
     {
         // Arrange
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = false,
             DarkModeChanged = default
@@ -159,7 +159,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_ShouldInheritFromCraftComponent()
     {
         // Arrange & Act
-        var component = new DarkModeToggle();
+        var component = new CraftDarkModeToggle();
 
         // Assert
         Assert.IsType<Craft.UiComponents.CraftComponent>(component, exactMatch: false);
@@ -169,7 +169,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_DarkModeParameter_ShouldHaveParameterAttribute()
     {
         // Arrange & Act
-        var property = typeof(DarkModeToggle).GetProperty(nameof(DarkModeToggle.DarkMode));
+        var property = typeof(CraftDarkModeToggle).GetProperty(nameof(CraftDarkModeToggle.DarkMode));
         var parameterAttribute = property?.GetCustomAttributes(typeof(ParameterAttribute), false)
             .Cast<ParameterAttribute>()
             .FirstOrDefault();
@@ -182,7 +182,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_DarkModeParameter_ShouldBeRequired()
     {
         // Arrange & Act
-        var property = typeof(DarkModeToggle).GetProperty(nameof(DarkModeToggle.DarkMode));
+        var property = typeof(CraftDarkModeToggle).GetProperty(nameof(CraftDarkModeToggle.DarkMode));
         var requiredAttribute = property?.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute), false)
             .FirstOrDefault();
 
@@ -194,7 +194,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_DarkModeChangedParameter_ShouldHaveParameterAttribute()
     {
         // Arrange & Act
-        var property = typeof(DarkModeToggle).GetProperty(nameof(DarkModeToggle.DarkModeChanged));
+        var property = typeof(CraftDarkModeToggle).GetProperty(nameof(CraftDarkModeToggle.DarkModeChanged));
         var parameterAttribute = property?.GetCustomAttributes(typeof(ParameterAttribute), false)
             .Cast<ParameterAttribute>()
             .FirstOrDefault();
@@ -207,7 +207,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_DarkModeChangedParameter_ShouldBeRequired()
     {
         // Arrange & Act
-        var property = typeof(DarkModeToggle).GetProperty(nameof(DarkModeToggle.DarkModeChanged));
+        var property = typeof(CraftDarkModeToggle).GetProperty(nameof(CraftDarkModeToggle.DarkModeChanged));
         var requiredAttribute = property?.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute), false)
             .FirstOrDefault();
 
@@ -221,7 +221,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_WithDifferentInitialStates_ShouldSetStateCorrectly(bool initialDarkMode)
     {
         // Arrange & Act
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = initialDarkMode,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, _ => { })
@@ -237,7 +237,7 @@ public class DarkModeToggleTests : ComponentTestBase
         // Arrange
         bool externalState = false;
 
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = externalState,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, value =>
@@ -258,7 +258,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_OnDarkModeChangedMethod_ShouldExistAndBePublic()
     {
         // Arrange & Act
-        var method = typeof(DarkModeToggle).GetMethod(nameof(DarkModeToggle.OnDarkModeChanged));
+        var method = typeof(CraftDarkModeToggle).GetMethod(nameof(CraftDarkModeToggle.OnDarkModeChanged));
 
         // Assert
         Assert.NotNull(method);
@@ -270,7 +270,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_OnDarkModeChangedMethod_ShouldTakeBoolParameter()
     {
         // Arrange & Act
-        var method = typeof(DarkModeToggle).GetMethod(nameof(DarkModeToggle.OnDarkModeChanged));
+        var method = typeof(CraftDarkModeToggle).GetMethod(nameof(CraftDarkModeToggle.OnDarkModeChanged));
         var parameters = method?.GetParameters();
 
         // Assert
@@ -283,7 +283,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_DarkModeProperty_ShouldBePublicAndAccessible()
     {
         // Arrange & Act
-        var property = typeof(DarkModeToggle).GetProperty(nameof(DarkModeToggle.DarkMode));
+        var property = typeof(CraftDarkModeToggle).GetProperty(nameof(CraftDarkModeToggle.DarkMode));
 
         // Assert
         Assert.NotNull(property);
@@ -296,7 +296,7 @@ public class DarkModeToggleTests : ComponentTestBase
     public void DarkModeToggle_DarkModeChangedProperty_ShouldBePublicAndAccessible()
     {
         // Arrange & Act
-        var property = typeof(DarkModeToggle).GetProperty(nameof(DarkModeToggle.DarkModeChanged));
+        var property = typeof(CraftDarkModeToggle).GetProperty(nameof(CraftDarkModeToggle.DarkModeChanged));
 
         // Assert
         Assert.NotNull(property);
@@ -312,7 +312,7 @@ public class DarkModeToggleTests : ComponentTestBase
         bool callbackCompleted = false;
         var tcs = new TaskCompletionSource<bool>();
 
-        var component = new DarkModeToggle
+        var component = new CraftDarkModeToggle
         {
             DarkMode = false,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, async value =>

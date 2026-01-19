@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Components;
 
-public partial class DarkModeToggle : CraftComponent
+public partial class CraftDarkModeToggle : CraftComponent
 {
     [Parameter, Required] public bool DarkMode { get; set; }
     [Parameter, Required] public EventCallback<bool> DarkModeChanged { get; set; }

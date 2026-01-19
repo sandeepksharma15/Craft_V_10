@@ -1,0 +1,27 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Craft.UiBuilders.Extensions
+@using Microsoft.JSInterop
+
+@namespace Craft.UiBuilders.Components
+
+@inherits CraftComponent
+
+<MudButton StartIcon="@Icon" Class="@Class" Size="@Size" Color="@Color" Variant="@Variant"
+           OnClick="@(() => NavigationManager.NavigateTo(ReturnUrl!))">
+    @Text
+</MudButton>
+
+@code {
+    [Parameter] public string? ReturnUrl { get; set; } = "/";
+    [Parameter] public Color Color { get; set; } = Color.Default;
+    [Parameter] public Size Size { get; set; } = Size.Small;
+    [Parameter] public Variant Variant { get; set; } = Variant.Outlined;
+    [Parameter] public string? Text { get; set; } = "Go Back";
+    [Parameter] public string? Icon { get; set; } = Icons.Material.Filled.ArrowBack;
+    
+    [Inject] public required NavigationManager NavigationManager { get; set; }
+    [Inject] public required IJSRuntime JSRuntime { get; set; }
+
+    private async Task HandleGoBack()
+        => await NavigationManager.GoBackAsync(JSRuntime, fallbackUrl: "/");
+}
