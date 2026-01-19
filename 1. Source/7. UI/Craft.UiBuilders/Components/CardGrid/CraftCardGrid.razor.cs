@@ -628,7 +628,8 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
 
     private async Task ToggleSortAsync(ICraftCardGridColumn<TEntity> column)
     {
-        if (column == _currentSortColumn)
+        // Compare by PropertyName instead of reference equality
+        if (_currentSortColumn is not null && _currentSortColumn.PropertyName == column.PropertyName)
         {
             // Toggle sort direction
             _currentSortDirection = _currentSortDirection switch

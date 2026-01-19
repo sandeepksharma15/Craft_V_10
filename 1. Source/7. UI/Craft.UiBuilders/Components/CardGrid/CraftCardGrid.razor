@@ -60,7 +60,7 @@
 							<MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
 								<CraftDiv Class="d-flex align-center justify-space-between" style="min-width: 150px;">
 									<CraftSpan>@column.Caption</CraftSpan>
-									<Show When="@(_currentSortColumn == column)">
+									<Show When="@(_currentSortColumn != null && _currentSortColumn.PropertyName == column.PropertyName)">
 										<MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending
 															  ? Icons.Material.Filled.ArrowUpward
 															  : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
