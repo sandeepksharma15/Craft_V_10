@@ -42,9 +42,3 @@
         </CraftDiv>
     </Show>
 </MudStack>
-
-@* Filter Builder Dialog *@
-<CraftFilterBuilder TEntity="TEntity"
-                   @bind-Visible="_showFilterDialog"
-                   SearchableColumns="@SearchableColumns"
-                   OnFilterAdded="@HandleFilterAddedAsync" />

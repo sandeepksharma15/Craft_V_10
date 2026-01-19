@@ -6,8 +6,7 @@
 
 @typeparam TEntity where TEntity : class
 
-<MudDialog @bind-Visible="@Visible" Options="@_dialogOptions">
-
+<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.FilterAlt" Class="me-2" />
@@ -116,5 +115,4 @@
             Add Filter
         </MudButton>
     </DialogActions>
-
 </MudDialog>

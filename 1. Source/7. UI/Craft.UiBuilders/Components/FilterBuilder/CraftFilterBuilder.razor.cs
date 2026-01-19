@@ -22,34 +22,18 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
     private bool? _boolValue;
     private object? _enumValue;
 
-    private readonly DialogOptions _dialogOptions = new()
-    {
-        CloseButton = true,
-        MaxWidth = MaxWidth.Small,
-        FullWidth = true
-    };
+    #region Cascading Parameters
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    #endregion
 
     #region Parameters
-
-    /// <summary>
-    /// Controls the visibility of the dialog.
-    /// </summary>
-    [Parameter] public bool Visible { get; set; }
-
-    /// <summary>
-    /// Callback invoked when visibility changes.
-    /// </summary>
-    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
 
     /// <summary>
     /// List of searchable columns to choose from.
     /// </summary>
     [Parameter, EditorRequired] public List<ICraftDataGridColumn<TEntity>> SearchableColumns { get; set; } = [];
-
-    /// <summary>
-    /// Callback invoked when a filter is added.
-    /// </summary>
-    [Parameter] public EventCallback<FilterCriteria> OnFilterAdded { get; set; }
 
     #endregion
 
@@ -86,12 +70,17 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
 
     #region Methods
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
-        base.OnParametersSet();
+        base.OnInitialized();
 
-        if (_selectedColumn is not null && _selectedColumn.PropertyType is not null)
-            UpdateAvailableOperators(_selectedColumn.PropertyType);
+        // Auto-select the first column when dialog opens
+        if (SearchableColumns.Count > 0)
+        {
+            _selectedColumn = SearchableColumns[0];
+            if (_selectedColumn.PropertyType is not null)
+                UpdateAvailableOperators(_selectedColumn.PropertyType);
+        }
     }
 
     private Task OnColumnSelectedAsync()
@@ -113,7 +102,7 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
             _enumValues = propertyType.GetEnumNameValuePairs();
     }
 
-    private async Task AddFilter()
+    private void AddFilter()
     {
         if (_selectedColumn is null || _selectedColumn.PropertyType is null)
             return;
@@ -131,9 +120,8 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
             displayTitle: _selectedColumn.Title
         );
 
-        await OnFilterAdded.InvokeAsync(filter);
-        await CloseDialog();
-        ResetForm();
+        // Close the dialog and return the filter
+        MudDialog.Close(DialogResult.Ok(filter));
     }
 
     private object? GetCurrentValue()
@@ -181,30 +169,7 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
         return !type.IsValueType || Nullable.GetUnderlyingType(type) is not null;
     }
 
-    private async Task Cancel()
-    {
-        await CloseDialog();
-        ResetForm();
-    }
-
-    private async Task CloseDialog()
-    {
-        Visible = false;
-        await VisibleChanged.InvokeAsync(false);
-    }
-
-    private void ResetForm()
-    {
-        _selectedColumn = null;
-        _selectedOperator = ComparisonType.EqualTo;
-        _stringValue = null;
-        _numericValue = null;
-        _dateValue = null;
-        _boolValue = null;
-        _enumValue = null;
-        _availableOperators.Clear();
-        _enumValues.Clear();
-    }
+    private void Cancel() => MudDialog.Cancel();
 
     #endregion
 }

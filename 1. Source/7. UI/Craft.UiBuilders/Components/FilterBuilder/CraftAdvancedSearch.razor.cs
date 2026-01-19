@@ -1,5 +1,6 @@
 using Craft.QuerySpec;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Craft.UiBuilders.Components;
 
@@ -10,7 +11,11 @@ namespace Craft.UiBuilders.Components;
 public partial class CraftAdvancedSearch<TEntity> : ComponentBase
     where TEntity : class
 {
-    private bool _showFilterDialog;
+    #region Injected Services
+
+    [Inject] private IDialogService DialogService { get; set; } = null!;
+
+    #endregion
 
     #region Parameters
 
@@ -38,9 +43,32 @@ public partial class CraftAdvancedSearch<TEntity> : ComponentBase
 
     #region Methods
 
-    private void OpenFilterDialog()
+    private async Task OpenFilterDialog()
     {
-        _showFilterDialog = true;
+        var parameters = new DialogParameters<CraftFilterBuilder<TEntity>>
+        {
+            { x => x.SearchableColumns, SearchableColumns }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<CraftFilterBuilder<TEntity>>(
+            "Add Filter",
+            parameters,
+            options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is FilterCriteria criteria)
+        {
+            await HandleFilterAddedAsync(criteria);
+        }
     }
 
     private async Task HandleFilterAddedAsync(FilterCriteria criteria)
