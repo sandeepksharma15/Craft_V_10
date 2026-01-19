@@ -1,8 +1,10 @@
 using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec;
+using Craft.UiComponents;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using MudBlazor.Services;
 
 namespace Craft.UiBuilders.Components;
 
@@ -11,9 +13,19 @@ namespace Craft.UiBuilders.Components;
 /// This wrapper component reduces code duplication at the page level.
 /// </summary>
 /// <typeparam name="TEntity">The entity type to display in the grid.</typeparam>
-public partial class CraftGrid<TEntity>
+public partial class CraftGrid<TEntity> : CraftComponent, IBrowserViewportObserver
     where TEntity : class, IEntity, IModel, new()
 {
+    [Inject] private IBrowserViewportService? BrowserViewportService { get; set; }
+
+    private bool _showDataGrid = true;
+    private bool _showCardGrid;
+    private bool _disposed;
+
+    // IBrowserViewportObserver implementation
+    Guid IBrowserViewportObserver.Id { get; } = Guid.NewGuid();
+    ResizeOptions IBrowserViewportObserver.ResizeOptions { get; } = new() { ReportRate = 150, NotifyOnBreakpointOnly = true };
+
     #region Parameters - Data Source
 
     /// <summary>
@@ -75,11 +87,6 @@ public partial class CraftGrid<TEntity>
     /// Title displayed in the toolbar.
     /// </summary>
     [Parameter] public string? Title { get; set; }
-
-    /// <summary>
-    /// Custom CSS class applied to the component.
-    /// </summary>
-    [Parameter] public new string? Class { get; set; }
 
     #endregion
 
@@ -356,15 +363,72 @@ public partial class CraftGrid<TEntity>
 
     #endregion
 
-        #region Lifecycle Methods
+    #region Lifecycle Methods
 
-        protected override void OnInitialized()
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (HttpService is null)
+            throw new InvalidOperationException($"{nameof(HttpService)} parameter is required for {nameof(CraftGrid<>)}.");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && BrowserViewportService is not null)
         {
-            base.OnInitialized();
-
-            if (HttpService is null)
-                throw new InvalidOperationException($"{nameof(HttpService)} parameter is required for {nameof(CraftGrid<>)}.");
+            try
+            {
+                await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing viewport observer in CraftGrid: {ex.Message}");
+            }
         }
 
-        #endregion
+        await base.OnAfterRenderAsync(firstRender);
     }
+
+    /// <summary>
+    /// Called by MudBlazor when viewport/breakpoint changes
+    /// </summary>
+    Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
+    {
+        UpdateGridVisibility(browserViewportEventArgs.Breakpoint);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateGridVisibility(Breakpoint breakpoint)
+    {
+        // Determine which grid to show based on breakpoint and configuration
+        bool shouldShowCardView = ShowCardViewOnSmallScreens
+            ? breakpoint <= SwitchBreakpoint
+            : breakpoint > SwitchBreakpoint;
+
+        _showCardGrid = shouldShowCardView;
+        _showDataGrid = !_showCardGrid;
+    }
+
+    protected override async ValueTask DisposeAsyncCore()
+    {
+        if (_disposed)
+            return;
+
+        try
+        {
+            if (BrowserViewportService is not null)
+                await BrowserViewportService.UnsubscribeAsync(this);
+        }
+        catch
+        {
+            // Ignore disposal errors
+        }
+
+        _disposed = true;
+
+        await base.DisposeAsyncCore();
+    }
+
+    #endregion
+}
