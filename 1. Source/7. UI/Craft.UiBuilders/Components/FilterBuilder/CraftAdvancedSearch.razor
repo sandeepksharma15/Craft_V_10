@@ -10,12 +10,8 @@
     
     @* Add Filter Button (always first) *@
     <Show When="@(SearchableColumns.Count > 0)">
-        <MudIconButton OnClick="@OpenFilterDialog" 
-                       Icon="@Icons.Material.Filled.FilterAlt"
-                       Color="Color.Primary" 
-                       Variant="Variant.Outlined"
-                       Size="Size.Small"
-                       Title="Add Filter" />
+        <MudIconButton OnClick="@OpenFilterDialog" Icon="@Icons.Material.Filled.FilterAlt" Color="Color.Primary" 
+                       Variant="Variant.Outlined" Size="Size.Small" />
     </Show>
 
     @* Filter Chips Display (wrap inline) *@
@@ -23,8 +19,7 @@
         @foreach (var filterCriteria in FilterBuilder.EntityFilterList)
         {
             <Show When="@(filterCriteria.Metadata is not null)">
-                <CraftFilterChip Filter="@filterCriteria.Metadata" 
-                                 OnRemove="@(() => RemoveFilterAsync(filterCriteria.Metadata!))" />
+                <CraftFilterChip Filter="@filterCriteria.Metadata" OnRemove="@(() => RemoveFilterAsync(filterCriteria.Metadata!))" />
             </Show>
         }
         

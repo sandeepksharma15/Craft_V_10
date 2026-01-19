@@ -33,20 +33,10 @@
 			</Show>
 
 			@* Toolbar *@
-			<CraftDataToolbar TEntity="TEntity"
-							  ShowSearch="@ShowSearch"
-							  SearchableColumns="@SearchableColumns"
-							  @bind-FilterBuilder="_filterBuilder"
-							  OnFiltersChanged="@HandleFiltersChangedAsync"
-							  ShowSort="@_showSortMenu"
-							  ShowExport="@_showExportMenu"
-							  OnExport="@HandleExportAsync"
-							  ShowRefresh="@AllowRefresh"
-							  OnRefresh="@RefreshAsync"
-							  ShowAdd="@_showAddButton"
-							  AddButtonText="@AddButtonText"
-							  AddIcon="@AddIcon"
-							  OnAdd="@HandleAddAsync">
+			<CraftDataToolbar TEntity="TEntity" ShowSearch="@ShowSearch" SearchableColumns="@SearchableColumns" @bind-FilterBuilder="_filterBuilder"
+							  OnFiltersChanged="@HandleFiltersChangedAsync" ShowSort="@_showSortMenu" ShowExport="@_showExportMenu" 
+							  OnExport="@HandleExportAsync" ShowRefresh="@AllowRefresh" OnRefresh="@RefreshAsync" ShowAdd="@_showAddButton"
+							  AddButtonText="@AddButtonText" AddIcon="@AddIcon" OnAdd="@HandleAddAsync">
 				<SortContent>
 					<MudMenu Icon="@Icons.Material.Filled.Sort" 
 							 Color="Color.Default" 

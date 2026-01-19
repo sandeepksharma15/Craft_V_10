@@ -58,17 +58,12 @@ public partial class CraftAdvancedSearch<TEntity> : ComponentBase
             CloseOnEscapeKey = true
         };
 
-        var dialog = await DialogService.ShowAsync<CraftFilterBuilder<TEntity>>(
-            "Add Filter",
-            parameters,
-            options);
+        var dialog = await DialogService.ShowAsync<CraftFilterBuilder<TEntity>>("Add Filter", parameters, options);
 
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data is FilterCriteria criteria)
-        {
+        if (!(result?.Canceled ?? true) && result.Data is FilterCriteria criteria)
             await HandleFilterAddedAsync(criteria);
-        }
     }
 
     private async Task HandleFilterAddedAsync(FilterCriteria criteria)

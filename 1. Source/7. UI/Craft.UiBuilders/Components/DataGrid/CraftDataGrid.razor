@@ -32,19 +32,10 @@
         </Show>
 
         @* Toolbar *@
-        <CraftDataToolbar TEntity="TEntity"
-                          ShowSearch="@ShowSearch"
-                          SearchableColumns="@SearchableColumns"
-                          @bind-FilterBuilder="_filterBuilder"
-                          OnFiltersChanged="@HandleFiltersChangedAsync"
-                          ShowExport="@_showExportMenu"
-                          OnExport="@HandleExportAsync"
-                          ShowRefresh="@AllowRefresh"
-                          OnRefresh="@RefreshAsync"
-                          ShowAdd="@_showAddButton"
-                          AddButtonText="@AddButtonText"
-                          AddIcon="@AddIcon"
-                          OnAdd="@HandleAddAsync" />
+        <CraftDataToolbar TEntity="TEntity" ShowSearch="@ShowSearch" SearchableColumns="@SearchableColumns" @bind-FilterBuilder="_filterBuilder"
+                          OnFiltersChanged="@HandleFiltersChangedAsync" ShowExport="@_showExportMenu" OnExport="@HandleExportAsync"
+                          ShowRefresh="@AllowRefresh" OnRefresh="@RefreshAsync" ShowAdd="@_showAddButton" AddButtonText="@AddButtonText"
+                          AddIcon="@AddIcon" OnAdd="@HandleAddAsync" />
 
         <MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
                   Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"

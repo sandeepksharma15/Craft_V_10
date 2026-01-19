@@ -73,9 +73,8 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
 
                     if (string.Equals(propertyName, MetadataPropertyName, StringComparison.Ordinal))
                     {
-                        var localOptions = new JsonSerializerOptions(options);
-                        localOptions.Converters.Add(new FilterCriteriaJsonConverter());
-                        metadata = JsonSerializer.Deserialize<FilterCriteria>(ref reader, localOptions);
+                        // Use cached options instead of creating new instance
+                        metadata = JsonSerializer.Deserialize<FilterCriteria>(ref reader, CachedFilterCriteriaOptions);
                     }
                     else if (string.Equals(propertyName, FilterPropertyName, StringComparison.Ordinal))
                     {
@@ -166,12 +165,9 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
             // Serialize metadata if available (preferred for reliable deserialization)
             if (value.Metadata is not null)
             {
-                var localOptions = new JsonSerializerOptions(options);
-                localOptions.Converters.Add(new FilterCriteriaJsonConverter());
-
-                // Write metadata for reliable deserialization of complex expressions
+                // Use cached options instead of creating new instance
                 writer.WritePropertyName(MetadataPropertyName);
-                JsonSerializer.Serialize(writer, value.Metadata, localOptions);
+                JsonSerializer.Serialize(writer, value.Metadata, CachedFilterCriteriaOptions);
 
                 // Also write filter string for fast-path optimization during deserialization
                 var filterString = SerializeFilterExpression(value.Filter);
@@ -313,4 +309,14 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
     }
 
     #endregion
+
+    // Add static cached options for FilterCriteriaJsonConverter
+    private static readonly JsonSerializerOptions CachedFilterCriteriaOptions = CreateFilterCriteriaOptions();
+
+    private static JsonSerializerOptions CreateFilterCriteriaOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new FilterCriteriaJsonConverter());
+        return options;
+    }
 }

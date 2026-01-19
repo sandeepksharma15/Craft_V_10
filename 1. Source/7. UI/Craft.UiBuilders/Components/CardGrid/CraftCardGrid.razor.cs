@@ -330,10 +330,9 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     /// For CardGrid, we create minimal wrappers to satisfy the ICraftDataGridColumn interface.
     /// </summary>
     public List<ICraftDataGridColumn<TEntity>> SearchableColumns =>
-        Columns
+        [.. Columns
             .Where(c => c.Searchable && c.PropertyExpression is not null)
-            .Select<ICraftCardGridColumn<TEntity>, ICraftDataGridColumn<TEntity>>(c => new CardColumnWrapper(c))
-            .ToList();
+            .Select<ICraftCardGridColumn<TEntity>, ICraftDataGridColumn<TEntity>>(c => new CardColumnWrapper(c))];
 
     /// <summary>
     /// Current page number (1-based).
