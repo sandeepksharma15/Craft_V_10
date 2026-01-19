@@ -1,0 +1,72 @@
+@using Craft.QuerySpec
+@using Craft.UiBuilders.Generic
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Components
+
+@typeparam TEntity where TEntity : class
+
+<MudPaper Class="pa-2 mb-2">
+    <div class="d-flex align-center gap-2" style="flex-wrap: nowrap;">
+        
+        @* Left Section: Filter Area (can wrap) *@
+        <Show When="@ShowSearch">
+            <div class="flex-grow-1" style="min-width: 0;">
+                <CraftAdvancedSearch TEntity="TEntity" 
+                                     SearchableColumns="@SearchableColumns"
+                                     @bind-FilterBuilder="@FilterBuilder" 
+                                     OnFiltersChanged="@OnFiltersChanged" />
+            </div>
+        </Show>
+
+        @* Spacer to push right section to the end *@
+        <div class="flex-grow-1"></div>
+
+        @* Right Section: Action Buttons (stay together) *@
+        <div class="d-flex align-center gap-2" style="flex-shrink: 0;">
+            
+            @* Sort Menu *@
+            <Show When="@ShowSort">
+                @SortContent
+            </Show>
+
+            @* Export Menu *@
+            <Show When="@ShowExport">
+                <MudMenu Icon="@Icons.Material.Filled.FileDownload" 
+                         Color="Color.Default" 
+                         Variant="Variant.Outlined" 
+                         Size="Size.Medium">
+                    <MudMenuItem OnClick="@(() => OnExport.InvokeAsync(ExportFormat.Csv))"
+                                 Icon="@Icons.Material.Filled.Description">
+                        Export to CSV
+                    </MudMenuItem>
+                    <MudMenuItem OnClick="@(() => OnExport.InvokeAsync(ExportFormat.Excel))"
+                                 Icon="@Icons.Material.Filled.TableChart">
+                        Export to Excel
+                    </MudMenuItem>
+                    <MudMenuItem OnClick="@(() => OnExport.InvokeAsync(ExportFormat.Pdf))"
+                                 Icon="@Icons.Material.Filled.PictureAsPdf">
+                        Export to PDF
+                    </MudMenuItem>
+                </MudMenu>
+            </Show>
+
+            @* Refresh Button *@
+            <Show When="@ShowRefresh">
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" 
+                               Color="Color.Default" 
+                               OnClick="@OnRefresh" />
+            </Show>
+
+            @* Add Button *@
+            <Show When="@ShowAdd">
+                <MudButton Color="Color.Primary" 
+                           Variant="Variant.Filled" 
+                           StartIcon="@AddIcon" 
+                           OnClick="@OnAdd">
+                    @AddButtonText
+                </MudButton>
+            </Show>
+        </div>
+    </div>
+</MudPaper>

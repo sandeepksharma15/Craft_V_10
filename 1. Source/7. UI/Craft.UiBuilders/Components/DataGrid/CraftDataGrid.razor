@@ -13,166 +13,145 @@
 
 <DataLoader IsLoading="@_isLoading" HasError="@_hasError" ErrorMessage="@_errorMessage" OnRetry="@RefreshAsync">
 
-	<CascadingValue Value="(ICraftDataGrid<TEntity>)this" Name="DataGrid" IsFixed="true">
-		@ChildContent
-	</CascadingValue>
+    <CascadingValue Value="(ICraftDataGrid<TEntity>)this" Name="DataGrid" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
 
-	<Show When="@Columns.Any()">
+    <Show When="@Columns.Any()">
 
-		<!-- Title and Add Button Section -->
-		<Show When="@(_showTitle || _showAddButton)">
-			<CraftDiv Class="d-flex justify-space-between align-center mb-3">
-				<Show When="@_showTitle">
-					<MudText Typo="Typo.h5" Color="Color.Primary">@Title</MudText>
-				</Show>
-				<Show When="@(!_showTitle)">
-					<CraftDiv></CraftDiv>
-				</Show>
-				<Show When="@_showAddButton">
-					<MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync">
-						@AddButtonText
-					</MudButton>
-				</Show>
-			</CraftDiv>
-		</Show>
+        <!-- Title and Add Button Section -->
+        <Show When="@(_showTitle || _showAddButton)">
+            <CraftDiv Class="d-flex justify-space-between align-center mb-3">
+                <Show When="@_showTitle">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">@Title</MudText>
+                </Show>
+                <Show When="@(!_showTitle)">
+                    <CraftDiv></CraftDiv>
+                </Show>
+            </CraftDiv>
+        </Show>
 
-		@* Advanced Search Section *@
-		<Show When="@ShowSearch">
-			<CraftAdvancedSearch TEntity="TEntity" SearchableColumns="@SearchableColumns"
-							   @bind-FilterBuilder="_filterBuilder" OnFiltersChanged="@HandleFiltersChangedAsync" />
-		</Show>
+        @* Toolbar *@
+        <CraftDataToolbar TEntity="TEntity"
+                          ShowSearch="@ShowSearch"
+                          SearchableColumns="@SearchableColumns"
+                          @bind-FilterBuilder="_filterBuilder"
+                          OnFiltersChanged="@HandleFiltersChangedAsync"
+                          ShowExport="@_showExportMenu"
+                          OnExport="@HandleExportAsync"
+                          ShowRefresh="@AllowRefresh"
+                          OnRefresh="@RefreshAsync"
+                          ShowAdd="@_showAddButton"
+                          AddButtonText="@AddButtonText"
+                          AddIcon="@AddIcon"
+                          OnAdd="@HandleAddAsync" />
 
-		<MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
-				  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"
-				  CurrentPage="@(_currentPage - 1)" SortLabel="@_currentSortColumn">
+        <MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
+                  Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"
+                  CurrentPage="@(_currentPage - 1)" SortLabel="@_currentSortColumn">
 
-			<ToolBarContent>
-				<MudSpacer />
+            <HeaderContent>
+                <Show When="@_showActionsColumn">
+                    <MudTh Style="width: 120px;">
+                        <MudTableSortLabel T="TEntity" SortLabel="actions" Enabled="false">
+                            Actions
+                        </MudTableSortLabel>
+                    </MudTh>
+                </Show>
 
-				<Show When="@_showExportMenu">
-					<MudMenu Icon="@Icons.Material.Filled.FileDownload" Color="Color.Default" Variant="Variant.Outlined" Size="Size.Medium" Class="ms-2">
-						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Csv))"
-									 Icon="@Icons.Material.Filled.Description">
-							Export to CSV
-						</MudMenuItem>
-						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Excel))"
-									 Icon="@Icons.Material.Filled.TableChart">
-							Export to Excel
-						</MudMenuItem>
-						<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Pdf))"
-									 Icon="@Icons.Material.Filled.PictureAsPdf">
-							Export to PDF
-						</MudMenuItem>
-					</MudMenu>
-				</Show>
+                @foreach (var column in Columns.Where(c => c.Visible))
+                {
+                    <MudTh Style="@GetColumnStyle(column)">
+                        <If Condition="@column.Sortable">
+                            <True>
+                                <MudTableSortLabel T="TEntity" SortLabel="@column.PropertyName"
+                                                   InitialDirection="@GetSortDirection(column)"
+                                                   SortDirectionChanged="@(async (direction) => await HandleSortChangedAsync(column.PropertyName, direction))">
+                                    @column.Title
+                                </MudTableSortLabel>
+                            </True>
+                            <False>
+                                @column.Title
+                            </False>
+                        </If>
+                    </MudTh>
+                }
+            </HeaderContent>
 
-				<Show When="@AllowRefresh">
-					<MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="@RefreshAsync" Class="ms-2" />
-				</Show>
-			</ToolBarContent>
+            <RowTemplate Context="item">
+                <Show When="@_showActionsColumn">
+                    <MudTd DataLabel="Actions">
+                        <Show When="@AllowView">
+                            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small"
+                                           OnClick="@(() => HandleViewAsync(item))" />
+                        </Show>
 
-			<HeaderContent>
-				<Show When="@_showActionsColumn">
-					<MudTh Style="width: 120px;">
-						<MudTableSortLabel T="TEntity" SortLabel="actions" Enabled="false">
-							Actions
-						</MudTableSortLabel>
-					</MudTh>
-				</Show>
+                        <Show When="@AllowEdit">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                           OnClick="@(() => HandleEditAsync(item))" />
+                        </Show>
 
-				@foreach (var column in Columns.Where(c => c.Visible))
-				{
-					<MudTh Style="@GetColumnStyle(column)">
-						<If Condition="@column.Sortable">
-							<True>
-								<MudTableSortLabel T="TEntity" SortLabel="@column.PropertyName" 
-												   InitialDirection="@GetSortDirection(column)"
-												   SortDirectionChanged="@(async (direction) => await HandleSortChangedAsync(column.PropertyName, direction))">
-									@column.Title
-								</MudTableSortLabel>
-							</True>
-							<False>
-								@column.Title
-							</False>
-						</If>
-					</MudTh>
-				}
-			</HeaderContent>
+                        <Show When="@AllowDelete">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                           OnClick="@(() => HandleDeleteAsync(item))" />
+                        </Show>
+                    </MudTd>
+                </Show>
 
-			<RowTemplate Context="item">
-				<Show When="@_showActionsColumn">
-					<MudTd DataLabel="Actions">
-						<Show When="@AllowView">
-							<MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small"
-										   OnClick="@(() => HandleViewAsync(item))" />
-						</Show>
+                @foreach (var column in Columns.Where(c => c.Visible))
+                {
+                    <MudTd DataLabel="@column.Title" Style="@GetCellStyle(column)">
+                        <If Condition="@(column.Template != null)">
+                            <True>
+                                @column.Template!(item)
+                            </True>
+                            <False>
+                                @column.Render(item)
+                            </False>
+                        </If>
+                    </MudTd>
+                }
+            </RowTemplate>
 
-						<Show When="@AllowEdit">
-							<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
-										   OnClick="@(() => HandleEditAsync(item))" />
-						</Show>
+            <NoRecordsContent>
+                <MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="my-4">
+                    @NoRecordsMessage
+                </MudAlert>
+            </NoRecordsContent>
 
-						<Show When="@AllowDelete">
-							<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
-										   OnClick="@(() => HandleDeleteAsync(item))" />
-						</Show>
-					</MudTd>
-				</Show>
+            <LoadingContent>
+                <MudText Typo="Typo.body1">@LoadingMessage</MudText>
+            </LoadingContent>
 
-				@foreach (var column in Columns.Where(c => c.Visible))
-				{
-					<MudTd DataLabel="@column.Title" Style="@GetCellStyle(column)">
-						<If Condition="@(column.Template != null)">
-							<True>
-								@column.Template!(item)
-							</True>
-							<False>
-								@column.Render(item)
-							</False>
-						</If>
-					</MudTd>
-				}
-			</RowTemplate>
-
-			<NoRecordsContent>
-				<MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="my-4">
-					@NoRecordsMessage
-				</MudAlert>
-			</NoRecordsContent>
-
-			<LoadingContent>
-				<MudText Typo="Typo.body1">@LoadingMessage</MudText>
-			</LoadingContent>
-
-			<PagerContent>
-				<Show When="@EnablePagination">
-					<MudTablePager PageSizeOptions="@PageSizeOptions"
-								   RowsPerPageString="@RowsPerPageString"
-								   InfoFormat="@InfoFormat"
-								   HorizontalAlignment="HorizontalAlignment.End" />
-				</Show>
-			</PagerContent>
-		</MudTable>
-	</Show>
+            <PagerContent>
+                <Show When="@EnablePagination">
+                    <MudTablePager PageSizeOptions="@PageSizeOptions"
+                                   RowsPerPageString="@RowsPerPageString"
+                                   InfoFormat="@InfoFormat"
+                                   HorizontalAlignment="HorizontalAlignment.End" />
+                </Show>
+            </PagerContent>
+        </MudTable>
+    </Show>
 </DataLoader>
 
 <MudDialog @bind-Visible="_showDeleteDialog" Options="_dialogOptions">
-	<TitleContent>
-		<MudText Typo="Typo.h6">
-			<MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="me-2" />
-			Confirm Delete
-		</MudText>
-	</TitleContent>
-	<DialogContent>
-		<MudText>@DeleteConfirmationMessage</MudText>
-	</DialogContent>
-	<DialogActions>
-		<MudButton OnClick="@CancelDeleteAsync" Variant="Variant.Text">Cancel</MudButton>
-		<MudButton OnClick="@ConfirmDeleteAsync"
-				   Color="Color.Error"
-				   Variant="Variant.Filled"
-				   StartIcon="@Icons.Material.Filled.Delete">
-			Delete
-		</MudButton>
-	</DialogActions>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="me-2" />
+            Confirm Delete
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>@DeleteConfirmationMessage</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@CancelDeleteAsync" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="@ConfirmDeleteAsync"
+                   Color="Color.Error"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Delete">
+            Delete
+        </MudButton>
+    </DialogActions>
 </MudDialog>
