@@ -39,28 +39,21 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
 
     #region Computed Properties
 
-    private bool CanAddFilter =>
-        _selectedColumn is not null
-        && HasValue;
+    private bool CanAddFilter => _selectedColumn is not null && HasValue;
 
     private bool HasValue
     {
         get
         {
-            if (_selectedColumn?.PropertyType is null)
-                return false;
+            if (_selectedColumn?.PropertyType is null) return false;
 
-            if (_selectedColumn.PropertyType.IsNumeric())
-                return _numericValue.HasValue;
+            if (_selectedColumn.PropertyType.IsNumeric()) return _numericValue.HasValue;
 
-            if (_selectedColumn.PropertyType.IsDateTime())
-                return _dateValue.HasValue;
+            if (_selectedColumn.PropertyType.IsDateTime()) return _dateValue.HasValue;
 
-            if (_selectedColumn.PropertyType.IsBoolean())
-                return _boolValue.HasValue;
+            if (_selectedColumn.PropertyType.IsBoolean()) return _boolValue.HasValue;
 
-            if (_selectedColumn.PropertyType.IsEnumType())
-                return _enumValue is not null;
+            if (_selectedColumn.PropertyType.IsEnumType()) return _enumValue is not null;
 
             return !string.IsNullOrWhiteSpace(_stringValue);
         }
@@ -78,6 +71,7 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
         if (SearchableColumns.Count > 0)
         {
             _selectedColumn = SearchableColumns[0];
+
             if (_selectedColumn.PropertyType is not null)
                 UpdateAvailableOperators(_selectedColumn.PropertyType);
         }
@@ -112,13 +106,8 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
         if (value is null && !CanValueBeNull(_selectedColumn.PropertyType))
             return;
 
-        var filter = new FilterCriteria(
-            propertyType: _selectedColumn.PropertyType,
-            name: _selectedColumn.PropertyName ?? string.Empty,
-            value: value,
-            comparison: _selectedOperator,
-            displayTitle: _selectedColumn.Title
-        );
+        var filter = new FilterCriteria(propertyType: _selectedColumn.PropertyType,
+            name: _selectedColumn.PropertyName ?? string.Empty, value: value, comparison: _selectedOperator, displayTitle: _selectedColumn.Title);
 
         // Close the dialog and return the filter
         MudDialog.Close(DialogResult.Ok(filter));
@@ -126,28 +115,23 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
 
     private object? GetCurrentValue()
     {
-        if (_selectedColumn?.PropertyType is null)
-            return null;
+        if (_selectedColumn?.PropertyType is null) return null;
 
         if (_selectedColumn.PropertyType.IsNumeric())
             return ConvertNumericValue(_selectedColumn.PropertyType, _numericValue);
 
-        if (_selectedColumn.PropertyType.IsDateTime())
-            return _dateValue;
+        if (_selectedColumn.PropertyType.IsDateTime()) return _dateValue;
 
-        if (_selectedColumn.PropertyType.IsBoolean())
-            return _boolValue;
+        if (_selectedColumn.PropertyType.IsBoolean()) return _boolValue;
 
-        if (_selectedColumn.PropertyType.IsEnumType())
-            return _enumValue;
+        if (_selectedColumn.PropertyType.IsEnumType()) return _enumValue;
 
         return _stringValue;
     }
 
     private static object? ConvertNumericValue(Type targetType, decimal? value)
     {
-        if (value is null)
-            return null;
+        if (value is null) return null;
 
         Type underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
@@ -164,12 +148,11 @@ public partial class CraftFilterBuilder<TEntity> : ComponentBase
         };
     }
 
-    private static bool CanValueBeNull(Type type)
-    {
-        return !type.IsValueType || Nullable.GetUnderlyingType(type) is not null;
-    }
+    private static bool CanValueBeNull(Type type) 
+        => !type.IsValueType || Nullable.GetUnderlyingType(type) is not null;
 
-    private void Cancel() => MudDialog.Cancel();
+    private void Cancel() 
+        => MudDialog.Cancel();
 
     #endregion
 }

@@ -17,14 +17,8 @@
     <DialogContent>
         <MudStack Spacing="3">
             @* Column Selector *@
-            <MudSelect T="ICraftDataGridColumn<TEntity>" 
-                      Label="Column" 
-                      @bind-Value="_selectedColumn"
-                      @bind-Value:after="OnColumnSelectedAsync"
-                      Variant="Variant.Outlined"
-                      ToStringFunc="@(col => col?.Title ?? string.Empty)"
-                      Required="true"
-                      RequiredError="Please select a column">
+            <MudSelect T="ICraftDataGridColumn<TEntity>" Label="Column" @bind-Value="_selectedColumn" @bind-Value:after="OnColumnSelectedAsync" 
+                    Variant="Variant.Outlined" ToStringFunc="@(col => col?.Title ?? string.Empty)" Required="true" RequiredError="Please select a column">
                 @foreach (var column in SearchableColumns)
                 {
                     <MudSelectItem Value="@column">@column.Title</MudSelectItem>
@@ -33,10 +27,7 @@
 
             @* Operator Selector *@
             <Show When="@(_selectedColumn != null)">
-                <MudSelect T="ComparisonType" 
-                          Label="Operator" 
-                          @bind-Value="_selectedOperator" 
-                          Variant="Variant.Outlined"
+                <MudSelect T="ComparisonType" Label="Operator" @bind-Value="_selectedOperator" Variant="Variant.Outlined"
                           ToStringFunc="@(op => op.GetDisplayName())">
                     @foreach (var op in _availableOperators)
                     {
@@ -45,32 +36,21 @@
                 </MudSelect>
 
                 @* Value Input - Type-specific *@
-                @if (_selectedColumn?.PropertyType != null)
-                {
-                    <If Condition="@_selectedColumn.PropertyType.IsNumeric()">
+                <Show When="@(_selectedColumn?.PropertyType != null)">
+                    <If Condition="@(_selectedColumn!.PropertyType.IsNumeric())">
                         <True>
-                            <MudNumericField T="decimal?" 
-                                           Label="Value" 
-                                           @bind-Value="_numericValue" 
-                                           Variant="Variant.Outlined"
-                                           Required="true" />
+                            <MudNumericField T="decimal?" Label="Value" @bind-Value="_numericValue" Variant="Variant.Outlined" 
+                                           Required="true" Immediate="true" />
                         </True>
                         <False>
                             <If Condition="@_selectedColumn.PropertyType.IsDateTime()">
                                 <True>
-                                    <MudDatePicker Label="Value" 
-                                                  @bind-Date="_dateValue" 
-                                                  Variant="Variant.Outlined"
-                                                  Required="true" />
+                                    <MudDatePicker Label="Value" @bind-Date="_dateValue" Variant="Variant.Outlined" Required="true" />
                                 </True>
                                 <False>
                                     <If Condition="@_selectedColumn.PropertyType.IsBoolean()">
                                         <True>
-                                            <MudSelect T="bool?" 
-                                                      Label="Value" 
-                                                      @bind-Value="_boolValue" 
-                                                      Variant="Variant.Outlined"
-                                                      Required="true">
+                                            <MudSelect T="bool?" Label="Value" @bind-Value="_boolValue" Variant="Variant.Outlined" Required="true">
                                                 <MudSelectItem Value="@((bool?)true)">Yes</MudSelectItem>
                                                 <MudSelectItem Value="@((bool?)false)">No</MudSelectItem>
                                             </MudSelect>
@@ -78,11 +58,7 @@
                                         <False>
                                             <If Condition="@_selectedColumn.PropertyType.IsEnumType()">
                                                 <True>
-                                                    <MudSelect T="object" 
-                                                              Label="Value" 
-                                                              @bind-Value="_enumValue" 
-                                                              Variant="Variant.Outlined"
-                                                              Required="true">
+                                                    <MudSelect T="object" Label="Value" @bind-Value="_enumValue" Variant="Variant.Outlined" Required="true">
                                                         @foreach (var enumVal in _enumValues)
                                                         {
                                                             <MudSelectItem Value="@enumVal.Value">@enumVal.Name</MudSelectItem>
@@ -91,11 +67,8 @@
                                                 </True>
                                                 <False>
                                                     @* Default to string input *@
-                                                    <MudTextField T="string" 
-                                                                 Label="Value" 
-                                                                 @bind-Value="_stringValue" 
-                                                                 Variant="Variant.Outlined"
-                                                                 Required="true" />
+                                                    <MudTextField T="string" Label="Value" @bind-Value="_stringValue"
+                                                                 Variant="Variant.Outlined" Required="true" Immediate="true" />
                                                 </False>
                                             </If>
                                         </False>
@@ -104,7 +77,7 @@
                             </If>
                         </False>
                     </If>
-                }
+                </Show>
             </Show>
         </MudStack>
     </DialogContent>

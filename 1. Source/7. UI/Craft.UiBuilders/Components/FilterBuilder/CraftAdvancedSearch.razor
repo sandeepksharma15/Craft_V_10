@@ -6,39 +6,30 @@
 
 @typeparam TEntity where TEntity : class
 
-<MudStack Spacing="2" Class="mb-3">
-    @* Filter Chips Display *@
-    <Show When="@(FilterBuilder.Count > 0)">
-        <MudPaper Class="d-flex flex-wrap align-center pa-2" Elevation="0">
+<MudPaper Class="d-flex flex-wrap align-center pa-2 mb-3" Elevation="0">
+    <MudStack Spacing="2"Row>
+        @* Filter Chips Display *@
+        <Show When="@(FilterBuilder.Count > 0)">
             @foreach (var filterCriteria in FilterBuilder.EntityFilterList)
             {
-                @if (filterCriteria.Metadata is not null)
-                {
-                    <CraftFilterChip Filter="@filterCriteria.Metadata" 
-                                   OnRemove="@(() => RemoveFilterAsync(filterCriteria.Metadata))" />
-                }
+                <Show When="@(filterCriteria.Metadata is not null)">
+                    <CraftFilterChip Filter="@filterCriteria.Metadata" OnRemove="@(() => RemoveFilterAsync(filterCriteria.Metadata!))" />
+                </Show>
             }
-            <MudButton OnClick="@ClearAllFiltersAsync" 
-                      Color="Color.Error" 
-                      Variant="Variant.Text" 
-                      Size="Size.Small" 
-                      StartIcon="@Icons.Material.Filled.Clear"
-                      Class="ms-2">
+            <MudButton OnClick="@ClearAllFiltersAsync" Color="Color.Error" Variant="Variant.Text" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Clear" Class="ms-2">
                 Clear All
             </MudButton>
-        </MudPaper>
-    </Show>
+        </Show>
 
-    @* Add Filter Button *@
-    <Show When="@(SearchableColumns.Count > 0)">
-        <CraftDiv Class="d-flex justify-end">
-            <MudButton OnClick="@OpenFilterDialog" 
-                      Color="Color.Primary" 
-                      Variant="Variant.Outlined" 
-                      StartIcon="@Icons.Material.Filled.FilterAlt"
-                      Size="Size.Small">
-                Add Filter
-            </MudButton>
-        </CraftDiv>
-    </Show>
-</MudStack>
+        @* Add Filter Button *@
+        <Show When="@(SearchableColumns.Count > 0)">
+            <CraftDiv Class="d-flex justify-end">
+                <MudButton OnClick="@OpenFilterDialog" Color="Color.Primary" Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.FilterAlt" Size="Size.Small">
+                    Add Filter
+                </MudButton>
+            </CraftDiv>
+        </Show>
+    </MudStack>
+</MudPaper>
