@@ -90,8 +90,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in DeleteAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to delete {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -157,8 +157,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetAllAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to search {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -219,8 +219,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetAllAsync<{ResultType}> for {EntityType}", typeof(TResult).Name, typeof(T).Name);
+            return BadRequest(new[] { $"Failed to search {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -274,8 +274,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to retrieve {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -333,8 +333,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetAsync<{ResultType}> for {EntityType}", typeof(TResult).Name, typeof(T).Name);
+            return BadRequest(new[] { $"Failed to retrieve {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -394,8 +394,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetCountAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to count {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -471,8 +471,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetPagedListAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to retrieve paged list of {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -547,8 +547,8 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityController] Error in GetPagedListAsync<{ResultType}> for {EntityType}", typeof(TResult).Name, typeof(T).Name);
+            return BadRequest(new[] { $"Failed to retrieve paged list of {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 }

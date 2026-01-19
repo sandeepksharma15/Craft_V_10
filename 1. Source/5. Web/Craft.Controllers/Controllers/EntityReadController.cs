@@ -82,8 +82,8 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityReadController] Error in GetAllAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to retrieve {typeof(T).Name.ToLower()} list: {ex.Message}" });
         }
     }
 
@@ -132,8 +132,8 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityReadController] Error in GetAsync for {EntityType} with ID {Id}", typeof(T).Name, id);
+            return BadRequest(new[] { $"Failed to retrieve {typeof(T).Name.ToLower()} with ID {id}: {ex.Message}" });
         }
     }
 
@@ -176,8 +176,8 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityReadController] Error in GetCountAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to get count of {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -245,8 +245,8 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityReadController] Error in GetPagedListAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to retrieve paged list of {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 }
