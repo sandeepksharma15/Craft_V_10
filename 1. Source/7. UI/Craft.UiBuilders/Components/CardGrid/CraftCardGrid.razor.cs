@@ -3,6 +3,7 @@ using Craft.Domain;
 using Craft.QuerySpec;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using System.Linq.Expressions;
 
 namespace Craft.UiBuilders.Components;
 
@@ -19,7 +20,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
-    private string? _searchString;
+    private EntityFilterBuilder<TEntity> _filterBuilder = new();
     private List<TEntity> _items = [];
     private int _currentPage = 1;
     private int _pageSize = 12;
@@ -325,9 +326,58 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     public List<ICraftCardGridColumn<TEntity>> Columns { get; } = [];
 
     /// <summary>
+    /// List of searchable columns available for filtering.
+    /// For CardGrid, we create minimal wrappers to satisfy the ICraftDataGridColumn interface.
+    /// </summary>
+    public List<ICraftDataGridColumn<TEntity>> SearchableColumns =>
+        Columns
+            .Where(c => c.Searchable && c.PropertyExpression is not null)
+            .Select<ICraftCardGridColumn<TEntity>, ICraftDataGridColumn<TEntity>>(c => new CardColumnWrapper(c))
+            .ToList();
+
+    /// <summary>
     /// Current page number (1-based).
     /// </summary>
     public int CurrentPage => _currentPage;
+
+    #endregion
+
+    #region Helper Class
+
+    /// <summary>
+    /// Minimal wrapper to adapt CardGrid column to DataGrid column interface for filtering.
+    /// </summary>
+    private class CardColumnWrapper : ICraftDataGridColumn<TEntity>
+    {
+        private readonly ICraftCardGridColumn<TEntity> _source;
+
+        public CardColumnWrapper(ICraftCardGridColumn<TEntity> source) => _source = source;
+
+        // Core properties needed for filtering
+        public Expression<Func<TEntity, object>>? PropertyExpression { get => _source.PropertyExpression; set { } }
+        public string? PropertyName => _source.PropertyName;
+        public Type? PropertyType => _source.PropertyExpression?.ReturnType;
+        public string Title { get => _source.Caption; set { } }
+        public bool Searchable { get => true; set { } }
+        public bool Visible { get => true; set { } }
+        public bool Sortable { get => false; set { } }
+        
+        // Not used for filtering
+        public ICraftDataGrid<TEntity>? DataGrid { get => null; set { } }
+        public RenderFragment<TEntity>? Template { get => null; set { } }
+        public GridSortDirection? DefaultSort { get => null; set { } }
+        public int SortOrder { get => 0; set { } }
+        public string? Width { get => null; set { } }
+        public string? MinWidth { get => null; set { } }
+        public string? MaxWidth { get => null; set { } }
+        public Alignment Alignment { get => Alignment.Start; set { } }
+        public string? Format { get => null; set { } }
+        public string Render(TEntity entity) => string.Empty;
+    }
+
+    #endregion
+
+    #region Public Properties Continued
 
     /// <summary>
     /// Current page size.
@@ -511,9 +561,8 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
         // Set pagination
         query.SetPage(_currentPage, _pageSize);
 
-        // Apply search if provided
-        if (!string.IsNullOrWhiteSpace(_searchString))
-            ApplySearch(query, _searchString);
+        // Apply advanced filters if provided
+        ApplyFilters(query);
 
         // Apply sorting
         ApplySorting(query);
@@ -525,16 +574,14 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
         return query;
     }
 
-    private void ApplySearch(Query<TEntity> query, string searchTerm)
+    private void ApplyFilters(Query<TEntity> query)
     {
-        var searchableColumns = Columns.Where(c => c.Searchable && c.PropertyExpression is not null).ToList();
-
-        if (searchableColumns.Count == 0)
+        if (_filterBuilder.Count == 0 || query.EntityFilterBuilder is null)
             return;
 
-        foreach (var column in searchableColumns)
-            if (column.PropertyExpression is not null)
-                query.Search(column.PropertyExpression, searchTerm);
+        // Copy filters from our builder to the query's builder
+        foreach (var filterCriteria in _filterBuilder.EntityFilterList)
+            query.EntityFilterBuilder.Add(filterCriteria);
     }
 
     private void ApplySorting(Query<TEntity> query)
@@ -572,10 +619,10 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
 
     #region Private Methods - Event Handlers
 
-    private async Task SearchAsync(string searchValue)
+    private async Task HandleFiltersChangedAsync(EntityFilterBuilder<TEntity> filterBuilder)
     {
-        _searchString = searchValue;
-        _currentPage = 1; // Reset to first page when searching
+        _filterBuilder = filterBuilder;
+        _currentPage = 1; // Reset to first page when filters change
         await LoadDataAsync();
     }
 

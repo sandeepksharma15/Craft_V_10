@@ -29,104 +29,48 @@
 					<Show When="@(!_showTitle)">
 						<CraftDiv></CraftDiv>
 					</Show>
-					<Show When="@_showAddButton">
-						<MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@AddIcon" OnClick="@HandleAddAsync">
-							@AddButtonText
-						</MudButton>
-					</Show>
 				</CraftDiv>
 			</Show>
 
-		@* Toolbar *@
-		<MudPaper Elevation="0" Class="pa-2 mb-3">
-			<div class="d-flex align-center gap-2" style="flex-wrap: nowrap;">
-				
-				@* Left Section: Search *@
-				<Show When="@ShowSearch">
-					<div class="flex-grow-1" style="min-width: 0; max-width: 400px;">
-						<MudTextField @bind-Value="_searchString" 
-									  Placeholder="@SearchPlaceholder" 
-									  Adornment="Adornment.Start"
-									  AdornmentIcon="@Icons.Material.Filled.Search" 
-									  IconSize="Size.Medium" 
-									  Immediate="true"
-									  DebounceInterval="300" 
-									  OnDebounceIntervalElapsed="@SearchAsync" 
-									  Class="mt-0" />
-					</div>
-				</Show>
-
-				@* Spacer *@
-				<div class="flex-grow-1"></div>
-
-				@* Right Section: Action Buttons *@
-				<div class="d-flex align-center gap-2" style="flex-shrink: 0;">
-					
-					@* Sort Menu *@
-					<Show When="@_showSortMenu">
-						<MudMenu Icon="@Icons.Material.Filled.Sort" 
-								 Color="Color.Default" 
-								 Variant="Variant.Outlined"
-								 Size="Size.Medium" 
-								 AnchorOrigin="Origin.BottomRight">
-							<MudText Typo="Typo.caption" Class="px-4 py-2">Sort By</MudText>
-							<MudDivider />
-							@foreach (var column in Columns.Where(c => c.Sortable && c.Visible))
-							{
-								<MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
-									<CraftDiv Class="d-flex align-center justify-space-between" style="min-width: 150px;">
-										<CraftSpan>@column.Caption</CraftSpan>
-										<Show When="@(_currentSortColumn == column)">
-											<MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending
-																  ? Icons.Material.Filled.ArrowUpward
-																  : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
-										</Show>
-									</CraftDiv>
-								</MudMenuItem>
-							}
-						</MudMenu>
-					</Show>
-
-					@* Export Menu *@
-					<Show When="@_showExportMenu">
-						<MudMenu Icon="@Icons.Material.Filled.FileDownload" 
-								 Color="Color.Default" 
-								 Variant="Variant.Outlined"
-								 Size="Size.Medium">
-							<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Csv))"
-										 Icon="@Icons.Material.Filled.Description">
-								Export to CSV
+			@* Toolbar *@
+			<CraftDataToolbar TEntity="TEntity"
+							  ShowSearch="@ShowSearch"
+							  SearchableColumns="@SearchableColumns"
+							  @bind-FilterBuilder="_filterBuilder"
+							  OnFiltersChanged="@HandleFiltersChangedAsync"
+							  ShowSort="@_showSortMenu"
+							  ShowExport="@_showExportMenu"
+							  OnExport="@HandleExportAsync"
+							  ShowRefresh="@AllowRefresh"
+							  OnRefresh="@RefreshAsync"
+							  ShowAdd="@_showAddButton"
+							  AddButtonText="@AddButtonText"
+							  AddIcon="@AddIcon"
+							  OnAdd="@HandleAddAsync">
+				<SortContent>
+					<MudMenu Icon="@Icons.Material.Filled.Sort" 
+							 Color="Color.Default" 
+							 Variant="Variant.Outlined"
+							 Size="Size.Medium" 
+							 AnchorOrigin="Origin.BottomRight">
+						<MudText Typo="Typo.caption" Class="px-4 py-2">Sort By</MudText>
+						<MudDivider />
+						@foreach (var column in Columns.Where(c => c.Sortable && c.Visible))
+						{
+							<MudMenuItem OnClick="@(() => ToggleSortAsync(column))">
+								<CraftDiv Class="d-flex align-center justify-space-between" style="min-width: 150px;">
+									<CraftSpan>@column.Caption</CraftSpan>
+									<Show When="@(_currentSortColumn == column)">
+										<MudIcon Icon="@(_currentSortDirection == GridSortDirection.Ascending
+															  ? Icons.Material.Filled.ArrowUpward
+															  : Icons.Material.Filled.ArrowDownward)" Size="Size.Small" />
+									</Show>
+								</CraftDiv>
 							</MudMenuItem>
-							<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Excel))"
-										 Icon="@Icons.Material.Filled.TableChart">
-								Export to Excel
-							</MudMenuItem>
-							<MudMenuItem OnClick="@(() => HandleExportAsync(ExportFormat.Pdf))"
-										 Icon="@Icons.Material.Filled.PictureAsPdf">
-								Export to PDF
-							</MudMenuItem>
-						</MudMenu>
-					</Show>
-
-					@* Refresh Button *@
-					<Show When="@AllowRefresh">
-						<MudIconButton Icon="@Icons.Material.Filled.Refresh" 
-									   Color="Color.Default"
-									   OnClick="@RefreshAsync" />
-					</Show>
-
-					@* Add Button *@
-					<Show When="@_showAddButton">
-						<MudButton Color="Color.Primary" 
-								   Variant="Variant.Filled" 
-								   StartIcon="@AddIcon" 
-								   OnClick="@HandleAddAsync">
-							@AddButtonText
-						</MudButton>
-					</Show>
-				</div>
-			</div>
-		</MudPaper>
+						}
+					</MudMenu>
+				</SortContent>
+			</CraftDataToolbar>
 
 			@* Cards Grid *@
 			<Show When="@_hasItems">
@@ -256,3 +200,4 @@
 		</MudButton>
 	</DialogActions>
 </MudDialog>
+
