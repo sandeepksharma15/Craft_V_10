@@ -69,7 +69,7 @@ public class EntityReadControllerTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsProblem_OnException()
+    public async Task GetAllAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repositoryMock.Setup(r => r.GetAllAsync(false, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
@@ -78,8 +78,8 @@ public class EntityReadControllerTests
         var result = await _controller.GetAllAsync(false);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(StatusCodes.Status500InternalServerError, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, problem.StatusCode);
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class EntityReadControllerTests
     }
 
     [Fact]
-    public async Task GetAsync_ReturnsProblem_OnException()
+    public async Task GetAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repositoryMock.Setup(r => r.GetAsync(1, false, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
@@ -120,8 +120,8 @@ public class EntityReadControllerTests
         var result = await _controller.GetAsync(1, false);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(StatusCodes.Status500InternalServerError, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, problem.StatusCode);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class EntityReadControllerTests
     }
 
     [Fact]
-    public async Task GetCountAsync_ReturnsProblem_OnException()
+    public async Task GetCountAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repositoryMock.Setup(r => r.GetCountAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
@@ -148,8 +148,8 @@ public class EntityReadControllerTests
         var result = await _controller.GetCountAsync();
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(StatusCodes.Status500InternalServerError, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, problem.StatusCode);
     }
 
     [Fact]
@@ -168,7 +168,7 @@ public class EntityReadControllerTests
     }
 
     [Fact]
-    public async Task GetPagedListAsync_ReturnsProblem_OnException()
+    public async Task GetPagedListAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repositoryMock.Setup(r => r.GetPagedListAsync(1, 10, false, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
@@ -177,7 +177,7 @@ public class EntityReadControllerTests
         var result = await _controller.GetPagedListAsync(1, 10, false);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(StatusCodes.Status500InternalServerError, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, problem.StatusCode);
     }
 }

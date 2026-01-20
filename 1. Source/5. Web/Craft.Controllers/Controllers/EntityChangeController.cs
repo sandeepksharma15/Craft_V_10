@@ -456,7 +456,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         catch (Exception ex)
         {
             logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityChangeController] Error in AddRangeAsync for {EntityType}: {Message}", typeof(T).Name, ex.Message);
+            return BadRequest(new[] { $"Failed to add multiple {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -501,7 +502,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         catch (Exception ex)
         {
             logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityChangeController] Error in DeleteAsync for {EntityType}: {Message}", typeof(T).Name, ex.Message);
+            return BadRequest(new[] { $"Failed to delete {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -547,7 +549,8 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         catch (Exception ex)
         {
             logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityChangeController] Error in DeleteRangeAsync for {EntityType}: {Message}", typeof(T).Name, ex.Message);
+            return BadRequest(new[] { $"Failed to delete multiple {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 
@@ -613,7 +616,7 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         catch (DbUpdateConcurrencyException ex)
         {
             logger.LogError(ex.Message);
-            return Problem("The values in database have changed. Please update again with updated values.");
+            return BadRequest(new[] { "The values in database have changed. Please refresh and update again with updated values." });
         }
         catch (Exception ex)
         {
@@ -685,12 +688,13 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         catch (DbUpdateConcurrencyException ex)
         {
             logger.LogError(ex.Message);
-            return Problem("The values in database have changed. Please update again with updated values.", statusCode: StatusCodes.Status409Conflict);
+            return BadRequest(new[] { "The values in database have changed. Please refresh and update again with updated values." });
         }
         catch (Exception ex)
         {
             logger.LogCritical(ex.Message);
-            return Problem(ex.Message);
+            logger.LogError(ex, "[EntityChangeController] Error in UpdateRangeAsync for {EntityType}: {Message}", typeof(T).Name, ex.Message);
+            return BadRequest(new[] { $"Failed to update multiple {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
 }

@@ -61,7 +61,7 @@ public class EntityChangeControllerTests
     }
 
     [Fact]
-    public async Task AddAsync_ReturnsProblem_OnException()
+    public async Task AddAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
@@ -71,8 +71,8 @@ public class EntityChangeControllerTests
         var result = await _controller.AddAsync(model);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class EntityChangeControllerTests
     }
 
     [Fact]
-    public async Task AddRangeAsync_ReturnsProblem_OnException()
+    public async Task AddRangeAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
@@ -100,8 +100,8 @@ public class EntityChangeControllerTests
         var result = await _controller.AddRangeAsync(models);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class EntityChangeControllerTests
     }
 
     [Fact]
-    public async Task DeleteAsync_ReturnsProblem_OnException()
+    public async Task DeleteAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetAsync(1, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
@@ -142,8 +142,8 @@ public class EntityChangeControllerTests
         var result = await _controller.DeleteAsync(1);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class EntityChangeControllerTests
     }
 
     [Fact]
-    public async Task DeleteRangeAsync_ReturnsProblem_OnException()
+    public async Task DeleteRangeAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
@@ -171,8 +171,8 @@ public class EntityChangeControllerTests
         var result = await _controller.DeleteRangeAsync(models);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -193,7 +193,7 @@ public class EntityChangeControllerTests
     }
 
     [Fact]
-    public async Task UpdateAsync_ReturnsProblem_OnDbUpdateConcurrencyException()
+    public async Task UpdateAsync_ReturnsBadRequest_OnDbUpdateConcurrencyException()
     {
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
@@ -205,13 +205,12 @@ public class EntityChangeControllerTests
         var result = await _controller.UpdateAsync(model);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
-        Assert.Contains("ProblemDetails", problem.Value?.ToString());
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
-    public async Task UpdateAsync_ReturnsProblem_OnException()
+    public async Task UpdateAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         var model = new TestEntityModel { Id = 1, Name = "A" };
@@ -223,8 +222,8 @@ public class EntityChangeControllerTests
         var result = await _controller.UpdateAsync(model);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -244,7 +243,7 @@ public class EntityChangeControllerTests
     }
 
         [Fact]
-        public async Task UpdateRangeAsync_ReturnsProblem_OnException()
+        public async Task UpdateRangeAsync_ReturnsBadRequest_OnException()
         {
             // Arrange
             var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
@@ -256,8 +255,8 @@ public class EntityChangeControllerTests
             var result = await _controller.UpdateRangeAsync(models);
 
             // Assert
-            var problem = Assert.IsType<ObjectResult>(result.Result);
-            Assert.Equal(500, problem.StatusCode);
+            var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal(400, problem.StatusCode);
         }
 
         [Fact]
@@ -290,7 +289,7 @@ public class EntityChangeControllerTests
         }
 
             [Fact]
-            public async Task UpdateRangeAsync_ReturnsProblem_OnDbUpdateConcurrencyException()
+            public async Task UpdateRangeAsync_ReturnsBadRequest_OnDbUpdateConcurrencyException()
             {
                 // Arrange
                 var models = new List<TestEntityModel> { new() { Id = 1, Name = "A" } };
@@ -302,7 +301,7 @@ public class EntityChangeControllerTests
                 var result = await _controller.UpdateRangeAsync(models);
 
                 // Assert
-                var problem = Assert.IsType<ObjectResult>(result.Result);
-                Assert.Equal(409, problem.StatusCode);
+                var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+                Assert.Equal(400, problem.StatusCode);
             }
         }

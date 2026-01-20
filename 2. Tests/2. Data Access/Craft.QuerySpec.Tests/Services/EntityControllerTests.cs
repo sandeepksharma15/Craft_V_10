@@ -84,7 +84,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task DeleteAsync_ReturnsProblem_WhenRepositoryThrows()
+    public async Task DeleteAsync_ReturnsBadRequest_WhenRepositoryThrows()
     {
         // Arrange
         _repoMock.Setup(r => r.DeleteAsync(_query, true, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -93,8 +93,8 @@ public class EntityControllerTests
         var result = await _controller.DeleteAsync(_query, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsProblem_OnException()
+    public async Task GetAllAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetAllAsync(_query, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -137,8 +137,8 @@ public class EntityControllerTests
         var result = await _controller.GetAllAsync(_query, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetAllAsync_Select_ReturnsProblem_OnException()
+    public async Task GetAllAsync_Select_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetAllAsync(_querySelect, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -166,8 +166,8 @@ public class EntityControllerTests
         var result = await _controller.GetAllAsync<TestModel>(_querySelect, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetAsync_ReturnsProblem_OnException()
+    public async Task GetAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetAsync(_query, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -208,8 +208,8 @@ public class EntityControllerTests
         var result = await _controller.GetAsync(_query, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -241,7 +241,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetAsync_Select_ReturnsProblem_OnException()
+    public async Task GetAsync_Select_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetAsync<TestModel>(_querySelect, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -250,8 +250,8 @@ public class EntityControllerTests
         var result = await _controller.GetAsync<TestModel>(_querySelect, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -269,7 +269,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetCountAsync_ReturnsProblem_OnException()
+    public async Task GetCountAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetCountAsync(_query, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -278,8 +278,8 @@ public class EntityControllerTests
         var result = await _controller.GetCountAsync(_query, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -298,7 +298,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetPagedListAsync_ReturnsProblem_OnException()
+    public async Task GetPagedListAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetPagedListAsync(_query, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -307,8 +307,8 @@ public class EntityControllerTests
         var result = await _controller.GetPagedListAsync(_query, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 
     [Fact]
@@ -327,7 +327,7 @@ public class EntityControllerTests
     }
 
     [Fact]
-    public async Task GetPagedListAsync_Select_ReturnsProblem_OnException()
+    public async Task GetPagedListAsync_Select_ReturnsBadRequest_OnException()
     {
         // Arrange
         _repoMock.Setup(r => r.GetPagedListAsync(_querySelect, _cancellationToken)).ThrowsAsync(new Exception("fail"));
@@ -336,7 +336,7 @@ public class EntityControllerTests
         var result = await _controller.GetPagedListAsync<TestModel>(_querySelect, _cancellationToken);
 
         // Assert
-        var problem = Assert.IsType<ObjectResult>(result.Result);
-        Assert.Equal(500, problem.StatusCode);
+        var problem = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, problem.StatusCode);
     }
 }
