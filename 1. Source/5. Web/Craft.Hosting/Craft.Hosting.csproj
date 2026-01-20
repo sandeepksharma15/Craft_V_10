@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Sandeep SHARMA</Authors>
+		<LangVersion>preview</LangVersion>
+		<RootNamespace>Craft.Hosting</RootNamespace>
+		<Description>Dependency injection extensions for the Craft framework. Provides a centralized location for service registration extensions.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Core Dependencies -->
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Craft Framework References -->
+		<ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
+		<ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
+		<ProjectReference Include="..\..\2. Data Access\Craft.QuerySpec\Craft.QuerySpec.csproj" />
+	</ItemGroup>
+
+</Project>
