@@ -312,32 +312,32 @@ public static class HttpServiceExtensions
         var apiUrl = new Uri(new Uri(baseAddress), apiPath);
 
         // Create factory for HttpService<T, TView, TDto>
-        Func<IServiceProvider, HttpService<T, TView, TDto>> factory = provider =>
+        HttpService<T, TView, TDto> factory(IServiceProvider provider)
         {
             var httpClient = httpClientFactory(provider);
             var logger = provider.GetRequiredService<ILogger<HttpService<T, TView, TDto>>>();
             return new HttpService<T, TView, TDto>(apiUrl, httpClient, logger);
-        };
+        }
 
         // Register primary interface IHttpService<T, TView, TDto>
         if (registerPrimaryInterface)
-            RegisterService<IHttpService<T, TView, TDto>>(services, factory, lifetime);
+            RegisterService<IHttpService<T, TView, TDto>>(services, (Func<IServiceProvider, HttpService<T, TView, TDto>>)factory, lifetime);
 
         // Register interface with explicit KeyType parameter IHttpService<T, TView, TDto, KeyType>
         if (registerWithKeyType)
-            RegisterService<IHttpService<T, TView, TDto, KeyType>>(services, factory, lifetime);
+            RegisterService<IHttpService<T, TView, TDto, KeyType>>(services, (Func<IServiceProvider, HttpService<T, TView, TDto>>)factory, lifetime);
 
         // Register simplified interface IHttpService<T> as separate instance
         if (registerSimplified)
         {
-            Func<IServiceProvider, HttpService<T>> simplifiedFactory = provider =>
+            HttpService<T> simplifiedFactory(IServiceProvider provider)
             {
                 var httpClient = httpClientFactory(provider);
                 var logger = provider.GetRequiredService<ILogger<HttpService<T>>>();
                 return new HttpService<T>(apiUrl, httpClient, logger);
-            };
+            }
 
-            RegisterService<IHttpService<T>>(services, simplifiedFactory, lifetime);
+            RegisterService<IHttpService<T>>(services, (Func<IServiceProvider, HttpService<T>>)simplifiedFactory, lifetime);
         }
 
         return services;
@@ -357,12 +357,12 @@ public static class HttpServiceExtensions
         var apiUrl = new Uri(new Uri(baseAddress), apiPath);
 
         // Create factory for custom TService
-        Func<IServiceProvider, TService> factory = provider =>
+        TService factory(IServiceProvider provider)
         {
             var httpClient = httpClientFactory(provider);
             var logger = provider.GetRequiredService<ILogger<HttpService<T, TView, TDto, KeyType>>>();
             return (TService)Activator.CreateInstance(typeof(TService), apiUrl, httpClient, logger)!;
-        };
+        }
 
         // Register the custom service type itself
         RegisterService(services, factory, lifetime);
@@ -388,14 +388,14 @@ public static class HttpServiceExtensions
         // Register simplified interface IHttpService<T> as separate instance
         if (registerSimplified)
         {
-            Func<IServiceProvider, HttpService<T>> simplifiedFactory = provider =>
+            HttpService<T> simplifiedFactory(IServiceProvider provider)
             {
                 var httpClient = httpClientFactory(provider);
                 var logger = provider.GetRequiredService<ILogger<HttpService<T>>>();
                 return new HttpService<T>(apiUrl, httpClient, logger);
-            };
+            }
 
-            RegisterService<IHttpService<T>>(services, simplifiedFactory, lifetime);
+            RegisterService<IHttpService<T>>(services, (Func<IServiceProvider, HttpService<T>>)simplifiedFactory, lifetime);
         }
 
         return services;
