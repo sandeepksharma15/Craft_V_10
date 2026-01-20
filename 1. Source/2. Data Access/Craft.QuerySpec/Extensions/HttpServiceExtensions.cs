@@ -1,5 +1,3 @@
-using Craft.Core;
-using Craft.Core.Common;
 using Craft.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,23 +21,13 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, T, T, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; using HttpService&lt;T&gt; constructor.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddTransientHttpService<T>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddTransientHttpService<T>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
     {
-        return services.AddTransientHttpService<T, T, T>(
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return services.AddTransientHttpService<T, T, T>(httpClientFactory, baseAddress, apiPath,
+            registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -56,27 +44,15 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, TView, TDto, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddTransientHttpService<T, TView, TDto>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddTransientHttpService<T, TView, TDto>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
     {
-        return AddHttpService<T, TView, TDto>(
-            services,
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            ServiceLifetime.Transient,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return AddHttpService<T, TView, TDto>(services, httpClientFactory, baseAddress, apiPath,
+            ServiceLifetime.Transient, registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -91,23 +67,13 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, T, T, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; using HttpService&lt;T&gt; constructor.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddScopedHttpService<T>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddScopedHttpService<T>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
     {
-        return services.AddScopedHttpService<T, T, T>(
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return services.AddScopedHttpService<T, T, T>(httpClientFactory, baseAddress, apiPath, registerPrimaryInterface,
+            registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -124,27 +90,15 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, TView, TDto, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddScopedHttpService<T, TView, TDto>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddScopedHttpService<T, TView, TDto>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
     {
-        return AddHttpService<T, TView, TDto>(
-            services,
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            ServiceLifetime.Scoped,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return AddHttpService<T, TView, TDto>(services, httpClientFactory, baseAddress, apiPath, ServiceLifetime.Scoped,
+            registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -159,23 +113,13 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, T, T, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; using HttpService&lt;T&gt; constructor.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddSingletonHttpService<T>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddSingletonHttpService<T>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
     {
-        return services.AddSingletonHttpService<T, T, T>(
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return services.AddSingletonHttpService<T, T, T>(httpClientFactory, baseAddress, apiPath,
+            registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -192,27 +136,15 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, TView, TDto, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddSingletonHttpService<T, TView, TDto>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddSingletonHttpService<T, TView, TDto>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
     {
-        return AddHttpService<T, TView, TDto>(
-            services,
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            ServiceLifetime.Singleton,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return AddHttpService<T, TView, TDto>(services, httpClientFactory, baseAddress, apiPath,
+            ServiceLifetime.Singleton, registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -228,24 +160,14 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, T, T, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddTransientCustomHttpService<T, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddTransientCustomHttpService<T, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TService : HttpService<T, T, T, KeyType>
     {
-        return services.AddTransientCustomHttpService<T, T, T, TService>(
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return services.AddTransientCustomHttpService<T, T, T, TService>(httpClientFactory, baseAddress, apiPath,
+            registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -263,28 +185,16 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, TView, TDto, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddTransientCustomHttpService<T, TView, TDto, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddTransientCustomHttpService<T, TView, TDto, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
         where TService : HttpService<T, TView, TDto, KeyType>
     {
-        return AddCustomHttpService<T, TView, TDto, TService>(
-            services,
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            ServiceLifetime.Transient,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return AddCustomHttpService<T, TView, TDto, TService>(services, httpClientFactory, baseAddress, apiPath,
+            ServiceLifetime.Transient, registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -300,24 +210,14 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, T, T, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddScopedCustomHttpService<T, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddScopedCustomHttpService<T, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TService : HttpService<T, T, T, KeyType>
     {
-        return services.AddScopedCustomHttpService<T, T, T, TService>(
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return services.AddScopedCustomHttpService<T, T, T, TService>(httpClientFactory, baseAddress, apiPath,
+            registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -335,28 +235,16 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, TView, TDto, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddScopedCustomHttpService<T, TView, TDto, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddScopedCustomHttpService<T, TView, TDto, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
         where TService : HttpService<T, TView, TDto, KeyType>
     {
-        return AddCustomHttpService<T, TView, TDto, TService>(
-            services,
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            ServiceLifetime.Scoped,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return AddCustomHttpService<T, TView, TDto, TService>(services, httpClientFactory, baseAddress, apiPath,
+            ServiceLifetime.Scoped, registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -372,24 +260,14 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, T, T, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddSingletonCustomHttpService<T, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddSingletonCustomHttpService<T, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TService : HttpService<T, T, T, KeyType>
     {
-        return services.AddSingletonCustomHttpService<T, T, T, TService>(
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return services.AddSingletonCustomHttpService<T, T, T, TService>(httpClientFactory, baseAddress, apiPath,
+            registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     /// <summary>
@@ -407,28 +285,16 @@ public static class HttpServiceExtensions
     /// <param name="registerWithKeyType">If true, registers IHttpService&lt;T, TView, TDto, KeyType&gt;.</param>
     /// <param name="registerSimplified">If true, registers IHttpService&lt;T&gt; as a separate instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddSingletonCustomHttpService<T, TView, TDto, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        bool registerPrimaryInterface = true,
-        bool registerWithKeyType = false,
-        bool registerSimplified = false)
+    public static IServiceCollection AddSingletonCustomHttpService<T, TView, TDto, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        bool registerPrimaryInterface = true, bool registerWithKeyType = false, bool registerSimplified = false)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
         where TService : HttpService<T, TView, TDto, KeyType>
     {
-        return AddCustomHttpService<T, TView, TDto, TService>(
-            services,
-            httpClientFactory,
-            baseAddress,
-            apiPath,
-            ServiceLifetime.Singleton,
-            registerPrimaryInterface,
-            registerWithKeyType,
-            registerSimplified);
+        return AddCustomHttpService<T, TView, TDto, TService>(services, httpClientFactory, baseAddress, apiPath,
+            ServiceLifetime.Singleton, registerPrimaryInterface, registerWithKeyType, registerSimplified);
     }
 
     #region Private Helper Methods
@@ -436,15 +302,9 @@ public static class HttpServiceExtensions
     /// <summary>
     /// Core method to register an HttpService with specified lifetime and interface options.
     /// </summary>
-    private static IServiceCollection AddHttpService<T, TView, TDto>(
-        IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        ServiceLifetime lifetime,
-        bool registerPrimaryInterface,
-        bool registerWithKeyType,
-        bool registerSimplified)
+    private static IServiceCollection AddHttpService<T, TView, TDto>(IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        ServiceLifetime lifetime, bool registerPrimaryInterface, bool registerWithKeyType, bool registerSimplified)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
@@ -486,15 +346,9 @@ public static class HttpServiceExtensions
     /// <summary>
     /// Core method to register a custom HttpService implementation with specified lifetime and interface options.
     /// </summary>
-    private static IServiceCollection AddCustomHttpService<T, TView, TDto, TService>(
-        IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
-        ServiceLifetime lifetime,
-        bool registerPrimaryInterface,
-        bool registerWithKeyType,
-        bool registerSimplified)
+    private static IServiceCollection AddCustomHttpService<T, TView, TDto, TService>(IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        ServiceLifetime lifetime, bool registerPrimaryInterface, bool registerWithKeyType, bool registerSimplified)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
         where TDto : class, IModel, new()
@@ -550,9 +404,7 @@ public static class HttpServiceExtensions
     /// <summary>
     /// Helper method to register a service with specified lifetime.
     /// </summary>
-    private static void RegisterService<TService>(
-        IServiceCollection services,
-        Func<IServiceProvider, TService> factory,
+    private static void RegisterService<TService>(IServiceCollection services, Func<IServiceProvider, TService> factory,
         ServiceLifetime lifetime)
         where TService : class
     {
