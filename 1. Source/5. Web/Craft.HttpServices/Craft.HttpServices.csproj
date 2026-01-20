@@ -18,4 +18,8 @@
 	  <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Extensions\" />
+	</ItemGroup>
+
 </Project>
