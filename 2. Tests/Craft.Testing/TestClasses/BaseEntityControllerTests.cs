@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Craft.Controllers;
+using Craft.Controllers.ErrorHandling;
 using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec;
@@ -60,8 +61,10 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
 
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<EntityController<TEntity, TDto, TKey>>>();
+        var databaseErrorHandler = Fixture.ServiceProvider
+            .GetRequiredService<IDatabaseErrorHandler>();
 
-        var controller = new TestEntityController<TEntity, TDto, TKey>(repository, logger)
+        var controller = new TestEntityController<TEntity, TDto, TKey>(repository, logger, databaseErrorHandler)
         {
             // Set up HttpContext for the controller
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -330,6 +333,9 @@ internal class TestEntityController<TEntity, TDto, TKey> : EntityController<TEnt
     where TEntity : class, IEntity<TKey>, new()
     where TDto : class, IModel<TKey>, new()
 {
-    public TestEntityController(IRepository<TEntity, TKey> repository, ILogger<EntityController<TEntity, TDto, TKey>> logger)
-        : base(repository, logger) { }
+    public TestEntityController(
+        IRepository<TEntity, TKey> repository,
+        ILogger<EntityController<TEntity, TDto, TKey>> logger,
+        IDatabaseErrorHandler databaseErrorHandler)
+        : base(repository, logger, databaseErrorHandler) { }
 }

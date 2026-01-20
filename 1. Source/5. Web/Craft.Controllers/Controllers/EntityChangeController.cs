@@ -1,12 +1,11 @@
-﻿using Craft.Domain;
+﻿using Craft.Controllers.ErrorHandling;
+using Craft.Domain;
 using Craft.Repositories;
-using Humanizer;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 
 namespace Craft.Controllers;
 
@@ -21,7 +20,10 @@ namespace Craft.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepository<T, TKey> repository, ILogger<EntityChangeController<T, DataTransferT, TKey>> logger)
+public abstract class EntityChangeController<T, DataTransferT, TKey>(
+    IChangeRepository<T, TKey> repository,
+    ILogger<EntityChangeController<T, DataTransferT, TKey>> logger,
+    IDatabaseErrorHandler databaseErrorHandler)
     : EntityReadController<T, DataTransferT, TKey>(repository, logger), IEntityChangeController<T, DataTransferT, TKey>
         where T : class, IEntity<TKey>, new()
         where DataTransferT : class, IModel<TKey>, new()
@@ -38,17 +40,16 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         logger.LogError(ex, "[EntityChangeController] Error in {EntityType}: {Message}", typeof(T).Name, ex.Message);
 
         // Handle DbUpdateException (includes all database constraint violations)
-        if (ex is DbUpdateException dbUpdateException)
+        if (ex is DbUpdateException dbUpdateException && dbUpdateException.InnerException != null)
         {
-            // Try to get more specific error information from the inner exception
-            if (dbUpdateException.InnerException != null)
-            {
-                var errorMessage = HandleDatabaseException(dbUpdateException.InnerException);
-                return BadRequest(new[] { errorMessage });
-            }
-            
-            // Generic DbUpdateException without specific database details
-            logger.LogWarning(dbUpdateException, "[EntityChangeController] DbUpdateException without specific database details");
+            var errorMessage = databaseErrorHandler.HandleException(dbUpdateException.InnerException, typeof(T));
+            return BadRequest(new[] { errorMessage });
+        }
+
+        // Handle DbUpdateException without inner exception
+        if (ex is DbUpdateException)
+        {
+            logger.LogWarning(ex, "[EntityChangeController] DbUpdateException without specific database details");
             return BadRequest(new[] { "An error occurred while saving to the database. Please check your input and try again." });
         }
 
@@ -62,276 +63,6 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
         // For unknown exceptions, log and return a generic message
         logger.LogError(ex, "[EntityChangeController] Unexpected exception in {EntityType}", typeof(T).Name);
         return BadRequest(new[] { "An unexpected error occurred. Please try again or contact support if the issue persists." });
-    }
-
-    /// <summary>
-    /// Handles database-specific exceptions using reflection to support multiple database providers.
-    /// Currently supports PostgreSQL, SQL Server, MySQL, and SQLite.
-    /// </summary>
-    /// <param name="innerException">The inner exception from DbUpdateException.</param>
-    /// <returns>A user-friendly error message.</returns>
-    private string HandleDatabaseException(Exception innerException)
-    {
-        string entityName = typeof(T).Name.Humanize();  // "Location", "Customer Order"
-        string exceptionTypeName = innerException.GetType().Name;
-
-        // Extract common properties using reflection (works for PostgreSQL, SQL Server, etc.)
-        string? sqlState = GetPropertyValue<string>(innerException, "SqlState");
-        string? constraintName = GetPropertyValue<string>(innerException, "ConstraintName");
-        string? messageText = GetPropertyValue<string>(innerException, "MessageText") 
-                           ?? GetPropertyValue<string>(innerException, "Message")
-                           ?? innerException.Message;
-
-        // For SQL Server
-        int? errorNumber = GetPropertyValue<int?>(innerException, "Number");
-
-        string? fieldName = ExtractFieldNameFromConstraint(constraintName);
-
-        // Log technical details
-        logger.LogWarning("[EntityChangeController] Database Error - Type: {ExceptionType}, SqlState: {SqlState}, ErrorNumber: {ErrorNumber}, Constraint: {Constraint}, Message: {Message}",
-            exceptionTypeName, sqlState ?? "N/A", errorNumber?.ToString() ?? "N/A", constraintName ?? "N/A", messageText);
-
-        // PostgreSQL error codes
-        if (!string.IsNullOrEmpty(sqlState))
-            return GetPostgreSqlErrorMessage(sqlState, entityName, fieldName, messageText);
-
-        // SQL Server error numbers
-        if (errorNumber.HasValue)
-            return GetSqlServerErrorMessage(errorNumber.Value, entityName, fieldName, messageText);
-
-        // Parse common error patterns from message text
-        return ParseCommonErrorPatterns(messageText, entityName, fieldName);
-    }
-
-    /// <summary>
-    /// Gets PostgreSQL-specific error messages based on SqlState.
-    /// </summary>
-    private static string GetPostgreSqlErrorMessage(string sqlState, string entityName, string? fieldName, string messageText)
-    {
-        return sqlState switch
-        {
-            // Unique constraint violation
-            "23505" => fieldName != null
-                ? $"A {entityName} with this {fieldName} already exists. Please use a different value."
-                : $"A {entityName} with this value already exists. Please use a different value.",
-
-            // Foreign key violation (on insert/update)
-            "23503" => fieldName != null
-                ? $"The selected {fieldName} is invalid or does not exist. Please choose a valid option."
-                : "The selected value is invalid or does not exist. Please choose a valid option.",
-
-            // Not null violation
-            "23502" => fieldName != null
-                ? $"The {fieldName} field is required and cannot be empty."
-                : "A required field is missing. Please fill in all required fields.",
-
-            // Check constraint violation
-            "23514" => fieldName != null
-                ? $"The value for {fieldName} does not meet the validation requirements."
-                : "One or more values do not meet the validation requirements.",
-
-            // String data right truncation (value too long)
-            "22001" => fieldName != null
-                ? $"The value for {fieldName} is too long. Please use a shorter value."
-                : "One or more values are too long. Please use shorter values.",
-
-            // Invalid text representation (data type error)
-            "22P02" => fieldName != null
-                ? $"The value for {fieldName} has an invalid format. Please check the data type."
-                : "One or more values have an invalid format. Please check your input.",
-
-            // Numeric value out of range
-            "22003" => fieldName != null
-                ? $"The value for {fieldName} is out of the acceptable range."
-                : "One or more numeric values are out of the acceptable range.",
-
-            // Division by zero
-            "22012" => "A calculation resulted in division by zero. Please check your numeric values.",
-
-            // Datetime field overflow
-            "22008" => fieldName != null
-                ? $"The datetime value for {fieldName} is invalid or out of range."
-                : "One or more datetime values are invalid or out of range.",
-
-            // Connection failure
-            "08000" or "08003" or "08006" => "Unable to connect to the database. Please try again later.",
-
-            // Insufficient resources
-            "53000" or "53100" or "53200" or "53300" or "53400" =>
-                "The database is currently busy. Please try again in a moment.",
-
-            // Deadlock detected
-            "40P01" => "A conflict occurred while processing your request. Please try again.",
-
-            // Serialization failure
-            "40001" => "A conflict occurred with another transaction. Please refresh and try again.",
-
-            // Default case for other PostgreSQL errors
-            _ => $"Database error: {messageText}"
-        };
-    }
-
-    /// <summary>
-    /// Gets SQL Server-specific error messages based on error number.
-    /// </summary>
-    private static string GetSqlServerErrorMessage(int errorNumber, string entityName, string? fieldName, string messageText)
-    {
-        return errorNumber switch
-        {
-            // Unique constraint/index violation
-            2601 or 2627 => fieldName != null
-                ? $"A {entityName} with this {fieldName} already exists. Please use a different value."
-                : $"A {entityName} with this value already exists. Please use a different value.",
-
-            // Foreign key violation / Check constraint violation (both use 547)
-            547 => messageText.ToLower().Contains("foreign key")
-                ? (fieldName != null
-                    ? $"The selected {fieldName} is invalid or does not exist. Please choose a valid option."
-                    : "The selected value is invalid or does not exist. Please choose a valid option.")
-                : (fieldName != null
-                    ? $"The value for {fieldName} does not meet the validation requirements."
-                    : "One or more values do not meet the validation requirements."),
-
-            // Cannot insert null
-            515 => fieldName != null
-                ? $"The {fieldName} field is required and cannot be empty."
-                : "A required field is missing. Please fill in all required fields.",
-
-            // String or binary data would be truncated
-            2628 or 8152 => fieldName != null
-                ? $"The value for {fieldName} is too long. Please use a shorter value."
-                : "One or more values are too long. Please use shorter values.",
-
-            // Arithmetic overflow or conversion error
-            8115 or 8116 or 220 or 232 => fieldName != null
-                ? $"The value for {fieldName} has an invalid format or is out of range."
-                : "One or more values have an invalid format or are out of range.",
-
-            // Deadlock
-            1205 => "A conflict occurred while processing your request. Please try again.",
-
-            // Timeout
-            -2 => "The operation took too long to complete. Please try again.",
-
-            // Default case
-            _ => $"Database error: {messageText}"
-        };
-    }
-
-    /// <summary>
-    /// Parses common error patterns from exception messages when specific error codes aren't available.
-    /// </summary>
-    private static string ParseCommonErrorPatterns(string messageText, string entityName, string? fieldName)
-    {
-        string lowerMessage = messageText.ToLower();
-
-        if (lowerMessage.Contains("unique") || lowerMessage.Contains("duplicate"))
-        {
-            return fieldName != null
-                ? $"A {entityName} with this {fieldName} already exists. Please use a different value."
-                : $"A {entityName} with this value already exists. Please use a different value.";
-        }
-
-        if (lowerMessage.Contains("foreign key") || lowerMessage.Contains("reference"))
-        {
-            return fieldName != null
-                ? $"The selected {fieldName} is invalid or does not exist. Please choose a valid option."
-                : "The selected value is invalid or does not exist. Please choose a valid option.";
-        }
-
-        if (lowerMessage.Contains("not null") || lowerMessage.Contains("required"))
-        {
-            return fieldName != null
-                ? $"The {fieldName} field is required and cannot be empty."
-                : "A required field is missing. Please fill in all required fields.";
-        }
-
-        if (lowerMessage.Contains("too long") || lowerMessage.Contains("truncat"))
-        {
-            return fieldName != null
-                ? $"The value for {fieldName} is too long. Please use a shorter value."
-                : "One or more values are too long. Please use shorter values.";
-        }
-
-        if (lowerMessage.Contains("deadlock"))
-        {
-            return "A conflict occurred while processing your request. Please try again.";
-        }
-
-        // Default generic message
-        return "An error occurred while saving to the database. Please check your input and try again.";
-    }
-
-    /// <summary>
-    /// Gets a property value from an object using reflection.
-    /// Returns null if the property doesn't exist or can't be accessed.
-    /// </summary>
-    private static TValue? GetPropertyValue<TValue>(object obj, string propertyName)
-    {
-        try
-        {
-            var property = obj.GetType().GetProperty(propertyName);
-
-            if (property != null)
-            {
-                var value = property.GetValue(obj);
-                if (value is TValue typedValue)
-                    return typedValue;
-            }
-        }
-        catch
-        {
-            // Silently ignore reflection errors
-        }
-
-        return default;
-    }
-
-    /// <summary>
-    /// Attempts to extract a field name from a database constraint name.
-    /// Supports EF Core default naming: IX_TableName_FieldName, FK_TableName_FieldName, etc.
-    /// Also handles composite keys and humanizes the field names.
-    /// </summary>
-    /// <param name="constraintName">The constraint name from the database.</param>
-    /// <returns>The extracted and humanized field name(s), or null if extraction fails.</returns>
-    private static string? ExtractFieldNameFromConstraint(string? constraintName)
-    {
-        if (string.IsNullOrWhiteSpace(constraintName))
-            return null;
-
-        try
-        {
-            // EF Core default pattern: PREFIX_TableName_FieldName(s)
-            // Examples: IX_Locations_Name, FK_Orders_CustomerId, IX_Weeks_YearId_WeekNumber
-            // Prefix: IX, FK, PK, CK, UQ, etc.
-            
-            // Split by underscore and skip the first two parts (prefix and table name)
-            var parts = constraintName.Split('_', StringSplitOptions.RemoveEmptyEntries);
-            
-            if (parts.Length >= 3)
-            {
-                // Take everything after PREFIX_TableName_ (starting from index 2)
-                var fieldParts = parts.Skip(2).ToArray();
-                
-                if (fieldParts.Length == 1)
-                {
-                    // Single field: IX_Locations_Name → "Name"
-                    return fieldParts[0].Humanize(LetterCasing.Title);
-                }
-                else if (fieldParts.Length > 1)
-                {
-                    // Composite key: IX_Weeks_YearId_WeekNumber → "Year Id and Week Number"
-                    var humanizedFields = fieldParts.Select(f => f.Humanize(LetterCasing.Title));
-                    return string.Join(" and ", humanizedFields);
-                }
-            }
-        }
-        catch
-        {
-            // Silently ignore parsing errors
-        }
-
-        return null;
     }
 
     /// <summary>
@@ -554,8 +285,11 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepo
     }
 }
 
-public abstract class EntityChangeController<T, DataTransferT>(IChangeRepository<T> repository, ILogger<EntityChangeController<T, DataTransferT>> logger)
-    : EntityChangeController<T, DataTransferT, KeyType>(repository, logger), IEntityChangeController<T, DataTransferT>
-        where T : class, IEntity, new()
-        where DataTransferT : class, IModel, new();
+public abstract class EntityChangeController<T, DataTransferT>(
+IChangeRepository<T> repository,
+ILogger<EntityChangeController<T, DataTransferT>> logger,
+IDatabaseErrorHandler databaseErrorHandler)
+: EntityChangeController<T, DataTransferT, KeyType>(repository, logger, databaseErrorHandler), IEntityChangeController<T, DataTransferT>
+    where T : class, IEntity, new()
+    where DataTransferT : class, IModel, new();
 

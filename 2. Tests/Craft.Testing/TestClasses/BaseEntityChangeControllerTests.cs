@@ -1,4 +1,5 @@
 using Craft.Controllers;
+using Craft.Controllers.ErrorHandling;
 using Craft.Domain;
 using Craft.Repositories;
 using Craft.Testing.Abstractions;
@@ -63,8 +64,10 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
         var repository = CreateChangeRepository();
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<EntityChangeController<TEntity, TDto, TKey>>>();
+        var databaseErrorHandler = Fixture.ServiceProvider
+            .GetRequiredService<IDatabaseErrorHandler>();
 
-        var controller = new TestEntityChangeController<TEntity, TDto, TKey>(repository, logger)
+        var controller = new TestEntityChangeController<TEntity, TDto, TKey>(repository, logger, databaseErrorHandler)
         {
             // Set up HttpContext for the controller
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -483,8 +486,11 @@ internal class TestEntityChangeController<TEntity, TDto, TKey> : EntityChangeCon
     where TEntity : class, IEntity<TKey>, new()
     where TDto : class, IModel<TKey>, new()
 {
-    public TestEntityChangeController(IChangeRepository<TEntity, TKey> repository, ILogger<EntityChangeController<TEntity, TDto, TKey>> logger)
-        : base(repository, logger)
+    public TestEntityChangeController(
+        IChangeRepository<TEntity, TKey> repository,
+        ILogger<EntityChangeController<TEntity, TDto, TKey>> logger,
+        IDatabaseErrorHandler databaseErrorHandler)
+        : base(repository, logger, databaseErrorHandler)
     {
     }
 }

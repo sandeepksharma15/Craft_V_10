@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Craft.Controllers.ErrorHandling;
 using Craft.Core;
 using Craft.Domain;
 using Craft.QuerySpec.Services;
@@ -49,12 +50,16 @@ public class EntityControllerTests
 {
     public class TestEntityController : EntityController<TestEntity, TestModel, int>
     {
-        public TestEntityController(IRepository<TestEntity, int> repo, ILogger<EntityController<TestEntity, TestModel, int>> logger)
-            : base(repo, logger) { }
+        public TestEntityController(
+            IRepository<TestEntity, int> repo,
+            ILogger<EntityController<TestEntity, TestModel, int>> logger,
+            IDatabaseErrorHandler errorHandler)
+            : base(repo, logger, errorHandler) { }
     }
 
     private readonly Mock<IRepository<TestEntity, int>> _repoMock;
     private readonly Mock<ILogger<EntityController<TestEntity, TestModel, int>>> _loggerMock;
+    private readonly Mock<IDatabaseErrorHandler> _errorHandlerMock;
     private readonly TestEntityController _controller;
     private readonly TestQuery<TestEntity> _query;
     private readonly TestQuery<TestEntity, TestModel> _querySelect;
@@ -65,7 +70,8 @@ public class EntityControllerTests
         // Arrange: Setup mocks and controller instance
         _repoMock = new Mock<IRepository<TestEntity, int>>();
         _loggerMock = new Mock<ILogger<EntityController<TestEntity, TestModel, int>>>();
-        _controller = new TestEntityController(_repoMock.Object, _loggerMock.Object);
+        _errorHandlerMock = new Mock<IDatabaseErrorHandler>();
+        _controller = new TestEntityController(_repoMock.Object, _loggerMock.Object, _errorHandlerMock.Object);
         _query = new TestQuery<TestEntity>();
         _querySelect = new TestQuery<TestEntity, TestModel>();
     }

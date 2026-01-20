@@ -1,4 +1,5 @@
-﻿using Craft.Domain;
+﻿using Craft.Controllers.ErrorHandling;
+using Craft.Domain;
 using Craft.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,13 +28,17 @@ public class EntityChangeControllerTests
 
     private readonly Mock<IChangeRepository<TestEntity, int>> _repoMock;
     private readonly Mock<ILogger<EntityChangeController<TestEntity, TestEntityModel, int>>> _loggerMock;
+    private readonly Mock<IDatabaseErrorHandler> _errorHandlerMock;
     private readonly TestController _controller;
 
     // Concrete controller for testing (since EntityChangeController is abstract)
     private class TestController : EntityChangeController<TestEntity, TestEntityModel, int>
     {
-        public TestController(IChangeRepository<TestEntity, int> repo, ILogger<EntityChangeController<TestEntity, TestEntityModel, int>> logger)
-            : base(repo, logger) { }
+        public TestController(
+            IChangeRepository<TestEntity, int> repo,
+            ILogger<EntityChangeController<TestEntity, TestEntityModel, int>> logger,
+            IDatabaseErrorHandler errorHandler)
+            : base(repo, logger, errorHandler) { }
     }
 
     public EntityChangeControllerTests()
@@ -41,7 +46,8 @@ public class EntityChangeControllerTests
         // Arrange: Setup mocks and controller instance
         _repoMock = new Mock<IChangeRepository<TestEntity, int>>();
         _loggerMock = new Mock<ILogger<EntityChangeController<TestEntity, TestEntityModel, int>>>();
-        _controller = new TestController(_repoMock.Object, _loggerMock.Object);
+        _errorHandlerMock = new Mock<IDatabaseErrorHandler>();
+        _controller = new TestController(_repoMock.Object, _loggerMock.Object, _errorHandlerMock.Object);
     }
 
     [Fact]

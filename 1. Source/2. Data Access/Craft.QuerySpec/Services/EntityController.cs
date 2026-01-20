@@ -1,4 +1,5 @@
 ﻿using Craft.Controllers;
+using Craft.Controllers.ErrorHandling;
 using Craft.Core;
 using Craft.Domain;
 using Microsoft.AspNetCore.Http;
@@ -34,8 +35,11 @@ namespace Craft.QuerySpec.Services;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TKey> repository, ILogger<EntityController<T, DataTransferT, TKey>> logger)
-    : EntityChangeController<T, DataTransferT, TKey>(repository, logger), IEntityController<T, DataTransferT, TKey>
+public abstract class EntityController<T, DataTransferT, TKey>(
+    IRepository<T, TKey> repository,
+    ILogger<EntityController<T, DataTransferT, TKey>> logger,
+    IDatabaseErrorHandler databaseErrorHandler)
+    : EntityChangeController<T, DataTransferT, TKey>(repository, logger, databaseErrorHandler), IEntityController<T, DataTransferT, TKey>
         where T : class, IEntity<TKey>, new()
         where DataTransferT : class, IModel<TKey>, new()
 {
@@ -553,8 +557,11 @@ public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TK
     }
 }
 
-public abstract class EntityController<T, DataTransferT>(IRepository<T> repository, ILogger<EntityController<T, DataTransferT>> logger)
-    : EntityController<T, DataTransferT, KeyType>(repository, logger), IEntityController<T, DataTransferT>
-        where T : class, IEntity, new()
-        where DataTransferT : class, IModel, new();
+public abstract class EntityController<T, DataTransferT>(
+IRepository<T> repository,
+ILogger<EntityController<T, DataTransferT>> logger,
+IDatabaseErrorHandler databaseErrorHandler)
+: EntityController<T, DataTransferT, KeyType>(repository, logger, databaseErrorHandler), IEntityController<T, DataTransferT>
+    where T : class, IEntity, new()
+    where DataTransferT : class, IModel, new();
 

@@ -1,4 +1,5 @@
 using Craft.Controllers;
+using Craft.Controllers.ErrorHandling;
 using Craft.Repositories;
 using Craft.TestHost.Entities;
 using Microsoft.Extensions.Logging;
@@ -12,8 +13,9 @@ public class ProductsController : EntityChangeController<TestProduct, TestProduc
 {
     public ProductsController(
         IChangeRepository<TestProduct> repository,
-        ILogger<ProductsController> logger)
-        : base(repository, logger)
+        ILogger<ProductsController> logger,
+        IDatabaseErrorHandler databaseErrorHandler)
+        : base(repository, logger, databaseErrorHandler)
     {
     }
 }
