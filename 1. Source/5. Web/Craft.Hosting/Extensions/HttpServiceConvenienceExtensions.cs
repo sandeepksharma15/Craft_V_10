@@ -1,8 +1,3 @@
-using Craft.Core;
-using Craft.Core.Common;
-using Craft.Domain;
-using Microsoft.Extensions.Configuration;
-
 namespace Craft.Hosting.Extensions;
 
 /// <summary>
@@ -24,11 +19,8 @@ public static class HttpServiceConvenienceExtensions
     /// <param name="apiPath">The API path.</param>
     /// <param name="lifetime">The service lifetime (default: Transient).</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddHttpServiceForBlazor<T, TView, TDto>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
+    public static IServiceCollection AddHttpServiceForBlazor<T, TView, TDto>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
         ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
@@ -36,23 +28,14 @@ public static class HttpServiceConvenienceExtensions
     {
         return lifetime switch
         {
-            ServiceLifetime.Transient => services.AddTransientHttpService<T, TView, TDto>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,    // Not used
-                registerWithKeyType: true,          // Used by BaseEditComponent
-                registerSimplified: true),          // Used by List components
+            ServiceLifetime.Transient => services.AddTransientHttpService<T, TView, TDto>(httpClientFactory, baseAddress,
+                apiPath, registerPrimaryInterface: false, registerWithKeyType: true, registerSimplified: true),          
 
-            ServiceLifetime.Scoped => services.AddScopedHttpService<T, TView, TDto>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
-                registerSimplified: true),
+            ServiceLifetime.Scoped => services.AddScopedHttpService<T, TView, TDto>(httpClientFactory, baseAddress,
+                apiPath, registerPrimaryInterface: false, registerWithKeyType: true, registerSimplified: true),
 
-            ServiceLifetime.Singleton => services.AddSingletonHttpService<T, TView, TDto>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
-                registerSimplified: true),
+            ServiceLifetime.Singleton => services.AddSingletonHttpService<T, TView, TDto>(httpClientFactory, baseAddress,
+                apiPath, registerPrimaryInterface: false, registerWithKeyType: true, registerSimplified: true),
 
             _ => throw new ArgumentException($"Unsupported service lifetime: {lifetime}", nameof(lifetime))
         };
@@ -71,11 +54,8 @@ public static class HttpServiceConvenienceExtensions
     /// <param name="apiPath">The API path.</param>
     /// <param name="lifetime">The service lifetime (default: Transient).</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddCustomHttpServiceForBlazor<T, TView, TDto, TService>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
+    public static IServiceCollection AddCustomHttpServiceForBlazor<T, TView, TDto, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
         ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
@@ -84,22 +64,16 @@ public static class HttpServiceConvenienceExtensions
     {
         return lifetime switch
         {
-            ServiceLifetime.Transient => services.AddTransientCustomHttpService<T, TView, TDto, TService>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
+            ServiceLifetime.Transient => services.AddTransientCustomHttpService<T, TView, TDto, TService>(httpClientFactory,
+                baseAddress, apiPath, registerPrimaryInterface: false, registerWithKeyType: true,
                 registerSimplified: true),
 
-            ServiceLifetime.Scoped => services.AddScopedCustomHttpService<T, TView, TDto, TService>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
+            ServiceLifetime.Scoped => services.AddScopedCustomHttpService<T, TView, TDto, TService>(httpClientFactory,
+                baseAddress, apiPath, registerPrimaryInterface: false, registerWithKeyType: true,
                 registerSimplified: true),
 
-            ServiceLifetime.Singleton => services.AddSingletonCustomHttpService<T, TView, TDto, TService>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
+            ServiceLifetime.Singleton => services.AddSingletonCustomHttpService<T, TView, TDto, TService>(httpClientFactory,
+                baseAddress, apiPath, registerPrimaryInterface: false, registerWithKeyType: true,
                 registerSimplified: true),
 
             _ => throw new ArgumentException($"Unsupported service lifetime: {lifetime}", nameof(lifetime))
@@ -119,11 +93,8 @@ public static class HttpServiceConvenienceExtensions
     /// <param name="apiPath">The API path.</param>
     /// <param name="lifetime">The service lifetime (default: Transient).</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddHttpServiceForApi<T, TView, TDto>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
+    public static IServiceCollection AddHttpServiceForApi<T, TView, TDto>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
         ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : class, IEntity, IModel, new()
         where TView : class, IModel, new()
@@ -131,23 +102,14 @@ public static class HttpServiceConvenienceExtensions
     {
         return lifetime switch
         {
-            ServiceLifetime.Transient => services.AddTransientHttpService<T, TView, TDto>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,          // Primary interface for API
-                registerSimplified: false),
+            ServiceLifetime.Transient => services.AddTransientHttpService<T, TView, TDto>(httpClientFactory, baseAddress,
+                apiPath, registerPrimaryInterface: false, registerWithKeyType: true, registerSimplified: false),
 
-            ServiceLifetime.Scoped => services.AddScopedHttpService<T, TView, TDto>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
-                registerSimplified: false),
+            ServiceLifetime.Scoped => services.AddScopedHttpService<T, TView, TDto>(httpClientFactory, baseAddress,
+                apiPath, registerPrimaryInterface: false, registerWithKeyType: true, registerSimplified: false),
 
-            ServiceLifetime.Singleton => services.AddSingletonHttpService<T, TView, TDto>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: true,
-                registerSimplified: false),
+            ServiceLifetime.Singleton => services.AddSingletonHttpService<T, TView, TDto>(httpClientFactory, baseAddress,
+                apiPath, registerPrimaryInterface: false, registerWithKeyType: true, registerSimplified: false),
 
             _ => throw new ArgumentException($"Unsupported service lifetime: {lifetime}", nameof(lifetime))
         };
@@ -164,33 +126,21 @@ public static class HttpServiceConvenienceExtensions
     /// <param name="apiPath">The API path.</param>
     /// <param name="lifetime">The service lifetime (default: Transient).</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddHttpServiceForList<T>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress,
-        string apiPath,
+    public static IServiceCollection AddHttpServiceForList<T>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
         ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : class, IEntity, IModel, new()
     {
         return lifetime switch
         {
-            ServiceLifetime.Transient => services.AddTransientHttpService<T>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: false,
-                registerSimplified: true),          // Only list interface
+            ServiceLifetime.Transient => services.AddTransientHttpService<T>(httpClientFactory, baseAddress, apiPath,
+                registerPrimaryInterface: false, registerWithKeyType: false, registerSimplified: true),          // Only list interface
 
-            ServiceLifetime.Scoped => services.AddScopedHttpService<T>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: false,
-                registerSimplified: true),
+            ServiceLifetime.Scoped => services.AddScopedHttpService<T>(httpClientFactory, baseAddress, apiPath,
+                registerPrimaryInterface: false, registerWithKeyType: false, registerSimplified: true),
 
-            ServiceLifetime.Singleton => services.AddSingletonHttpService<T>(
-                httpClientFactory, baseAddress, apiPath,
-                registerPrimaryInterface: false,
-                registerWithKeyType: false,
-                registerSimplified: true),
+            ServiceLifetime.Singleton => services.AddSingletonHttpService<T>(httpClientFactory, baseAddress, apiPath,
+                registerPrimaryInterface: false, registerWithKeyType: false, registerSimplified: true),
 
             _ => throw new ArgumentException($"Unsupported service lifetime: {lifetime}", nameof(lifetime))
         };
