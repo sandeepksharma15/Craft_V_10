@@ -35,7 +35,7 @@ public sealed class SqlServerErrorStrategy : IDatabaseErrorStrategy
                 : $"A {entityName} with this value already exists. Please use a different value.",
 
             // Foreign key violation / Check constraint violation (both use 547)
-            547 => messageText.ToLower().Contains("foreign key")
+            547 => messageText.Contains("foreign key", StringComparison.CurrentCultureIgnoreCase)
                 ? (fieldName != null
                     ? $"The selected {fieldName} is invalid or does not exist. Please choose a valid option."
                     : "The selected value is invalid or does not exist. Please choose a valid option.")
