@@ -1,3 +1,4 @@
+using Craft.Controllers.Extensions;
 using Craft.Core;
 using Craft.MultiTenant;
 using Craft.MultiTenant.Stores;
@@ -19,6 +20,9 @@ builder.Services.AddScoped<IDbContext>(provider =>
 
 // Add Repository
 builder.Services.AddScoped<IChangeRepository<TestProduct>, ChangeRepository<TestProduct>>();
+
+// Add database error handling
+builder.Services.AddDatabaseErrorHandling();
 
 // Add Multi-tenant
 builder.Services.AddMultiTenant<Tenant>()

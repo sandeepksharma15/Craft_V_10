@@ -1,4 +1,5 @@
 using Craft.Auditing;
+using Craft.Controllers.Extensions;
 using Craft.Core;
 using Craft.Domain;
 using Craft.IntegrationTests.Entities;
@@ -29,6 +30,9 @@ public class DatabaseFixture : IAsyncLifetime
         services.AddLogging(builder => builder
             .AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
+
+        // Register database error handling
+        services.AddDatabaseErrorHandling();
 
         ServiceProvider = services.BuildServiceProvider();
 
