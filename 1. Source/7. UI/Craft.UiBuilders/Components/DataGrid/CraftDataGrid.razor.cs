@@ -470,7 +470,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
             // Execute the query
             var result = await HttpService.GetPagedListAsync(query, _cts.Token);
 
-            if (result.Success && result.Data is not null)
+            if (result.IsSuccess && result.Data is not null)
             {
                 _items = [.. result.Data.Items];
                 _totalCount = result.Data.TotalCount;

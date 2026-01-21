@@ -5,7 +5,7 @@ namespace Craft.Core;
 /// </summary>
 public interface IServiceResult
 {
-    bool Success { get; }
+    bool IsSuccess { get; }
     List<string>? Errors { get; }
     int? StatusCode { get; }
     bool HasErrors { get; }

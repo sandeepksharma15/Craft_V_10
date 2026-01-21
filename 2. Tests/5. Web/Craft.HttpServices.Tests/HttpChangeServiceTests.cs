@@ -37,7 +37,7 @@ public class HttpChangeServiceTests
         var result = await service.AddAsync(new DummyView { Id = 42 });
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(42, result.Data.Id);
         Assert.Null(result.Errors);
@@ -59,7 +59,7 @@ public class HttpChangeServiceTests
         var result = await service.AddAsync(new DummyView { Id = 42 });
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Validation error", result.Errors);
@@ -81,7 +81,7 @@ public class HttpChangeServiceTests
         var result = await service.AddAsync(new DummyView { Id = 42 });
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Some plain error", result.Errors);
@@ -164,7 +164,7 @@ public class HttpChangeServiceTests
         var result = await service.AddRangeAsync([new DummyView { Id = 1 }, new DummyView { Id = 2 }]);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(1, result.Data[0].Id);
@@ -188,7 +188,7 @@ public class HttpChangeServiceTests
         var result = await service.AddRangeAsync([new DummyView { Id = 1 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Batch error", result.Errors);
@@ -210,7 +210,7 @@ public class HttpChangeServiceTests
         var result = await service.AddRangeAsync([new DummyView { Id = 1 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Some batch error", result.Errors);
@@ -233,7 +233,7 @@ public class HttpChangeServiceTests
         var result = await service.AddRangeAsync([]);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
         Assert.Null(result.Errors);
@@ -274,7 +274,7 @@ public class HttpChangeServiceTests
         var result = await service.DeleteAsync(1);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
         Assert.Null(result.Errors);
     }
@@ -295,7 +295,7 @@ public class HttpChangeServiceTests
         var result = await service.DeleteAsync(1);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete error", result.Errors);
@@ -317,7 +317,7 @@ public class HttpChangeServiceTests
         var result = await service.DeleteAsync(1);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete plain error", result.Errors);
@@ -382,7 +382,7 @@ public class HttpChangeServiceTests
         var result = await service.DeleteRangeAsync([new DummyView { Id = 1 }]);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
         Assert.Null(result.Errors);
     }
@@ -403,7 +403,7 @@ public class HttpChangeServiceTests
         var result = await service.DeleteRangeAsync([new DummyView { Id = 1 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete range error", result.Errors);
@@ -425,7 +425,7 @@ public class HttpChangeServiceTests
         var result = await service.DeleteRangeAsync([new DummyView { Id = 1 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete range plain error", result.Errors);
@@ -482,7 +482,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateAsync(new DummyView { Id = 99 });
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(99, result.Data.Id);
         Assert.Null(result.Errors);
@@ -504,7 +504,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateAsync(new DummyView { Id = 99 });
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update error", result.Errors);
@@ -526,7 +526,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateAsync(new DummyView { Id = 99 });
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update plain error", result.Errors);
@@ -583,7 +583,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateRangeAsync([new DummyView { Id = 5 }, new DummyView { Id = 6 }]);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(5, result.Data[0].Id);
@@ -607,7 +607,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateRangeAsync([new DummyView { Id = 5 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update range error", result.Errors);
@@ -629,7 +629,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateRangeAsync([new() { Id = 5 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update range plain error", result.Errors);
@@ -652,7 +652,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateRangeAsync([]);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
         Assert.Null(result.Errors);
@@ -700,7 +700,7 @@ public class HttpChangeServiceTests
         var result = await service.UpdateRangeAsync([new DummyView { Id = 5 }]);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("Network failure", result.Errors);
     }

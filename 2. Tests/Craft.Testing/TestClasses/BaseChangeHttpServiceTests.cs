@@ -132,7 +132,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Id);
         Assert.Equal(201, result.StatusCode); // Created
@@ -162,7 +162,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.All(results, r =>
         {
-            Assert.True(r.Success);
+            Assert.True(r.IsSuccess);
             Assert.NotNull(r.Data);
             Assert.Equal(201, r.StatusCode);
         });
@@ -186,7 +186,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
     }
 
@@ -202,7 +202,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(5, result.Data.Count);
         Assert.Equal(200, result.StatusCode);
@@ -233,7 +233,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(200, result.StatusCode);
         Assert.Null(result.Errors);
@@ -260,7 +260,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Equal(404, result.StatusCode);
     }
 
@@ -281,7 +281,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
     }
 
@@ -302,7 +302,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(3, result.Data.Count);
         Assert.Equal(200, result.StatusCode);
@@ -331,7 +331,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
         Assert.Equal(200, result.StatusCode);
 
@@ -368,7 +368,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Equal(404, result.StatusCode);
     }
 
@@ -386,7 +386,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
     }
 
@@ -405,7 +405,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
         Assert.Equal(200, result.StatusCode);
 

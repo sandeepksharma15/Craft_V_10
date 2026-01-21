@@ -161,7 +161,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(entity.Id, result.Data.Id);
         Assert.Equal(200, result.StatusCode);
@@ -181,7 +181,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.Null(result.Data);
         Assert.Equal(404, result.StatusCode);
     }
@@ -199,7 +199,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(entity.Id, result.Data.Id);
         Assert.Equal(200, result.StatusCode);
@@ -219,7 +219,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
     }
 
@@ -239,7 +239,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
         Assert.Equal(200, result.StatusCode);
@@ -258,7 +258,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(entities.Count, result.Data.Count);
         Assert.Equal(200, result.StatusCode);
@@ -277,7 +277,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(entities.Count, result.Data.Count);
         Assert.Equal(200, result.StatusCode);
@@ -297,7 +297,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
     }
 
@@ -317,7 +317,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Equal(0, result.Data);
         Assert.Equal(200, result.StatusCode);
     }
@@ -335,7 +335,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Equal(entities.Count, result.Data);
         Assert.Equal(200, result.StatusCode);
     }
@@ -354,7 +354,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Equal(entities.Count, result.Data);
     }
 
@@ -375,7 +375,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(1, result.Data.CurrentPage);
         Assert.Equal(5, result.Data.PageSize);
@@ -398,7 +398,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.CurrentPage);
         Assert.Equal(5, result.Data.PageSize);
@@ -420,7 +420,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(1, result.Data.CurrentPage);
         Assert.Equal(10, result.Data.PageSize);
@@ -443,7 +443,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.CurrentPage);
         Assert.Equal(5, result.Data.Items.Count());
@@ -464,7 +464,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
     }
 

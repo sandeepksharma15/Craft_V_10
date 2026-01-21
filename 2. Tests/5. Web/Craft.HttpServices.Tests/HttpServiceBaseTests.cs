@@ -22,7 +22,7 @@ public class HttpServiceBaseTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
     }
@@ -33,7 +33,7 @@ public class HttpServiceBaseTests
         // Arrange
         var pagedResult = new HttpServiceResult<PageResponse<TestItem>>
         {
-            Success = true,
+            IsSuccess = true,
             Data = null
         };
         Task<HttpServiceResult<PageResponse<TestItem>>?> GetPaged(CancellationToken _) => Task.FromResult<HttpServiceResult<PageResponse<TestItem>>?>(pagedResult);
@@ -44,7 +44,7 @@ public class HttpServiceBaseTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
     }
@@ -57,7 +57,7 @@ public class HttpServiceBaseTests
         var pageResponse = new PageResponse<TestItem>(items, 2, 1, 1);
         var pagedResult = new HttpServiceResult<PageResponse<TestItem>>
         {
-            Success = true,
+            IsSuccess = true,
             Data = pageResponse,
             StatusCode = 200
         };
@@ -69,7 +69,7 @@ public class HttpServiceBaseTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(200, result.StatusCode);
@@ -81,7 +81,7 @@ public class HttpServiceBaseTests
         // Arrange
         var pagedResult = new HttpServiceResult<PageResponse<TestItem>>
         {
-            Success = false,
+            IsSuccess = false,
             Errors = ["API Error"],
             StatusCode = 500
         };
@@ -93,7 +93,7 @@ public class HttpServiceBaseTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("API Error", result.Errors);
         Assert.Equal(500, result.StatusCode);
@@ -111,7 +111,7 @@ public class HttpServiceBaseTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("Test exception", result.Errors);
     }
@@ -161,7 +161,7 @@ public class HttpServiceBaseTests
         var result = await service.TestSendAndParseAsync<string>(null!, Parser, CancellationToken.None);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("sendRequest delegate is null.", result.Errors);
     }
@@ -178,7 +178,7 @@ public class HttpServiceBaseTests
         var result = await service.TestSendAndParseAsync<string>(SendRequest, null!, CancellationToken.None);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("parser delegate is null.", result.Errors);
     }
@@ -196,7 +196,7 @@ public class HttpServiceBaseTests
         var result = await service.TestSendAndParseAsync(SendRequest, Parser, CancellationToken.None);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Single(result.Errors);
         Assert.Contains("Send error", result.Errors[0]);
@@ -227,7 +227,7 @@ public class HttpServiceBaseTests
         var result = await service.TestGetAndParseAsync(SendRequest, Parser, CancellationToken.None);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(200, result.StatusCode);
     }
@@ -253,7 +253,7 @@ public class HttpServiceBaseTests
         var result = await service.TestSendAndParseNoContentAsync(SendRequest, CancellationToken.None);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
         Assert.Equal(200, result.StatusCode);
     }
@@ -282,7 +282,7 @@ public class HttpServiceBaseTests
         var result = await service.TestSendAndParseNoContentAsync(SendRequest, CancellationToken.None);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.Equal(400, result.StatusCode);
     }

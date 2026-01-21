@@ -222,7 +222,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         ArgumentNullException.ThrowIfNull(serviceResult);
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        if (serviceResult.Success || serviceResult.Errors is null || serviceResult.Errors.Count == 0)
+        if (serviceResult.IsSuccess || serviceResult.Errors is null || serviceResult.Errors.Count == 0)
             return;
 
         // Try to parse errors as validation dictionary format first
@@ -258,7 +258,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         ArgumentNullException.ThrowIfNull(serviceResult);
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        if (serviceResult.Success)
+        if (serviceResult.IsSuccess)
             return;
 
         // If we have a response message, try to parse detailed errors from it

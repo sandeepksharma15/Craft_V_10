@@ -26,7 +26,7 @@ public class HttpServiceTests
 
         var result = await service.DeleteAsync(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.True(result.Data);
         Assert.Null(result.Errors);
     }
@@ -45,7 +45,7 @@ public class HttpServiceTests
 
         var result = await service.DeleteAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete error", result.Errors);
@@ -65,7 +65,7 @@ public class HttpServiceTests
 
         var result = await service.DeleteAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.False(result.Data);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete plain error", result.Errors);
@@ -116,7 +116,7 @@ public class HttpServiceTests
 
         var result = await service.GetAllAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAll error", result.Errors);
     }
@@ -135,7 +135,7 @@ public class HttpServiceTests
 
         var result = await service.GetAllAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAll plain error", result.Errors);
     }
@@ -184,7 +184,7 @@ public class HttpServiceTests
 
         var result = await service.GetAllAsync<DummyDto>(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAll projected error", result.Errors);
     }
@@ -203,7 +203,7 @@ public class HttpServiceTests
 
         var result = await service.GetAllAsync<DummyDto>(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAll projected plain error", result.Errors);
     }
@@ -254,7 +254,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(42, result.Data.Id);
     }
@@ -273,7 +273,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Null(result.Data);
     }
 
@@ -291,7 +291,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAsync error", result.Errors);
     }
@@ -310,7 +310,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAsync plain error", result.Errors);
     }
@@ -361,7 +361,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync<DummyDto>(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(42, result.Data.Id);
     }
@@ -380,7 +380,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync<DummyDto>(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Null(result.Data);
     }
 
@@ -398,7 +398,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync<DummyDto>(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAsync projected error", result.Errors);
     }
@@ -417,7 +417,7 @@ public class HttpServiceTests
 
         var result = await service.GetAsync<DummyDto>(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetAsync projected plain error", result.Errors);
     }
@@ -467,7 +467,7 @@ public class HttpServiceTests
 
         var result = await service.GetCountAsync(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Equal(42L, result.Data);
     }
 
@@ -485,7 +485,7 @@ public class HttpServiceTests
 
         var result = await service.GetCountAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetCount error", result.Errors);
     }
@@ -504,7 +504,7 @@ public class HttpServiceTests
 
         var result = await service.GetCountAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetCount plain error", result.Errors);
     }
@@ -556,7 +556,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Items.Count());
     }
@@ -575,7 +575,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetPagedList error", result.Errors);
     }
@@ -594,7 +594,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetPagedList plain error", result.Errors);
     }
@@ -646,7 +646,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync<DummyDto>(query);
 
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Items.Count());
     }
@@ -665,7 +665,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync<DummyDto>(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetPagedList projected error", result.Errors);
     }
@@ -684,7 +684,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync<DummyDto>(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("GetPagedList projected plain error", result.Errors);
     }
@@ -780,11 +780,11 @@ public class HttpServiceTests
         var service = new HttpService<DummyEntity, DummyView, DummyDto, int>(ApiUrl, httpClient, logger);
 
         var getAllProjectedResult = await service.GetAllAsync<DummyDto>(new DummyQuery<DummyEntity, DummyDto>());
-        Assert.True(getAllProjectedResult.Success);
+        Assert.True(getAllProjectedResult.IsSuccess);
         Assert.Null(getAllProjectedResult.Data);
 
         var getPagedListResult = await service.GetPagedListAsync(new DummyQuery<DummyEntity>());
-        Assert.False(getPagedListResult.Success);
+        Assert.False(getPagedListResult.IsSuccess);
         Assert.Null(getPagedListResult.Data);
     }
 
@@ -806,7 +806,7 @@ public class HttpServiceTests
 
         var result = await service.DeleteAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("Network error", result.Errors);
     }
@@ -829,7 +829,7 @@ public class HttpServiceTests
 
         var result = await service.GetAllAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("Network failure", result.Errors);
     }
@@ -887,7 +887,7 @@ public class HttpServiceTests
 
         var result = await service.GetPagedListAsync(query);
 
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("Connection timeout", result.Errors);
     }

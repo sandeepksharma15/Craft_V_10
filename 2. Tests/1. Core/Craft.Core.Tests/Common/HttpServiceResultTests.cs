@@ -12,14 +12,14 @@ namespace Craft.Core.Tests.Common
             var result = new HttpServiceResult<string>
             {
                 Data = "TestData",
-                Success = true,
-                Errors = new List<string> { "Error1", "Error2" },
+                IsSuccess = true,
+                Errors = ["Error1", "Error2"],
                 StatusCode = 200
             };
 
             Assert.Equal("TestData", result.Data);
-            Assert.True(result.Success);
-            Assert.Equal(new List<string> { "Error1", "Error2" }, result.Errors);
+            Assert.True(result.IsSuccess);
+            Assert.Equal(["Error1", "Error2"], result.Errors);
             Assert.Equal(200, result.StatusCode);
         }
 
@@ -28,8 +28,8 @@ namespace Craft.Core.Tests.Common
         {
             var result = new HttpServiceResult<int>();
 
-            Assert.Null(result.Data);
-            Assert.False(result.Success);
+            Assert.Equal(default, result.Data);
+            Assert.False(result.IsSuccess);
             Assert.Null(result.Errors);
             Assert.Null(result.StatusCode);
         }
@@ -40,7 +40,7 @@ namespace Craft.Core.Tests.Common
             var result = HttpServiceResult<string>.SuccessResult("SuccessData", 201);
 
             Assert.Equal("SuccessData", result.Data);
-            Assert.True(result.Success);
+            Assert.True(result.IsSuccess);
             Assert.Equal(201, result.StatusCode);
             Assert.Null(result.Errors);
             Assert.False(result.HasErrors);
@@ -55,7 +55,7 @@ namespace Craft.Core.Tests.Common
             var result = HttpServiceResult<string>.FailureResult(errors, 404);
 
             Assert.Null(result.Data);
-            Assert.False(result.Success);
+            Assert.False(result.IsSuccess);
             Assert.Equal(404, result.StatusCode);
             Assert.Equal(errors, result.Errors);
             Assert.True(result.HasErrors);
@@ -66,14 +66,14 @@ namespace Craft.Core.Tests.Common
         [Fact]
         public void Message_ReturnsNull_WhenNoErrors()
         {
-            var result = new HttpServiceResult<string> { Success = false };
+            var result = new HttpServiceResult<string> { IsSuccess = false };
             Assert.Null(result.Message);
         }
 
         [Fact]
         public void Message_ReturnsCommaSeparatedErrors_WhenErrorsExist()
         {
-            var result = new HttpServiceResult<string> { Errors = new List<string> { "A", "B", "C" } };
+            var result = new HttpServiceResult<string> { Errors = ["A", "B", "C"] };
             Assert.Equal("A, B, C", result.Message);
         }
     }

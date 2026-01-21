@@ -37,7 +37,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         return new HttpServiceResult<IReadOnlyList<T>?>
         {
             Data = result.Data,
-            Success = result.Success,
+            IsSuccess = result.IsSuccess,
             Errors = result.Errors,
             StatusCode = result.StatusCode
         };

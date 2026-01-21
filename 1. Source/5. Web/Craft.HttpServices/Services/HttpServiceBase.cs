@@ -33,7 +33,7 @@ public abstract class HttpServiceBase
                 return new HttpServiceResult<TResult>
                 {
                     Data = await parseResult(response, cancellationToken).ConfigureAwait(false),
-                    Success = true,
+                    IsSuccess = true,
                     StatusCode = (int)response.StatusCode
                 };
             }
@@ -42,7 +42,7 @@ public abstract class HttpServiceBase
                 // If the request failed, read the errors
                 return new HttpServiceResult<TResult>
                 {
-                    Success = false,
+                    IsSuccess = false,
                     Errors = await response.TryReadErrors(cancellationToken),
                     StatusCode = (int)response.StatusCode
                 };
@@ -53,7 +53,7 @@ public abstract class HttpServiceBase
         {
             return new HttpServiceResult<TResult>
             {
-                Success = false,
+                IsSuccess = false,
                 Errors = [ex.Message]
             };
         }
@@ -77,7 +77,7 @@ public abstract class HttpServiceBase
         {
             var result = new HttpServiceResult<TResult?>
             {
-                Success = false,
+                IsSuccess = false,
                 Errors = ["sendRequest delegate is null."]
             };
 
@@ -88,7 +88,7 @@ public abstract class HttpServiceBase
         {
             var result = new HttpServiceResult<TResult?>
             {
-                Success = false,
+                IsSuccess = false,
                 Errors = ["parser delegate is null."]
             };
 
@@ -116,7 +116,7 @@ public abstract class HttpServiceBase
         {
             var result = new HttpServiceResult<TResult?>
             {
-                Success = false,
+                IsSuccess = false,
                 Errors = [$"Exception in SendAndParseAsync: {ex.Message}"]
             };
 
@@ -147,7 +147,7 @@ public abstract class HttpServiceBase
             return new HttpServiceResult<List<TItem>>
             {
                 Data = pagedResult != null && pagedResult.Data != null ? extractItems(pagedResult.Data) : [],
-                Success = pagedResult?.Success ?? false,
+                IsSuccess = pagedResult?.IsSuccess ?? false,
                 Errors = pagedResult?.Errors,
                 StatusCode = pagedResult?.StatusCode
             };
@@ -157,7 +157,7 @@ public abstract class HttpServiceBase
         {
             return new HttpServiceResult<List<TItem>>
             {
-                Success = false,
+                IsSuccess = false,
                 Errors = [ex.Message]
             };
         }

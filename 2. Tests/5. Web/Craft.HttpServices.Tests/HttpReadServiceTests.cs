@@ -30,7 +30,7 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Count);
         Assert.Contains(result.Data, e => e.Id == 1);
@@ -54,7 +54,7 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
     }
@@ -72,7 +72,7 @@ public class HttpReadServiceTests
         var result = await service.GetAllAsync();
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
     }
 
@@ -102,7 +102,7 @@ public class HttpReadServiceTests
         var result = await service.GetAllAsync(includeDetails: true);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         handlerMock.Verify();
     }
 
@@ -172,7 +172,7 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(42, result.Data.Id);
     }
@@ -193,7 +193,7 @@ public class HttpReadServiceTests
         var result = await service.GetAsync(99);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Null(result.Data);
     }
 
@@ -210,7 +210,7 @@ public class HttpReadServiceTests
         var result = await service.GetAsync(1);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
     }
 
@@ -240,7 +240,7 @@ public class HttpReadServiceTests
         var result = await service.GetAsync(42, includeDetails: true);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         handlerMock.Verify();
     }
 
@@ -302,7 +302,7 @@ public class HttpReadServiceTests
         var result = await service.GetCountAsync();
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.Equal(123L, result.Data);
     }
 
@@ -319,7 +319,7 @@ public class HttpReadServiceTests
         var result = await service.GetCountAsync();
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
     }
 
@@ -364,7 +364,7 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Single(result.Data.Items);
         Assert.Equal(1, result.Data.Items.First().Id);
@@ -420,7 +420,7 @@ public class HttpReadServiceTests
         var result = await service.GetPagedListAsync(1, 1);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
     }
 
@@ -440,7 +440,7 @@ public class HttpReadServiceTests
         var result = await service.GetPagedListAsync(1, 1);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
     }
 
@@ -471,7 +471,7 @@ public class HttpReadServiceTests
         var result = await service.GetPagedListAsync(1, 10, includeDetails: true);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result.IsSuccess);
         handlerMock.Verify();
     }
 
@@ -517,7 +517,7 @@ public class HttpReadServiceTests
         var result = await service.GetPagedListAsync(1, 10);
 
         // Assert
-        Assert.False(result.Success);
+        Assert.False(result.IsSuccess);
         Assert.NotNull(result.Errors);
         Assert.Contains("Network error", result.Errors);
     }

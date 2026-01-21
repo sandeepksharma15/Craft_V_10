@@ -6,7 +6,7 @@ namespace Craft.Core;
 public class Result : IServiceResult
 {
     public bool IsSuccess { get; protected init; }
-    bool IServiceResult.Success => IsSuccess;
+    bool IServiceResult.IsSuccess => IsSuccess;
     public bool IsFailure => !IsSuccess;
     public string? ErrorMessage { get; protected init; }
     public List<string>? Errors { get; protected init; }
