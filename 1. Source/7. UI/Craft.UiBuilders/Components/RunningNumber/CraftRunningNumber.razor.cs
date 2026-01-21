@@ -6,7 +6,7 @@ namespace Craft.UiBuilders.Components.RunningNumber;
 
 public partial class CraftRunningNumber : CraftComponent, IDisposable
 {
-    [Parameter] public int TotalTime { get; set; } = 1;         // In Seconds
+    [Parameter] public int TotalTime { get; set; } = 1000;      // In Milliseconds
     [Parameter] public long FirstNumber { get; set; } = 0;
     [Parameter] public long LastNumber { get; set; } = 100;
     [Parameter] public bool UseThousandsSeparator { get; set; } = true;
@@ -39,7 +39,9 @@ public partial class CraftRunningNumber : CraftComponent, IDisposable
     {
         _countdownTimer?.Dispose();
         
-        _countdownTimer = new CountdownTimer(TotalTime, TotalTicks);
+        // Convert milliseconds to seconds for CountdownTimer
+        var timeoutSeconds = Math.Max(1, TotalTime / 1000);
+        _countdownTimer = new CountdownTimer(timeoutSeconds, TotalTicks);
         _countdownTimer.OnTick += UpdateNumber;
         _countdownTimer.OnElapsed += OnAnimationComplete;
         _countdownTimer.Start();

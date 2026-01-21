@@ -18,7 +18,7 @@ public class CraftRunningNumberTests : ComponentTestBase
         // Assert
         Assert.NotNull(cut);
         var instance = cut.Instance;
-        Assert.Equal(1, instance.TotalTime);
+        Assert.Equal(1000, instance.TotalTime); // Now in milliseconds
         Assert.Equal(0, instance.FirstNumber);
         Assert.Equal(100, instance.LastNumber);
         Assert.True(instance.UseThousandsSeparator);
@@ -30,7 +30,7 @@ public class CraftRunningNumberTests : ComponentTestBase
     {
         // Arrange & Act
         var cut = Render<CraftRunningNumber>(parameters => parameters
-            .Add(p => p.TotalTime, 5)
+            .Add(p => p.TotalTime, 5000) // 5 seconds in milliseconds
             .Add(p => p.FirstNumber, 100)
             .Add(p => p.LastNumber, 1000)
             .Add(p => p.UseThousandsSeparator, false)
@@ -38,7 +38,7 @@ public class CraftRunningNumberTests : ComponentTestBase
 
         // Assert
         var instance = cut.Instance;
-        Assert.Equal(5, instance.TotalTime);
+        Assert.Equal(5000, instance.TotalTime);
         Assert.Equal(100, instance.FirstNumber);
         Assert.Equal(1000, instance.LastNumber);
         Assert.False(instance.UseThousandsSeparator);
