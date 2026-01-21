@@ -10,7 +10,7 @@ public class ResultTests
     public void Success_CreatesSuccessResult()
     {
         // Arrange & Act
-        var result = Result.Success();
+        var result = Result.CreateSuccess();
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -23,7 +23,7 @@ public class ResultTests
     public void Failure_WithMessage_CreatesFailureResult()
     {
         // Arrange & Act
-        var result = Result.Failure("Operation failed");
+        var result = Result.CreateFailure("Operation failed");
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -36,7 +36,7 @@ public class ResultTests
     public void Failure_WithEmptyMessage_CreatesFailureResult()
     {
         // Arrange & Act
-        var result = Result.Failure(string.Empty);
+        var result = Result.CreateFailure(string.Empty);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -51,7 +51,7 @@ public class ResultTests
         var errors = new List<string> { "Error 1", "Error 2", "Error 3" };
 
         // Act
-        var result = Result.Failure(errors);
+        var result = Result.CreateFailure(errors);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -71,7 +71,7 @@ public class ResultTests
         var errors = new List<string>();
 
         // Act
-        var result = Result.Failure(errors);
+        var result = Result.CreateFailure(errors);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -84,8 +84,8 @@ public class ResultTests
     public void IsFailure_IsInverseOfIsSuccess()
     {
         // Arrange
-        var successResult = Result.Success();
-        var failureResult = Result.Failure("Error");
+        var successResult = Result.CreateSuccess();
+        var failureResult = Result.CreateFailure("Error");
 
         // Assert
         Assert.Equal(!successResult.IsSuccess, successResult.IsFailure);
@@ -100,7 +100,7 @@ public class ResultTests
     public void GenericSuccess_WithValue_CreatesSuccessResult()
     {
         // Arrange & Act
-        var result = Result<string>.Success("test-value");
+        var result = Result<string>.CreateSuccess("test-value");
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -114,7 +114,7 @@ public class ResultTests
     public void GenericSuccess_WithNullValue_CreatesSuccessResult()
     {
         // Arrange & Act
-        var result = Result<string?>.Success(null);
+        var result = Result<string?>.CreateSuccess(null);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -129,7 +129,7 @@ public class ResultTests
         var testObj = new TestData { Id = 1, Name = "Test" };
 
         // Act
-        var result = Result<TestData>.Success(testObj);
+        var result = Result<TestData>.CreateSuccess(testObj);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -148,7 +148,7 @@ public class ResultTests
     public void GenericSuccess_WithIntValues_WorksCorrectly(int value)
     {
         // Arrange & Act
-        var result = Result<int>.Success(value);
+        var result = Result<int>.CreateSuccess(value);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -159,7 +159,7 @@ public class ResultTests
     public void GenericFailure_WithMessage_CreatesFailureResult()
     {
         // Arrange & Act
-        var result = Result<string>.Failure("Error message");
+        var result = Result<string>.CreateFailure("Error message");
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -176,7 +176,7 @@ public class ResultTests
         var errors = new List<string> { "Validation error 1", "Validation error 2" };
 
         // Act
-        var result = Result<int>.Failure(errors);
+        var result = Result<int>.CreateFailure(errors);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -191,7 +191,7 @@ public class ResultTests
     public void GenericResult_InheritsFromBaseResult()
     {
         // Arrange & Act
-        var result = Result<string>.Success("test");
+        var result = Result<string>.CreateSuccess("test");
 
         // Assert
         Assert.IsType<Result>(result, exactMatch: false);
@@ -205,7 +205,7 @@ public class ResultTests
     public void Map_OnSuccessResult_TransformsValue()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
 
         // Act
         var mappedResult = result.Map(x => x * 2);
@@ -219,7 +219,7 @@ public class ResultTests
     public void Map_OnSuccessResult_CanChangeType()
     {
         // Arrange
-        var result = Result<int>.Success(42);
+        var result = Result<int>.CreateSuccess(42);
 
         // Act
         var mappedResult = result.Map(x => x.ToString());
@@ -233,7 +233,7 @@ public class ResultTests
     public void Map_OnFailureResult_PreservesFailure()
     {
         // Arrange
-        var result = Result<int>.Failure("Original error");
+        var result = Result<int>.CreateFailure("Original error");
 
         // Act
         var mappedResult = result.Map(x => x * 2);
@@ -248,7 +248,7 @@ public class ResultTests
     public void Map_OnSuccessResultWithNullValue_ReturnsFailure()
     {
         // Arrange
-        var result = Result<string?>.Success(null);
+        var result = Result<string?>.CreateSuccess(null);
 
         // Act
         var mappedResult = result.Map(x => x!.Length);
@@ -262,7 +262,7 @@ public class ResultTests
     public void Map_ChainMultipleMaps_WorksCorrectly()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
 
         // Act
         var mappedResult = result
@@ -279,7 +279,7 @@ public class ResultTests
     public void Map_WithComplexTransformation_WorksCorrectly()
     {
         // Arrange
-        var result = Result<TestData>.Success(new TestData { Id = 1, Name = "Test" });
+        var result = Result<TestData>.CreateSuccess(new TestData { Id = 1, Name = "Test" });
 
         // Act
         var mappedResult = result.Map(x => new TestDto { DisplayName = $"{x.Name} ({x.Id})" });
@@ -297,10 +297,10 @@ public class ResultTests
     public void Bind_OnSuccessResult_ExecutesBinder()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
 
         // Act
-        var boundResult = result.Bind(x => Result<string>.Success(x.ToString()));
+        var boundResult = result.Bind(x => Result<string>.CreateSuccess(x.ToString()));
 
         // Assert
         Assert.True(boundResult.IsSuccess);
@@ -311,11 +311,11 @@ public class ResultTests
     public void Bind_OnSuccessResult_CanReturnFailure()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
 
         // Act
         var boundResult = result.Bind(x =>
-            x < 10 ? Result<string>.Success(x.ToString()) : Result<string>.Failure("Value too large"));
+            x < 10 ? Result<string>.CreateSuccess(x.ToString()) : Result<string>.CreateFailure("Value too large"));
 
         // Assert
         Assert.True(boundResult.IsSuccess);
@@ -326,11 +326,11 @@ public class ResultTests
     public void Bind_OnSuccessResultWithFailingBinder_ReturnsFailure()
     {
         // Arrange
-        var result = Result<int>.Success(15);
+        var result = Result<int>.CreateSuccess(15);
 
         // Act
         var boundResult = result.Bind(x =>
-            x < 10 ? Result<string>.Success(x.ToString()) : Result<string>.Failure("Value too large"));
+            x < 10 ? Result<string>.CreateSuccess(x.ToString()) : Result<string>.CreateFailure("Value too large"));
 
         // Assert
         Assert.False(boundResult.IsSuccess);
@@ -341,14 +341,14 @@ public class ResultTests
     public void Bind_OnFailureResult_DoesNotExecuteBinder()
     {
         // Arrange
-        var result = Result<int>.Failure("Original error");
+        var result = Result<int>.CreateFailure("Original error");
         var binderExecuted = false;
 
         // Act
         var boundResult = result.Bind(x =>
         {
             binderExecuted = true;
-            return Result<string>.Success(x.ToString());
+            return Result<string>.CreateSuccess(x.ToString());
         });
 
         // Assert
@@ -361,10 +361,10 @@ public class ResultTests
     public void Bind_OnSuccessResultWithNullValue_ReturnsFailure()
     {
         // Arrange
-        var result = Result<string?>.Success(null);
+        var result = Result<string?>.CreateSuccess(null);
 
         // Act
-        var boundResult = result.Bind(x => Result<int>.Success(x!.Length));
+        var boundResult = result.Bind(x => Result<int>.CreateSuccess(x!.Length));
 
         // Assert
         Assert.False(boundResult.IsSuccess);
@@ -375,13 +375,13 @@ public class ResultTests
     public void Bind_ChainMultipleBinds_WorksCorrectly()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
 
         // Act
         var boundResult = result
-            .Bind(x => Result<int>.Success(x * 2))
-            .Bind(x => Result<int>.Success(x + 3))
-            .Bind(x => Result<string>.Success(x.ToString()));
+            .Bind(x => Result<int>.CreateSuccess(x * 2))
+            .Bind(x => Result<int>.CreateSuccess(x + 3))
+            .Bind(x => Result<string>.CreateSuccess(x.ToString()));
 
         // Assert
         Assert.True(boundResult.IsSuccess);
@@ -392,17 +392,17 @@ public class ResultTests
     public void Bind_ChainWithFailureInMiddle_StopsExecution()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
         var thirdBinderExecuted = false;
 
         // Act
         var boundResult = result
-            .Bind(x => Result<int>.Success(x * 2))
-            .Bind(x => Result<int>.Failure("Middle error"))
+            .Bind(x => Result<int>.CreateSuccess(x * 2))
+            .Bind(x => Result<int>.CreateFailure("Middle error"))
             .Bind(x =>
             {
                 thirdBinderExecuted = true;
-                return Result<string>.Success(x.ToString());
+                return Result<string>.CreateSuccess(x.ToString());
             });
 
         // Assert
@@ -415,15 +415,15 @@ public class ResultTests
     public void Bind_WithComplexBusinessLogic_WorksCorrectly()
     {
         // Arrange
-        var result = Result<TestData>.Success(new TestData { Id = 1, Name = "Test" });
+        var result = Result<TestData>.CreateSuccess(new TestData { Id = 1, Name = "Test" });
 
         // Act
         var boundResult = result.Bind(data =>
         {
             if (string.IsNullOrEmpty(data.Name))
-                return Result<TestDto>.Failure("Name is required");
+                return Result<TestDto>.CreateFailure("Name is required");
 
-            return Result<TestDto>.Success(new TestDto { DisplayName = data.Name });
+            return Result<TestDto>.CreateSuccess(new TestDto { DisplayName = data.Name });
         });
 
         // Assert
@@ -439,12 +439,12 @@ public class ResultTests
     public void MapAndBind_CanBeCombined()
     {
         // Arrange
-        var result = Result<int>.Success(5);
+        var result = Result<int>.CreateSuccess(5);
 
         // Act
         var finalResult = result
             .Map(x => x * 2)
-            .Bind(x => x < 20 ? Result<string>.Success(x.ToString()) : Result<string>.Failure("Too large"))
+            .Bind(x => x < 20 ? Result<string>.CreateSuccess(x.ToString()) : Result<string>.CreateFailure("Too large"))
             .Map(x => $"Result: {x}");
 
         // Assert
@@ -456,13 +456,13 @@ public class ResultTests
     public void MapAndBind_WithFailure_StopsEarly()
     {
         // Arrange
-        var result = Result<int>.Success(15);
+        var result = Result<int>.CreateSuccess(15);
         var mapExecuted = false;
 
         // Act
         var finalResult = result
             .Map(x => x * 2)
-            .Bind(x => x < 20 ? Result<string>.Success(x.ToString()) : Result<string>.Failure("Too large"))
+            .Bind(x => x < 20 ? Result<string>.CreateSuccess(x.ToString()) : Result<string>.CreateFailure("Too large"))
             .Map(x =>
             {
                 mapExecuted = true;
@@ -483,9 +483,9 @@ public class ResultTests
     public void Result_WithDifferentTypes_MaintainsTypeSafety()
     {
         // Arrange & Act
-        var stringResult = Result<string>.Success("test");
-        var intResult = Result<int>.Success(42);
-        var boolResult = Result<bool>.Success(true);
+        var stringResult = Result<string>.CreateSuccess("test");
+        var intResult = Result<int>.CreateSuccess(42);
+        var boolResult = Result<bool>.CreateSuccess(true);
 
         // Assert
         Assert.IsType<string>(stringResult.Value);
@@ -497,8 +497,8 @@ public class ResultTests
     public void Result_WithCollectionTypes_WorksCorrectly()
     {
         // Arrange & Act
-        var listResult = Result<List<int>>.Success([1, 2, 3]);
-        var arrayResult = Result<int[]>.Success([1, 2, 3]);
+        var listResult = Result<List<int>>.CreateSuccess([1, 2, 3]);
+        var arrayResult = Result<int[]>.CreateSuccess([1, 2, 3]);
 
         // Assert
         Assert.True(listResult.IsSuccess);
@@ -521,7 +521,7 @@ public class ResultTests
     public void GenericResult_WithStructType_WorksCorrectly()
     {
         // Arrange & Act
-        var result = Result<DateTime>.Success(new DateTime(2024, 1, 1));
+        var result = Result<DateTime>.CreateSuccess(new DateTime(2024, 1, 1));
 
         // Assert
         Assert.True(result.IsSuccess);

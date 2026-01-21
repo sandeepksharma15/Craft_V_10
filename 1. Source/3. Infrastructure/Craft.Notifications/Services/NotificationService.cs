@@ -69,7 +69,7 @@ public class NotificationService : INotificationService
                         notification.RecipientUserId);
 
                     notification.Status = NotificationStatus.Cancelled;
-                    return Result<Notification>.Failure("Notification blocked by user preferences");
+                    return Result<Notification>.CreateFailure("Notification blocked by user preferences");
                 }
             }
 
@@ -99,12 +99,12 @@ public class NotificationService : INotificationService
                 notification.Id,
                 notification.Channels);
 
-            return Result<Notification>.Success(notification);
+            return Result<Notification>.CreateSuccess(notification);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send notification");
-            return Result<Notification>.Failure($"Failed to send notification: {ex.Message}");
+            return Result<Notification>.CreateFailure($"Failed to send notification: {ex.Message}");
         }
     }
 
@@ -124,14 +124,14 @@ public class NotificationService : INotificationService
     {
         if (!_options.EnableBatchProcessing)
         {
-            return Result<List<Notification>>.Failure("Batch processing is not enabled");
+            return Result<List<Notification>>.CreateFailure("Batch processing is not enabled");
         }
 
         var notificationList = notifications.ToList();
         
         if (notificationList.Count > _options.MaxBatchSize)
         {
-            return Result<List<Notification>>.Failure(
+            return Result<List<Notification>>.CreateFailure(
                 $"Batch size {notificationList.Count} exceeds maximum {_options.MaxBatchSize}");
         }
 
@@ -153,12 +153,12 @@ public class NotificationService : INotificationService
                 results.Count,
                 notificationList.Count);
 
-            return Result<List<Notification>>.Success(results);
+            return Result<List<Notification>>.CreateSuccess(results);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send batch notifications");
-            return Result<List<Notification>>.Failure($"Failed to send batch: {ex.Message}");
+            return Result<List<Notification>>.CreateFailure($"Failed to send batch: {ex.Message}");
         }
     }
 
@@ -198,7 +198,7 @@ public class NotificationService : INotificationService
             notification.Id,
             scheduledFor);
 
-        return Result<Notification>.Success(notification);
+        return Result<Notification>.CreateSuccess(notification);
     }
 
     /// <inheritdoc/>
@@ -212,10 +212,10 @@ public class NotificationService : INotificationService
                 .FindAsync([notificationId], cancellationToken);
 
             if (notification == null)
-                return Result.Failure("Notification not found");
+                return Result.CreateFailure("Notification not found");
 
             if (notification.ReadAt.HasValue)
-                return Result.Success(); // Already read
+                return Result.CreateSuccess(); // Already read
 
             notification.ReadAt = DateTimeOffset.UtcNow;
             notification.Status = NotificationStatus.Read;
@@ -224,12 +224,12 @@ public class NotificationService : INotificationService
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogDebug("Notification {NotificationId} marked as read", notificationId);
-            return Result.Success();
+            return Result.CreateSuccess();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to mark notification {NotificationId} as read", notificationId);
-            return Result.Failure($"Failed to mark as read: {ex.Message}");
+            return Result.CreateFailure($"Failed to mark as read: {ex.Message}");
         }
     }
 
@@ -256,12 +256,12 @@ public class NotificationService : INotificationService
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Marked {Count} notifications as read", notifications.Count);
-            return Result.Success();
+            return Result.CreateSuccess();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to mark notifications as read");
-            return Result.Failure($"Failed to mark as read: {ex.Message}");
+            return Result.CreateFailure($"Failed to mark as read: {ex.Message}");
         }
     }
 
@@ -291,12 +291,12 @@ public class NotificationService : INotificationService
                 notifications.Count,
                 userId);
 
-            return Result.Success();
+            return Result.CreateSuccess();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to mark all notifications as read for user {UserId}", userId);
-            return Result.Failure($"Failed to mark as read: {ex.Message}");
+            return Result.CreateFailure($"Failed to mark as read: {ex.Message}");
         }
     }
 
@@ -311,18 +311,18 @@ public class NotificationService : INotificationService
                 .FindAsync([notificationId], cancellationToken);
 
             if (notification == null)
-                return Result.Failure("Notification not found");
+                return Result.CreateFailure("Notification not found");
 
             _dbContext.Set<Notification>().Remove(notification);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogDebug("Notification {NotificationId} deleted", notificationId);
-            return Result.Success();
+            return Result.CreateSuccess();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to delete notification {NotificationId}", notificationId);
-            return Result.Failure($"Failed to delete notification: {ex.Message}");
+            return Result.CreateFailure($"Failed to delete notification: {ex.Message}");
         }
     }
 
@@ -363,22 +363,22 @@ public class NotificationService : INotificationService
                 .FindAsync([notificationId], cancellationToken);
 
             if (notification == null)
-                return Result.Failure("Notification not found");
+                return Result.CreateFailure("Notification not found");
 
             if (notification.DeliveryAttempts >= _options.MaxRetryAttempts)
             {
-                return Result.Failure($"Maximum retry attempts ({_options.MaxRetryAttempts}) exceeded");
+                return Result.CreateFailure($"Maximum retry attempts ({_options.MaxRetryAttempts}) exceeded");
             }
 
             await DeliverNotificationAsync(notification, cancellationToken);
 
             _logger.LogInformation("Retried delivery for notification {NotificationId}", notificationId);
-            return Result.Success();
+            return Result.CreateSuccess();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to retry notification {NotificationId}", notificationId);
-            return Result.Failure($"Failed to retry: {ex.Message}");
+            return Result.CreateFailure($"Failed to retry: {ex.Message}");
         }
     }
 

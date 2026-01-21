@@ -80,12 +80,12 @@ public class NotificationPreferenceService : INotificationPreferenceService
                 preference.UserId,
                 preference.Category ?? "default");
 
-            return Result<NotificationPreference>.Success(preference);
+            return Result<NotificationPreference>.CreateSuccess(preference);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to update notification preferences for user {UserId}", preference.UserId);
-            return Result<NotificationPreference>.Failure($"Failed to update preferences: {ex.Message}");
+            return Result<NotificationPreference>.CreateFailure($"Failed to update preferences: {ex.Message}");
         }
     }
 
@@ -152,7 +152,7 @@ public class NotificationPreferenceService : INotificationPreferenceService
         var preference = await GetPreferenceAsync(userId, null, cancellationToken);
         
         if (preference == null)
-            return Result.Success();
+            return Result.CreateSuccess();
 
         preference.PushEndpoint = null;
         preference.PushPublicKey = null;

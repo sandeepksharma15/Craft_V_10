@@ -24,7 +24,7 @@ public class NullNotificationRealTimeService : INotificationRealTimeService
             notification.Id,
             userId);
 
-        return Task.FromResult(Result.Success());
+        return Task.FromResult(Result.CreateSuccess());
     }
 
     /// <inheritdoc/>
@@ -38,7 +38,7 @@ public class NullNotificationRealTimeService : INotificationRealTimeService
             notification.Id,
             userIds.Count());
 
-        return Task.FromResult(Result.Success());
+        return Task.FromResult(Result.CreateSuccess());
     }
 
     /// <inheritdoc/>

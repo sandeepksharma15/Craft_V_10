@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the result of an HTTP service operation.
 /// </summary>
-public record HttpServiceResult<T>
+public record HttpServiceResult<T> : IServiceResult
 {
     public T? Data { get; init; }
     public bool Success { get; init; }
