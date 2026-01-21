@@ -22,36 +22,41 @@ public abstract class HttpServiceBase
         Func<HttpResponseMessage, CancellationToken, Task<TResult>> parseResult,
         CancellationToken cancellationToken)
     {
-        var result = new HttpServiceResult<TResult>();
-
         try
         {
             // Make the HTTP request
             var response = await sendRequest(cancellationToken).ConfigureAwait(false);
 
-            result.StatusCode = (int)response.StatusCode;
-
             if (response.IsSuccessStatusCode)
             {
                 // Parse the result if the request was successful
-                result.Data = await parseResult(response, cancellationToken).ConfigureAwait(false);
-                result.Success = true;
+                return new HttpServiceResult<TResult>
+                {
+                    Data = await parseResult(response, cancellationToken).ConfigureAwait(false),
+                    Success = true,
+                    StatusCode = (int)response.StatusCode
+                };
             }
             else
             {
                 // If the request failed, read the errors
-                result.Errors = await response.TryReadErrors(cancellationToken);
-                result.Success = false;
+                return new HttpServiceResult<TResult>
+                {
+                    Success = false,
+                    Errors = await response.TryReadErrors(cancellationToken),
+                    StatusCode = (int)response.StatusCode
+                };
             }
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
-            result.Errors = [ex.Message];
-            result.Success = false;
+            return new HttpServiceResult<TResult>
+            {
+                Success = false,
+                Errors = [ex.Message]
+            };
         }
-
-        return result;
     }
 
     protected static Task<HttpServiceResult<TResult?>> GetAndParseAsync<TResult>(
@@ -134,25 +139,27 @@ public abstract class HttpServiceBase
         Func<TPaged, List<TItem>> extractItems,
         CancellationToken cancellationToken)
     {
-        var result = new HttpServiceResult<List<TItem>>();
-
         try
         {
             // Make The Call
             var pagedResult = await getPaged(cancellationToken).ConfigureAwait(false);
 
-            result.Data = pagedResult != null && pagedResult.Data != null ? extractItems(pagedResult.Data) : [];
-            result.Success = pagedResult?.Success ?? false;
-            result.Errors = pagedResult?.Errors;
-            result.StatusCode = pagedResult?.StatusCode;
+            return new HttpServiceResult<List<TItem>>
+            {
+                Data = pagedResult != null && pagedResult.Data != null ? extractItems(pagedResult.Data) : [],
+                Success = pagedResult?.Success ?? false,
+                Errors = pagedResult?.Errors,
+                StatusCode = pagedResult?.StatusCode
+            };
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
-            result.Errors = [ex.Message];
-            result.Success = false;
+            return new HttpServiceResult<List<TItem>>
+            {
+                Success = false,
+                Errors = [ex.Message]
+            };
         }
-
-        return result;
     }
 }
