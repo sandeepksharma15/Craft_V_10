@@ -28,11 +28,10 @@ public static class ValidationUtils
     /// </summary>
     public static List<string> AggregateErrors(params IServiceResult[] results)
     {
-        return results
+        return [.. results
             .Where(r => r.Errors != null)
             .SelectMany(r => r.Errors!)
-            .Where(e => !string.IsNullOrWhiteSpace(e))
-            .ToList();
+            .Where(e => !string.IsNullOrWhiteSpace(e))];
     }
 
     /// <summary>

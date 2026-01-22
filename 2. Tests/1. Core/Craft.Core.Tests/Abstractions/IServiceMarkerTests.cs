@@ -14,6 +14,6 @@ public class IServiceMarkerTests
         var service = new DummyService();
 
         // Act & Assert
-        Assert.IsAssignableFrom<IService>(service);
+        Assert.IsType<IService>(service, exactMatch: false);
     }
 }
