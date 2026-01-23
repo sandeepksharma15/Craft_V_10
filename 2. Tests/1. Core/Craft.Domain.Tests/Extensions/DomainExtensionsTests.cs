@@ -131,7 +131,7 @@ public class DomainExtensionsTests
     public void IsNullOrDefault_Generic_EntityWithDefaultId_ReturnsTrue()
     {
         // Arrange
-        var entity = new TestEntityGeneric<string> { Id = null };
+        var entity = new TestEntityGeneric<string> { Id = null! };
 
         // Act
         var result = entity.IsNullOrDefault();
@@ -213,7 +213,7 @@ public class DomainExtensionsTests
     public void BelongsToTenant_Generic_NullTenantId_ReturnsFalse()
     {
         // Arrange
-        var entity = new TestHasTenantGeneric<string> { TenantId = null };
+        var entity = new TestHasTenantGeneric<string> { TenantId = null! };
         string tenantId = "123";
 
         // Act
