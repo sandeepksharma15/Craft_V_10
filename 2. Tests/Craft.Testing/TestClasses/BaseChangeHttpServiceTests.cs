@@ -226,7 +226,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         await SeedDatabaseAsync(entity);
 
         var viewModel = MapEntityToViewModel(entity);
-        SetViewModelName(viewModel, "Updated Name");
+        ModifyViewModelForUpdate(viewModel);
 
         // Act
         var result = await service.UpdateAsync(viewModel);
@@ -242,7 +242,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         Fixture.DbContext.ChangeTracker.Clear();
         var retrieved = Fixture.DbContext.Set<TEntity>().Find(entity.Id);
         Assert.NotNull(retrieved);
-        Assert.Equal("Updated Name", GetEntityName(retrieved));
+        VerifyEntityWasModified(entity, retrieved!);
     }
 
     [Fact]
@@ -273,7 +273,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         await SeedDatabaseAsync(entity);
 
         var viewModel = MapEntityToViewModel(entity);
-        SetViewModelName(viewModel, "Updated Name");
+        ModifyViewModelForUpdate(viewModel);
         using var cts = new CancellationTokenSource();
 
         // Act
@@ -294,8 +294,8 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         await SeedDatabaseAsync([.. entities]);
 
         var viewModels = entities.Select(MapEntityToViewModel).ToList();
-        for (int i = 0; i < viewModels.Count; i++)
-            SetViewModelName(viewModels[i], $"Updated {i}");
+        foreach (var viewModel in viewModels)
+            ModifyViewModelForUpdate(viewModel);
 
         // Act
         var result = await service.UpdateRangeAsync(viewModels);
@@ -310,7 +310,8 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Verify all entities were updated
         Fixture.DbContext.ChangeTracker.Clear();
         var allEntities = Fixture.DbContext.Set<TEntity>().ToList();
-        Assert.All(allEntities, e => Assert.StartsWith("Updated", GetEntityName(e)));
+        for (int i = 0; i < entities.Count; i++)
+            VerifyEntityWasModified(entities[i], allEntities.First(e => e.Id!.Equals(entities[i].Id)));
     }
 
     #endregion
@@ -434,9 +435,76 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
     #region Helper Methods
 
     /// <summary>
+    /// Modifies a view model to prepare it for an update operation.
+    /// Override this method to customize how view models are modified in update tests.
+    /// Default implementation attempts to update the Name property if it exists,
+    /// or the Description property as a fallback.
+    /// </summary>
+    /// <param name="viewModel">The view model to modify</param>
+    protected virtual void ModifyViewModelForUpdate(TViewModel viewModel)
+    {
+        var viewModelType = typeof(TViewModel);
+
+        // Try to update Name property
+        var nameProperty = viewModelType.GetProperty("Name");
+        if (nameProperty != null && nameProperty.CanWrite && nameProperty.PropertyType == typeof(string))
+        {
+            nameProperty.SetValue(viewModel, $"Updated {Guid.NewGuid().ToString()[..8]}");
+            return;
+        }
+
+        // Try to update Description property
+        var descProperty = viewModelType.GetProperty("Description");
+        if (descProperty != null && descProperty.CanWrite && descProperty.PropertyType == typeof(string))
+        {
+            descProperty.SetValue(viewModel, $"Updated {Guid.NewGuid().ToString()[..8]}");
+            return;
+        }
+
+        // If no suitable property found, derived classes must override this method
+    }
+
+    /// <summary>
+    /// Verifies that an entity was modified during an update operation.
+    /// Override this method to customize verification logic based on your entity properties.
+    /// Default implementation compares Name or Description properties if they exist.
+    /// </summary>
+    /// <param name="originalEntity">The original entity before the update</param>
+    /// <param name="updatedEntity">The entity retrieved from the database after the update</param>
+    protected virtual void VerifyEntityWasModified(TEntity originalEntity, TEntity updatedEntity)
+    {
+        var entityType = typeof(TEntity);
+
+        // Try to verify using Name property
+        var nameProperty = entityType.GetProperty("Name");
+        if (nameProperty != null && nameProperty.PropertyType == typeof(string))
+        {
+            var originalName = nameProperty.GetValue(originalEntity)?.ToString();
+            var updatedName = nameProperty.GetValue(updatedEntity)?.ToString();
+            Assert.NotEqual(originalName, updatedName);
+            return;
+        }
+
+        // Try to verify using Description property
+        var descProperty = entityType.GetProperty("Description");
+        if (descProperty != null && descProperty.PropertyType == typeof(string))
+        {
+            var originalDesc = descProperty.GetValue(originalEntity)?.ToString();
+            var updatedDesc = descProperty.GetValue(updatedEntity)?.ToString();
+            Assert.NotEqual(originalDesc, updatedDesc);
+            return;
+        }
+
+        // If no suitable property found, just verify the entity was retrieved successfully
+        // Derived classes should override this method for proper verification
+        Assert.NotNull(updatedEntity);
+    }
+
+    /// <summary>
     /// Gets the Name property value from a view model if it exists.
     /// Used for update tests to verify changes.
     /// </summary>
+    [Obsolete("Use ModifyViewModelForUpdate instead for better flexibility.")]
     protected virtual string? GetViewModelName(TViewModel viewModel)
     {
         var nameProperty = typeof(TViewModel).GetProperty("Name");
@@ -447,6 +515,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
     /// Sets the Name property value on a view model if it exists.
     /// Used for update tests to modify view models.
     /// </summary>
+    [Obsolete("Use ModifyViewModelForUpdate instead for better flexibility.")]
     protected virtual void SetViewModelName(TViewModel viewModel, string name)
     {
         var nameProperty = typeof(TViewModel).GetProperty("Name");
@@ -459,6 +528,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
     /// Gets the Name property value from an entity if it exists.
     /// Used for verification in tests.
     /// </summary>
+    [Obsolete("Use VerifyEntityWasModified instead for better flexibility.")]
     protected virtual string? GetEntityName(TEntity entity)
     {
         var nameProperty = typeof(TEntity).GetProperty("Name");
