@@ -142,6 +142,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         Fixture.DbContext.ChangeTracker.Clear();
         var retrieved = Fixture.DbContext.Set<TEntity>().Find(result.Data.Id);
         Assert.NotNull(retrieved);
+        VerifyEntityWasCreated(viewModel, retrieved!);
     }
 
     [Fact]
@@ -169,8 +170,14 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         // Verify all entities were created
         Fixture.DbContext.ChangeTracker.Clear();
-        var count = Fixture.DbContext.Set<TEntity>().Count();
-        Assert.Equal(3, count);
+        var allEntities = Fixture.DbContext.Set<TEntity>().ToList();
+        Assert.Equal(3, allEntities.Count);
+
+        for (int i = 0; i < viewModels.Count; i++)
+        {
+            var retrieved = allEntities.First(e => e.Id!.Equals(results[i].Data!.Id));
+            VerifyEntityWasCreated(viewModels[i], retrieved);
+        }
     }
 
     [Fact]
@@ -433,6 +440,50 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
     #endregion
 
     #region Helper Methods
+
+    /// <summary>
+    /// Verifies that an entity was successfully created from a view model.
+    /// Override this method to customize verification logic based on your entity properties.
+    /// Default implementation compares Name or Description properties if they exist.
+    /// </summary>
+    /// <param name="viewModel">The view model used to create the entity</param>
+    /// <param name="createdEntity">The entity retrieved from the database after creation</param>
+    protected virtual void VerifyEntityWasCreated(TViewModel viewModel, TEntity createdEntity)
+    {
+        var entityType = typeof(TEntity);
+        var viewModelType = typeof(TViewModel);
+
+        // Verify entity was created successfully
+        Assert.NotNull(createdEntity);
+        Assert.NotNull(createdEntity.Id);
+
+        // Try to verify using Name property
+        var entityNameProperty = entityType.GetProperty("Name");
+        var vmNameProperty = viewModelType.GetProperty("Name");
+        if (entityNameProperty != null && vmNameProperty != null && 
+            entityNameProperty.PropertyType == typeof(string) && vmNameProperty.PropertyType == typeof(string))
+        {
+            var vmName = vmNameProperty.GetValue(viewModel)?.ToString();
+            var entityName = entityNameProperty.GetValue(createdEntity)?.ToString();
+            Assert.Equal(vmName, entityName);
+            return;
+        }
+
+        // Try to verify using Description property
+        var entityDescProperty = entityType.GetProperty("Description");
+        var vmDescProperty = viewModelType.GetProperty("Description");
+        if (entityDescProperty != null && vmDescProperty != null &&
+            entityDescProperty.PropertyType == typeof(string) && vmDescProperty.PropertyType == typeof(string))
+        {
+            var vmDesc = vmDescProperty.GetValue(viewModel)?.ToString();
+            var entityDesc = entityDescProperty.GetValue(createdEntity)?.ToString();
+            Assert.Equal(vmDesc, entityDesc);
+            return;
+        }
+
+        // If no suitable property found for comparison, just verify the entity was created
+        // Derived classes should override this method for proper verification
+    }
 
     /// <summary>
     /// Modifies a view model to prepare it for an update operation.
