@@ -115,7 +115,8 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (query.SortOrderBuilder is null || query.SortOrderBuilder.Count == 0)
             query.OrderBy(e => e.Id!);
 
-        var items = await _dbSet.WithQuery(query)
+        var items = await _dbSet
+            .WithQuery(query)
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 

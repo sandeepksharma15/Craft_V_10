@@ -509,7 +509,11 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
 
     private Query<TEntity> BuildQuery()
     {
-        var query = new Query<TEntity>();
+        var query = new Query<TEntity>
+        {
+            // We Need To Include Details
+            IgnoreAutoIncludes = false
+        };
 
         // Set pagination
         query.SetPage(_currentPage, _pageSize);
