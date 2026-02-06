@@ -101,6 +101,9 @@ public class QueryJsonConverter<T, TResult> : JsonConverter<Query<T, TResult>>, 
                             case nameof(query.IgnoreQueryFilters):
                                 query.IgnoreQueryFilters = reader.GetBoolean();
                                 break;
+                            case nameof(query.AutoIncludeNavigationProperties):
+                                query.AutoIncludeNavigationProperties = reader.GetBoolean();
+                                break;
                             case nameof(query.Skip):
                                 query.Skip = reader.TokenType == JsonTokenType.Null ? null : reader.GetInt32();
                                 break;

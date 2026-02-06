@@ -27,6 +27,9 @@ public static class QuerySpecServiceExtensions
             // Set common JSON options that align with QuerySerializerOptions
             options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
             options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+
+            // Handle circular references in navigation properties (e.g., PublicHoliday -> Location -> PublicHolidays)
+            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         });
 
         return builder;

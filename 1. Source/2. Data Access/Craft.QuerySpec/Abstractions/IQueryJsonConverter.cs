@@ -38,6 +38,9 @@ public interface IQueryJsonConverter<T> where T : class
                 case nameof(query.IgnoreQueryFilters):
                     query.IgnoreQueryFilters = reader.GetBoolean();
                     break;
+                case nameof(query.AutoIncludeNavigationProperties):
+                    query.AutoIncludeNavigationProperties = reader.GetBoolean();
+                    break;
                 case nameof(query.Skip):
                     query.Skip = reader.TokenType == JsonTokenType.Null ? null : reader.GetInt32();
                     break;
@@ -68,6 +71,7 @@ public interface IQueryJsonConverter<T> where T : class
         writer.WriteBoolean(nameof(value.AsSplitQuery), value.AsSplitQuery);
         writer.WriteBoolean(nameof(value.IgnoreAutoIncludes), value.IgnoreAutoIncludes);
         writer.WriteBoolean(nameof(value.IgnoreQueryFilters), value.IgnoreQueryFilters);
+        writer.WriteBoolean(nameof(value.AutoIncludeNavigationProperties), value.AutoIncludeNavigationProperties);
 
         writer.WritePropertyName(nameof(value.Skip));
         if (value.Skip != null)

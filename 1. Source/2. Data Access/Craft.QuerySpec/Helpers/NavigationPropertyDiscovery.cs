@@ -80,7 +80,7 @@ internal static class NavigationPropertyDiscovery
         if (propertyType.IsGenericType)
         {
             var genericTypeDefinition = propertyType.GetGenericTypeDefinition();
-            
+
             // Check for common collection types
             if (genericTypeDefinition == typeof(ICollection<>) ||
                 genericTypeDefinition == typeof(IList<>) ||
@@ -89,7 +89,7 @@ internal static class NavigationPropertyDiscovery
                 genericTypeDefinition == typeof(HashSet<>))
             {
                 var elementType = propertyType.GetGenericArguments()[0];
-                
+
                 // Check if the element type looks like an entity
                 if (elementType.IsClass && 
                     !elementType.IsAbstract && 
