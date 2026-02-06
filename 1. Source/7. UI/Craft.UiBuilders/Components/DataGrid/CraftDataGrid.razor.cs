@@ -252,6 +252,14 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// </summary>
     [Parameter] public bool AllowExport { get; set; }
 
+    /// <summary>
+    /// Automatically includes all navigation properties when loading data.
+    /// Uses reflection to discover navigation properties and load them (1 level deep).
+    /// Perfect for generic grids where you want to display related data without specifying each Include.
+    /// Default is false.
+    /// </summary>
+    [Parameter] public bool AutoIncludeNavigationProperties { get; set; }
+
     #endregion
 
     #region Parameters - Messages
@@ -511,8 +519,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     {
         var query = new Query<TEntity>
         {
-            // We Need To Include Details
-            IgnoreAutoIncludes = false
+            AutoIncludeNavigationProperties = AutoIncludeNavigationProperties
         };
 
         // Set pagination

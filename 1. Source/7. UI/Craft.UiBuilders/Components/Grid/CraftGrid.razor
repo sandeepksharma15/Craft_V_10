@@ -23,7 +23,8 @@
                    AllowRefresh="@AllowRefresh" AllowAdd="@AllowAdd" AddButtonText="@AddButtonText" AddIcon="@AddIcon" AllowView="@AllowView"
                    AllowEdit="@AllowEdit" AllowDelete="@AllowDelete" AllowExport="@AllowExport" NoRecordsMessage="@NoRecordsMessage"
                    LoadingMessage="@LoadingMessage" DeleteConfirmationMessage="@DeleteConfirmationMessage" OnAdd="@OnAdd"
-                   OnView="@OnView" OnEdit="@OnEdit" OnDelete="@OnDelete" OnExport="@OnExport" OnDataLoaded="@OnDataLoaded">
+                   OnView="@OnView" OnEdit="@OnEdit" OnDelete="@OnDelete" OnExport="@OnExport" OnDataLoaded="@OnDataLoaded"
+                   AutoIncludeNavigationProperties="@AutoIncludeNavigationProperties">
 
         @foreach (var column in Columns.Where(c => c.Visible))
         {
@@ -46,7 +47,8 @@
                    AllowRefresh="@AllowRefresh" AllowAdd="@AllowAdd" AddButtonText="@AddButtonText" AddIcon="@AddIcon"
                    AllowView="@AllowView" AllowEdit="@AllowEdit" AllowDelete="@AllowDelete" AllowExport="@AllowExport"
                    NoRecordsMessage="@NoRecordsMessage" LoadingMessage="@LoadingMessage" DeleteConfirmationMessage="@DeleteConfirmationMessage"
-                   OnAdd="@OnAdd" OnView="@OnView" OnEdit="@OnEdit" OnDelete="@OnDelete" OnExport="@OnExport" OnDataLoaded="@OnDataLoaded">
+                   OnAdd="@OnAdd" OnView="@OnView" OnEdit="@OnEdit" OnDelete="@OnDelete" OnExport="@OnExport" OnDataLoaded="@OnDataLoaded"
+                   AutoIncludeNavigationProperties="@AutoIncludeNavigationProperties">
 
         @foreach (var column in Columns.Where(c => c.IsVisibleInCardView))
         {
