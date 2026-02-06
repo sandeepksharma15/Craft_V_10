@@ -348,6 +348,7 @@ public class QueryExtensionsTests
         public bool AsSplitQuery { get; set; }
         public bool IgnoreAutoIncludes { get; set; }
         public bool IgnoreQueryFilters { get; set; }
+        public bool AutoIncludeNavigationProperties { get; set; }
         public int? Skip { get; set; }
         public int? Take { get; set; }
         public SortOrderBuilder<Company>? SortOrderBuilder { get; set; } = null;

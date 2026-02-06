@@ -54,6 +54,17 @@ public interface IQuery<T> where T : class
     bool IgnoreQueryFilters { get; internal set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether all navigation properties should be automatically included.
+    /// </summary>
+    /// <remarks>
+    /// When set to true, the query will use reflection to discover all navigation properties
+    /// on the entity and automatically include them (1 level deep only to prevent circular references).
+    /// This is useful for generic components like grids where you want to include all related data
+    /// without explicitly specifying each navigation property.
+    /// </remarks>
+    bool AutoIncludeNavigationProperties { get; set; }
+
+    /// <summary>
     /// Gets or sets the number of records to skip before starting to return records.
     /// </summary>
     /// <remarks>

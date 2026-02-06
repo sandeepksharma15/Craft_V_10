@@ -49,6 +49,7 @@ public class Query<T> : IQuery<T> where T : class
     public bool AsSplitQuery { get; set; }
     public bool IgnoreAutoIncludes { get; set; } = true;
     public bool IgnoreQueryFilters { get; set; }
+    public bool AutoIncludeNavigationProperties { get; set; }
 
     public int? Skip
     {
@@ -133,6 +134,7 @@ public class Query<T> : IQuery<T> where T : class
         AsSplitQuery = false;
         IgnoreAutoIncludes = true;
         IgnoreQueryFilters = false;
+        AutoIncludeNavigationProperties = false;
 
         SortOrderBuilder?.Clear();
         SqlLikeSearchCriteriaBuilder?.Clear();
@@ -151,6 +153,7 @@ public class Query<T> : IQuery<T> where T : class
         sb.AppendLine($"  AsSplitQuery: {AsSplitQuery}");
         sb.AppendLine($"  IgnoreAutoIncludes: {IgnoreAutoIncludes}");
         sb.AppendLine($"  IgnoreQueryFilters: {IgnoreQueryFilters}");
+        sb.AppendLine($"  AutoIncludeNavigationProperties: {AutoIncludeNavigationProperties}");
         sb.AppendLine($"  Skip: {Skip?.ToString() ?? "null"}, Take: {Take?.ToString() ?? "null"}");
 
         if (EntityFilterBuilder?.Count > 0)

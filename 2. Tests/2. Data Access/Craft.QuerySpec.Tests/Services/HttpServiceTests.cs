@@ -1000,6 +1000,7 @@ public class HttpServiceTests
         public bool AsSplitQuery { get; set; }
         public bool IgnoreAutoIncludes { get; set; }
         public bool IgnoreQueryFilters { get; set; }
+        public bool AutoIncludeNavigationProperties { get; set; }
         public int? Skip { get; set; }
         public int? Take { get; set; }
         public SortOrderBuilder<TEntity>? SortOrderBuilder { get; set; }
@@ -1019,6 +1020,7 @@ public class HttpServiceTests
         public bool AsSplitQuery { get; set; }
         public bool IgnoreAutoIncludes { get; set; }
         public bool IgnoreQueryFilters { get; set; }
+        public bool AutoIncludeNavigationProperties { get; set; }
         public int? Skip { get; set; }
         public int? Take { get; set; }
         public SortOrderBuilder<TEntity>? SortOrderBuilder { get; set; }
