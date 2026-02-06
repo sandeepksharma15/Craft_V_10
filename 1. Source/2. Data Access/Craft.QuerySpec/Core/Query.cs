@@ -75,6 +75,7 @@ public class Query<T> : IQuery<T> where T : class
     public SortOrderBuilder<T>? SortOrderBuilder { get; set; } = new();
     public SqlLikeSearchCriteriaBuilder<T>? SqlLikeSearchCriteriaBuilder { get; set; } = new();
     public EntityFilterBuilder<T>? EntityFilterBuilder { get; set; } = new();
+    public List<IncludeExpression>? IncludeExpressions { get; set; }
 
     /// <summary>
     /// Optional post-processing function applied to results after database retrieval.
@@ -136,6 +137,7 @@ public class Query<T> : IQuery<T> where T : class
         SortOrderBuilder?.Clear();
         SqlLikeSearchCriteriaBuilder?.Clear();
         EntityFilterBuilder?.Clear();
+        IncludeExpressions?.Clear();
     }
 
     /// <summary>
@@ -159,6 +161,9 @@ public class Query<T> : IQuery<T> where T : class
 
         if (SqlLikeSearchCriteriaBuilder?.Count > 0)
             sb.AppendLine($"  Search Criteria: {SqlLikeSearchCriteriaBuilder.Count}");
+
+        if (IncludeExpressions?.Count > 0)
+            sb.AppendLine($"  Includes: {IncludeExpressions.Count}");
 
         return sb.ToString();
     }

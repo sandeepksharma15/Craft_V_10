@@ -30,6 +30,7 @@ public class TestQuery<T> : IQuery<T> where T : class
     public Func<IEnumerable<T>, IEnumerable<T>>? PostProcessingAction { get; set; }
     public SqlLikeSearchCriteriaBuilder<T>? SqlLikeSearchCriteriaBuilder { get; set; }
     public EntityFilterBuilder<T>? EntityFilterBuilder { get; set; }
+    public List<IncludeExpression>? IncludeExpressions { get; set; }
     public void Clear() { }
     public bool IsSatisfiedBy(T entity) => true;
     public void SetPage(int page, int pageSize) { }

@@ -173,6 +173,7 @@ public class QuerySearchExtensionsTests
         public Func<IEnumerable<Company>, IEnumerable<Company>>? PostProcessingAction { get; set; }
         public SqlLikeSearchCriteriaBuilder<Company>? SqlLikeSearchCriteriaBuilder { get; set; } = null;
         public EntityFilterBuilder<Company>? EntityFilterBuilder { get; set; } = null;
+        public List<IncludeExpression>? IncludeExpressions { get; set; }
         public void Clear() { }
         public bool IsSatisfiedBy(Company entity) => true;
         public void SetPage(int page, int pageSize) { }

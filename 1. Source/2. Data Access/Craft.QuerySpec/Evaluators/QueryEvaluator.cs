@@ -24,6 +24,7 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
             OrderEvaluator.Instance,
             SearchEvaluator.Instance,
             PaginationEvaluator.Instance,
+            IncludeEvaluator.Instance,
             AsNoTrackingEvaluator.Instance,
             AsSplitQueryEvaluator.Instance,
             IgnoreAutoIncludeEvaluator.Instance,

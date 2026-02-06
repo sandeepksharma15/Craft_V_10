@@ -96,6 +96,15 @@ public interface IQuery<T> where T : class
     EntityFilterBuilder<T>? EntityFilterBuilder { get; internal set; }
 
     /// <summary>
+    /// Gets the collection of include expressions for eagerly loading related entities.
+    /// </summary>
+    /// <remarks>
+    /// This allows for dynamic specification of navigation properties to include in the query,
+    /// avoiding the need for AutoInclude configuration in the DbContext.
+    /// </remarks>
+    List<IncludeExpression>? IncludeExpressions { get; internal set; }
+
+    /// <summary>
     /// Clears the query specifications, resetting all properties to their default values.
     /// </summary>
     void Clear();

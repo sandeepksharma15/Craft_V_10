@@ -1006,6 +1006,7 @@ public class HttpServiceTests
         public Func<IEnumerable<TEntity>, IEnumerable<TEntity>>? PostProcessingAction { get; set; }
         public SqlLikeSearchCriteriaBuilder<TEntity>? SqlLikeSearchCriteriaBuilder { get; set; }
         public EntityFilterBuilder<TEntity>? EntityFilterBuilder { get; set; }
+        public List<IncludeExpression>? IncludeExpressions { get; set; }
         public void Clear() { }
         public bool IsSatisfiedBy(TEntity entity) => true;
         public void SetPage(int page, int pageSize) { }
@@ -1025,6 +1026,7 @@ public class HttpServiceTests
         Func<IEnumerable<TProjection>, IEnumerable<TProjection>>? IQuery<TEntity, TProjection>.PostProcessingAction { get; set; }
         public SqlLikeSearchCriteriaBuilder<TEntity>? SqlLikeSearchCriteriaBuilder { get; set; }
         public EntityFilterBuilder<TEntity>? EntityFilterBuilder { get; set; }
+        public List<IncludeExpression>? IncludeExpressions { get; set; }
         public QuerySelectBuilder<TEntity, TProjection>? QuerySelectBuilder { get; set; }
         public System.Linq.Expressions.Expression<Func<TEntity, IEnumerable<TProjection>>>? SelectorMany { get; set; }
         public void Clear() { }
