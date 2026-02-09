@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Craft.Core.Common;
 
 /// <summary>
@@ -16,10 +12,13 @@ public static class ValidationUtils
     {
         if (value is null)
             return true;
+
         if (value is string s)
             return string.IsNullOrWhiteSpace(s);
+
         if (value is ICollection<object> coll)
             return coll.Count == 0;
+
         return false;
     }
 
