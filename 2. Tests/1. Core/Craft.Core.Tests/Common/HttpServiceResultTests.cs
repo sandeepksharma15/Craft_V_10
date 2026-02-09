@@ -1,6 +1,7 @@
 using Xunit;
 using Craft.Core.Common;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Craft.Core.Tests.Common
 {

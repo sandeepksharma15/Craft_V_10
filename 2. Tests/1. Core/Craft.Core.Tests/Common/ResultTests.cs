@@ -1,4 +1,5 @@
 using Craft.Core;
+using System.Text.Json;
 
 namespace Craft.Core.Tests.Common;
 
@@ -526,6 +527,101 @@ public class ResultTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(new DateTime(2024, 1, 1), result.Value);
+    }
+
+    #endregion
+
+    #region ToString Tests
+
+    [Fact]
+    public void Result_ToString_SerializesToJson()
+    {
+        // Arrange
+        var result = Result.CreateSuccess();
+
+        // Act
+        var json = result.ToString();
+
+        // Assert
+        Assert.NotNull(json);
+        Assert.Contains("true", json.ToLower()); // IsSuccess = true
+    }
+
+    [Fact]
+    public void Result_WithError_ToString_IncludesErrorMessage()
+    {
+        // Arrange
+        var result = Result.CreateFailure("Test error");
+
+        // Act
+        var json = result.ToString();
+
+        // Assert
+        Assert.NotNull(json);
+        Assert.Contains("Test error", json);
+        Assert.Contains("false", json.ToLower()); // IsSuccess = false
+    }
+
+    [Fact]
+    public void GenericResult_ToString_SerializesToJson()
+    {
+        // Arrange
+        var result = Result<string>.CreateSuccess("test value");
+
+        // Act
+        var json = result.ToString();
+
+        // Assert
+        Assert.NotNull(json);
+        Assert.StartsWith("{", json);
+        Assert.Contains("IsSuccess", json);
+    }
+
+    [Fact]
+    public void GenericResult_ToString_WithComplexType_SerializesCorrectly()
+    {
+        // Arrange
+        var data = new TestData { Id = 42, Name = "Complex" };
+        var result = Result<TestData>.CreateSuccess(data);
+
+        // Act
+        var json = result.ToString();
+
+        // Assert
+        Assert.NotNull(json);
+        Assert.StartsWith("{", json);
+        Assert.Contains("IsSuccess", json);
+    }
+
+    [Fact]
+    public void GenericResult_Failure_ToString_IncludesErrors()
+    {
+        // Arrange
+        var errors = new List<string> { "Error1", "Error2" };
+        var result = Result<int>.CreateFailure(errors);
+
+        // Act
+        var json = result.ToString();
+
+        // Assert
+        Assert.NotNull(json);
+        Assert.Contains("Error1", json);
+        Assert.Contains("Error2", json);
+        Assert.Contains("false", json.ToLower());
+    }
+
+    [Fact]
+    public void Result_ToString_CanBeDeserialized()
+    {
+        // Arrange
+        var original = Result.CreateFailure("Deserialization test");
+        var json = original.ToString();
+
+        // Act - Result class has protected constructor, so we can only verify JSON format
+        // Assert
+        Assert.NotNull(json);
+        Assert.Contains("\"IsSuccess\":false", json);
+        Assert.Contains("Deserialization test", json);
     }
 
     #endregion

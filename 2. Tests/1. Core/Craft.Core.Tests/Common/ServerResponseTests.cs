@@ -130,4 +130,76 @@ public class ServerResponseTests
         response.Errors = null!;
         Assert.Null(response.Errors);
     }
+
+    [Fact]
+    public void HasErrors_Returns_True_When_Errors_Exist()
+    {
+        // Arrange
+        var response = new ServerResponse { Errors = ["Error1"] };
+
+        // Act & Assert
+        Assert.True(response.HasErrors);
+    }
+
+    [Fact]
+    public void HasErrors_Returns_False_When_No_Errors()
+    {
+        // Arrange
+        var response = new ServerResponse { Errors = [] };
+
+        // Act & Assert
+        Assert.False(response.HasErrors);
+    }
+
+    [Fact]
+    public void IsFailure_Returns_True_When_Not_Success()
+    {
+        // Arrange
+        var response = new ServerResponse { IsSuccess = false };
+
+        // Act & Assert
+        Assert.True(response.IsFailure);
+    }
+
+    [Fact]
+    public void IsFailure_Returns_False_When_Success()
+    {
+        // Arrange
+        var response = new ServerResponse { IsSuccess = true };
+
+        // Act & Assert
+        Assert.False(response.IsFailure);
+    }
+
+    [Fact]
+    public void ServerResponse_Implements_IServiceResult()
+    {
+        // Arrange & Act
+        var response = new ServerResponse();
+        var asInterface = response as IServiceResult;
+
+        // Assert
+        Assert.NotNull(asInterface);
+        Assert.Equal(response.IsSuccess, asInterface.IsSuccess);
+        Assert.Equal(response.Errors, asInterface.Errors);
+        Assert.Equal(response.StatusCode, asInterface.StatusCode);
+        Assert.Equal(response.HasErrors, asInterface.HasErrors);
+        Assert.Equal(response.IsFailure, asInterface.IsFailure);
+        Assert.Equal(response.Message, asInterface.Message);
+    }
+
+    [Fact]
+    public void IServiceResult_StatusCode_Returns_Nullable_Int()
+    {
+        // Arrange
+        var response = new ServerResponse { StatusCode = 404 };
+        var asInterface = (IServiceResult)response;
+
+        // Act
+        int? statusCode = asInterface.StatusCode;
+
+        // Assert
+        Assert.NotNull(statusCode);
+        Assert.Equal(404, statusCode.Value);
+    }
 }

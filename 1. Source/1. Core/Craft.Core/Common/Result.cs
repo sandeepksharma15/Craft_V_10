@@ -24,10 +24,12 @@ public class Result : IServiceResult
     }
 
     public static Result CreateSuccess() => new(true);
-    
+
     public static Result CreateFailure(string errorMessage) => new(false, errorMessage);
-    
+
     public static Result CreateFailure(List<string> errors) => new(false, errors: errors);
+
+    public override string ToString() => JsonSerializer.Serialize(this);
 }
 
 /// <summary>
@@ -35,7 +37,7 @@ public class Result : IServiceResult
 /// </summary>
 public class Result<T> : Result
 {
-    public T? Value { get; private init; }
+    public T? Value { get; init; }
 
     private Result(bool isSuccess, T? value = default, string? errorMessage = null, List<string>? errors = null)
         : base(isSuccess, errorMessage, errors)
