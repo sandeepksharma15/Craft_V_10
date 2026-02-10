@@ -25,9 +25,27 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
     private readonly ICurrentUser _currentUser;
 
     /// <summary>
-    /// Creates a new instance of BaseIdentityDbContext.
+    /// Creates a new instance of BaseIdentityDbContext for single-tenant scenarios.
     /// LoggerFactory and other options should be configured via DI, not in constructor.
     /// </summary>
+    /// <param name="options">The DbContext options.</param>
+    /// <param name="currentUser">The current user accessor.</param>
+    /// <remarks>
+    /// This constructor is for non-multi-tenant applications. It uses <see cref="NullTenant.Instance"/> internally.
+    /// For multi-tenant applications, use the constructor that accepts an <see cref="ITenant"/> parameter.
+    /// </remarks>
+    protected BaseIdentityDbContext(DbContextOptions options, ICurrentUser currentUser)
+        : this(options, NullTenant.Instance, currentUser)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new instance of BaseIdentityDbContext for multi-tenant scenarios.
+    /// LoggerFactory and other options should be configured via DI, not in constructor.
+    /// </summary>
+    /// <param name="options">The DbContext options.</param>
+    /// <param name="currentTenant">The current tenant accessor.</param>
+    /// <param name="currentUser">The current user accessor.</param>
     protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser)
         : base(options)
     {
