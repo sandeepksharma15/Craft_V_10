@@ -96,8 +96,60 @@ public class DatabaseOptionsTests
         Assert.Equal(string.Empty, options.DbProvider);
         Assert.False(options.EnableDetailedErrors);
         Assert.False(options.EnableSensitiveDataLogging);
+        Assert.False(options.EnablePerformanceLogging);
         Assert.Equal(3, options.MaxRetryCount);
         Assert.Equal(15, options.MaxRetryDelay);
+        Assert.Null(options.MigrationAssembly);
+        Assert.Null(options.ReadOnlyConnectionString);
+    }
+
+    [Fact]
+    public void MigrationAssembly_CanBeSet()
+    {
+        // Arrange
+        var options = new DatabaseOptions
+        {
+            MigrationAssembly = "MyApp.Migrations"
+        };
+
+        // Act & Assert
+        Assert.Equal("MyApp.Migrations", options.MigrationAssembly);
+    }
+
+    [Fact]
+    public void ReadOnlyConnectionString_CanBeSet()
+    {
+        // Arrange
+        var options = new DatabaseOptions
+        {
+            ReadOnlyConnectionString = "Server=replica;Database=Test;ApplicationIntent=ReadOnly;"
+        };
+
+        // Act & Assert
+        Assert.Equal("Server=replica;Database=Test;ApplicationIntent=ReadOnly;", options.ReadOnlyConnectionString);
+    }
+
+    [Fact]
+    public void EnablePerformanceLogging_DefaultsToFalse()
+    {
+        // Arrange & Act
+        var options = new DatabaseOptions();
+
+        // Assert
+        Assert.False(options.EnablePerformanceLogging);
+    }
+
+    [Fact]
+    public void EnablePerformanceLogging_CanBeSetToTrue()
+    {
+        // Arrange
+        var options = new DatabaseOptions
+        {
+            EnablePerformanceLogging = true
+        };
+
+        // Act & Assert
+        Assert.True(options.EnablePerformanceLogging);
     }
 
     [Fact]
