@@ -39,6 +39,21 @@ public interface IReadRepository<T, TKey> : IBaseRepository<T, TKey> where T : c
     /// <returns>Paginated list of entities</returns>
     Task<PageResponse<T>> GetPagedListAsync(int currentPage, int pageSize, bool includeDetails = false,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if an entity with the given primary key exists.
+    /// </summary>
+    /// <param name="id">Primary key of the entity to check</param>
+    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>True if entity exists, false otherwise</returns>
+    Task<bool> ExistsAsync(TKey id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if any entities exist in the repository.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>True if any entities exist, false otherwise</returns>
+    Task<bool> AnyAsync(CancellationToken cancellationToken = default);
 }
 
 public interface IReadRepository<T> : IReadRepository<T, KeyType> where T : class, IEntity, new();

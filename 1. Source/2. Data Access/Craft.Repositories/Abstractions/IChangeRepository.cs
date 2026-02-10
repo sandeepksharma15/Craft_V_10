@@ -62,6 +62,26 @@ public interface IChangeRepository<T, TKey> : IReadRepository<T, TKey> where T :
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The list of updated entities.</returns>
     Task<List<T>> UpdateRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Restores a soft-deleted entity. Only works if the entity implements <see cref="ISoftDelete"/>.
+    /// </summary>
+    /// <param name="entity">Entity to be restored.</param>
+    /// <param name="autoSave">Set false to save changes later by calling SaveChangesAsync manually. Default is true.</param>
+    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The restored entity.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the entity does not implement ISoftDelete.</exception>
+    Task<T> RestoreAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Restores multiple soft-deleted entities. Only works if the entities implement <see cref="ISoftDelete"/>.
+    /// </summary>
+    /// <param name="entities">Entities to be restored.</param>
+    /// <param name="autoSave">Set false to save changes later by calling SaveChangesAsync manually. Default is true.</param>
+    /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The list of restored entities.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if any entity does not implement ISoftDelete.</exception>
+    Task<List<T>> RestoreRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

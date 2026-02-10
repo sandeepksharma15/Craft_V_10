@@ -72,6 +72,30 @@ public class ReadRepository<T, TKey>(IDbContext dbContext, ILogger<ReadRepositor
 
         return new PageResponse<T>(items: pagedItems, totalCount, currentPage, pageSize);
     }
+
+    /// <inheritdoc />
+    public virtual async Task<bool> ExistsAsync(TKey id, CancellationToken cancellationToken = default)
+    {
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[ReadRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"ExistsAsync\"] Id: [\"{id}\"]");
+
+        return await _dbSet
+            .AsNoTracking()
+            .AnyAsync(e => e.Id!.Equals(id), cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+    {
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[ReadRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"AnyAsync\"]");
+
+        return await _dbSet
+            .AsNoTracking()
+            .AnyAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
 }
 
 public class ReadRepository<T>(IDbContext dbContext, ILogger<ReadRepository<T, KeyType>> logger)

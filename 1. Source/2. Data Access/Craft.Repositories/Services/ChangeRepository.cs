@@ -45,14 +45,41 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
+        if (!entityList.Any())
+            return entityList;
+
         await _dbSet.AddRangeAsync(entityList, cancellationToken).ConfigureAwait(false);
 
         if (autoSave)
         {
-            await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            // Use transaction for large batch operations to ensure atomicity
+            if (entityList.Count > 100)
+            {
+                await using var transaction = await _appDbContext.Database
+                    .BeginTransactionAsync(cancellationToken)
+                    .ConfigureAwait(false);
 
-            foreach (var entity in entityList)
-                _appDbContext.Entry(entity).State = EntityState.Detached;
+                try
+                {
+                    await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+                    foreach (var entity in entityList)
+                        _appDbContext.Entry(entity).State = EntityState.Detached;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                    throw;
+                }
+            }
+            else
+            {
+                await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+                foreach (var entity in entityList)
+                    _appDbContext.Entry(entity).State = EntityState.Detached;
+            }
         }
 
         return entityList;
@@ -93,6 +120,9 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
+        if (!entityList.Any())
+            return entityList;
+
         var softDeleteEntities = new List<T>();
         var hardDeleteEntities = new List<T>();
 
@@ -115,19 +145,43 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
             _dbSet.UpdateRange(softDeleteEntities);
         }
 
-            if (hardDeleteEntities.Count > 0)
-                _dbSet.RemoveRange(hardDeleteEntities);
+        if (hardDeleteEntities.Count > 0)
+            _dbSet.RemoveRange(hardDeleteEntities);
 
-            if (autoSave)
+        if (autoSave)
+        {
+            // Use transaction for large batch operations to ensure atomicity
+            if (entityList.Count > 100)
+            {
+                await using var transaction = await _appDbContext.Database
+                    .BeginTransactionAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                try
+                {
+                    await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+                    foreach (var entity in entityList)
+                        _appDbContext.Entry(entity).State = EntityState.Detached;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                    throw;
+                }
+            }
+            else
             {
                 await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                 foreach (var entity in entityList)
                     _appDbContext.Entry(entity).State = EntityState.Detached;
             }
-
-            return entityList;
         }
+
+        return entityList;
+    }
 
     /// <inheritdoc/>
     public virtual async Task<T> UpdateAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
@@ -141,8 +195,17 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         if (autoSave)
         {
-            await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            _appDbContext.Entry(entity).State = EntityState.Detached;
+            try
+            {
+                await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                _appDbContext.Entry(entity).State = EntityState.Detached;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning(ex, "Concurrency conflict updating {EntityType} with Id {EntityId}", 
+                    typeof(T).Name, entity.Id);
+                throw;
+            }
         }
 
         return entity;
@@ -158,14 +221,133 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
+        if (!entityList.Any())
+            return entityList;
+
         _dbSet.UpdateRange(entityList);
 
         if (autoSave)
         {
-            await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                // Use transaction for large batch operations to ensure atomicity
+                if (entityList.Count > 100)
+                {
+                    await using var transaction = await _appDbContext.Database
+                        .BeginTransactionAsync(cancellationToken)
+                        .ConfigureAwait(false);
 
-            foreach (var entity in entityList)
-                _appDbContext.Entry(entity).State = EntityState.Detached;
+                    try
+                    {
+                        await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+                        foreach (var entity in entityList)
+                            _appDbContext.Entry(entity).State = EntityState.Detached;
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                        throw;
+                    }
+                }
+                else
+                {
+                    await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+                    foreach (var entity in entityList)
+                        _appDbContext.Entry(entity).State = EntityState.Detached;
+                }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning(ex, "Concurrency conflict updating range of {EntityType}", typeof(T).Name);
+                throw;
+            }
+        }
+
+        return entityList;
+    }
+
+    /// <inheritdoc/>
+    public virtual async Task<T> RestoreAsync(T entity, bool autoSave = true, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+
+        if (entity is not ISoftDelete softDeleteEntity)
+            throw new InvalidOperationException($"Entity type {typeof(T).Name} does not implement ISoftDelete and cannot be restored.");
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[ChangeRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"RestoreAsync\"] Id: [\"{entity.Id}\"]");
+
+        softDeleteEntity.IsDeleted = false;
+        _dbSet.Update(entity);
+
+        if (autoSave)
+        {
+            await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            _appDbContext.Entry(entity).State = EntityState.Detached;
+        }
+
+        return entity;
+    }
+
+    /// <inheritdoc/>
+    public virtual async Task<List<T>> RestoreRangeAsync(IEnumerable<T> entities, bool autoSave = true, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(entities, nameof(entities));
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"[ChangeRepository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"RestoreRangeAsync\"]");
+
+        var entityList = entities.ToList();
+
+        if (!entityList.Any())
+            return entityList;
+
+        // Validate all entities implement ISoftDelete
+        var nonSoftDeleteEntities = entityList.Where(e => e is not ISoftDelete).ToList();
+        if (nonSoftDeleteEntities.Any())
+            throw new InvalidOperationException($"Entity type {typeof(T).Name} does not implement ISoftDelete and cannot be restored. {nonSoftDeleteEntities.Count} entities in the collection do not support soft delete.");
+
+        foreach (var entity in entityList)
+        {
+            var softDeleteEntity = (ISoftDelete)entity;
+            softDeleteEntity.IsDeleted = false;
+        }
+
+        _dbSet.UpdateRange(entityList);
+
+        if (autoSave)
+        {
+            // Use transaction for large batch operations to ensure atomicity
+            if (entityList.Count > 100)
+            {
+                await using var transaction = await _appDbContext.Database
+                    .BeginTransactionAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                try
+                {
+                    await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+                    foreach (var entity in entityList)
+                        _appDbContext.Entry(entity).State = EntityState.Detached;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                    throw;
+                }
+            }
+            else
+            {
+                await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+                foreach (var entity in entityList)
+                    _appDbContext.Entry(entity).State = EntityState.Detached;
+            }
         }
 
         return entityList;

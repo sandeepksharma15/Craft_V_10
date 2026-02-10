@@ -253,5 +253,101 @@ public class ReadRepositoryTests
         cts.Cancel();
         await Assert.ThrowsAsync<OperationCanceledException>(() => repo.GetPagedListAsync(1, 1, cancellationToken: cts.Token));
     }
+
+    [Fact]
+    public async Task ExistsAsync_ReturnsTrue_WhenEntityExists()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+        var repo = CreateRepository(context);
+
+        // Act
+        var exists = await repo.ExistsAsync(CountrySeed.COUNTRY_ID_1);
+
+        // Assert
+        Assert.True(exists);
+    }
+
+    [Fact]
+    public async Task ExistsAsync_ReturnsFalse_WhenEntityDoesNotExist()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+        var repo = CreateRepository(context);
+
+        // Act
+        var exists = await repo.ExistsAsync(9999);
+
+        // Assert
+        Assert.False(exists);
+    }
+
+    [Fact]
+    public async Task ExistsAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+        var repo = CreateRepository(context);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAsync<OperationCanceledException>(() => repo.ExistsAsync(CountrySeed.COUNTRY_ID_1, cts.Token));
+    }
+
+    [Fact]
+    public async Task AnyAsync_ReturnsTrue_WhenEntitiesExist()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+        var repo = CreateRepository(context);
+
+        // Act
+        var any = await repo.AnyAsync();
+
+        // Assert
+        Assert.True(any);
+    }
+
+    [Fact]
+    public async Task AnyAsync_ReturnsFalse_WhenNoEntitiesExist()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+        context.Countries!.RemoveRange(context.Countries);
+        await context.SaveChangesAsync();
+        var repo = CreateRepository(context);
+
+        // Act
+        var any = await repo.AnyAsync();
+
+        // Assert
+        Assert.False(any);
+    }
+
+    [Fact]
+    public async Task AnyAsync_RespectsCancellationToken()
+    {
+        // Arrange
+        var options = CreateOptions();
+        await using var context = new TestDbContext(options);
+        context.Database.EnsureCreated();
+        var repo = CreateRepository(context);
+        using var cts = new CancellationTokenSource();
+
+        // Act & Assert
+        cts.Cancel();
+        await Assert.ThrowsAsync<OperationCanceledException>(() => repo.AnyAsync(cts.Token));
+    }
 }
 
