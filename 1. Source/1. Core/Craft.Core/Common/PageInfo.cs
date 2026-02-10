@@ -1,9 +1,40 @@
 ﻿namespace Craft.Core;
 
+/// <summary>
+/// Represents pagination information for a paged result set.
+/// </summary>
 public class PageInfo
 {
-    public int CurrentPage { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
+    private int _currentPage = 1;
+    private int _pageSize = 10;
+
+    /// <summary>
+    /// Gets or sets the current page number (1-based). Defaults to 1.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when value is less than 1.</exception>
+    public int CurrentPage
+    {
+        get => _currentPage;
+        set => _currentPage = value < 1
+            ? throw new ArgumentOutOfRangeException(nameof(CurrentPage), "Current page must be at least 1.")
+            : value;
+    }
+
+    /// <summary>
+    /// Gets or sets the number of items per page. Defaults to 10.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when value is less than 1.</exception>
+    public int PageSize
+    {
+        get => _pageSize;
+        set => _pageSize = value < 1
+            ? throw new ArgumentOutOfRangeException(nameof(PageSize), "Page size must be at least 1.")
+            : value;
+    }
+
+    /// <summary>
+    /// Gets or sets the total number of items across all pages.
+    /// </summary>
     public long TotalCount { get; set; } = 0;
 
     /// <summary>

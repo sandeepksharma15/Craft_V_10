@@ -9,6 +9,8 @@
 		<RootNamespace>Craft.Core</RootNamespace>
 		<AssemblyVersion>1.0.32.9</AssemblyVersion>
 		<FileVersion>1.0.0.9</FileVersion>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -17,10 +19,6 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Request\" />
 	</ItemGroup>
 
 </Project>
