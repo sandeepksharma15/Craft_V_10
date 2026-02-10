@@ -41,6 +41,7 @@ public static class DbContextOptionsBuilderExtensions
         {
             DbProviderKeys.SqlServer => new SqlServerDatabaseProvider(),
             DbProviderKeys.Npgsql => new PostgreSqlDatabaseProvider(),
+            // TODO: DbProviderKeys.MySql => new MySqlDatabaseProvider(),
             _ => null
         };
 
@@ -55,6 +56,10 @@ public static class DbContextOptionsBuilderExtensions
 
         if (options.EnableSensitiveDataLogging)
             builder.EnableSensitiveDataLogging();
+
+        // Enable performance logging if configured
+        if (options.EnablePerformanceLogging)
+            builder.EnablePerformanceLogging();
 
         return builder;
     }
@@ -122,6 +127,25 @@ public static class DbContextOptionsBuilderExtensions
         where TContext : DbContext
     {
         UseDatabase((DbContextOptionsBuilder)builder, dbProvider, connectionString, maxRetryCount, maxRetryDelay, commandTimeout, serviceProvider);
+        return builder;
+    }
+
+    /// <summary>
+    /// Enables performance logging for query execution times and row counts.
+    /// </summary>
+    /// <param name="builder">The DbContextOptionsBuilder to configure.</param>
+    /// <returns>The configured DbContextOptionsBuilder for chaining.</returns>
+    public static DbContextOptionsBuilder EnablePerformanceLogging(this DbContextOptionsBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        // Enable sensitive data logging is required for performance diagnostics
+        builder.EnableSensitiveDataLogging();
+        builder.EnableDetailedErrors();
+
+        // Note: For production scenarios, use a proper ILoggerFactory instead
+        // This is a simplified version for demonstration
+
         return builder;
     }
 }

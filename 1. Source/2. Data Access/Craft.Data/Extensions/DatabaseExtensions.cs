@@ -26,10 +26,12 @@ public static class DatabaseExtensions
         // Register database providers
         services.AddSingleton<IDatabaseProvider, SqlServerDatabaseProvider>();
         services.AddSingleton<IDatabaseProvider, PostgreSqlDatabaseProvider>();
+        // TODO: Add MySqlDatabaseProvider once implemented
 
         // Register connection string handlers
         services.AddSingleton<IConnectionStringHandler, SqlServerConnectionStringHandler>();
         services.AddSingleton<IConnectionStringHandler, PostgreSqlConnectionStringHandler>();
+        // TODO: Add MySqlConnectionStringHandler once implemented
         services.AddSingleton<ConnectionStringService>();
 
         // Register all ICustomSeeder implementations across all assemblies as transient services
@@ -40,6 +42,9 @@ public static class DatabaseExtensions
 
         // Register the tenant-aware DbContext factory
         services.AddScoped(typeof(IDbContextFactory<>), typeof(TenantDbContextFactory<>));
+
+        // Add startup connection validation
+        services.AddHostedService<DatabaseConnectionValidator>();
 
         return services;
     }

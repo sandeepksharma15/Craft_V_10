@@ -19,7 +19,7 @@ public class MultiTenancyFeature : IDbContextFeature
     public MultiTenancyFeature(ITenant currentTenant) => _currentTenant = currentTenant;
 
     /// <summary>
-    /// Applies global query filter to include only current tenant's data.
+    /// Applies global query filter to include only current tenant's data and configures indexes.
     /// </summary>
     public void ConfigureModel(ModelBuilder modelBuilder)
     {
@@ -37,6 +37,12 @@ public class MultiTenancyFeature : IDbContextFeature
                     parameter);
 
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+
+                // Add index on TenantId for efficient tenant data isolation
+                // This is CRITICAL for multi-tenant query performance
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(IHasTenant.TenantId))
+                    .HasDatabaseName($"IX_{entityType.GetTableName()}_TenantId");
             }
         }
     }

@@ -1,18 +1,22 @@
 using Craft.Data.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Craft.Data.Tests.Helpers;
 
 public class CustomSeederRunnerTests
 {
+    private static Mock<ILogger<CustomSeederRunner>> CreateMockLogger() => new();
+
     [Fact]
     public async Task RunSeedersAsync_NoSeeders_DoesNotThrow()
     {
         // Arrange
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
-        var runner = new CustomSeederRunner(provider);
+        var logger = CreateMockLogger();
+        var runner = new CustomSeederRunner(provider, logger.Object);
         var token = CancellationToken.None;
 
         // Act / Assert
@@ -33,7 +37,8 @@ public class CustomSeederRunnerTests
         var services = new ServiceCollection();
         services.AddSingleton(seederMock.Object);
         var provider = services.BuildServiceProvider();
-        var runner = new CustomSeederRunner(provider);
+        var logger = CreateMockLogger();
+        var runner = new CustomSeederRunner(provider, logger.Object);
 
         // Act
         await runner.RunSeedersAsync(token);
@@ -69,7 +74,8 @@ public class CustomSeederRunnerTests
         services.AddSingleton(second.Object);
         services.AddSingleton(third.Object);
         var provider = services.BuildServiceProvider();
-        var runner = new CustomSeederRunner(provider);
+        var logger = CreateMockLogger();
+        var runner = new CustomSeederRunner(provider, logger.Object);
 
         // Act
         await runner.RunSeedersAsync(token);
@@ -97,7 +103,8 @@ public class CustomSeederRunnerTests
         services.AddSingleton(first.Object);
         services.AddSingleton(second.Object);
         var provider = services.BuildServiceProvider();
-        var runner = new CustomSeederRunner(provider);
+        var logger = CreateMockLogger();
+        var runner = new CustomSeederRunner(provider, logger.Object);
 
         // Act / Assert
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunSeedersAsync(token));
@@ -120,7 +127,8 @@ public class CustomSeederRunnerTests
         var services = new ServiceCollection();
         services.AddSingleton(seederMock.Object);
         var provider = services.BuildServiceProvider();
-        var runner = new CustomSeederRunner(provider);
+        var logger = CreateMockLogger();
+        var runner = new CustomSeederRunner(provider, logger.Object);
 
         // Act
         await runner.RunSeedersAsync(token);
@@ -150,7 +158,8 @@ public class CustomSeederRunnerTests
         var services = new ServiceCollection();
         services.AddSingleton(seederMock.Object);
         var provider = services.BuildServiceProvider();
-        var runner = new CustomSeederRunner(provider);
+        var logger = CreateMockLogger();
+        var runner = new CustomSeederRunner(provider, logger.Object);
 
         // Act / Assert
         await Assert.ThrowsAsync<TaskCanceledException>(() => runner.RunSeedersAsync(token));

@@ -10,7 +10,7 @@ namespace Craft.Data.DbContextFeatures;
 public class SoftDeleteFeature : IDbContextFeature
 {
     /// <summary>
-    /// Applies global query filter to exclude soft-deleted entities.
+    /// Applies global query filter to exclude soft-deleted entities and configures indexes.
     /// </summary>
     public void ConfigureModel(ModelBuilder modelBuilder)
     {
@@ -27,6 +27,13 @@ public class SoftDeleteFeature : IDbContextFeature
                     parameter);
 
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+
+                // Add index on IsDeleted for efficient query filtering
+                // Using filtered index (SQL Server) to only index non-deleted records
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(ISoftDelete.IsDeleted))
+                    .HasDatabaseName($"IX_{entityType.GetTableName()}_IsDeleted")
+                    .HasFilter($"[{nameof(ISoftDelete.IsDeleted)}] = 0");
             }
         }
     }

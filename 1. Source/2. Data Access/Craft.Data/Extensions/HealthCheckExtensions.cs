@@ -104,6 +104,9 @@ public static class HealthCheckExtensions
             DbProviderKeys.Npgsql => builder.AddPostgreSqlHealthCheck(connectionString, name, failureStatus, tags,
                 timeout),
 
+            // TODO: Add MySQL health check once AspNetCore.HealthChecks.MySql package is added
+            // DbProviderKeys.MySql => builder.AddMySqlHealthCheck(connectionString, name, failureStatus, tags, timeout),
+
             _ => throw new NotSupportedException($"Health check for provider '{dbProvider}' is not supported.")
         };
     }

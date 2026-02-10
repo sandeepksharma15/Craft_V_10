@@ -13,8 +13,54 @@ namespace Craft.Data;
 /// </summary>
 /// <typeparam name="T">Concrete DbContext type.</typeparam>
 /// <remarks>
-/// IMPORTANT: The returned DbContext must be disposed by the caller.
-/// Consider using 'using' statements or dependency injection scopes to ensure proper disposal.
+/// <para>
+/// <strong>IMPORTANT - Disposal Requirements:</strong>
+/// </para>
+/// <para>
+/// The returned DbContext MUST be disposed by the caller to prevent connection leaks and memory issues.
+/// The factory does NOT track or dispose created instances.
+/// </para>
+/// <para>
+/// <strong>Recommended Disposal Patterns:</strong>
+/// </para>
+/// <list type="bullet">
+/// <item>
+/// <description>
+/// <strong>Using Statement (Preferred):</strong>
+/// <code>
+/// await using var context = _factory.CreateDbContext();
+/// // Use context
+/// </code>
+/// </description>
+/// </item>
+/// <item>
+/// <description>
+/// <strong>Dependency Injection Scope:</strong>
+/// Register DbContext with scoped lifetime and let DI handle disposal.
+/// </description>
+/// </item>
+/// <item>
+/// <description>
+/// <strong>Try-Finally:</strong>
+/// <code>
+/// var context = _factory.CreateDbContext();
+/// try
+/// {
+///     // Use context
+/// }
+/// finally
+/// {
+///     await context.DisposeAsync();
+/// }
+/// </code>
+/// </description>
+/// </item>
+/// </list>
+/// <para>
+/// <strong>Connection Pooling:</strong>
+/// Proper disposal is critical for connection pool efficiency. Undisposed contexts hold database connections,
+/// exhausting the pool and causing timeouts under load.
+/// </para>
 /// </remarks>
 public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContext, IDbContext
 {
@@ -42,7 +88,12 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
     /// <summary>
     /// Creates a DbContext configured for the current tenant (or shared defaults if multi-tenancy disabled).
     /// </summary>
-    /// <returns>A configured DbContext instance. Must be disposed by caller.</returns>
+    /// <returns>A configured DbContext instance. MUST be disposed by caller using 'await using' or 'using' statement.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when tenant configuration is invalid or provider cannot be resolved.</exception>
+    /// <exception cref="NotSupportedException">Thrown when the configured database provider is not registered.</exception>
+    /// <remarks>
+    /// This method does NOT dispose the context. Caller is responsible for proper disposal to prevent connection leaks.
+    /// </remarks>
     public T CreateDbContext()
     {
         var tenantId = _currentTenant?.GetId() ?? default;
@@ -96,6 +147,19 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug("Multi-tenancy disabled or no tenant context. Using shared database configuration.");
 
+            // Validate shared configuration
+            if (string.IsNullOrWhiteSpace(_dbOptions.ConnectionString))
+            {
+                _logger.LogError("Shared database connection string is not configured");
+                throw new InvalidOperationException("Database connection string is not configured in DatabaseOptions");
+            }
+
+            if (string.IsNullOrWhiteSpace(_dbOptions.DbProvider))
+            {
+                _logger.LogError("Shared database provider is not configured");
+                throw new InvalidOperationException("Database provider is not configured in DatabaseOptions");
+            }
+
             return (_dbOptions.ConnectionString, _dbOptions.DbProvider);
         }
 
@@ -118,14 +182,17 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
 
     private (string ConnectionString, string ProviderKey) ResolvePerTenant(ITenant fullTenant)
     {
-        if (string.IsNullOrEmpty(fullTenant.ConnectionString))
+        if (string.IsNullOrWhiteSpace(fullTenant.ConnectionString))
         {
-            if (_logger.IsEnabled(LogLevel.Error))
-                _logger.LogError(
-                    "Tenant {TenantIdentifier} is configured as PerTenant but has no connection string defined.",
-                    fullTenant.Identifier);
+            _logger.LogError(
+                "Tenant {TenantIdentifier} (ID: {TenantId}) is configured as PerTenant but has no connection string defined. " +
+                "Consider using Hybrid strategy or providing a connection string.",
+                fullTenant.Identifier,
+                fullTenant.GetId());
 
-            throw new InvalidOperationException("Tenant is PerTenant but has no connection string defined.");
+            throw new InvalidOperationException(
+                $"Tenant '{fullTenant.Identifier}' is PerTenant but has no connection string defined. " +
+                "Provide a connection string or change to Shared/Hybrid strategy.");
         }
 
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -133,7 +200,22 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
                 "Tenant {TenantIdentifier} uses dedicated database (PerTenant strategy).",
                 fullTenant.Identifier);
 
-        return (fullTenant.ConnectionString, NormalizeProvider(fullTenant.DbProvider));
+        var provider = NormalizeProvider(fullTenant.DbProvider);
+
+        // Validate provider is registered
+        if (!_providers.Any(p => p.CanHandle(provider)))
+        {
+            _logger.LogWarning(
+                "Tenant {TenantIdentifier} specifies provider '{Provider}' which is not registered. " +
+                "Falling back to shared provider '{SharedProvider}'",
+                fullTenant.Identifier,
+                provider,
+                _dbOptions.DbProvider);
+
+            provider = _dbOptions.DbProvider;
+        }
+
+        return (fullTenant.ConnectionString, provider);
     }
 
     private (string ConnectionString, string ProviderKey) ResolveHybrid(ITenant fullTenant)

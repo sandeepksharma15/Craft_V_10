@@ -16,12 +16,18 @@ public static class MigrationExtensions
     /// </summary>
     /// <typeparam name="TContext">The DbContext type to migrate.</typeparam>
     /// <param name="app">The web application.</param>
+    /// <param name="migrationTimeout">Optional timeout for migration operations (default: 10 minutes).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
-    public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(this WebApplication app, CancellationToken cancellationToken = default)
+    public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(
+        this WebApplication app,
+        TimeSpan? migrationTimeout = null,
+        CancellationToken cancellationToken = default)
         where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(app);
+
+        migrationTimeout ??= TimeSpan.FromMinutes(10);
 
         using var scope = app.Services.CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<TContext>>();
@@ -32,27 +38,41 @@ public static class MigrationExtensions
 
             // Apply migrations
             var context = scope.ServiceProvider.GetRequiredService<TContext>();
-            var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken);
-            var pendingCount = pendingMigrations.Count();
 
-            if (pendingCount > 0)
+            // Set command timeout for migrations
+            var previousTimeout = context.Database.GetCommandTimeout();
+            context.Database.SetCommandTimeout(migrationTimeout.Value);
+
+            try
             {
-                logger.LogInformation(
-                    "Applying {MigrationCount} pending migrations for {ContextType}",
-                    pendingCount,
-                    typeof(TContext).Name);
+                var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken);
+                var pendingCount = pendingMigrations.Count();
 
-                await context.Database.MigrateAsync(cancellationToken);
+                if (pendingCount > 0)
+                {
+                    logger.LogInformation(
+                        "Applying {MigrationCount} pending migrations for {ContextType} with timeout of {Timeout} minutes",
+                        pendingCount,
+                        typeof(TContext).Name,
+                        migrationTimeout.Value.TotalMinutes);
 
-                logger.LogInformation(
-                    "Successfully applied migrations for {ContextType}",
-                    typeof(TContext).Name);
+                    await context.Database.MigrateAsync(cancellationToken);
+
+                    logger.LogInformation(
+                        "Successfully applied migrations for {ContextType}",
+                        typeof(TContext).Name);
+                }
+                else
+                {
+                    logger.LogInformation(
+                        "No pending migrations for {ContextType}",
+                        typeof(TContext).Name);
+                }
             }
-            else
+            finally
             {
-                logger.LogInformation(
-                    "No pending migrations for {ContextType}",
-                    typeof(TContext).Name);
+                // Restore previous timeout
+                context.Database.SetCommandTimeout(previousTimeout);
             }
 
             // Run custom seeders

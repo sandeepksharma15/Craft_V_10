@@ -18,6 +18,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Include="Services\DatabaseConnectionValidator.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
 	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
 	  <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.0" />

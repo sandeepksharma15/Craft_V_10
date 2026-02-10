@@ -9,6 +9,17 @@ namespace Craft.Data.DbContextFeatures;
 /// </summary>
 public class AuditTrailFeature : IDbContextFeature, IDbSetProvider
 {
+    // Cache auditable types for performance - initialized once and reused
+    private static readonly Lazy<HashSet<Type>> _auditableTypes = new(() =>
+    {
+        var typeNames = AuditingHelpers.GetAuditableBaseEntityTypes();
+        return new HashSet<Type>(
+            AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => typeNames.Contains(t.Name))
+        );
+    });
+
     /// <summary>
     /// Indicates this feature requires a DbSet for AuditTrail.
     /// </summary>
@@ -42,17 +53,15 @@ public class AuditTrailFeature : IDbContextFeature, IDbSetProvider
     /// This feature focuses solely on audit trail creation.
     /// For concurrency stamp management, use <see cref="ConcurrencyFeature"/>.
     /// For version tracking, use <see cref="VersionTrackingFeature"/>.
+    /// Performance optimized: Uses cached type HashSet for O(1) lookups instead of string comparisons.
     /// </remarks>
     public void OnBeforeSaveChanges(DbContext context, KeyType userId)
     {
-        // Get auditable entity types
-        var auditableTypes = AuditingHelpers.GetAuditableBaseEntityTypes();
-
-        // Get all changed entries for auditable entities
+        // Get all changed entries for auditable entities using cached type set
         var entries = context.ChangeTracker.Entries()
             .Where(e => e.Entity is not AuditTrail) // Prevent self-auditing
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Where(e => auditableTypes.Contains(e.Entity.GetType().Name))
+            .Where(e => _auditableTypes.Value.Contains(e.Entity.GetType()))
             .ToList();
 
         // Create audit trail entries
