@@ -28,7 +28,7 @@ public abstract class BaseEntity : BaseEntity<KeyType>, IEntity, IModel
 /// </summary>
 /// <typeparam name="TKey">The type of the entity identifier.</typeparam>
 [Serializable]
-public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDelete, IModel<TKey>
+public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDelete, IModel<TKey>, IEquatable<BaseEntity<TKey>>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="BaseEntity{TKey}"/> class.
@@ -86,15 +86,30 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
     /// <param name="obj">The object to compare with the current entity.</param>
     /// <returns>True if the specified object is equal to the current entity; otherwise, false.</returns>
     public override bool Equals(object? obj)
+        => obj is BaseEntity<TKey> other && Equals(other);
+
+    /// <summary>
+    /// Determines whether the specified entity is equal to the current entity.
+    /// For multi-tenant entities, equality considers both TenantId and Id.
+    /// </summary>
+    /// <param name="other">The entity to compare with the current entity.</param>
+    /// <returns>True if the specified entity is equal to the current entity; otherwise, false.</returns>
+    public bool Equals(BaseEntity<TKey>? other)
     {
-        if (obj is not BaseEntity<TKey>) return false;
+        if (other is null)
+            return false;
 
-        if (ReferenceEquals(this, obj)) return true;
+        if (ReferenceEquals(this, other))
+            return true;
 
-        if (GetType() != obj.GetType()) return false;
+        if (GetType() != other.GetType())
+            return false;
 
         // Different tenants may have an entity with same Id.
-        return (this is not IHasTenant self || obj is not IHasTenant other || self.TenantId == other.TenantId) && Equals(Id, ((BaseEntity<TKey>)obj).Id);
+        if (this is IHasTenant self && other is IHasTenant otherTenant && self.TenantId != otherTenant.TenantId)
+            return false;
+
+        return EqualityComparer<TKey>.Default.Equals(Id, other.Id);
     }
 
     /// <summary>
