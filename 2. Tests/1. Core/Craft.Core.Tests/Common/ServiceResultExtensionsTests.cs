@@ -646,37 +646,170 @@ public class ServiceResultExtensionsTests
 
     #endregion
 
-    #region ToServiceResult (non-generic) Tests
+        #region ToServiceResult (non-generic) Tests
 
-    [Fact]
-    public void ToServiceResult_WithValue_CreatesSuccessResult()
-    {
-        // Arrange
-        var baseResult = ServiceResult.Success();
+        [Fact]
+        public void ToServiceResult_WithValue_CreatesSuccessResult()
+        {
+            // Arrange
+            var baseResult = ServiceResult.Success();
 
-        // Act
-        var typedResult = baseResult.ToServiceResult(42);
+            // Act
+            var typedResult = baseResult.ToServiceResult(42);
 
-        // Assert
-        Assert.True(typedResult.IsSuccess);
-        Assert.Equal(42, typedResult.Value);
-    }
+            // Assert
+            Assert.True(typedResult.IsSuccess);
+            Assert.Equal(42, typedResult.Value);
+        }
 
-    [Fact]
-    public void ToServiceResult_FromFailure_PropagatesError()
-    {
-        // Arrange
-        var baseResult = ServiceResult.Failure("Error message", ErrorType.Validation, 400);
+        [Fact]
+        public void ToServiceResult_FromFailure_PropagatesError()
+        {
+            // Arrange
+            var baseResult = ServiceResult.Failure("Error message", ErrorType.Validation, 400);
 
-        // Act
-        var typedResult = baseResult.ToServiceResult(42);
+            // Act
+            var typedResult = baseResult.ToServiceResult(42);
 
-        // Assert
-        Assert.False(typedResult.IsSuccess);
-        Assert.Equal("Error message", typedResult.ErrorMessage);
-        Assert.Equal(ErrorType.Validation, typedResult.ErrorType);
-        Assert.Equal(400, typedResult.StatusCode);
-    }
+            // Assert
+            Assert.False(typedResult.IsSuccess);
+            Assert.Equal("Error message", typedResult.ErrorMessage);
+            Assert.Equal(ErrorType.Validation, typedResult.ErrorType);
+            Assert.Equal(400, typedResult.StatusCode);
+        }
 
-    #endregion
-}
+        #endregion
+
+        #region Async Edge Case Tests
+
+        [Fact]
+        public async Task MapAsync_PropagatesFailure_WhenResultIsFailure()
+        {
+            // Arrange
+            var resultTask = Task.FromResult(ServiceResult<int>.Failure("Original error", ErrorType.NotFound, 404));
+
+            // Act
+            var mapped = await resultTask.MapAsync(x => x * 2);
+
+            // Assert
+            Assert.False(mapped.IsSuccess);
+            Assert.Equal("Original error", mapped.ErrorMessage);
+            Assert.Equal(ErrorType.NotFound, mapped.ErrorType);
+            Assert.Equal(404, mapped.StatusCode);
+        }
+
+        [Fact]
+        public async Task MapAsync_WithAsyncMapper_PropagatesFailure_WhenResultIsFailure()
+        {
+            // Arrange
+            var resultTask = Task.FromResult(ServiceResult<int>.Failure("Original error", ErrorType.Validation, 400));
+
+            // Act
+            var mapped = await resultTask.MapAsync(async x =>
+            {
+                await Task.Delay(1);
+                return x.ToString();
+            });
+
+            // Assert
+            Assert.False(mapped.IsSuccess);
+            Assert.Equal("Original error", mapped.ErrorMessage);
+        }
+
+        [Fact]
+        public async Task BindAsync_PropagatesFailure_WhenResultIsFailure()
+        {
+            // Arrange
+            var resultTask = Task.FromResult(ServiceResult<int>.Failure("Original error", ErrorType.Internal, 500));
+
+            // Act
+            var bound = await resultTask.BindAsync(async x =>
+            {
+                await Task.Delay(1);
+                return ServiceResult<string>.Success($"Value: {x}");
+            });
+
+            // Assert
+            Assert.False(bound.IsSuccess);
+            Assert.Equal("Original error", bound.ErrorMessage);
+            Assert.Equal(ErrorType.Internal, bound.ErrorType);
+        }
+
+        [Fact]
+        public async Task TapAsync_DoesNotExecuteAction_WhenResultIsFailure()
+        {
+            // Arrange
+            var resultTask = Task.FromResult(ServiceResult<int>.Failure("Error"));
+            var actionExecuted = false;
+
+            // Act
+            var result = await resultTask.TapAsync(async _ =>
+            {
+                await Task.Delay(1);
+                actionExecuted = true;
+            });
+
+            // Assert
+            Assert.False(actionExecuted);
+            Assert.False(result.IsSuccess);
+        }
+
+        [Fact]
+        public async Task TapErrorAsync_DoesNotExecuteAction_WhenResultIsSuccess()
+        {
+            // Arrange
+            var resultTask = Task.FromResult(ServiceResult<int>.Success(42));
+            var actionExecuted = false;
+
+            // Act
+            var result = await resultTask.TapErrorAsync(async _ =>
+            {
+                await Task.Delay(1);
+                actionExecuted = true;
+            });
+
+            // Assert
+            Assert.False(actionExecuted);
+            Assert.True(result.IsSuccess);
+        }
+
+        [Fact]
+        public async Task MatchAsync_CallsOnFailure_WhenResultIsFailure()
+        {
+            // Arrange
+            var resultTask = Task.FromResult(ServiceResult<int>.Failure("Error occurred"));
+
+            // Act
+            var matched = await resultTask.MatchAsync(
+                async value =>
+                {
+                    await Task.Delay(1);
+                    return $"Success: {value}";
+                },
+                async result =>
+                {
+                    await Task.Delay(1);
+                    return $"Failure: {result.Message}";
+                });
+
+            // Assert
+            Assert.Equal("Failure: Error occurred", matched);
+        }
+
+        [Fact]
+            public async Task MapAsync_HandlesNullValue_ByReturnFailure()
+            {
+                // Arrange - Create a failure result to test the failure path
+                var resultTask = Task.FromResult(Craft.Core.ServiceResult<string>.Failure("Value is null"));
+
+                // Act
+                var mapped = await resultTask.MapAsync(x => x.Length);
+
+                // Assert
+                // When the result is a failure, map should propagate the failure
+                Assert.False(mapped.IsSuccess);
+                Assert.Equal("Value is null", mapped.ErrorMessage);
+            }
+
+            #endregion
+        }
