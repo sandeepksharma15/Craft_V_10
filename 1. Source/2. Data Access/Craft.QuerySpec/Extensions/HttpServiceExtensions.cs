@@ -1,3 +1,4 @@
+using Craft.Core;
 using Craft.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -426,3 +427,4 @@ public static class HttpServiceExtensions
 
     #endregion
 }
+

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Craft.Core;
 using Craft.Core.Common;
 using Microsoft.AspNetCore.Components;
@@ -217,7 +217,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     /// <param name="serviceResult">The HTTP service result containing validation errors.</param>
     /// <exception cref="ArgumentNullException">Thrown when serviceResult is null.</exception>
     /// <exception cref="ObjectDisposedException">Thrown when the component has been disposed.</exception>
-    public void DisplayErrors<T>(HttpServiceResult<T> serviceResult)
+    public void DisplayErrors<T>(ServiceResult<T> serviceResult)
     {
         ArgumentNullException.ThrowIfNull(serviceResult);
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -251,7 +251,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     /// <exception cref="ArgumentNullException">Thrown when serviceResult is null.</exception>
     /// <exception cref="ObjectDisposedException">Thrown when the component has been disposed.</exception>
     public async Task DisplayErrorsAsync<T>(
-        HttpServiceResult<T> serviceResult,
+        ServiceResult<T> serviceResult,
         HttpResponseMessage? responseMessage = null,
         CancellationToken cancellationToken = default)
     {
@@ -373,3 +373,4 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         }
     }
 }
+

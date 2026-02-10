@@ -1,4 +1,4 @@
-﻿using Craft.Repositories.Services;
+using Craft.Repositories.Services;
 using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -254,3 +254,4 @@ public class ReadRepositoryTests
         await Assert.ThrowsAsync<OperationCanceledException>(() => repo.GetPagedListAsync(1, 1, cancellationToken: cts.Token));
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using Craft.Core;
+using Craft.Core;
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 
@@ -103,3 +103,4 @@ public abstract class BaseDbContext<TContext> : DbContext, IDbContext where TCon
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 }
+

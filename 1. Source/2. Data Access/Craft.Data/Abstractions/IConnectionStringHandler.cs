@@ -1,4 +1,4 @@
-﻿namespace Craft.Data;
+namespace Craft.Data;
 
 public interface IConnectionStringHandler
 {
@@ -11,3 +11,4 @@ public interface IConnectionStringHandler
     bool Validate(string connectionString);
     string Mask(string connectionString);
 }
+

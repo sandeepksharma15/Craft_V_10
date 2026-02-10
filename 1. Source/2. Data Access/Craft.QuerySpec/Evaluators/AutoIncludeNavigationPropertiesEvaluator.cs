@@ -1,3 +1,4 @@
+using Craft.Core;
 namespace Craft.QuerySpec;
 
 /// <summary>
@@ -55,3 +56,4 @@ public sealed class AutoIncludeNavigationPropertiesEvaluator : IEvaluator
         return string.Empty;
     }
 }
+

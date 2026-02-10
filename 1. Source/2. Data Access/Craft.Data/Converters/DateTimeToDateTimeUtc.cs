@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Craft.Data;
 
@@ -21,3 +21,4 @@ public class DateTimeToDateTimeUtc : ValueConverter<DateTime, DateTime>
     {
     }
 }
+

@@ -1,3 +1,4 @@
+using Craft.Core;
 namespace Craft.QuerySpec;
 
 /// <summary>
@@ -81,3 +82,4 @@ public static class ComparisonTypeExtensions
         ];
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using Npgsql;
+using Npgsql;
 
 namespace Craft.Data;
 
@@ -79,3 +79,4 @@ public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
         }
     }
 }
+

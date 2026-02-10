@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+using Craft.Core;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Craft.Core;
 using Craft.Core.Common;
@@ -20,7 +21,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         _logger = logger;
     }
 
-    public virtual async Task<HttpServiceResult<IReadOnlyList<T>?>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<IReadOnlyList<T>?>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
@@ -34,16 +35,13 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
 
         // Convert to IReadOnlyList<T>
-        return new HttpServiceResult<IReadOnlyList<T>?>
-        {
-            Data = result.Data,
-            IsSuccess = result.IsSuccess,
-            Errors = result.Errors,
-            StatusCode = result.StatusCode
-        };
+        if (result.IsSuccess)
+            return ServiceResult<IReadOnlyList<T>?>.Success(result.Value);
+
+        return ServiceResult<IReadOnlyList<T>?>.Failure(result.Errors ?? [], statusCode: result.StatusCode);
     }
 
-    public virtual async Task<HttpServiceResult<T?>> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<T?>> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
@@ -57,7 +55,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public virtual async Task<HttpServiceResult<long>> GetCountAsync(CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<long>> GetCountAsync(CancellationToken cancellationToken = default)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[HttpReadService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
@@ -71,7 +69,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
         );
     }
 
-    public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize,
+    public virtual async Task<ServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize,
         bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(page, nameof(page));
@@ -101,4 +99,6 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
 /// </summary>
 public class HttpReadService<T>(Uri apiURL, HttpClient httpClient, ILogger<HttpReadService<T>> logger)
     : HttpReadService<T, KeyType>(apiURL, httpClient, logger), IHttpReadService<T> where T : class, IEntity, IModel, new();
+
+
 

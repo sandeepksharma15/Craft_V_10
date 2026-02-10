@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Craft.Domain;
@@ -118,3 +118,4 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
     public override string ToString()
         => $"[ENTITY: {GetType().Name}] Key = {Id}";
 }
+

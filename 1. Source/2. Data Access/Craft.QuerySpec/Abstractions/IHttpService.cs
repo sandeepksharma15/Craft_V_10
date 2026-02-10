@@ -1,4 +1,4 @@
-﻿using Craft.Core;
+using Craft.Core;
 using Craft.Core.Common;
 using Craft.Domain;
 using Craft.HttpServices;
@@ -16,7 +16,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing the entity or errors.</returns>
-    Task<HttpServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<ServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get a single entity by the given <paramref name="query"/>; returns null if no entry meets criteria
@@ -24,7 +24,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing the entity or errors.</returns>
-    Task<HttpServiceResult<TResult?>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    Task<ServiceResult<TResult?>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new();
 
     /// <summary>
@@ -33,7 +33,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result indicating success or errors.</returns>
-    Task<HttpServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<ServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a list of all the entities that meet the criteria by the given <paramref name="query"/>
@@ -41,7 +41,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing list of entities or errors.</returns>
-    Task<HttpServiceResult<List<T>?>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<ServiceResult<List<T>?>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a list of all the entities that meet the criteria by the given <paramref name="query"/>
@@ -49,7 +49,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing list of projected entities or errors.</returns>
-    Task<HttpServiceResult<List<TResult>?>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    Task<ServiceResult<List<TResult>?>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new();
 
     /// <summary>
@@ -58,7 +58,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing total count or errors.</returns>
-    Task<HttpServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<ServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a paginated list of entities.
@@ -66,7 +66,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing paginated list of entities or errors.</returns>
-    Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<ServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a paginated list of projected entities.
@@ -75,7 +75,7 @@ public interface IHttpService<T, ViewT, DataTransferT, TKey> : IHttpChangeServic
     /// <param name="query">A Query containing filtering and sorting parameters</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing paginated list of projected entities or errors.</returns>
-    Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    Task<ServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new();
 }
 
@@ -86,3 +86,4 @@ public interface IHttpService<T, ViewT, DataTransferT> : IHttpService<T, ViewT, 
 
 public interface IHttpService<T> : IHttpService<T, T, T>
     where T : class, IEntity, IModel, new();
+

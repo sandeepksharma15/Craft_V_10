@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -115,3 +115,4 @@ public class Tenant : Tenant<KeyType>, ITenant
     public Tenant(KeyType id, string name, string identifier, string logoUri, TenantType type)
         : base(id, name, identifier, logoUri, type) { }
 }
+

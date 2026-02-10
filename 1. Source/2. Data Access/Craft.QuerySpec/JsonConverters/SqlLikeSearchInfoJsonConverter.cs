@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+using Craft.Core;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Craft.Extensions.Expressions;
@@ -84,3 +85,4 @@ public class SqlLikeSearchInfoJsonConverter<T> : JsonConverter<SqlLikeSearchInfo
         writer.WriteEndObject();
     }
 }
+

@@ -83,3 +83,4 @@ public class DataProtectionEncryptor : IConfigurationEncryption
         return value.StartsWith(EncryptionPrefix, StringComparison.OrdinalIgnoreCase);
     }
 }
+

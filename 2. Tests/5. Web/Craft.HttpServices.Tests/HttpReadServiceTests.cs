@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Craft.Core;
@@ -31,10 +31,10 @@ public class HttpReadServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Contains(result.Data, e => e.Id == 1);
-        Assert.Contains(result.Data, e => e.Id == 2);
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.Count);
+        Assert.Contains(result.Value, e => e.Id == 1);
+        Assert.Contains(result.Value, e => e.Id == 2);
     }
 
     [Fact]
@@ -55,8 +55,8 @@ public class HttpReadServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
+        Assert.NotNull(result.Value);
+        Assert.Empty(result.Value);
     }
 
     [Fact]
@@ -173,8 +173,8 @@ public class HttpReadServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(42, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(42, result.Value.Id);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
     }
 
     [Fact]
@@ -303,7 +303,7 @@ public class HttpReadServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal(123L, result.Data);
+        Assert.Equal(123L, result.Value);
     }
 
     [Fact]
@@ -365,10 +365,10 @@ public class HttpReadServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Single(result.Data.Items);
-        Assert.Equal(1, result.Data.Items.First().Id);
-        Assert.Equal(10, result.Data.TotalCount);
+        Assert.NotNull(result.Value);
+        Assert.Single(result.Value.Items);
+        Assert.Equal(1, result.Value.Items.First().Id);
+        Assert.Equal(10, result.Value.TotalCount);
     }
 
     [Fact]
@@ -550,3 +550,4 @@ public class HttpReadServiceTests
 
     private static Uri ApiUrl => new("http://localhost/api/test");
 }
+

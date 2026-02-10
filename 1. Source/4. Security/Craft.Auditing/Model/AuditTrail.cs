@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json;
@@ -451,3 +451,4 @@ public class AuditTrail : BaseEntity, IAuditTrail
         return JsonSerializer.Serialize(value, SerializerOptions);
     }
 }
+

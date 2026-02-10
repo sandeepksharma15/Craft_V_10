@@ -1,3 +1,4 @@
+using Craft.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Notifications;
@@ -49,7 +50,7 @@ public class NotificationPreferenceService : INotificationPreferenceService
     }
 
     /// <inheritdoc/>
-    public async Task<Result<NotificationPreference>> UpdatePreferenceAsync(
+    public async Task<ServiceResult<NotificationPreference>> UpdatePreferenceAsync(
         NotificationPreference preference,
         CancellationToken cancellationToken = default)
     {
@@ -80,17 +81,17 @@ public class NotificationPreferenceService : INotificationPreferenceService
                 preference.UserId,
                 preference.Category ?? "default");
 
-            return Result<NotificationPreference>.CreateSuccess(preference);
+            return ServiceResult<NotificationPreference>.Success(preference);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to update notification preferences for user {UserId}", preference.UserId);
-            return Result<NotificationPreference>.CreateFailure($"Failed to update preferences: {ex.Message}");
+            return ServiceResult<NotificationPreference>.Failure($"Failed to update preferences: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<Result> SetEnabledChannelsAsync(
+    public async Task<ServiceResult> SetEnabledChannelsAsync(
         string userId,
         NotificationChannel channels,
         string? category = null,
@@ -123,7 +124,7 @@ public class NotificationPreferenceService : INotificationPreferenceService
     }
 
     /// <inheritdoc/>
-    public async Task<Result> RegisterPushSubscriptionAsync(
+    public async Task<ServiceResult> RegisterPushSubscriptionAsync(
         string userId,
         string endpoint,
         string publicKey,
@@ -145,14 +146,14 @@ public class NotificationPreferenceService : INotificationPreferenceService
     }
 
     /// <inheritdoc/>
-    public async Task<Result> RemovePushSubscriptionAsync(
+    public async Task<ServiceResult> RemovePushSubscriptionAsync(
         string userId,
         CancellationToken cancellationToken = default)
     {
         var preference = await GetPreferenceAsync(userId, null, cancellationToken);
         
         if (preference == null)
-            return Result.CreateSuccess();
+            return ServiceResult.Success();
 
         preference.PushEndpoint = null;
         preference.PushPublicKey = null;
@@ -186,3 +187,5 @@ public class NotificationPreferenceService : INotificationPreferenceService
         return requestedChannels & preference.EnabledChannels;
     }
 }
+
+

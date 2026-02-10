@@ -2,7 +2,7 @@ using Craft.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.DbContextFeatures;
+namespace Craft.Value.DbContextFeatures;
 
 /// <summary>
 /// Feature that configures ASP.NET Core Identity with custom table naming conventions.
@@ -82,3 +82,4 @@ public class IdentityFeature : IdentityFeature<CraftUser, CraftRole, KeyType>
     {
     }
 }
+

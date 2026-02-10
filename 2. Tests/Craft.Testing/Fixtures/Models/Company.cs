@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Craft.Domain;
 
 namespace Craft.Testing.Fixtures;
@@ -17,3 +17,4 @@ public class CompanyName
 {
     public string? Name { get; set; }
 }
+

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 
 namespace Craft.Core.Tests.Common;
@@ -203,3 +203,4 @@ public class ServerResponseTests
         Assert.Equal(404, statusCode.Value);
     }
 }
+

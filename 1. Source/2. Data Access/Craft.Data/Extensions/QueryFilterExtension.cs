@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Craft.Core;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -87,3 +87,4 @@ public static class QueryFilterExtension
         where T : class, IHasTenant, ISoftDelete
         => query?.IgnoreQueryFilters(s_tenantAndSoftDelete);
 }
+

@@ -1,4 +1,5 @@
-﻿using System.Data;
+using Craft.Core;
+using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
 using Craft.Utilities.Helpers;
@@ -65,3 +66,5 @@ public static class SearchExtension
             : source.Where(Expression.Lambda<Func<T, bool>>(expr, parameter));
     }
 }
+
+

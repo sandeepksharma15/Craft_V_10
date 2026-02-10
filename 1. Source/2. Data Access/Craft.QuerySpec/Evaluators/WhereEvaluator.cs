@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 public sealed class WhereEvaluator : IEvaluator
 {
@@ -16,3 +17,4 @@ public sealed class WhereEvaluator : IEvaluator
         return queryable;
     }
 }
+

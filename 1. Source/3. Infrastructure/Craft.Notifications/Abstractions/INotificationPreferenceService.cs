@@ -1,3 +1,5 @@
+using Craft.Core;
+
 namespace Craft.Notifications;
 
 /// <summary>
@@ -33,7 +35,7 @@ public interface INotificationPreferenceService
     /// <param name="preference">The preference to update.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result with updated preference.</returns>
-    Task<Result<NotificationPreference>> UpdatePreferenceAsync(
+    Task<ServiceResult<NotificationPreference>> UpdatePreferenceAsync(
         NotificationPreference preference,
         CancellationToken cancellationToken = default);
 
@@ -45,7 +47,7 @@ public interface INotificationPreferenceService
     /// <param name="category">Optional category.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> SetEnabledChannelsAsync(
+    Task<ServiceResult> SetEnabledChannelsAsync(
         string userId,
         NotificationChannel channels,
         string? category = null,
@@ -74,7 +76,7 @@ public interface INotificationPreferenceService
     /// <param name="auth">The push auth secret.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> RegisterPushSubscriptionAsync(
+    Task<ServiceResult> RegisterPushSubscriptionAsync(
         string userId,
         string endpoint,
         string publicKey,
@@ -87,7 +89,7 @@ public interface INotificationPreferenceService
     /// <param name="userId">The user ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> RemovePushSubscriptionAsync(
+    Task<ServiceResult> RemovePushSubscriptionAsync(
         string userId,
         CancellationToken cancellationToken = default);
 

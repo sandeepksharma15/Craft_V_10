@@ -134,8 +134,8 @@ public static class DatabaseExtensions
 
         services.AddServices(typeof(ICustomSeeder), ServiceLifetime.Transient);
 
-        services.AddScoped<Craft.Data.Helpers.CustomSeederRunner>();
-        services.AddScoped(typeof(Craft.Data.IDbContextFactory<>), typeof(TenantDbContextFactory<>));
+        services.AddScoped<Craft.Value.Helpers.CustomSeederRunner>();
+        services.AddScoped(typeof(Craft.Value.IDbContextFactory<>), typeof(TenantDbContextFactory<>));
 
         return services;
     }
@@ -158,3 +158,4 @@ public static class DatabaseExtensions
         additionalConfiguration?.Invoke(options);
     }
 }
+

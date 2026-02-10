@@ -1,4 +1,4 @@
-using Craft.Data.Helpers;
+using Craft.Value.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -248,3 +248,4 @@ public record DatabaseInfo
     /// </summary>
     public required bool IsInMemory { get; init; }
 }
+

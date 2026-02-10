@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using Craft.Core;
+using System.Text.Json;
 
 namespace Craft.QuerySpec;
 
@@ -106,3 +107,4 @@ public interface IQueryJsonConverter<T> where T : class
         return localOptions;
     }
 }
+

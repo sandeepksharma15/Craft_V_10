@@ -304,3 +304,4 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
 
     #endregion
 }
+

@@ -289,3 +289,4 @@ public partial class CraftCardGridColumn<TEntity> : ComponentBase, ICraftCardGri
 
     #endregion
 }
+

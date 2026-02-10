@@ -140,3 +140,4 @@ public class ConfigurationValidatorTests
         public string Url { get; set; } = string.Empty;
     }
 }
+

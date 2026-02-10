@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
 
 namespace Craft.QuerySpec;
@@ -82,3 +83,4 @@ public class SqlLikeSearchCriteriaBuilder<T> where T : class
         return this;
     }
 }
+

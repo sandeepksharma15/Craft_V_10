@@ -19,3 +19,4 @@ public class PasswordResetRequest<TKey> : IPasswordResetRequest<TKey>
 }
 
 public class ResetPasswordRequest : PasswordResetRequest<KeyType>, IPasswordResetRequest;
+

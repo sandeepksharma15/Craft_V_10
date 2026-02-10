@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.Security;
 
@@ -39,3 +39,4 @@ public class GoogleAuthOptions : IValidatableObject
             yield return new ValidationResult($"{nameof(GoogleAuthOptions)}.{propertyName} is not configured or contains empty values", [propertyName]);
     }
 }
+

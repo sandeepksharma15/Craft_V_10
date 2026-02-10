@@ -136,3 +136,4 @@ public class SmtpSettings : IValidatableObject
                 [nameof(Host)]);
     }
 }
+

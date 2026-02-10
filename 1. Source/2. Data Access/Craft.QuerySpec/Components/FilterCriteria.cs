@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Craft.QuerySpec;
@@ -158,3 +159,4 @@ public sealed record FilterCriteria
         return new FilterCriteria(dataType, propertyName, comparedValue, comparisonOperator);
     }
 }
+

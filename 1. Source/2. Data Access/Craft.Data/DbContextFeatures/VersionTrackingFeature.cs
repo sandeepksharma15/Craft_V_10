@@ -1,7 +1,7 @@
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.DbContextFeatures;
+namespace Craft.Value.DbContextFeatures;
 
 /// <summary>
 /// Feature that enables automatic version tracking for entities implementing IHasVersion.
@@ -33,3 +33,4 @@ public class VersionTrackingFeature : IDbContextFeature
         }
     }
 }
+

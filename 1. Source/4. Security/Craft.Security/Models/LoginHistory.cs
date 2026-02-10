@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Craft.Auditing;
 using Craft.Domain;
 
@@ -35,3 +35,4 @@ public class LoginHistory<TKey> : ILoginHistory<TKey> where TKey : IEquatable<TK
 [DoNotAudit]
 [Table("ID_LoginHistory")]
 public class LoginHistory : LoginHistory<KeyType>, IEntity, IModel;
+

@@ -1,9 +1,9 @@
-using Craft.Data.DbContextFeatures;
+using Craft.Value.DbContextFeatures;
 using Craft.Domain;
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.Tests.DbContextFeatures;
+namespace Craft.Value.Tests.DbContextFeatures;
 
 public class MultiTenancyFeatureTests
 {
@@ -214,3 +214,4 @@ public class MultiTenancyFeatureTests
         Assert.Equal((KeyType)7, entity.TenantId);
     }
 }
+

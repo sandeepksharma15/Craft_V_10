@@ -1,9 +1,9 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Testcontainers.PostgreSql;
 
-namespace Craft.Data.Tests.DabaseProviders;
+namespace Craft.Value.Tests.DabaseProviders;
 
 public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderTests.PostgreSqlContainerFixture>
 {
@@ -161,3 +161,4 @@ public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderT
 
     #endregion
 }
+

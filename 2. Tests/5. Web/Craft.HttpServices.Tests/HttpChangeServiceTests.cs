@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Craft.HttpServices.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -38,8 +38,8 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(42, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(42, result.Value.Id);
         Assert.Null(result.Errors);
     }
 
@@ -60,7 +60,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Validation error", result.Errors);
     }
@@ -82,7 +82,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Some plain error", result.Errors);
     }
@@ -165,10 +165,10 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Equal(1, result.Data[0].Id);
-        Assert.Equal(2, result.Data[1].Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.Count);
+        Assert.Equal(1, result.Value[0].Id);
+        Assert.Equal(2, result.Value[1].Id);
         Assert.Null(result.Errors);
     }
 
@@ -189,7 +189,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Batch error", result.Errors);
     }
@@ -211,7 +211,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Some batch error", result.Errors);
     }
@@ -234,8 +234,8 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
+        Assert.NotNull(result.Value);
+        Assert.Empty(result.Value);
         Assert.Null(result.Errors);
     }
 
@@ -275,7 +275,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Null(result.Errors);
     }
 
@@ -296,7 +296,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.False(result.Data);
+        Assert.False(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete error", result.Errors);
     }
@@ -318,7 +318,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.False(result.Data);
+        Assert.False(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete plain error", result.Errors);
     }
@@ -383,7 +383,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Null(result.Errors);
     }
 
@@ -404,7 +404,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.False(result.Data);
+        Assert.False(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete range error", result.Errors);
     }
@@ -426,7 +426,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.False(result.Data);
+        Assert.False(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete range plain error", result.Errors);
     }
@@ -483,8 +483,8 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(99, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(99, result.Value.Id);
         Assert.Null(result.Errors);
     }
 
@@ -505,7 +505,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update error", result.Errors);
     }
@@ -527,7 +527,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update plain error", result.Errors);
     }
@@ -584,10 +584,10 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Equal(5, result.Data[0].Id);
-        Assert.Equal(6, result.Data[1].Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.Count);
+        Assert.Equal(5, result.Value[0].Id);
+        Assert.Equal(6, result.Value[1].Id);
         Assert.Null(result.Errors);
     }
 
@@ -608,7 +608,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update range error", result.Errors);
     }
@@ -630,7 +630,7 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Update range plain error", result.Errors);
     }
@@ -653,8 +653,8 @@ public class HttpChangeServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
+        Assert.NotNull(result.Value);
+        Assert.Empty(result.Value);
         Assert.Null(result.Errors);
     }
 
@@ -749,3 +749,4 @@ public class HttpChangeServiceTests
         public string Id { get; set; } = string.Empty;
     }
 }
+

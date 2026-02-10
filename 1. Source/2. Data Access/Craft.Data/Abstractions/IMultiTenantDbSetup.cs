@@ -1,4 +1,4 @@
-﻿using Craft.MultiTenant;
+using Craft.MultiTenant;
 
 namespace Craft.Data;
 
@@ -8,3 +8,4 @@ public interface IMultiTenantDbSetup
 
     Task SetupTenantDbAsync(CancellationToken cancellationToken);
 }
+

@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Value.SqlClient;
 
 namespace Craft.Data;
 
@@ -85,3 +85,4 @@ public sealed class SqlServerConnectionStringHandler : IConnectionStringHandler
         }
     }
 }
+

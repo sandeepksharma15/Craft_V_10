@@ -378,3 +378,4 @@ public class RedisCacheProvider : ICacheProvider, IDisposable
         GC.SuppressFinalize(this);
     }
 }
+

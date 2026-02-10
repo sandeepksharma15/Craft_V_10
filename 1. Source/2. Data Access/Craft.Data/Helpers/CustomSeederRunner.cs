@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Craft.Data.Helpers;
+namespace Craft.Value.Helpers;
 
 public class CustomSeederRunner(IServiceProvider serviceProvider)
 {
@@ -12,3 +12,4 @@ public class CustomSeederRunner(IServiceProvider serviceProvider)
             await seeder.InitializeAsync(cancellationToken);
     }
 }
+

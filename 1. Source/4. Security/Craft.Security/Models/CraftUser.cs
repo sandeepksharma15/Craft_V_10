@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Craft.Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -48,3 +48,4 @@ public class CraftUser<TKey> : IdentityUser<TKey>, ICraftUser<TKey>
 }
 
 public class CraftUser : CraftUser<KeyType>, ICraftUser;
+

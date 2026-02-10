@@ -89,3 +89,4 @@ public class TestHostFixture : IAsyncLifetime
 /// </summary>
 [CollectionDefinition(nameof(HttpTestCollection))]
 public class HttpTestCollection : ICollectionFixture<TestHostFixture>;
+

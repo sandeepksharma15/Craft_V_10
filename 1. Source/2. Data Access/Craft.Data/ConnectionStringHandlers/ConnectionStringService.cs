@@ -1,4 +1,4 @@
-﻿namespace Craft.Data;
+namespace Craft.Data;
 
 public class ConnectionStringService
 {
@@ -25,3 +25,4 @@ public class ConnectionStringService
     public string Mask(string connectionString, string dbProvider = "postgresql")
         => ResolveHandler(dbProvider).Mask(connectionString);
 }
+

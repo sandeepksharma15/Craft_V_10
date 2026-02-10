@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.Security.Tests.Options;
 
@@ -144,3 +144,4 @@ public class GoogleAuthOptionsTest
         JavascriptOrigins = ["https://origin1"]
     };
 }
+

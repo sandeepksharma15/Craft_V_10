@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using Craft.Core;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Craft.QuerySpec;
@@ -99,3 +100,4 @@ public class QuerySelectBuilderJsonConverter<T, TResult> : JsonConverter<QuerySe
         writer.WriteEndArray();
     }
 }
+

@@ -1,6 +1,6 @@
-﻿using Npgsql;
+using Npgsql;
 
-namespace Craft.Data.Tests.ConnectionStringHandlers;
+namespace Craft.Value.Tests.ConnectionStringHandlers;
 
 public class PostgreSqlConnectionStringHandlerTests
 {
@@ -125,3 +125,4 @@ public class PostgreSqlConnectionStringHandlerTests
     public void Validate_Should_Throw_For_NullOrWhitespace(string? cs)
         => Assert.ThrowsAny<ArgumentException>(() => _sut.Validate(cs!));
 }
+

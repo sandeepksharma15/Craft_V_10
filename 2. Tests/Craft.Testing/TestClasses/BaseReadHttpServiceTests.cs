@@ -162,8 +162,8 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(entity.Id, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(entity.Id, result.Value.Id);
         Assert.Equal(200, result.StatusCode);
         Assert.Null(result.Errors);
     }
@@ -182,7 +182,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.Equal(404, result.StatusCode);
     }
 
@@ -200,8 +200,8 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(entity.Id, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(entity.Id, result.Value.Id);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -220,7 +220,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
     }
 
     #endregion
@@ -240,8 +240,8 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
+        Assert.NotNull(result.Value);
+        Assert.Empty(result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -259,8 +259,8 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(entities.Count, result.Data.Count);
+        Assert.NotNull(result.Value);
+        Assert.Equal(entities.Count, result.Value.Count);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -278,8 +278,8 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(entities.Count, result.Data.Count);
+        Assert.NotNull(result.Value);
+        Assert.Equal(entities.Count, result.Value.Count);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -298,7 +298,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
     }
 
     #endregion
@@ -318,7 +318,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.Equal(0, result.Data);
+        Assert.Equal(0, result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -336,7 +336,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.Equal(entities.Count, result.Data);
+        Assert.Equal(entities.Count, result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -355,7 +355,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.Equal(entities.Count, result.Data);
+        Assert.Equal(entities.Count, result.Value);
     }
 
     #endregion
@@ -376,12 +376,12 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(1, result.Data.CurrentPage);
-        Assert.Equal(5, result.Data.PageSize);
-        Assert.Equal(10, result.Data.TotalCount);
-        Assert.Equal(2, result.Data.TotalPages);
-        Assert.Equal(5, result.Data.Items.Count());
+        Assert.NotNull(result.Value);
+        Assert.Equal(1, result.Value.CurrentPage);
+        Assert.Equal(5, result.Value.PageSize);
+        Assert.Equal(10, result.Value.TotalCount);
+        Assert.Equal(2, result.Value.TotalPages);
+        Assert.Equal(5, result.Value.Items.Count());
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -399,12 +399,12 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.CurrentPage);
-        Assert.Equal(5, result.Data.PageSize);
-        Assert.Equal(8, result.Data.TotalCount);
-        Assert.Equal(2, result.Data.TotalPages);
-        Assert.Equal(3, result.Data.Items.Count()); // Only 3 items on last page
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.CurrentPage);
+        Assert.Equal(5, result.Value.PageSize);
+        Assert.Equal(8, result.Value.TotalCount);
+        Assert.Equal(2, result.Value.TotalPages);
+        Assert.Equal(3, result.Value.Items.Count()); // Only 3 items on last page
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -421,12 +421,12 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(1, result.Data.CurrentPage);
-        Assert.Equal(10, result.Data.PageSize);
-        Assert.Equal(0, result.Data.TotalCount);
-        Assert.Equal(0, result.Data.TotalPages);
-        Assert.Empty(result.Data.Items);
+        Assert.NotNull(result.Value);
+        Assert.Equal(1, result.Value.CurrentPage);
+        Assert.Equal(10, result.Value.PageSize);
+        Assert.Equal(0, result.Value.TotalCount);
+        Assert.Equal(0, result.Value.TotalPages);
+        Assert.Empty(result.Value.Items);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -444,9 +444,9 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.CurrentPage);
-        Assert.Equal(5, result.Data.Items.Count());
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.CurrentPage);
+        Assert.Equal(5, result.Value.Items.Count());
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -465,7 +465,7 @@ public abstract class BaseReadHttpServiceTests<TEntity, TKey, TFixture> : IAsync
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
     }
 
     #endregion
@@ -505,3 +505,4 @@ public abstract class BaseReadHttpServiceTests<TEntity, TFixture> : BaseReadHttp
 {
     protected BaseReadHttpServiceTests(TFixture fixture) : base(fixture) { }
 }
+

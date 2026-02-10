@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 /// <summary>
 /// Interface for query evaluators that apply specific query specifications to IQueryable.
@@ -14,3 +15,4 @@ public interface IEvaluator
     /// <returns>The modified queryable with the specification applied.</returns>
     IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query) where T : class;
 }
+

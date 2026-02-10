@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.Data;
 
@@ -27,3 +27,4 @@ public class DatabaseOptions : IValidatableObject
                 [nameof(ConnectionString)]);
     }
 }
+

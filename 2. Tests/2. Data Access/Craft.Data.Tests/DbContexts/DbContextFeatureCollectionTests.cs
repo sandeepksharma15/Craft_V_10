@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Moq;
 
-namespace Craft.Data.Tests.DbContexts;
+namespace Craft.Value.Tests.DbContexts;
 
 public class DbContextFeatureCollectionTests
 {
@@ -280,3 +280,4 @@ public class DbContextFeatureCollectionTests
 
     #endregion
 }
+

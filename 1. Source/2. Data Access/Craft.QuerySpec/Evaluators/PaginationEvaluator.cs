@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 public sealed class PaginationEvaluator : IEvaluator
 {
@@ -19,3 +20,4 @@ public sealed class PaginationEvaluator : IEvaluator
         return queryable;
     }
 }
+

@@ -478,16 +478,16 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
             // Execute the query
             var result = await HttpService.GetPagedListAsync(query, _cts.Token);
 
-            if (result.IsSuccess && result.Data is not null)
+            if (result.IsSuccess && result.Value is not null)
             {
-                _items = [.. result.Data.Items];
-                _totalCount = result.Data.TotalCount;
-                _currentPage = result.Data.CurrentPage;
-                _pageSize = result.Data.PageSize;
+                _items = [.. result.Value.Items];
+                _totalCount = result.Value.TotalCount;
+                _currentPage = result.Value.CurrentPage;
+                _pageSize = result.Value.PageSize;
 
                 // Invoke the OnDataLoaded callback
                 if (OnDataLoaded.HasDelegate)
-                    await OnDataLoaded.InvokeAsync(result.Data);
+                    await OnDataLoaded.InvokeAsync(result.Value);
             }
             else
             {
@@ -759,3 +759,4 @@ public enum GridSortDirection
     Ascending,
     Descending
 }
+

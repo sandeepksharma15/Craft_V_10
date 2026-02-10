@@ -1,4 +1,4 @@
-﻿using Craft.Testing.Fixtures;
+using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -191,3 +191,4 @@ public class SearchEvaluatorTests : IDisposable
         _context?.Dispose();
     }
 }
+

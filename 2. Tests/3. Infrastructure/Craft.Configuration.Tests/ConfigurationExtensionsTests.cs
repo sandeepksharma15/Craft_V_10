@@ -287,3 +287,4 @@ public class ConfigurationExtensionsTests
         public int MaxRetries { get; set; }
     }
 }
+

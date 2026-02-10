@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.OpenAPI;
 
@@ -365,3 +365,4 @@ public class DocumentationOptions
     /// </summary>
     public Dictionary<string, string> TagDescriptions { get; set; } = [];
 }
+

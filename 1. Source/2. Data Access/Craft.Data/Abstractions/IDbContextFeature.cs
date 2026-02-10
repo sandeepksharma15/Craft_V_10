@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Data;
 
@@ -45,3 +45,4 @@ public interface IDbSetProvider
     /// </summary>
     Type EntityType { get; }
 }
+

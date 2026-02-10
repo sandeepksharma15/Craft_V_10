@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 /// <summary>
 /// Evaluates and applies query specifications such as filtering, ordering, searching, pagination, and selection.
@@ -90,3 +91,4 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
             "Internal error: No selection strategy determined. This indicates a bug in QueryEvaluator.");
     }
 }
+

@@ -133,14 +133,14 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.NotNull(result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.NotNull(result.Value.Id);
         Assert.Equal(201, result.StatusCode); // Created
         Assert.Null(result.Errors);
 
         // Verify entity was actually created in database
         Fixture.DbContext.ChangeTracker.Clear();
-        var retrieved = Fixture.DbContext.Set<TEntity>().Find(result.Data.Id);
+        var retrieved = Fixture.DbContext.Set<TEntity>().Find(result.Value.Id);
         Assert.NotNull(retrieved);
         VerifyEntityWasCreated(viewModel, retrieved!);
     }
@@ -153,7 +153,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         var viewModels = CreateValidViewModels(3);
 
         // Act
-        var results = new List<HttpServiceResult<TEntity?>>();
+        var results = new List<ServiceResult<TEntity?>>();
         foreach (var vm in viewModels)
         {
             var result = await service.AddAsync(vm);
@@ -194,7 +194,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
     }
 
     [Fact]
@@ -210,8 +210,8 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(5, result.Data.Count);
+        Assert.NotNull(result.Value);
+        Assert.Equal(5, result.Value.Count);
         Assert.Equal(200, result.StatusCode);
 
         // Verify all entities were created
@@ -241,7 +241,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
         Assert.Equal(200, result.StatusCode);
         Assert.Null(result.Errors);
 
@@ -289,7 +289,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
     }
 
     [Fact]
@@ -310,8 +310,8 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(3, result.Data.Count);
+        Assert.NotNull(result.Value);
+        Assert.Equal(3, result.Value.Count);
         Assert.Equal(200, result.StatusCode);
 
         // Verify all entities were updated
@@ -340,7 +340,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Equal(200, result.StatusCode);
 
         // Verify entity was deleted (soft delete check)
@@ -395,7 +395,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
     }
 
     [Fact]
@@ -414,7 +414,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Equal(200, result.StatusCode);
 
         // Verify all entities were deleted
@@ -606,3 +606,5 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TFix
 {
     protected BaseChangeHttpServiceTests(TFixture fixture) : base(fixture) { }
 }
+
+

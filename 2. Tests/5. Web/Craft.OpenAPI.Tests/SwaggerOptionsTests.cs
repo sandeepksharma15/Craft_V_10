@@ -540,3 +540,4 @@ public class DocumentationOptionsTests
         Assert.Equal("Product management endpoints", options.TagDescriptions["Products"]);
     }
 }
+

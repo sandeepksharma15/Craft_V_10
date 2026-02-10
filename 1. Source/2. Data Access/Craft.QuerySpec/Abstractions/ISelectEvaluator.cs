@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 public interface ISelectEvaluator
 {
@@ -9,3 +10,4 @@ public interface ISelectEvaluator
     IQueryable<T>? GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query)
         where T : class;
 }
+

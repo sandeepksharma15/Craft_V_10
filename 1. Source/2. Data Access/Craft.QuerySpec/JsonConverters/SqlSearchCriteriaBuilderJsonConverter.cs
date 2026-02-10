@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using Craft.Core;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Craft.QuerySpec;
@@ -61,3 +62,4 @@ public class SqlSearchCriteriaBuilderJsonConverter<T> : JsonConverter<SqlLikeSea
         writer.WriteEndArray();
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Data;
 
@@ -64,3 +64,4 @@ public class DbContextFeatureCollection : List<IDbContextFeature>
         return this;
     }
 }
+

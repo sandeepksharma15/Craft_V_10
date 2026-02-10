@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -88,3 +89,4 @@ public class SelectDescriptorJsonConverter<T, TResult> : JsonConverter<SelectDes
         prop.SetValue(obj, value);
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using Craft.QuerySpec;
+using Craft.QuerySpec;
 using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -241,3 +241,4 @@ public class DbSetExtensionsTests : IDisposable
         Assert.Empty(result);
     }
 }
+

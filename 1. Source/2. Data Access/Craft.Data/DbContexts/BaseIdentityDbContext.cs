@@ -144,3 +144,4 @@ public abstract class BaseIdentityDbContext<TContext> : BaseIdentityDbContext<TC
     protected BaseIdentityDbContext(DbContextOptions options, ITenant currentTenant, ICurrentUser currentUser)
         : base(options, currentTenant, currentUser) { }
 }
+

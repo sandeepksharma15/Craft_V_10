@@ -1,4 +1,4 @@
-namespace Craft.Data.Tests.Enums;
+namespace Craft.Value.Tests.Enums;
 
 public class DbProviderKeysTests
 {
@@ -33,3 +33,4 @@ public class DbProviderKeysTests
         Assert.Equal(key.ToLowerInvariant(), key);
     }
 }
+

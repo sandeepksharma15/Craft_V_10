@@ -1,4 +1,5 @@
-﻿using Craft.Core;
+using Craft.Core;
+using Craft.Core;
 using Craft.Core.Common;
 using Craft.Domain;
 
@@ -17,7 +18,7 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="includeDetails">Set true to include all children of this entity.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing list of entities.</returns>
-    Task<HttpServiceResult<IReadOnlyList<T>?>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<ServiceResult<IReadOnlyList<T>?>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an entity with the given primary key.
@@ -26,14 +27,14 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="includeDetails">Set true to include all children of this entity.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing entity or null if not found.</returns>
-    Task<HttpServiceResult<T?>> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<ServiceResult<T?>> GetAsync(TKey id, bool includeDetails = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets total count of all entities.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing total count of entities.</returns>
-    Task<HttpServiceResult<long>> GetCountAsync(CancellationToken cancellationToken = default);
+    Task<ServiceResult<long>> GetCountAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a paginated list of entities.
@@ -43,7 +44,7 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
     /// <param name="includeDetails">Set true to include all children of this entity.</param>
     /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>Service result containing paginated list of entities.</returns>
-    Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<ServiceResult<PageResponse<T>?>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -51,3 +52,5 @@ public interface IHttpReadService<T, TKey> : IHttpService where T : class, IEnti
 /// </summary>
 /// <typeparam name="T">Entity type.</typeparam>
 public interface IHttpReadService<T> : IHttpReadService<T, KeyType> where T : class, IEntity, IModel, new();
+
+

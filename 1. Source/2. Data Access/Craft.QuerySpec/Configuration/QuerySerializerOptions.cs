@@ -1,3 +1,4 @@
+using Craft.Core;
 using System.Text.Json;
 
 namespace Craft.QuerySpec;
@@ -56,3 +57,4 @@ public static class QuerySerializerOptions
         return options;
     }
 }
+

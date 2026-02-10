@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
@@ -17,3 +18,4 @@ public sealed class OrderDescriptor<T> where T : class
     public OrderDescriptor(Expression<Func<T, object>> orderItem, OrderTypeEnum orderType = OrderTypeEnum.OrderBy)
        : this((LambdaExpression)orderItem, orderType) { }
 }
+

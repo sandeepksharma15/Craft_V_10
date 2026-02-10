@@ -1,9 +1,9 @@
-using Craft.Data.DbContextFeatures;
+using Craft.Value.DbContextFeatures;
 using Craft.MultiTenant;
 using Craft.Security;
 using Moq;
 
-namespace Craft.Data.Tests.Extensions;
+namespace Craft.Value.Tests.Extensions;
 
 public class DbContextFeatureExtensionsTests
 {
@@ -253,3 +253,4 @@ public class DbContextFeatureExtensionsTests
         Assert.Equal(2, collection.Count);
     }
 }
+

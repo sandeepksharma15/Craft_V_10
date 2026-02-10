@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.Security;
 
@@ -14,3 +14,4 @@ public class PasswordForgotRequest : IPasswordForgotRequest
     [DataType(DataType.EmailAddress)]
     public string? Email { get; set; }
 }
+

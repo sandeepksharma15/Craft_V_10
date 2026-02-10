@@ -282,21 +282,6 @@ public class ServerResponse<T> : IServiceResult
             StatusCode = result.StatusCode ?? GetDefaultStatusCode(result.ErrorType)
         };
 
-    /// <summary>
-    /// Creates a response from a Result&lt;T&gt;.
-    /// </summary>
-    [Obsolete("Use FromServiceResult() instead.")]
-    public static ServerResponse<T> FromResult(Result<T> result)
-        => new()
-        {
-            IsSuccess = result.IsSuccess,
-            Data = result.Value,
-            Errors = result.Errors?.ToList() ?? [],
-            Message = result.Message,
-            ErrorType = result.ErrorType,
-            StatusCode = result.StatusCode ?? GetDefaultStatusCode(result.ErrorType)
-        };
-
     private static int GetDefaultStatusCode(ErrorType errorType) => errorType switch
     {
         ErrorType.NotFound => HttpStatusCodes.NotFound,

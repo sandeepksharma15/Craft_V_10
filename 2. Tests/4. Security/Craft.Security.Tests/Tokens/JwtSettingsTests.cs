@@ -252,3 +252,4 @@ public class JwtSettingsTests
         Assert.True(settings.ValidateLifetime);
     }
 }
+

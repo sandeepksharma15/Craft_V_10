@@ -1,8 +1,8 @@
-using Craft.Data.DbContextFeatures;
+using Craft.Value.DbContextFeatures;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.Tests.DbContextFeatures;
+namespace Craft.Value.Tests.DbContextFeatures;
 
 public class VersionTrackingFeatureTests
 {
@@ -200,3 +200,4 @@ public class VersionTrackingFeatureTests
         Assert.Equal(4, modifiedEntity.Version);
     }
 }
+

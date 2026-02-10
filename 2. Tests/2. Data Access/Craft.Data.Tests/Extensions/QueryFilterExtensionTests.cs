@@ -1,11 +1,11 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Craft.Core;
 using Craft.Domain;
 using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace Craft.Data.Tests.Extensions;
+namespace Craft.Value.Tests.Extensions;
 
 public class QueryFilterExtensionTests
 {
@@ -465,3 +465,4 @@ public class QueryFilterExtensionTests
         }
     }
 }
+

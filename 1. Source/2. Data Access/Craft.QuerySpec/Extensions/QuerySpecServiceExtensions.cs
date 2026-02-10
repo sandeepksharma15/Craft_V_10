@@ -1,3 +1,4 @@
+using Craft.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.QuerySpec.Extensions;
@@ -35,3 +36,4 @@ public static class QuerySpecServiceExtensions
         return builder;
     }
 }
+

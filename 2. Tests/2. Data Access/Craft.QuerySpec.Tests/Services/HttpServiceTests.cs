@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using Craft.Core;
@@ -27,7 +27,7 @@ public class HttpServiceTests
         var result = await service.DeleteAsync(query);
 
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Null(result.Errors);
     }
 
@@ -46,7 +46,7 @@ public class HttpServiceTests
         var result = await service.DeleteAsync(query);
 
         Assert.False(result.IsSuccess);
-        Assert.False(result.Data);
+        Assert.False(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete error", result.Errors);
     }
@@ -66,7 +66,7 @@ public class HttpServiceTests
         var result = await service.DeleteAsync(query);
 
         Assert.False(result.IsSuccess);
-        Assert.False(result.Data);
+        Assert.False(result.Value);
         Assert.NotNull(result.Errors);
         Assert.Contains("Delete plain error", result.Errors);
     }
@@ -255,8 +255,8 @@ public class HttpServiceTests
         var result = await service.GetAsync(query);
 
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(42, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(42, result.Value.Id);
     }
 
     [Fact]
@@ -274,7 +274,7 @@ public class HttpServiceTests
         var result = await service.GetAsync(query);
 
         Assert.True(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
     }
 
     [Fact]
@@ -362,8 +362,8 @@ public class HttpServiceTests
         var result = await service.GetAsync<DummyDto>(query);
 
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(42, result.Data.Id);
+        Assert.NotNull(result.Value);
+        Assert.Equal(42, result.Value.Id);
     }
 
     [Fact]
@@ -381,7 +381,7 @@ public class HttpServiceTests
         var result = await service.GetAsync<DummyDto>(query);
 
         Assert.True(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
     }
 
     [Fact]
@@ -468,7 +468,7 @@ public class HttpServiceTests
         var result = await service.GetCountAsync(query);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(42L, result.Data);
+        Assert.Equal(42L, result.Value);
     }
 
     [Fact]
@@ -557,8 +557,8 @@ public class HttpServiceTests
         var result = await service.GetPagedListAsync(query);
 
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Items.Count());
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.Items.Count());
     }
 
     [Fact]
@@ -647,8 +647,8 @@ public class HttpServiceTests
         var result = await service.GetPagedListAsync<DummyDto>(query);
 
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(2, result.Data.Items.Count());
+        Assert.NotNull(result.Value);
+        Assert.Equal(2, result.Value.Items.Count());
     }
 
     [Fact]
@@ -781,11 +781,11 @@ public class HttpServiceTests
 
         var getAllProjectedResult = await service.GetAllAsync<DummyDto>(new DummyQuery<DummyEntity, DummyDto>());
         Assert.True(getAllProjectedResult.IsSuccess);
-        Assert.Null(getAllProjectedResult.Data);
+        Assert.Null(getAllProjectedresult.Value);
 
         var getPagedListResult = await service.GetPagedListAsync(new DummyQuery<DummyEntity>());
         Assert.False(getPagedListResult.IsSuccess);
-        Assert.Null(getPagedListResult.Data);
+        Assert.Null(getPagedListresult.Value);
     }
 
     [Fact]
@@ -1036,3 +1036,4 @@ public class HttpServiceTests
         public void SetPage(int page, int pageSize) { }
     }
 }
+

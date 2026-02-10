@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
@@ -59,3 +60,4 @@ public static class QuerySelectExtensions
         return query;
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Craft.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace Craft.QuerySpec;
 
@@ -19,3 +20,4 @@ public sealed class AsSplitQueryEvaluator : IEvaluator
         return queryable;
     }
 }
+

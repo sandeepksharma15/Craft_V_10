@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Craft.QuerySpec;
@@ -177,3 +178,4 @@ public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
         return Expression.Lambda<Func<T, TResult>>(selectorLambda.Body, selectParam);
     }
 }
+

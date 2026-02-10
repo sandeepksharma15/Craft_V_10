@@ -1,4 +1,4 @@
-﻿namespace Craft.Data;
+namespace Craft.Data;
 
 public class MySqlConnectionStringHandler : IConnectionStringHandler
 {
@@ -17,3 +17,4 @@ public class MySqlConnectionStringHandler : IConnectionStringHandler
         throw new NotImplementedException();
     }
 }
+

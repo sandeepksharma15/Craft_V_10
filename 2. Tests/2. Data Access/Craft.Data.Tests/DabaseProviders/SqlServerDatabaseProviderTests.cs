@@ -1,9 +1,9 @@
-﻿using System.Reflection;
-using Microsoft.Data.SqlClient;
+using System.Reflection;
+using Microsoft.Value.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Craft.Data.Tests.DabaseProviders;
+namespace Craft.Value.Tests.DabaseProviders;
 
 public class SqlServerDatabaseProviderTests
 {
@@ -138,3 +138,4 @@ public class SqlServerDatabaseProviderTests
 
     #endregion
 }
+

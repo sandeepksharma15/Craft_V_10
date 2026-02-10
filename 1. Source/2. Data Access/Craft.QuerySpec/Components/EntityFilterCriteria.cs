@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using Craft.Core;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -190,3 +191,4 @@ public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>
         return HashCode.Combine(typeof(T), expression.ToString());
     }
 }
+

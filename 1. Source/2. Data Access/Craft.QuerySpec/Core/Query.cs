@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Craft.QuerySpec;
@@ -171,3 +172,4 @@ public class Query<T> : IQuery<T> where T : class
         return sb.ToString();
     }
 }
+

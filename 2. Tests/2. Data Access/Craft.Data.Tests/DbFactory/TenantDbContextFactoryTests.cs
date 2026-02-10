@@ -1,4 +1,4 @@
-﻿using Craft.Core; // For IDbContext
+using Craft.Core; // For IDbContext
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using MsOptions = Microsoft.Extensions.Options.Options;
 
-namespace Craft.Data.Tests.DbFactory;
+namespace Craft.Value.Tests.DbFactory;
 
 // ReSharper disable InconsistentNaming
 public class TenantDbContextFactoryTests
@@ -357,3 +357,4 @@ public class TenantDbContextFactoryTests
 
     #endregion
 }
+

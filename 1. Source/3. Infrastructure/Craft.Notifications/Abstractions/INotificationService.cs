@@ -1,3 +1,5 @@
+using Craft.Core;
+
 namespace Craft.Notifications;
 
 /// <summary>
@@ -11,7 +13,7 @@ public interface INotificationService
     /// <param name="notification">The notification to send.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result<Notification>> SendAsync(
+    Task<ServiceResult<Notification>> SendAsync(
         Notification notification,
         CancellationToken cancellationToken = default);
 
@@ -21,7 +23,7 @@ public interface INotificationService
     /// <param name="request">The notification request parameters.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result<Notification>> SendAsync(
+    Task<ServiceResult<Notification>> SendAsync(
         NotificationRequest request,
         CancellationToken cancellationToken = default);
 
@@ -31,7 +33,7 @@ public interface INotificationService
     /// <param name="notifications">The notifications to send.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result with list of sent notifications.</returns>
-    Task<Result<List<Notification>>> SendBatchAsync(
+    Task<ServiceResult<List<Notification>>> SendBatchAsync(
         IEnumerable<Notification> notifications,
         CancellationToken cancellationToken = default);
 
@@ -42,7 +44,7 @@ public interface INotificationService
     /// <param name="recipientUserIds">List of recipient user IDs.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result with list of sent notifications.</returns>
-    Task<Result<List<Notification>>> SendToMultipleAsync(
+    Task<ServiceResult<List<Notification>>> SendToMultipleAsync(
         NotificationRequest request,
         IEnumerable<string> recipientUserIds,
         CancellationToken cancellationToken = default);
@@ -54,7 +56,7 @@ public interface INotificationService
     /// <param name="scheduledFor">The delivery time.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result with the scheduled notification.</returns>
-    Task<Result<Notification>> ScheduleAsync(
+    Task<ServiceResult<Notification>> ScheduleAsync(
         Notification notification,
         DateTimeOffset scheduledFor,
         CancellationToken cancellationToken = default);
@@ -65,7 +67,7 @@ public interface INotificationService
     /// <param name="notificationId">The notification ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> MarkAsReadAsync(
+    Task<ServiceResult> MarkAsReadAsync(
         KeyType notificationId,
         CancellationToken cancellationToken = default);
 
@@ -75,7 +77,7 @@ public interface INotificationService
     /// <param name="notificationIds">The notification IDs.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> MarkAllAsReadAsync(
+    Task<ServiceResult> MarkAllAsReadAsync(
         IEnumerable<KeyType> notificationIds,
         CancellationToken cancellationToken = default);
 
@@ -85,7 +87,7 @@ public interface INotificationService
     /// <param name="userId">The user ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> MarkAllAsReadForUserAsync(
+    Task<ServiceResult> MarkAllAsReadForUserAsync(
         string userId,
         CancellationToken cancellationToken = default);
 
@@ -95,7 +97,7 @@ public interface INotificationService
     /// <param name="notificationId">The notification ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> DeleteAsync(
+    Task<ServiceResult> DeleteAsync(
         KeyType notificationId,
         CancellationToken cancellationToken = default);
 
@@ -127,7 +129,7 @@ public interface INotificationService
     /// <param name="notificationId">The notification ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> RetryDeliveryAsync(
+    Task<ServiceResult> RetryDeliveryAsync(
         KeyType notificationId,
         CancellationToken cancellationToken = default);
 

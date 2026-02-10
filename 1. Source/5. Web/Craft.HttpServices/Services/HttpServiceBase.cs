@@ -1,4 +1,5 @@
-using Craft.Core.Common;
+using Craft.Core;
+using Craft.Core;
 using Craft.Extensions.HttpResponse;
 
 namespace Craft.HttpServices;
@@ -17,149 +18,110 @@ public abstract class HttpServiceBase
         _httpClient = httpClient;
     }
 
-    private static async Task<HttpServiceResult<TResult>> HandleHttpOperationAsync<TResult>(
+    private static async Task<ServiceResult<TResult>> HandleHttpOperationAsync<TResult>(
         Func<CancellationToken, Task<HttpResponseMessage>> sendRequest,
         Func<HttpResponseMessage, CancellationToken, Task<TResult>> parseResult,
         CancellationToken cancellationToken)
     {
         try
         {
-            // Make the HTTP request
             var response = await sendRequest(cancellationToken).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                // Parse the result if the request was successful
-                return new HttpServiceResult<TResult>
-                {
-                    Data = await parseResult(response, cancellationToken).ConfigureAwait(false),
-                    IsSuccess = true,
-                    StatusCode = (int)response.StatusCode
-                };
+                var data = await parseResult(response, cancellationToken).ConfigureAwait(false);
+                return data is not null
+                    ? ServiceResult<TResult>.Success(data)
+                    : ServiceResult<TResult>.Failure("No data returned", statusCode: (int)response.StatusCode);
             }
-            else
-            {
-                // If the request failed, read the errors
-                return new HttpServiceResult<TResult>
-                {
-                    IsSuccess = false,
-                    Errors = await response.TryReadErrors(cancellationToken),
-                    StatusCode = (int)response.StatusCode
-                };
-            }
+
+            var errors = await response.TryReadErrors(cancellationToken);
+            return ServiceResult<TResult>.Failure(errors ?? [], statusCode: (int)response.StatusCode);
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
-            return new HttpServiceResult<TResult>
-            {
-                IsSuccess = false,
-                Errors = [ex.Message]
-            };
+            return ServiceResult<TResult>.Failure(ex.Message);
         }
     }
 
-    protected static Task<HttpServiceResult<TResult?>> GetAndParseAsync<TResult>(
+    protected static Task<ServiceResult<TResult?>> GetAndParseAsync<TResult>(
         Func<CancellationToken, Task<HttpResponseMessage>> sendRequest,
         Func<HttpContent, CancellationToken, Task<TResult?>> parser,
         CancellationToken cancellationToken)
     {
-        return HandleHttpOperationAsync(sendRequest, async (response, ct) => await parser(response.Content, ct), cancellationToken);
+        return HandleHttpOperationAsync<TResult?>(
+            sendRequest,
+            async (response, ct) => await parser(response.Content, ct),
+            cancellationToken);
     }
 
-    protected static Task<HttpServiceResult<TResult?>> SendAndParseAsync<TResult>(
+    protected static async Task<ServiceResult<TResult?>> SendAndParseAsync<TResult>(
         Func<Task<HttpResponseMessage>> sendRequest,
         Func<HttpContent, CancellationToken, Task<TResult?>> parser,
         CancellationToken cancellationToken)
     {
-        // Defensive: Check for null delegates
         if (sendRequest == null)
-        {
-            var result = new HttpServiceResult<TResult?>
-            {
-                IsSuccess = false,
-                Errors = ["sendRequest delegate is null."]
-            };
-
-            return Task.FromResult(result);
-        }
+            return ServiceResult<TResult?>.Failure("sendRequest delegate is null.");
 
         if (parser == null)
-        {
-            var result = new HttpServiceResult<TResult?>
-            {
-                IsSuccess = false,
-                Errors = ["parser delegate is null."]
-            };
-
-            return Task.FromResult(result);
-        }
+            return ServiceResult<TResult?>.Failure("parser delegate is null.");
 
         try
         {
-            return HandleHttpOperationAsync(
+            return await HandleHttpOperationAsync<TResult?>(
                 _ => sendRequest(),
                 async (response, ct) =>
                 {
                     if (response?.Content == null)
-                    {
-                        // Defensive: Null content
                         return default;
-                    }
 
                     return await parser(response.Content, ct);
                 },
-                cancellationToken
-            );
+                cancellationToken);
         }
         catch (Exception ex)
         {
-            var result = new HttpServiceResult<TResult?>
-            {
-                IsSuccess = false,
-                Errors = [$"Exception in SendAndParseAsync: {ex.Message}"]
-            };
-
-            return Task.FromResult(result);
+            return ServiceResult<TResult?>.Failure($"Exception in SendAndParseAsync: {ex.Message}");
         }
     }
 
-    protected static Task<HttpServiceResult<bool>> SendAndParseNoContentAsync(
+    protected static Task<ServiceResult<bool>> SendAndParseNoContentAsync(
         Func<Task<HttpResponseMessage>> sendRequest,
         CancellationToken cancellationToken)
     {
-        return HandleHttpOperationAsync(_ => sendRequest(), (response, _) => Task.FromResult(response.IsSuccessStatusCode), cancellationToken);
+        return HandleHttpOperationAsync(
+            _ => sendRequest(),
+            (response, _) => Task.FromResult(response.IsSuccessStatusCode),
+            cancellationToken);
     }
 
     /// <summary>
     /// Helper to flatten a paged result into a list result for GetAllAsync methods.
     /// </summary>
-    public static async Task<HttpServiceResult<List<TItem>>> GetAllFromPagedAsync<TItem, TPaged>(
-        Func<CancellationToken, Task<HttpServiceResult<TPaged>?>> getPaged,
+    public static async Task<ServiceResult<List<TItem>>> GetAllFromPagedAsync<TItem, TPaged>(
+        Func<CancellationToken, Task<ServiceResult<TPaged>?>> getPaged,
         Func<TPaged, List<TItem>> extractItems,
         CancellationToken cancellationToken)
     {
         try
         {
-            // Make The Call
             var pagedResult = await getPaged(cancellationToken).ConfigureAwait(false);
 
-            return new HttpServiceResult<List<TItem>>
-            {
-                Data = pagedResult != null && pagedResult.Data != null ? extractItems(pagedResult.Data) : [],
-                IsSuccess = pagedResult?.IsSuccess ?? false,
-                Errors = pagedResult?.Errors,
-                StatusCode = pagedResult?.StatusCode
-            };
+            if (pagedResult == null)
+                return ServiceResult<List<TItem>>.Failure("No result returned");
+
+            if (!pagedResult.IsSuccess)
+                return ServiceResult<List<TItem>>.Failure(pagedResult.Errors ?? [], statusCode: pagedResult.StatusCode);
+
+            var items = pagedResult.Value is not null ? extractItems(pagedResult.Value) : [];
+            return ServiceResult<List<TItem>>.Success(items);
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
-            return new HttpServiceResult<List<TItem>>
-            {
-                IsSuccess = false,
-                Errors = [ex.Message]
-            };
+            return ServiceResult<List<TItem>>.Failure(ex.Message);
         }
     }
 }
+

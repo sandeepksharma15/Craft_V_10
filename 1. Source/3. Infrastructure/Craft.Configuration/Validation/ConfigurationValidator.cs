@@ -129,3 +129,4 @@ public class ConfigurationValidator : IConfigurationValidator
         return validationResults;
     }
 }
+

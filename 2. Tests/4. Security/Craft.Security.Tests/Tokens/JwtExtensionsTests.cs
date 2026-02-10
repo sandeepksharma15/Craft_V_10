@@ -276,3 +276,4 @@ public class JwtExtensionsTests
             .Build();
     }
 }
+

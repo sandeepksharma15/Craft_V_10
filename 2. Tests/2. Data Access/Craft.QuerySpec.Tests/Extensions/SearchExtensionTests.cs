@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -162,3 +162,4 @@ public class SearchExtensionTests : IDisposable
         return context!;
     }
 }
+

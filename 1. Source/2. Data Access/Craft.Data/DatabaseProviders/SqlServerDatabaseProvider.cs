@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Value.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Data;
@@ -37,3 +37,4 @@ public class SqlServerDatabaseProvider : IDatabaseProvider
         }
     }
 }
+

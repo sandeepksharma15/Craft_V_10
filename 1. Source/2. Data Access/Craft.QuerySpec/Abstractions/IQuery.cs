@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
@@ -134,3 +135,4 @@ public interface IQuery<T> where T : class
     /// <param name="pageSize">The number of records per page.</param>
     void SetPage(int page, int pageSize);
 }
+

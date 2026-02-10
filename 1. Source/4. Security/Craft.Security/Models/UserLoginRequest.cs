@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.Security;
 
@@ -16,3 +16,4 @@ public class UserLoginRequest : IUserLoginRequest
 
     public bool RememberMe { get; set; } = true;
 }
+

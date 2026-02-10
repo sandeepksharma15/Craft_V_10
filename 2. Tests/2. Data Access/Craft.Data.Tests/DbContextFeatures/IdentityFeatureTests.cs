@@ -1,9 +1,9 @@
-using Craft.Data.DbContextFeatures;
+using Craft.Value.DbContextFeatures;
 using Craft.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.Tests.DbContextFeatures;
+namespace Craft.Value.Tests.DbContextFeatures;
 
 public class IdentityFeatureTests
 {
@@ -227,3 +227,4 @@ public class IdentityFeatureTests
         Assert.Equal(typeof(CraftUser), feature.EntityType);
     }
 }
+

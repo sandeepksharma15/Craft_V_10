@@ -1,3 +1,4 @@
+using Craft.Core;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -135,3 +136,4 @@ internal static class NavigationPropertyDiscovery
         _navigationPropertiesCache.Clear();
     }
 }
+

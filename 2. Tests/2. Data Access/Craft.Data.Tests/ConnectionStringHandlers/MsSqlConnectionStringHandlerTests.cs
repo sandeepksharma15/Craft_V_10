@@ -1,6 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Value.SqlClient;
 
-namespace Craft.Data.Tests.ConnectionStringHandlers;
+namespace Craft.Value.Tests.ConnectionStringHandlers;
 
 public class MsSqlConnectionStringHandlerTests
 {
@@ -136,3 +136,4 @@ public class MsSqlConnectionStringHandlerTests
     public void Validate_Should_Throw_For_NullOrWhitespace(string? cs)
         => Assert.ThrowsAny<ArgumentException>(() => _sut.Validate(cs!));
 }
+

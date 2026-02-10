@@ -103,7 +103,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected IsSuccess=true but got IsSuccess=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -136,7 +136,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.False(result.IsSuccess);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
         Assert.NotNull(result.StatusCode);
         Assert.Equal(404, result.StatusCode.Value);
     }
@@ -162,8 +162,8 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected IsSuccess=true but got IsSuccess=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Count > 0);
+        Assert.NotNull(result.Value);
+        Assert.True(result.Value.Count > 0);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -183,8 +183,8 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected IsSuccess=true but got IsSuccess=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
+        Assert.NotNull(result.Value);
+        Assert.Empty(result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -209,7 +209,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected IsSuccess=true but got IsSuccess=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.Equal(7, result.Data);
+        Assert.Equal(7, result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -229,7 +229,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected IsSuccess=true but got IsSuccess=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.Equal(0, result.Data);
+        Assert.Equal(0, result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -254,9 +254,9 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal(10, result.Data.TotalCount);
-        Assert.True(result.Data.Items.Count() <= 5);
+        Assert.NotNull(result.Value);
+        Assert.Equal(10, result.Value.TotalCount);
+        Assert.True(result.Value.Items.Count() <= 5);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -276,9 +276,9 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected IsSuccess=true but got IsSuccess=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.NotNull(result.Data);
-        Assert.Equal(0, result.Data.TotalCount);
-        Assert.Empty(result.Data.Items);
+        Assert.NotNull(result.Value);
+        Assert.Equal(0, result.Value.TotalCount);
+        Assert.Empty(result.Value.Items);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -303,7 +303,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Equal(200, result.StatusCode);
 
         // Verify entities were deleted
@@ -354,7 +354,7 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TKey, TFix
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsSuccess, $"Expected Success=true but got Success=false. StatusCode={result.StatusCode}, Errors={string.Join(", ", result.Errors ?? [])}");
-        Assert.True(result.Data);
+        Assert.True(result.Value);
         Assert.Equal(200, result.StatusCode);
     }
 
@@ -378,3 +378,4 @@ public abstract class BaseHttpServiceTests<TEntity, TViewModel, TDto, TFixture>
 {
     protected BaseHttpServiceTests(TFixture fixture) : base(fixture) { }
 }
+

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.MultiTenant;
 
@@ -18,3 +18,4 @@ public class MultiTenantOptions : IValidatableObject
         }
     }
 }
+

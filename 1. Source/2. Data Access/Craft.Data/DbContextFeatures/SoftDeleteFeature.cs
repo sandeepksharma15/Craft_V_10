@@ -1,7 +1,7 @@
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.DbContextFeatures;
+namespace Craft.Value.DbContextFeatures;
 
 /// <summary>
 /// Feature that enables soft delete behavior for entities implementing ISoftDelete.
@@ -48,3 +48,4 @@ public class SoftDeleteFeature : IDbContextFeature
         }
     }
 }
+

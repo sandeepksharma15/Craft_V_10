@@ -1,3 +1,4 @@
+using Craft.Core;
 using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
@@ -54,3 +55,4 @@ public class IncludeExpression
         PreviousInclude = previousInclude;
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using Craft.Core;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -320,3 +321,4 @@ public sealed class EntityFilterCriteriaJsonConverter<T> : JsonConverter<EntityF
         return options;
     }
 }
+

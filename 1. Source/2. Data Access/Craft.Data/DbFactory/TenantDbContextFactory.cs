@@ -1,4 +1,4 @@
-﻿using Craft.Core;
+using Craft.Core;
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -233,3 +233,4 @@ public class TenantDbContextFactory<T> : IDbContextFactory<T> where T : DbContex
 
     #endregion
 }
+

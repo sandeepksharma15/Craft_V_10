@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
 
 namespace Craft.QuerySpec;
@@ -123,3 +124,4 @@ public sealed class SelectDescriptor<T, TResult> where T : class where TResult :
         return assignorPropName.CreateMemberExpression<TResult>();
     }
 }
+

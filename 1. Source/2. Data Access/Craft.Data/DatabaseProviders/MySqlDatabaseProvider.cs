@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.DatabaseProviders;
+namespace Craft.Value.DatabaseProviders;
 
 public class MySqlDatabaseProvider : IDatabaseProvider
 {
@@ -19,3 +19,4 @@ public class MySqlDatabaseProvider : IDatabaseProvider
         throw new NotImplementedException();
     }
 }
+

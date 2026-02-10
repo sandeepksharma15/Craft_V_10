@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
@@ -16,3 +17,4 @@ public interface IQuerySelectBuilder<T, TResult>
 }
 
 public interface IQuerySelectBuilder<T> : IQuerySelectBuilder<T, T> where T : class;
+

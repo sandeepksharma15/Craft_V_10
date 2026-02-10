@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
@@ -43,3 +44,4 @@ public sealed class SqlLikeSearchInfo<T> where T : class
     /// Internal parameterless constructor for serialization.
     internal SqlLikeSearchInfo() { }
 }
+

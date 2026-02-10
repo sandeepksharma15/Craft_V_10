@@ -14,7 +14,7 @@ public class NullNotificationRealTimeService : INotificationRealTimeService
     }
 
     /// <inheritdoc/>
-    public Task<Result> SendRealTimeAsync(
+    public Task<ServiceResult> SendRealTimeAsync(
         string userId,
         Notification notification,
         CancellationToken cancellationToken = default)
@@ -24,11 +24,11 @@ public class NullNotificationRealTimeService : INotificationRealTimeService
             notification.Id,
             userId);
 
-        return Task.FromResult(Result.CreateSuccess());
+        return Task.FromResult(ServiceResult.Success());
     }
 
     /// <inheritdoc/>
-    public Task<Result> SendRealTimeToMultipleAsync(
+    public Task<ServiceResult> SendRealTimeToMultipleAsync(
         IEnumerable<string> userIds,
         Notification notification,
         CancellationToken cancellationToken = default)
@@ -38,7 +38,7 @@ public class NullNotificationRealTimeService : INotificationRealTimeService
             notification.Id,
             userIds.Count());
 
-        return Task.FromResult(Result.CreateSuccess());
+        return Task.FromResult(ServiceResult.Success());
     }
 
     /// <inheritdoc/>
@@ -49,3 +49,4 @@ public class NullNotificationRealTimeService : INotificationRealTimeService
         return Task.FromResult(false);
     }
 }
+

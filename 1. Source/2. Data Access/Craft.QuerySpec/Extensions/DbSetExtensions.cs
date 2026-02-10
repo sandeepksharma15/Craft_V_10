@@ -1,4 +1,5 @@
-﻿using Craft.Extensions.Collections;
+using Craft.Core;
+using Craft.Extensions.Collections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.QuerySpec;
@@ -43,3 +44,4 @@ public static class DbSetExtensions
         return evaluator.GetQuery(source, query) ?? Enumerable.Empty<TResult>().AsQueryable();
     }
 }
+

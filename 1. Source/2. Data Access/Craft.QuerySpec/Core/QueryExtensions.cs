@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 public static class QueryExtensions
 {
@@ -72,3 +73,4 @@ public static class QueryExtensions
         return query is null || query.SortOrderBuilder is null || query.SortOrderBuilder.OrderDescriptorList.Count == 0;
     }
 }
+

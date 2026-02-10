@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 public enum OrderTypeEnum
 {
@@ -7,3 +8,4 @@ public enum OrderTypeEnum
     ThenBy = 3,
     ThenByDescending = 4
 }
+

@@ -23,3 +23,4 @@ public class PasswordChangeRequest<TKey> : IPasswordChangeRequest<TKey>
 }
 
 public class PasswordChangeRequest : PasswordChangeRequest<KeyType>, IPasswordChangeRequest;
+

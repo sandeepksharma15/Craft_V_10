@@ -53,3 +53,4 @@ public class CorsSettings : IValidatableObject
         }
     }
 }
+

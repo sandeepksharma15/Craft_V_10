@@ -1,3 +1,4 @@
+using Craft.Core;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -46,3 +47,4 @@ public class QueryJsonConverterFactory : JsonConverterFactory
         return null;
     }
 }
+

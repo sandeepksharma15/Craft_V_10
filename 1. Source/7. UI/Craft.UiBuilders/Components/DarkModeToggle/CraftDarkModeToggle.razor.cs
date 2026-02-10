@@ -15,3 +15,4 @@ public partial class CraftDarkModeToggle : CraftComponent
         await DarkModeChanged.InvokeAsync(DarkMode);
     }
 }
+

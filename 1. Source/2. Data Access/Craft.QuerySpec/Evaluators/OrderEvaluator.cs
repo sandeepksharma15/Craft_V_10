@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
@@ -46,3 +47,4 @@ public sealed class OrderEvaluator : IEvaluator
         return queryable;
     }
 }
+

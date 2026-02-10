@@ -1,4 +1,4 @@
-﻿using Craft.Testing.Fixtures;
+using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -644,3 +644,4 @@ public class ChangeRepositoryTests
         Assert.All(result, entity => Assert.Equal(EntityState.Detached, context.Entry(entity).State));
     }
 }
+

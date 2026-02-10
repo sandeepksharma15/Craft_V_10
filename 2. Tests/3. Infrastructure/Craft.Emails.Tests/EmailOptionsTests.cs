@@ -221,3 +221,4 @@ public class SmtpSettingsTests
         Assert.False(isValid);
     }
 }
+

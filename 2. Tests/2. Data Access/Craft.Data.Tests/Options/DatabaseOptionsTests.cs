@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Craft.Data.Tests.Options;
+namespace Craft.Value.Tests.Options;
 
 public class DatabaseOptionsTests
 {
@@ -132,3 +132,4 @@ public class DatabaseOptionsTests
         Assert.Equal(30, options.MaxRetryDelay);
     }
 }
+

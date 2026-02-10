@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Craft.Auditing;
 using Craft.Domain;
 
@@ -32,3 +32,4 @@ public class RefreshToken<TKey> : IRefreshToken<TKey> where TKey : IEquatable<TK
 [DoNotAudit]
 [Table("ID_RefreshTokens")]
 public class RefreshToken : RefreshToken<KeyType>, IEntity, IModel;
+

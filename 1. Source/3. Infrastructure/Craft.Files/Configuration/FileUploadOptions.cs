@@ -115,3 +115,4 @@ public class UploadTypeOptions
     [Required]
     public string Folder { get; set; } = string.Empty;
 }
+

@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
 
 namespace Craft.QuerySpec;
@@ -138,3 +139,4 @@ public class SortOrderBuilder<T> where T : class
         return string.Join(", ", OrderDescriptorList.Select(x => $"{x.OrderType}: {x.OrderItem}"));
     }
 }
+

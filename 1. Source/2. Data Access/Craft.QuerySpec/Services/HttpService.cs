@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Craft.Core;
 using Craft.Core.Common;
 using Craft.Domain;
@@ -21,7 +21,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
         where DataTransferT : class, IModel<TKey>, new()
 {
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<bool>> DeleteAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
@@ -35,7 +35,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<List<T>?>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<List<T>?>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
@@ -50,7 +50,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<List<TResult>?>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<List<TResult>?>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
@@ -66,7 +66,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<T?>> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
@@ -81,7 +81,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<TResult?>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<TResult?>> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
@@ -97,7 +97,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<long>> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
@@ -112,7 +112,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<PageResponse<T>?>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
@@ -127,7 +127,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
     }
 
     /// <inheritdoc />
-    public virtual async Task<HttpServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<PageResponse<TResult>?>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default)
         where TResult : class, new()
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
@@ -161,3 +161,4 @@ public class HttpService<T, ViewT, DataTransferT>(Uri apiURL, HttpClient httpCli
 /// <typeparam name="T">Entity type.</typeparam>
 public class HttpService<T>(Uri apiURL, HttpClient httpClient, ILogger<HttpService<T>> logger)
     : HttpService<T, T, T, KeyType>(apiURL, httpClient, logger), IHttpService<T> where T : class, IEntity, IModel, new();
+

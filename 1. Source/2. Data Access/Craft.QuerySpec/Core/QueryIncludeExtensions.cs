@@ -1,3 +1,4 @@
+using Craft.Core;
 using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
@@ -107,3 +108,4 @@ public static class QueryIncludeExtensions
         return query;
     }
 }
+

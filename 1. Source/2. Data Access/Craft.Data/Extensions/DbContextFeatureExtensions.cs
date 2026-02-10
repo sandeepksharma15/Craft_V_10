@@ -1,4 +1,4 @@
-using Craft.Data.DbContextFeatures;
+using Craft.Value.DbContextFeatures;
 using Craft.MultiTenant;
 using Craft.Security;
 
@@ -103,3 +103,4 @@ public static class DbContextFeatureExtensions
             .AddMultiTenancy(currentTenant);
     }
 }
+

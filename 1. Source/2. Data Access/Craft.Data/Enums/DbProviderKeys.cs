@@ -1,4 +1,4 @@
-﻿namespace Craft.Data;
+namespace Craft.Data;
 
 public static class DbProviderKeys
 {
@@ -6,3 +6,4 @@ public static class DbProviderKeys
     public const string Npgsql = "postgresql";
     public const string SqlServer = "mssql";
 }
+

@@ -1,4 +1,4 @@
-﻿namespace Craft.Data.Tests.Converters;
+namespace Craft.Value.Tests.Converters;
 
 public class DateTimeToDateTimeUtcTests
 {
@@ -107,3 +107,4 @@ public class DateTimeToDateTimeUtcTests
         Assert.Equal(dateTime, result);
     }
 }
+

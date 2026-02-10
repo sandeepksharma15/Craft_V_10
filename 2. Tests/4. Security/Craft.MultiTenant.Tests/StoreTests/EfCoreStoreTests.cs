@@ -1,5 +1,5 @@
-﻿using Craft.MultiTenant.Stores;
-using Microsoft.Data.Sqlite;
+using Craft.MultiTenant.Stores;
+using Microsoft.Value.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.MultiTenant.Tests.StoreTests;
@@ -78,3 +78,4 @@ public class EfCoreStoreTests : TenantStoreTestBase, IDisposable
         public DbSet<Tenant> Tenants { get; set; } = null!; // Suppress CS8618 by using null-forgiving operator
     }
 }
+

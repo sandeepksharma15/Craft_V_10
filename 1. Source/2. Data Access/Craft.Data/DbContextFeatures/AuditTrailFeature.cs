@@ -1,7 +1,7 @@
-﻿using Craft.Auditing;
+using Craft.Auditing;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Data.DbContextFeatures;
+namespace Craft.Value.DbContextFeatures;
 
 /// <summary>
 /// Feature that enables automatic audit trail generation for entities marked with [Audit] attribute.
@@ -63,3 +63,4 @@ public class AuditTrailFeature : IDbContextFeature, IDbSetProvider
         }
     }
 }
+

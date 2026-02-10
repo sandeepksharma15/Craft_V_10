@@ -1,4 +1,4 @@
-﻿using Craft.Testing.Fixtures;
+using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -919,3 +919,4 @@ public class RepositoryTests
         public string? Name { get; set; }
     }
 }
+

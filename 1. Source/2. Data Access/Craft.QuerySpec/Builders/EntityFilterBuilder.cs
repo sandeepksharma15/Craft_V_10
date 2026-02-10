@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using Craft.Core;
+using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
 using iText.Signatures.Validation.Lotl.Criteria;
 
@@ -235,3 +236,4 @@ public class EntityFilterBuilder<T> where T : class
         return ExpressionBuilder.CreateWhereExpression<T>(filterInfo);
     }
 }
+

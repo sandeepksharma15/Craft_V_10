@@ -1,3 +1,5 @@
-﻿namespace Craft.HttpServices;
+using Craft.Core;
+namespace Craft.HttpServices;
 
 public interface IHttpService;
+

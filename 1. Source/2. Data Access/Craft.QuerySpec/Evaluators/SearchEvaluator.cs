@@ -1,4 +1,5 @@
-﻿namespace Craft.QuerySpec;
+using Craft.Core;
+namespace Craft.QuerySpec;
 
 public sealed class SearchEvaluator : IEvaluator
 {
@@ -15,3 +16,4 @@ public sealed class SearchEvaluator : IEvaluator
             .SqlLikeSearchCriteriaList ?? [])!;
     }
 }
+

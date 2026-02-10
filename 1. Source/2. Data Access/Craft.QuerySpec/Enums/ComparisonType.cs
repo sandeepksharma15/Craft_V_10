@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+using Craft.Core;
+using System.ComponentModel;
 
 namespace Craft.QuerySpec;
 
@@ -31,3 +32,4 @@ public enum ComparisonType
     [Description("Ends With")]
     EndsWith
 }
+

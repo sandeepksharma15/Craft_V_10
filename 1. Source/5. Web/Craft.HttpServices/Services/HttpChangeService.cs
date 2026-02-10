@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+using Craft.Core;
+using System.Net.Http.Json;
 using Craft.Core.Common;
 using Craft.Domain;
 using Mapster;
@@ -14,7 +15,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
     public HttpChangeService(Uri apiURL, HttpClient httpClient, ILogger<HttpChangeService<T, ViewT, DataTransferT, TKey>> logger)
         : base(apiURL, httpClient, logger) { }
 
-    public virtual async Task<HttpServiceResult<T?>> AddAsync(ViewT model, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<T?>> AddAsync(ViewT model, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model, nameof(model));
 
@@ -30,7 +31,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         );
     }
 
-    public virtual async Task<HttpServiceResult<List<T>?>> AddRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<List<T>?>> AddRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
 
@@ -46,7 +47,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         );
     }
 
-    public virtual async Task<HttpServiceResult<bool>> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<bool>> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id, nameof(id));
 
@@ -59,7 +60,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         );
     }
 
-    public virtual async Task<HttpServiceResult<bool>> DeleteRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<bool>> DeleteRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
 
@@ -74,7 +75,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         );
     }
 
-    public virtual async Task<HttpServiceResult<T?>> UpdateAsync(ViewT model, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<T?>> UpdateAsync(ViewT model, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model, nameof(model));
 
@@ -90,7 +91,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         );
     }
 
-    public virtual async Task<HttpServiceResult<List<T>?>> UpdateRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
+    public virtual async Task<ServiceResult<List<T>?>> UpdateRangeAsync(IReadOnlyCollection<ViewT> models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models, nameof(models));
 
@@ -112,3 +113,5 @@ public class HttpChangeService<T, ViewT, DataTransferT>(Uri apiURL, HttpClient h
     where T : class, IEntity, IModel, new()
     where ViewT : class, IModel, new()
     where DataTransferT : class, IModel, new();
+
+

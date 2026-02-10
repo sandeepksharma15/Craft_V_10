@@ -1,3 +1,5 @@
+using Craft.Core;
+
 namespace Craft.Notifications;
 
 /// <summary>
@@ -12,7 +14,7 @@ public interface INotificationRealTimeService
     /// <param name="notification">The notification to send.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> SendRealTimeAsync(
+    Task<ServiceResult> SendRealTimeAsync(
         string userId,
         Notification notification,
         CancellationToken cancellationToken = default);
@@ -24,7 +26,7 @@ public interface INotificationRealTimeService
     /// <param name="notification">The notification to send.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating success or failure.</returns>
-    Task<Result> SendRealTimeToMultipleAsync(
+    Task<ServiceResult> SendRealTimeToMultipleAsync(
         IEnumerable<string> userIds,
         Notification notification,
         CancellationToken cancellationToken = default);

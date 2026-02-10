@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Craft.Security.Tokens;
 
@@ -35,3 +35,4 @@ public class JwtSettings : IValidatableObject
             yield return new ValidationResult("RefreshTokenExpirationInDays must be greater than 0", [nameof(RefreshTokenExpirationInDays)]);
     }
 }
+

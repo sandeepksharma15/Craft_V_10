@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Craft.Data;
 
@@ -12,3 +12,4 @@ public interface IDatabaseProvider
     void Configure(DbContextOptionsBuilder builder, string connectionString, DatabaseOptions options);
     bool ValidateConnection(string connectionString);
 }
+

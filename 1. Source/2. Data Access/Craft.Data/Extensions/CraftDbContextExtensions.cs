@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Craft.Data.Extensions;
+namespace Craft.Value.Extensions;
 
 /// <summary>
 /// Extension methods for configuring Craft DbContext with modern DI patterns and pooling support.
@@ -139,3 +139,4 @@ public static class CraftDbContextExtensions
         additionalConfiguration?.Invoke(options);
     }
 }
+
