@@ -1,4 +1,4 @@
-namespace Craft.Core.Common.Constants;
+namespace Craft.Core;
 
 /// <summary>
 /// Common error types for service results.

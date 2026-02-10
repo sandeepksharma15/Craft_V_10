@@ -1,4 +1,4 @@
-using Craft.Core.Common.Constants;
+using Craft.Core;
 
 namespace Craft.Core;
 

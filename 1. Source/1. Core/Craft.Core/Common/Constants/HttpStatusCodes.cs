@@ -1,4 +1,4 @@
-namespace Craft.Core.Common.Constants;
+namespace Craft.Core;
 
 /// <summary>
 /// Common HTTP status codes for service results.

@@ -1,5 +1,5 @@
 using AutoFixture;
-using Craft.Core.Common;
+using Craft.Core;
 using Craft.Domain;
 using Craft.HttpServices;
 using Craft.HttpServices.Services;

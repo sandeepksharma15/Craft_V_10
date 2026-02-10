@@ -1,6 +1,4 @@
-using Craft.Core.Common.Constants;
-
-namespace Craft.Core.Common;
+namespace Craft.Core;
 
 /// <summary>
 /// Extension methods for <see cref="IServiceResult"/> and <see cref="ServiceResult{T}"/>.

@@ -1,3 +1,3 @@
-using Craft.Core;
 global using KeyType = long;
+using Craft.Core;
 

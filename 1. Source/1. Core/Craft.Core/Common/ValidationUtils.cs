@@ -1,4 +1,4 @@
-namespace Craft.Core.Common;
+namespace Craft.Core;
 
 /// <summary>
 /// Utility methods for validation and error aggregation.

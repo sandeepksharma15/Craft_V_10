@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Craft.Core.Common.Constants;
 using Microsoft.AspNetCore.Identity;
 
 namespace Craft.Core;

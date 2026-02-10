@@ -1,7 +1,6 @@
-using Craft.Core.Common.Constants;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Craft.Core.Extensions;
+namespace Craft.Core;
 
 /// <summary>
 /// Extension methods for converting IServiceResult to IActionResult.
