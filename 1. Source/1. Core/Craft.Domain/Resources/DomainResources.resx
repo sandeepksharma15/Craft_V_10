@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Validation Error Messages -->
+  <data name="AfterError" xml:space="preserve">
+    <value>{0} must be after {1}</value>
+    <comment>Error message for date/time validation when a value must occur after another. Parameters: {0} = field name, {1} = comparison field name</comment>
+  </data>
+  <data name="LengthError" xml:space="preserve">
+    <value>{0} cannot be more than {1}</value>
+    <comment>Error message for length validation when a value exceeds maximum length. Parameters: {0} = field name, {1} = max length</comment>
+  </data>
+  <data name="RequiredError" xml:space="preserve">
+    <value>{0} is required</value>
+    <comment>Error message for required field validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="StartDateGreaterError" xml:space="preserve">
+    <value>Start must be before End</value>
+    <comment>Error message for date range validation when start date must precede end date</comment>
+  </data>
+  <data name="RangeError" xml:space="preserve">
+    <value>{0} must be between {1} and {2}</value>
+    <comment>Error message for range validation. Parameters: {0} = field name, {1} = min value, {2} = max value</comment>
+  </data>
+  <data name="MinLengthError" xml:space="preserve">
+    <value>{0} must be at least {1} characters</value>
+    <comment>Error message for minimum length validation. Parameters: {0} = field name, {1} = min length</comment>
+  </data>
+  <data name="MaxLengthError" xml:space="preserve">
+    <value>{0} must not exceed {1} characters</value>
+    <comment>Error message for maximum length validation. Parameters: {0} = field name, {1} = max length</comment>
+  </data>
+  <data name="AlphabetAndSpecialCharError" xml:space="preserve">
+    <value>{0} must contain only alphabets (1st Uppercase) and ,.'() </value>
+    <comment>Error message for alphabetic and special character validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="AlphaNumericError" xml:space="preserve">
+    <value>{0} must contain only alphanumeric characters (1st uppercase)</value>
+    <comment>Error message for alphanumeric validation with first character uppercase. Parameters: {0} = field name</comment>
+  </data>
+  <data name="CapitalAlphabetError" xml:space="preserve">
+    <value>{0} must contain only uppercase letters</value>
+    <comment>Error message for uppercase letter validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="OnlyDigitError" xml:space="preserve">
+    <value>{0} must be a whole number</value>
+    <comment>Error message for whole number validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="OnlyNumberError" xml:space="preserve">
+    <value>{0} must be a valid number</value>
+    <comment>Error message for numeric validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="AlphaNumCodeWithHyphenRegExError" xml:space="preserve">
+    <value>{0} must contain only capital letters, digits and hyphen</value>
+    <comment>Error message for alphanumeric code with hyphen validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="FormatError" xml:space="preserve">
+    <value>{0} not in valid format</value>
+    <comment>Error message for general format validation. Parameters: {0} = field name</comment>
+  </data>
+  <data name="DuplicateError" xml:space="preserve">
+    <value>Value should not be same</value>
+    <comment>Error message for duplicate value validation</comment>
+  </data>
+  <!-- Exception Messages -->
+  <data name="ResourceNotFound" xml:space="preserve">
+    <value>The requested resource was not found</value>
+    <comment>Default message for NotFoundException</comment>
+  </data>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entity "{0}" ({1}) was not found.</value>
+    <comment>Message for NotFoundException with entity details. Parameters: {0} = entity name, {1} = key</comment>
+  </data>
+  <data name="EntityAlreadyExists" xml:space="preserve">
+    <value>Entity "{0}" ({1}) already exists.</value>
+    <comment>Message for AlreadyExistsException. Parameters: {0} = entity name, {1} = key</comment>
+  </data>
+  <data name="ConcurrencyConflict" xml:space="preserve">
+    <value>A concurrency conflict occurred for entity "{0}" ({1}).</value>
+    <comment>Message for ConcurrencyException. Parameters: {0} = entity name, {1} = key</comment>
+  </data>
+  <data name="ValidationFailed" xml:space="preserve">
+    <value>One or more validation failures have occurred.</value>
+    <comment>Default message for ModelValidationException</comment>
+  </data>
+  <data name="UnauthorizedAccess" xml:space="preserve">
+    <value>You are not authorized to access this resource.</value>
+    <comment>Default message for UnauthorizedException</comment>
+  </data>
+  <data name="ForbiddenAccess" xml:space="preserve">
+    <value>You do not have permission to perform this action.</value>
+    <comment>Default message for ForbiddenException</comment>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected error occurred. Please try again later.</value>
+    <comment>Default message for InternalServerException</comment>
+  </data>
+  <data name="BadRequest" xml:space="preserve">
+    <value>The request was invalid or cannot be processed.</value>
+    <comment>Default message for BadRequestException</comment>
+  </data>
+  <data name="ConflictError" xml:space="preserve">
+    <value>A conflict occurred with resource "{0}": {1}</value>
+    <comment>Message for ConflictException. Parameters: {0} = resource name, {1} = reason</comment>
+  </data>
+</root>
