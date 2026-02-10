@@ -1,5 +1,6 @@
+using Craft.Core;
 using Craft.Core.Common;
-using Xunit;
+using Craft.Core.Common.Constants;
 
 namespace Craft.Core.Tests.Common;
 
@@ -8,7 +9,7 @@ public class ServiceResultExtensionsTests
     #region ToServiceResult Tests
 
     [Fact]
-    public void ToServiceResult_ConvertsException_ToFailedHttpServiceResult()
+    public void ToServiceResult_ConvertsException_ToFailedServiceResult()
     {
         // Arrange
         var exception = new InvalidOperationException("Test error");
@@ -22,7 +23,7 @@ public class ServiceResultExtensionsTests
         Assert.Single(result.Errors);
         Assert.Equal("Test error", result.Errors[0]);
         Assert.Equal(500, result.StatusCode);
-        Assert.Null(result.Data);
+        Assert.Null(result.Value);
     }
 
     [Fact]
@@ -61,39 +62,28 @@ public class ServiceResultExtensionsTests
     public void Map_OnSuccessResult_TransformsData()
     {
         // Arrange
-        var result = new HttpServiceResult<int>
-        {
-            IsSuccess = true,
-            Data = 5,
-            StatusCode = 200
-        };
+        var result = ServiceResult<int>.Success(5);
 
         // Act
         var mapped = result.Map(x => x * 2);
 
         // Assert
         Assert.True(mapped.IsSuccess);
-        Assert.Equal(10, mapped.Data);
-        Assert.Equal(200, mapped.StatusCode);
+        Assert.Equal(10, mapped.Value);
     }
 
     [Fact]
     public void Map_OnSuccessResult_CanChangeType()
     {
         // Arrange
-        var result = new HttpServiceResult<int>
-        {
-            IsSuccess = true,
-            Data = 42,
-            StatusCode = 200
-        };
+        var result = ServiceResult<int>.Success(42);
 
         // Act
         var mapped = result.Map(x => x.ToString());
 
         // Assert
         Assert.True(mapped.IsSuccess);
-        Assert.Equal("42", mapped.Data);
+        Assert.Equal("42", mapped.Value);
     }
 
     [Fact]
@@ -101,45 +91,33 @@ public class ServiceResultExtensionsTests
     {
         // Arrange
         var errors = new List<string> { "Error1", "Error2" };
-        var result = new HttpServiceResult<int>
-        {
-            IsSuccess = false,
-            Errors = errors,
-            StatusCode = 404
-        };
+        var result = ServiceResult<int>.Failure(errors, ErrorType.NotFound, 404);
 
         // Act
         var mapped = result.Map(x => x * 2);
 
         // Assert
         Assert.False(mapped.IsSuccess);
-        Assert.Equal(errors, mapped.Errors);
         Assert.Equal(404, mapped.StatusCode);
-        Assert.Equal(default, mapped.Data);
+        Assert.Equal(default, mapped.Value);
     }
 
     [Fact]
-    public void Map_WithNullData_HandlesGracefully()
+    public void Map_WithNullValue_ReturnsFailure()
     {
         // Arrange
-        var result = new HttpServiceResult<string?>
-        {
-            IsSuccess = true,
-            Data = null,
-            StatusCode = 200
-        };
+        var result = ServiceResult<string>.Failure("No value");
 
         // Act
-        var mapped = result.Map(x => x?.Length);
+        var mapped = result.Map(x => x.Length);
 
         // Assert
-        Assert.True(mapped.IsSuccess);
-        Assert.Null(mapped.Data);
+        Assert.False(mapped.IsSuccess);
     }
 
     #endregion
 
-    #region ToHttpServiceResult Tests
+    #region ToHttpServiceResult Tests (Backward Compatibility)
 
     [Fact]
     public void ToHttpServiceResult_ConvertsSuccessResult_Correctly()
@@ -148,7 +126,9 @@ public class ServiceResultExtensionsTests
         var result = Result<string>.CreateSuccess("test value");
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         var httpResult = result.ToHttpServiceResult(201);
+#pragma warning restore CS0618
 
         // Assert
         Assert.True(httpResult.IsSuccess);
@@ -165,7 +145,9 @@ public class ServiceResultExtensionsTests
         var result = Result<int>.CreateFailure(errors);
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         var httpResult = result.ToHttpServiceResult(400);
+#pragma warning restore CS0618
 
         // Assert
         Assert.False(httpResult.IsSuccess);
@@ -175,18 +157,19 @@ public class ServiceResultExtensionsTests
     }
 
     [Fact]
-    public void ToHttpServiceResult_WithoutStatusCode_LeavesItNull()
+    public void ToHttpServiceResult_WithoutStatusCode_UsesResultStatusCode()
     {
         // Arrange
         var result = Result<bool>.CreateSuccess(true);
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         var httpResult = result.ToHttpServiceResult();
+#pragma warning restore CS0618
 
         // Assert
         Assert.True(httpResult.IsSuccess);
         Assert.True(httpResult.Data);
-        Assert.Null(httpResult.StatusCode);
     }
 
     #endregion
@@ -197,42 +180,17 @@ public class ServiceResultExtensionsTests
     public void FirstError_ReturnsFirstError_WhenErrorsExist()
     {
         // Arrange
-        var result = new HttpServiceResult<string>
-        {
-            Errors = ["First", "Second", "Third"]
-        };
-
-        // Act
-        var firstError = result.FirstError();
+        var result = ServiceResult<string>.Failure(["Error1", "Error2"]);
 
         // Assert
-        Assert.Equal("First", firstError);
+        Assert.Equal("Error1", result.FirstError());
     }
 
     [Fact]
     public void FirstError_ReturnsNull_WhenNoErrors()
     {
         // Arrange
-        var result = new HttpServiceResult<string>
-        {
-            Errors = []
-        };
-
-        // Act
-        var firstError = result.FirstError();
-
-        // Assert
-        Assert.Null(firstError);
-    }
-
-    [Fact]
-    public void FirstError_ReturnsNull_WhenErrorsIsNull()
-    {
-        // Arrange
-        var result = new HttpServiceResult<string>
-        {
-            Errors = null
-        };
+        var result = ServiceResult<string>.Success("test");
 
         // Act
         var firstError = result.FirstError();

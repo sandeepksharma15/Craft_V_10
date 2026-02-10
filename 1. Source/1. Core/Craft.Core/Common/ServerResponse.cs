@@ -10,8 +10,7 @@ namespace Craft.Core;
 /// </summary>
 /// <remarks>
 /// <para>Use this type for API controller responses to clients.</para>
-/// <para>For domain/application layer operations, use <see cref="Result{T}"/>.</para>
-/// <para>For HTTP client operations, use <c>HttpServiceResult&lt;T&gt;</c>.</para>
+/// <para>For domain/application layer operations, use <see cref="ServiceResult{T}"/>.</para>
 /// </remarks>
 public class ServerResponse : IServiceResult
 {
@@ -270,8 +269,23 @@ public class ServerResponse<T> : IServiceResult
         => Failure(message, ErrorType.NotFound, HttpStatusCodes.NotFound);
 
     /// <summary>
+    /// Creates a response from a ServiceResult&lt;T&gt;.
+    /// </summary>
+    public static ServerResponse<T> FromServiceResult(ServiceResult<T> result)
+        => new()
+        {
+            IsSuccess = result.IsSuccess,
+            Data = result.Value,
+            Errors = result.Errors?.ToList() ?? [],
+            Message = result.Message,
+            ErrorType = result.ErrorType,
+            StatusCode = result.StatusCode ?? GetDefaultStatusCode(result.ErrorType)
+        };
+
+    /// <summary>
     /// Creates a response from a Result&lt;T&gt;.
     /// </summary>
+    [Obsolete("Use FromServiceResult() instead.")]
     public static ServerResponse<T> FromResult(Result<T> result)
         => new()
         {

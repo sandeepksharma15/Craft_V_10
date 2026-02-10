@@ -22,11 +22,26 @@ public static class ActionResultExtensions
     }
 
     /// <summary>
+    /// Converts a ServiceResult&lt;T&gt; to an appropriate IActionResult with data.
+    /// </summary>
+    /// <typeparam name="T">The type of the result value.</typeparam>
+    /// <param name="result">The result to convert.</param>
+    /// <returns>An IActionResult with the appropriate status code and content.</returns>
+    public static IActionResult ToActionResult<T>(this ServiceResult<T> result)
+    {
+        if (result.IsSuccess)
+            return new OkObjectResult(result.Value);
+
+        return CreateErrorResult(result);
+    }
+
+    /// <summary>
     /// Converts a Result&lt;T&gt; to an appropriate IActionResult with data.
     /// </summary>
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="result">The result to convert.</param>
     /// <returns>An IActionResult with the appropriate status code and content.</returns>
+    [Obsolete("Use ServiceResult<T>.ToActionResult() instead.")]
     public static IActionResult ToActionResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
@@ -41,12 +56,15 @@ public static class ActionResultExtensions
     /// <typeparam name="T">The expected return type.</typeparam>
     /// <param name="result">The service result to convert.</param>
     /// <returns>An ActionResult&lt;T&gt; with the appropriate status code and content.</returns>
-    public static ActionResult<T> ToActionResult<T>(this IServiceResult result)
+    public static ActionResult<T> ToTypedActionResult<T>(this IServiceResult result)
     {
         if (result.IsSuccess)
         {
-            if (result is Result<T> typedResult)
+            if (result is ServiceResult<T> typedResult)
                 return typedResult.Value!;
+
+            if (result is Result<T> legacyResult)
+                return legacyResult.Value!;
 
             return new OkResult();
         }
@@ -55,11 +73,21 @@ public static class ActionResultExtensions
     }
 
     /// <summary>
-    /// Converts a Result&lt;T&gt; to a ServerResponse&lt;T&gt; and wraps it in an IActionResult.
+    /// Converts a ServiceResult&lt;T&gt; to a ServerResponse&lt;T&gt; and wraps it in an IActionResult.
     /// </summary>
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="result">The result to convert.</param>
     /// <returns>An IActionResult containing a ServerResponse&lt;T&gt;.</returns>
+    public static IActionResult ToServerResponseResult<T>(this ServiceResult<T> result)
+    {
+        var response = ServerResponse<T>.FromServiceResult(result);
+        return new ObjectResult(response) { StatusCode = response.StatusCode };
+    }
+
+    /// <summary>
+    /// Converts a Result&lt;T&gt; to a ServerResponse&lt;T&gt; and wraps it in an IActionResult.
+    /// </summary>
+    [Obsolete("Use ServiceResult<T>.ToServerResponseResult() instead.")]
     public static IActionResult ToServerResponseResult<T>(this Result<T> result)
     {
         var response = ServerResponse<T>.FromResult(result);
@@ -83,6 +111,18 @@ public static class ActionResultExtensions
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="result">The result to convert.</param>
     /// <returns>An IActionResult with problem details on failure.</returns>
+    public static IActionResult ToActionResultWithProblemDetails<T>(this ServiceResult<T> result)
+    {
+        if (result.IsSuccess)
+            return new OkObjectResult(result.Value);
+
+        return CreateProblemDetailsResult(result);
+    }
+
+    /// <summary>
+    /// Returns an OkObjectResult if successful, otherwise returns a problem details response.
+    /// </summary>
+    [Obsolete("Use ServiceResult<T>.ToActionResultWithProblemDetails() instead.")]
     public static IActionResult ToActionResultWithProblemDetails<T>(this Result<T> result)
     {
         if (result.IsSuccess)
