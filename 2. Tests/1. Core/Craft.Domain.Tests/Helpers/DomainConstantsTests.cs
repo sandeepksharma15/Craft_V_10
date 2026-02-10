@@ -131,7 +131,7 @@ public class DomainConstantsTests
     {
         // Arrange & Act & Assert
         Assert.NotEmpty(DomainConstants.DuplicateError);
-        Assert.Equal("Value Should not be Same", DomainConstants.DuplicateError);
+        Assert.Equal("Value should not be same", DomainConstants.DuplicateError);
     }
 
     #endregion

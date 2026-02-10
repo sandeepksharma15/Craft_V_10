@@ -1,638 +1,455 @@
 # Craft.Domain
 
-**Version**: 1.1.0  
-**Target Framework**: .NET 10  
-**Language**: C# 14
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Craft.Domain is a comprehensive .NET 10 library providing foundational components for domain-driven design (DDD) and robust exception handling in modern applications. It includes base classes, abstractions, helpers, and a complete standardized exception framework with HTTP status code integration.
+A foundational Domain-Driven Design (DDD) library for .NET 10 applications. Provides base classes, contracts, and patterns for building robust domain models with proper identity, equality, concurrency control, and event-driven architecture support.
 
----
+## Table of Contents
 
-## ?? Features
+- [Installation](#installation)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Architecture Overview](#architecture-overview)
+- [Core Concepts](#core-concepts)
+  - [Entities](#entities)
+  - [Value Objects](#value-objects)
+  - [Aggregate Roots](#aggregate-roots)
+  - [Domain Events](#domain-events)
+  - [Data Transfer Objects](#data-transfer-objects)
+- [Contracts (Interfaces)](#contracts-interfaces)
+- [Exception Handling](#exception-handling)
+- [Localization](#localization)
+- [Best Practices](#best-practices)
+- [Related Projects](#related-projects)
 
-### Core Domain Features
-- **Base Entity & Model Classes**: Abstract common entity and model behaviors, including identity, concurrency, and soft deletion
-- **Domain Abstractions**: Interfaces for entities, models, tenants, users, concurrency, and versioning
-- **Equality & Helper Methods**: Utilities for entity equality, default ID checks, and multi-tenancy detection
-- **Constants & Validation**: Centralized domain constants and regular expressions for validation
+## Installation
 
-### Exception Framework
-- **23 Specialized Exceptions**: Comprehensive HTTP status code coverage (400-504)
-- **Exception Factory**: Centralized, consistent exception creation with 50+ factory methods
-- **Automatic Middleware Integration**: Works seamlessly with `GlobalExceptionHandler`
-- **Validation Support**: Special handling for field-level validation errors
-- **Full Test Coverage**: 371 unit tests ensuring reliability
+Add a reference to `Craft.Domain` in your project:
 
----
-
-## ?? Quick Start
-
-### Installation
-
-```bash
-dotnet add reference Craft.Domain
+```xml
+<ProjectReference Include="path/to/Craft.Domain.csproj" />
 ```
 
-### Basic Entity Usage
+## Features
+
+- ✅ **Base Entity Classes** - `BaseEntity<TKey>` with identity, concurrency, and soft-delete
+- ✅ **Value Objects** - `ValueObject` and `SingleValueObject<T>` with structural equality
+- ✅ **Aggregate Roots** - `IAggregateRoot` marker interface for DDD boundaries
+- ✅ **Domain Events** - `IDomainEvent`, `DomainEventBase`, and `IHasDomainEvents`
+- ✅ **Data Transfer Objects** - `BaseDto`, `BaseVm`, `BaseModel` with `IDataTransferObject`
+- ✅ **Rich Exception Hierarchy** - Categorized exceptions with HTTP status codes
+- ✅ **Localization Support** - Resource-backed error messages
+- ✅ **Multi-tenancy Support** - `IHasTenant` interface
+- ✅ **Optimistic Concurrency** - Built-in concurrency stamps
+
+## Quick Start
+
+### Define an Entity
 
 ```csharp
-using Craft.Domain;
-
-// Define a domain entity
-public class Customer : BaseEntity
+public class Product : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-}
-
-// Equality check
-var areEqual = customer1.EntityEquals(customer2);
-
-// Check if ID is default
-var isNew = customer.IsDefaultId();
-```
-
-### Exception Usage (Traditional)
-
-```csharp
-using Craft.Domain;
-
-// Throw exceptions directly
-throw new NotFoundException("User", userId);
-throw new AlreadyExistsException("Product", productCode);
-throw new ConcurrencyException("Order", orderId, "v1", "v2");
-```
-
-### Exception Usage (Factory Pattern - Recommended)
-
-```csharp
-using Craft.Domain;
-
-// Use factory for consistency
-throw CraftExceptionFactory.NotFound("User", userId);
-throw CraftExceptionFactory.AlreadyExists("Product", productCode);
-throw CraftExceptionFactory.Concurrency("Order", orderId, "v1", "v2");
-```
-
----
-
-## ?? Core Components
-
-### Base Classes
-
-#### `BaseEntity<TKey>` / `BaseEntity`
-Abstract base classes for domain entities with identity management.
-
-```csharp
-public class Product : BaseEntity<Guid>
-{
-    public string Name { get; set; }
     public decimal Price { get; set; }
-}
-
-// With default int ID
-public class Category : BaseEntity
-{
-    public string Name { get; set; }
+    public bool IsActive { get; set; }
 }
 ```
 
-#### `BaseModel<TKey>` / `BaseModel`
-Base classes for DTOs and models.
+### Define a Value Object
 
 ```csharp
-public class ProductDto : BaseModel<Guid>
+public sealed class Money : ValueObject
 {
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-}
-```
-
-### Interfaces
-
-| Interface | Purpose |
-|-----------|---------|
-| `IEntity<TKey>` | Defines entity with identity |
-| `IModel<TKey>` | Defines model/DTO with identity |
-| `IHasTenant` | Multi-tenancy support |
-| `IHasUser<TKey>` | User tracking |
-| `IHasConcurrency` | Optimistic concurrency |
-| `ISoftDelete` | Soft deletion support |
-| `IHasVersion` | Versioning support |
-
-### Helpers
-
-#### `EntityHelper`
-Static helper methods for entity operations.
-
-```csharp
-// Check if ID is default
-bool isNew = EntityHelper.IsDefaultId(entity.Id);
-
-// Check entity equality
-bool areEqual = EntityHelper.EntityEquals(entity1, entity2);
-
-// Check if entity has tenant
-bool hasTenant = EntityHelper.HasTenant(entity);
-```
-
----
-
-## ?? Exception Framework
-
-### Exception Categories
-
-#### ?? Domain Exceptions
-Handle domain-specific business logic errors.
-
-| Exception | HTTP Code | Use Case |
-|-----------|-----------|----------|
-| `NotFoundException` | 404 | Resource not found |
-| `AlreadyExistsException` | 422 | Duplicate resource |
-| `BadRequestException` | 400 | Invalid request data |
-| `ModelValidationException` | 400 | Validation failures |
-| `ConflictException` | 409 | Business rule conflict |
-| `ConcurrencyException` | 409 | Optimistic concurrency failure |
-| `GoneException` | 410 | Permanently deleted resource |
-| `PreconditionFailedException` | 412 | ETag/conditional request failure |
-
-#### ?? Security Exceptions
-Handle authentication and authorization errors.
-
-| Exception | HTTP Code | Use Case |
-|-----------|-----------|----------|
-| `UnauthorizedException` | 401 | Missing/invalid authentication |
-| `InvalidCredentialsException` | 401 | Wrong username/password |
-| `ForbiddenException` | 403 | Insufficient permissions |
-
-#### ??? Server Exceptions
-Handle server-side errors.
-
-| Exception | HTTP Code | Use Case |
-|-----------|-----------|----------|
-| `InternalServerException` | 500 | Internal server error |
-| `BadGatewayException` | 502 | Invalid upstream response |
-| `ServiceUnavailableException` | 503 | Service temporarily down |
-| `GatewayTimeoutException` | 504 | Upstream timeout |
-
-#### ?? Client Exceptions
-Handle client-side errors.
-
-| Exception | HTTP Code | Use Case |
-|-----------|-----------|----------|
-| `FeatureNotImplementedException` | 501 | Feature not yet implemented |
-| `TooManyRequestsException` | 429 | Rate limit exceeded |
-| `UnsupportedMediaTypeException` | 415 | Invalid content type |
-| `PayloadTooLargeException` | 413 | Request payload too large |
-
-#### ?? Infrastructure Exceptions
-Handle infrastructure-related errors.
-
-| Exception | HTTP Code | Use Case |
-|-----------|-----------|----------|
-| `ConfigurationException` | 500 | Configuration errors |
-| `DatabaseException` | 500 | Database operation failures |
-| `ExternalServiceException` | 502 | External API failures |
-
----
-
-## ?? Exception Factory
-
-The `CraftExceptionFactory` provides a centralized, consistent way to create exceptions.
-
-### Benefits
-
-? **Consistency** - All exceptions created the same way  
-? **Discoverability** - IntelliSense guides you to the right exception  
-? **Maintainability** - Single point to update exception creation  
-? **Type Safety** - Compile-time checking
-
-### Quick Reference
-
-```csharp
-// Domain Exceptions
-CraftExceptionFactory.NotFound("User", userId);
-CraftExceptionFactory.AlreadyExists("Product", productId);
-CraftExceptionFactory.Concurrency("Order", orderId, "v1", "v2");
-CraftExceptionFactory.Conflict("Order", "Cannot delete with active shipments");
-CraftExceptionFactory.BadRequest("Invalid input", errors);
-CraftExceptionFactory.ValidationFailed(validationErrors);
-CraftExceptionFactory.Gone("Document", documentId, deletedAt);
-CraftExceptionFactory.PreconditionFailed("If-Match", expectedETag, actualETag);
-
-// Security Exceptions
-CraftExceptionFactory.Unauthorized("Token expired");
-CraftExceptionFactory.Forbidden("Insufficient permissions");
-CraftExceptionFactory.InvalidCredentials("Wrong password");
-
-// Infrastructure Exceptions
-CraftExceptionFactory.Configuration("ConnectionString", "Value missing");
-CraftExceptionFactory.Database("INSERT", "Unique constraint violation");
-CraftExceptionFactory.ExternalService("PaymentAPI", 503, "Service unavailable");
-
-// Server Exceptions
-CraftExceptionFactory.InternalServer("Critical error");
-CraftExceptionFactory.BadGateway("ExternalAPI", "Invalid response");
-CraftExceptionFactory.GatewayTimeout("SlowAPI", 30);
-CraftExceptionFactory.ServiceUnavailable("Maintenance in progress");
-
-// Client Exceptions
-CraftExceptionFactory.NotImplemented("PDF Export", "Coming in v2.0");
-CraftExceptionFactory.TooManyRequests(100, "minute");
-CraftExceptionFactory.UnsupportedMediaType("text/csv", supportedTypes);
-CraftExceptionFactory.PayloadTooLarge(actualSize, maxSize);
-
-// Utility Methods
-CraftExceptionFactory.FromStandardException(exception);
-CraftExceptionFactory.FromStatusCode(404, "Not found");
-```
-
----
-
-## ?? Usage Examples
-
-### Repository Layer
-
-```csharp
-public class UserRepository
-{
-    public async Task<User> GetByIdAsync(int id)
+    public decimal Amount { get; }
+    public string Currency { get; }
+    
+    public Money(decimal amount, string currency)
     {
-        var user = await _dbContext.Users.FindAsync(id);
-        if (user == null)
-            throw CraftExceptionFactory.NotFound("User", id);
-        
-        if (user.IsDeleted && user.DeletedAt < DateTime.UtcNow.AddDays(-30))
-            throw CraftExceptionFactory.Gone("User", id, user.DeletedAt);
-        
-        return user;
-    }
-
-    public async Task<User> CreateAsync(User user)
-    {
-        try
-        {
-            _dbContext.Users.Add(user);
-            await _dbContext.SaveChangesAsync();
-            return user;
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
-        {
-            if (sqlEx.Number == 2627) // Unique constraint
-                throw CraftExceptionFactory.AlreadyExists("User", user.Email);
-            
-            throw CraftExceptionFactory.Database("INSERT", sqlEx.Message);
-        }
-    }
-
-    public async Task UpdateAsync(User user)
-    {
-        try
-        {
-            _dbContext.Users.Update(user);
-            await _dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            throw CraftExceptionFactory.Concurrency("User", user.Id);
-        }
-    }
-}
-```
-
-### Service Layer
-
-```csharp
-public class OrderService
-{
-    public async Task<Order> CreateOrderAsync(CreateOrderDto dto)
-    {
-        // Validate input
-        var validationErrors = ValidateOrder(dto);
-        if (validationErrors.Any())
-            throw CraftExceptionFactory.ValidationFailed(validationErrors);
-        
-        // Check for duplicates
-        if (await _repository.ExistsAsync(o => o.OrderNumber == dto.OrderNumber))
-            throw CraftExceptionFactory.AlreadyExists("Order", dto.OrderNumber);
-        
-        // Create order
-        var order = _mapper.Map<Order>(dto);
-        return await _repository.AddAsync(order);
+        Amount = amount;
+        Currency = currency ?? throw new ArgumentNullException(nameof(currency));
     }
     
-    public async Task UpdateOrderAsync(int id, UpdateOrderDto dto, string etag)
+    protected override IEnumerable<object?> GetEqualityComponents()
     {
-        var order = await _repository.GetByIdAsync(id);
-        
-        // Check ETag for conditional updates
-        var currentETag = GenerateETag(order);
-        if (currentETag != etag)
-            throw CraftExceptionFactory.PreconditionFailed("If-Match", etag, currentETag);
-        
-        // Check business rules
-        if (order.Status == OrderStatus.Shipped)
-            throw CraftExceptionFactory.Conflict("Order", "Cannot modify shipped orders");
-        
-        // Update order
-        _mapper.Map(dto, order);
-        await _repository.UpdateAsync(order);
+        yield return Amount;
+        yield return Currency;
     }
 }
 ```
 
-### API Controller
+### Define an Aggregate Root with Domain Events
 
 ```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class Order : BaseEntity, IAggregateRoot, IHasDomainEvents
 {
-    private readonly IUserService _service;
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser(int id)
+    private readonly List<OrderLine> _lines = [];
+    private readonly DomainEventCollection _events = new();
+    
+    public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _events.DomainEvents;
+    
+    public void AddLine(Product product, int quantity)
     {
-        // Exceptions automatically handled by GlobalExceptionHandler
-        var user = await _service.GetUserAsync(id);
-        return Ok(user);
+        var line = new OrderLine(product.Id, quantity, product.Price);
+        _lines.Add(line);
+        AddDomainEvent(new OrderLineAddedEvent(Id, line));
     }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateUser(CreateUserDto dto)
-    {
-        var user = await _service.CreateUserAsync(dto);
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(
-        int id, 
-        [FromBody] UpdateUserDto dto,
-        [FromHeader(Name = "If-Match")] string? etag)
-    {
-        await _service.UpdateUserAsync(id, dto, etag);
-        return NoContent();
-    }
+    
+    public void AddDomainEvent(IDomainEvent domainEvent) => _events.AddDomainEvent(domainEvent);
+    public bool RemoveDomainEvent(IDomainEvent domainEvent) => _events.RemoveDomainEvent(domainEvent);
+    public void ClearDomainEvents() => _events.ClearDomainEvents();
 }
 ```
 
-### External Service Integration
-
-```csharp
-public class PaymentGatewayClient
-{
-    private readonly HttpClient _httpClient;
-
-    public async Task<PaymentResult> ProcessPaymentAsync(PaymentRequest request)
-    {
-        try
-        {
-            var response = await _httpClient.PostAsJsonAsync("/payments", request);
-            
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                throw CraftExceptionFactory.ExternalService(
-                    "PaymentGateway",
-                    (int)response.StatusCode,
-                    error
-                );
-            }
-            
-            return await response.Content.ReadFromJsonAsync<PaymentResult>();
-        }
-        catch (HttpRequestException ex)
-        {
-            throw CraftExceptionFactory.ExternalService("PaymentGateway", ex.Message);
-        }
-        catch (TaskCanceledException)
-        {
-            throw CraftExceptionFactory.GatewayTimeout("PaymentGateway", 30);
-        }
-    }
-}
-```
-
-### File Upload with Validation
-
-```csharp
-public class FileUploadService
-{
-    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
-
-    public async Task<string> UploadFileAsync(IFormFile file)
-    {
-        // Check file size
-        if (file.Length > MaxFileSize)
-            throw CraftExceptionFactory.PayloadTooLarge("File", file.Length, MaxFileSize);
-        
-        // Check content type
-        if (!IsValidContentType(file.ContentType))
-        {
-            var supportedTypes = new[] { "image/jpeg", "image/png", "application/pdf" };
-            throw CraftExceptionFactory.UnsupportedMediaType(file.ContentType, supportedTypes);
-        }
-        
-        // Upload file...
-        return await UploadToStorageAsync(file);
-    }
-}
-```
-
----
-
-## ?? Middleware Integration
-
-Exceptions are automatically handled by the `GlobalExceptionHandler` middleware (from `Craft.Middleware`), which converts them to standardized RFC 7807 ProblemDetails responses.
-
-### Example Response
-
-```json
-{
-  "type": "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.5",
-  "title": "Resource not found",
-  "status": 404,
-  "detail": "Entity \"User\" (123) was not found.",
-  "instance": "/api/users/123",
-  "errorId": "550e8400-e29b-41d4-a716-446655440000",
-  "correlationId": "abc-123-def",
-  "timestamp": "2024-12-02T10:30:00Z"
-}
-```
-
-### Validation Error Response
-
-```json
-{
-  "type": "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.1",
-  "title": "One or more validation errors occurred",
-  "status": 400,
-  "detail": "Validation failed",
-  "instance": "/api/users",
-  "errors": {
-    "Email": ["Email is required", "Invalid email format"],
-    "Age": ["Must be 18 or older"]
-  },
-  "errorId": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
-
----
-
-## ?? Best Practices
-
-### 1. Use the Factory Pattern
-
-```csharp
-// ? Good - Consistent and discoverable
-throw CraftExceptionFactory.NotFound("User", userId);
-
-// ? Avoid - Direct construction (still works but less consistent)
-throw new NotFoundException("User", userId);
-```
-
-### 2. Provide Context with Error Lists
-
-```csharp
-// ? Good - Detailed, actionable errors
-var errors = new List<string>
-{
-    "Order has 3 active shipments",
-    "Complete or cancel shipments first",
-    "Last shipment: #12345"
-};
-throw CraftExceptionFactory.Conflict("Cannot delete order", errors);
-
-// ? Avoid - Vague messages
-throw CraftExceptionFactory.Conflict("Cannot delete");
-```
-
-### 3. Wrap Underlying Exceptions
-
-```csharp
-// ? Good - Preserves stack trace and context
-try
-{
-    await externalService.CallAsync();
-}
-catch (HttpRequestException ex)
-{
-    throw CraftExceptionFactory.ExternalService("PaymentAPI", ex.Message);
-}
-
-// ? Avoid - Loses original exception
-throw CraftExceptionFactory.ExternalService("PaymentAPI", "Error occurred");
-```
-
-### 4. Use Specialized Constructors
-
-```csharp
-// ? Good - Consistent formatting
-throw CraftExceptionFactory.NotFound("User", userId);
-// Output: Entity "User" (123) was not found.
-
-// ? Avoid - Manual formatting
-throw CraftExceptionFactory.NotFound($"User {userId} not found");
-```
-
----
-
-## ?? Testing
-
-All components include comprehensive unit test coverage.
-
-### Test Statistics
-
-- **Total Tests**: 371
-- **Exception Tests**: 281
-- **Factory Tests**: 69
-- **Domain Tests**: 21
-- **Pass Rate**: 100% ?
-
-### Example Test
-
-```csharp
-[Fact]
-public void NotFound_WithEntityAndKey_CreatesCorrectException()
-{
-    // Arrange & Act
-    var ex = CraftExceptionFactory.NotFound("User", 123);
-
-    // Assert
-    Assert.IsType<NotFoundException>(ex);
-    Assert.Equal("Entity \"User\" (123) was not found.", ex.Message);
-    Assert.Equal(HttpStatusCode.NotFound, ex.StatusCode);
-}
-```
-
----
-
-## ?? Project Structure
+## Architecture Overview
 
 ```
 Craft.Domain/
-??? Abstractions/         # Domain interfaces
-??? Base/                 # Base entity and model classes
-??? Enums/                # Domain enumerations
-??? Exceptions/           # Complete exception framework
-?   ??? Base/            # Base exception class
-?   ??? Domain/          # Domain exceptions
-?   ??? Security/        # Security exceptions
-?   ??? Server/          # Server exceptions
-?   ??? Client/          # Client exceptions
-?   ??? Infrastructure/  # Infrastructure exceptions
-?   ??? Factories/       # Exception factory
-??? Extensions/          # Extension methods
-??? Helpers/             # Helper utilities
+├── Abstractions/           # Interfaces and contracts
+│   ├── IEntity.cs
+│   ├── IHasId.cs
+│   ├── IHasConcurrency.cs
+│   ├── ISoftDelete.cs
+│   ├── IHasTenant.cs
+│   ├── IHasUser.cs
+│   ├── IHasActive.cs
+│   ├── IHasVersion.cs
+│   ├── IModel.cs
+│   ├── IDataTransferObject.cs
+│   ├── IAggregateRoot.cs
+│   ├── IDomainEvent.cs
+│   └── IHasDomainEvents.cs
+├── Base/                   # Base classes
+│   ├── BaseEntity.cs
+│   ├── BaseModel.cs
+│   ├── BaseDTO.cs
+│   ├── BaseVm.cs
+│   └── ValueObject.cs
+├── Events/                 # Domain events
+│   └── DomainEventBase.cs
+├── Enums/                  # Domain enumerations
+├── Exceptions/             # Exception hierarchy
+│   ├── Base/
+│   ├── Domain/
+│   ├── Security/
+│   ├── Infrastructure/
+│   ├── Client/
+│   ├── Server/
+│   └── Factories/
+├── Extensions/             # Extension methods
+├── Helpers/                # Constants and helpers
+└── Resources/              # Localization resources
 ```
 
+## Core Concepts
+
+### Entities
+
+Entities have identity and lifecycle. Use `BaseEntity<TKey>` or `BaseEntity` (which uses `long` as the key type).
+
+```csharp
+// With default long key
+public class Customer : BaseEntity
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+// With custom key type
+public class Document : BaseEntity<Guid>
+{
+    public string Title { get; set; } = string.Empty;
+}
+```
+
+**Built-in features:**
+- `Id` - Primary key with database generation
+- `ConcurrencyStamp` - GUID-based optimistic concurrency
+- `IsDeleted` - Soft-delete support
+- `Equals()` / `GetHashCode()` - Identity-based equality with tenant awareness
+- `IEquatable<BaseEntity<TKey>>` - Type-safe equality
+
+### Value Objects
+
+Value objects are immutable and compared by their component values.
+
+```csharp
+// Multi-component value object
+public sealed class Address : ValueObject
+{
+    public string Street { get; }
+    public string City { get; }
+    public string PostalCode { get; }
+    
+    public Address(string street, string city, string postalCode)
+    {
+        Street = street;
+        City = city;
+        PostalCode = postalCode;
+    }
+    
+    protected override IEnumerable<object?> GetEqualityComponents()
+    {
+        yield return Street;
+        yield return City;
+        yield return PostalCode;
+    }
+}
+
+// Single-value wrapper (with validation)
+public sealed class Email : SingleValueObject<string>
+{
+    public Email(string value) : base(value)
+    {
+        if (!IsValidEmail(value))
+            throw new ArgumentException("Invalid email format", nameof(value));
+    }
+    
+    private static bool IsValidEmail(string value) 
+        => Regex.IsMatch(value, DomainConstants.EmailRegExpr);
+}
+
+// Usage
+Email email = new("user@example.com");
+string value = email; // Implicit conversion to string
+```
+
+### Aggregate Roots
+
+Aggregate roots define consistency boundaries. Only aggregate roots should be loaded via repositories.
+
+```csharp
+// Mark aggregate roots with the marker interface
+public class Order : BaseEntity, IAggregateRoot
+{
+    // Child entities are accessed only through the aggregate root
+    private readonly List<OrderLine> _lines = [];
+    public IReadOnlyCollection<OrderLine> Lines => _lines.AsReadOnly();
+}
+
+// Repository constraint pattern
+public interface IRepository<T> where T : class, IAggregateRoot
+{
+    Task<T?> GetByIdAsync(long id);
+    Task AddAsync(T aggregate);
+}
+```
+
+### Domain Events
+
+Domain events represent something significant that happened in your domain.
+
+```csharp
+// Define a domain event
+public sealed class OrderPlacedEvent : DomainEventBase
+{
+    public long OrderId { get; }
+    public decimal TotalAmount { get; }
+    
+    public OrderPlacedEvent(long orderId, decimal totalAmount)
+    {
+        OrderId = orderId;
+        TotalAmount = totalAmount;
+    }
+}
+
+// Raise events from aggregate roots
+public class Order : BaseEntity, IAggregateRoot, IHasDomainEvents
+{
+    private readonly DomainEventCollection _events = new();
+    
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _events.DomainEvents;
+    
+    public void Place()
+    {
+        // Business logic...
+        _events.AddDomainEvent(new OrderPlacedEvent(Id, TotalAmount));
+    }
+    
+    public void AddDomainEvent(IDomainEvent e) => _events.AddDomainEvent(e);
+    public bool RemoveDomainEvent(IDomainEvent e) => _events.RemoveDomainEvent(e);
+    public void ClearDomainEvents() => _events.ClearDomainEvents();
+}
+```
+
+**Domain Event Properties:**
+- `EventId` - Unique identifier (auto-generated GUID)
+- `OccurredOnUtc` - Timestamp when the event occurred
+- `EventType` - Type name for routing/serialization
+- `CorrelationId` - Optional correlation for tracing
+- `CausationId` - Optional link to causing event
+
+### Data Transfer Objects
+
+Three base classes for API communication, all implementing `IDataTransferObject`:
+
+| Class | Purpose | Use Case |
+|-------|---------|----------|
+| `BaseDto` | API Input | Create/Update requests from client |
+| `BaseVm` | API Output | Responses to client |
+| `BaseModel` | General | Internal data transfer |
+
+```csharp
+// Input DTO for creating/updating
+public class ProductDto : BaseDto
+{
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+}
+
+// Output VM with computed properties
+public class ProductVm : BaseVm
+{
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public string FormattedPrice => Price.ToString("C");
+}
+```
+
+**Why include `ConcurrencyStamp` and `IsDeleted`?**
+- `ConcurrencyStamp` - Client receives with response, sends back on updates for conflict detection
+- `IsDeleted` - Enables soft-delete/restore operations via API
+
+## Contracts (Interfaces)
+
+| Interface | Purpose |
+|-----------|---------|
+| `IEntity<TKey>` | Entities with identity |
+| `IHasId<TKey>` | Objects with an identifier |
+| `IHasConcurrency` | Optimistic concurrency control |
+| `ISoftDelete` | Soft-delete capability |
+| `IHasTenant<TKey>` | Multi-tenant entities |
+| `IHasUser<TKey>` | User-associated entities |
+| `IHasActive` | Activation/deactivation |
+| `IHasVersion` | Version tracking |
+| `IModel<TKey>` | Data transfer models |
+| `IDataTransferObject<TKey>` | API transfer objects |
+| `IAggregateRoot<TKey>` | DDD aggregate roots |
+| `IDomainEvent` | Domain events |
+| `IHasDomainEvents` | Event-raising entities |
+
+## Exception Handling
+
+Categorized exception hierarchy with HTTP status codes:
+
+### Domain Exceptions (4xx)
+- `BadRequestException` - 400
+- `NotFoundException` - 404
+- `AlreadyExistsException` - 409
+- `ConflictException` - 409
+- `ConcurrencyException` - 409
+- `GoneException` - 410
+- `PreconditionFailedException` - 412
+- `ModelValidationException` - 400
+
+### Security Exceptions
+- `UnauthorizedException` - 401
+- `ForbiddenException` - 403
+- `InvalidCredentialsException` - 401
+
+### Infrastructure Exceptions
+- `DatabaseException` - 500
+- `ConfigurationException` - 500
+- `ExternalServiceException` - 502
+
+### Server Exceptions (5xx)
+- `InternalServerException` - 500
+- `BadGatewayException` - 502
+- `ServiceUnavailableException` - 503
+- `GatewayTimeoutException` - 504
+
+### Usage
+
+```csharp
+// Throw exceptions
+throw new NotFoundException("Product", productId);
+throw CraftExceptionFactory.NotFound("Product", productId);
+
+// Convert to JSON-serializable format (for APIs)
+try { /* ... */ }
+catch (CraftException ex)
+{
+    var errorInfo = ex.ToErrorInfo(includeStackTrace: false);
+    return BadRequest(errorInfo);
+}
+```
+
+## Localization
+
+Error messages support localization via resource files.
+
+### Using Constants in Attributes (compile-time)
+
+```csharp
+[Required(ErrorMessage = DomainConstants.RequiredError)]
+[StringLength(100, ErrorMessage = DomainConstants.MaxLengthError)]
+public string Name { get; set; }
+```
+
+### Using Localized Messages at Runtime
+
+```csharp
+// Access localized messages
+var message = DomainConstants.Localized.RequiredError;
+
+// Use formatting helpers
+var formatted = DomainConstants.Localized.FormatRequired("FirstName");
+// Result: "FirstName is required"
+
+// Or use DomainResources directly
+var message = DomainResources.FormatEntityNotFound("Product", 42);
+// Result: "Entity "Product" (42) was not found."
+```
+
+### Adding Translations
+
+Create satellite resource files:
+- `DomainResources.fr.resx` - French
+- `DomainResources.de.resx` - German
+- etc.
+
+## Best Practices
+
+### 1. Entity Design
+- Keep entities focused on domain logic
+- Use value objects for complex properties
+- Implement `IHasDomainEvents` only on aggregate roots
+
+### 2. Aggregate Root Rules
+- External code should only reference aggregate roots
+- All changes must go through the aggregate root
+- Keep aggregates small for better concurrency
+
+### 3. Value Objects
+- Make them immutable (use `init` or constructor-only setters)
+- Implement validation in constructor
+- Override `GetEqualityComponents()` for all relevant properties
+
+### 4. Domain Events
+- Name events in past tense (OrderPlaced, UserRegistered)
+- Include all relevant data in the event
+- Events are immutable facts
+
+### 5. DTOs
+- Use `BaseDto` for input (create/update requests)
+- Use `BaseVm` for output (API responses)
+- Don't expose domain entities directly via API
+
+## Related Projects
+
+- **Craft.Core** - `ServiceResult<T>` and core abstractions
+- **Craft.Auditing** - Audit trail tracking
+- **Craft.Data** - Entity Framework Core integration
+- **Craft.Repositories** - Generic repository pattern
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Author
+
+**Sandeep SHARMA**
+
 ---
 
-## ?? Integration with Other Craft Libraries
-
-- **Craft.Middleware**: Automatic exception handling with `GlobalExceptionHandler`
-- **Craft.Repositories**: Use exceptions in repository implementations
-- **Craft.Data**: Database-specific exception handling
-- **Craft.Security**: Authentication and authorization exceptions
-- **Craft.HttpServices**: External service exception handling
-
----
-
-## ?? Additional Resources
-
-- **XML Documentation**: IntelliSense provides inline documentation for all public members
-- **Unit Tests**: Review test files in `Tests/Craft.Domain.Tests/` for usage examples
-- **Source Code**: Browse the repository for implementation details
-
----
-
-## ?? License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
-## ?? Version History
-
-**v1.1.0** (December 2, 2025)
-- Added `CraftExceptionFactory` with 50+ factory methods
-- Added `PayloadTooLargeException` (413)
-- Added `GoneException` (410)
-- Added `PreconditionFailedException` (412)
-- Added `NotFoundException` (renamed from `EntityNotFoundException`)
-- Deprecated `EntityNotFoundException`
-- Fixed `UnauthorizedException` default constructor
-- 118 new unit tests (371 total)
-
-**v1.0.0**
-- Initial release with core domain components
-- 20 exception types
-- Base entity and model classes
-- Domain abstractions and helpers
-
----
-
-**Target Framework**: .NET 10  
-**Language Version**: C# 14  
-**Maintained By**: Sandeep K Sharma
+*Built with ❤️ for .NET 10*
