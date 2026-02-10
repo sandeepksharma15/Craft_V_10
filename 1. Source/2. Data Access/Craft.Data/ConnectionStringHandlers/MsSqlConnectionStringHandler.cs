@@ -1,4 +1,4 @@
-using Microsoft.Value.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace Craft.Data;
 

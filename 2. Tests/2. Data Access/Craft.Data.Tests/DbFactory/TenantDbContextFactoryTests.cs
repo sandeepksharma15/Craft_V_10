@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using MsOptions = Microsoft.Extensions.Options.Options;
 
-namespace Craft.Value.Tests.DbFactory;
+namespace Craft.Data.Tests.DbFactory;
 
 // ReSharper disable InconsistentNaming
 public class TenantDbContextFactoryTests

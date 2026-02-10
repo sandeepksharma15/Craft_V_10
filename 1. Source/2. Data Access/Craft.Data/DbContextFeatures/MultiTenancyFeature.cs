@@ -2,7 +2,7 @@ using Craft.Domain;
 using Craft.MultiTenant;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Value.DbContextFeatures;
+namespace Craft.Data.DbContextFeatures;
 
 /// <summary>
 /// Feature that enables multi-tenancy for entities implementing IHasTenant.

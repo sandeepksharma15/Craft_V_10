@@ -1,8 +1,6 @@
 using Craft.Core;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Craft.Core;
-using Craft.Core.Common;
 using Craft.Domain;
 using Microsoft.Extensions.Logging;
 

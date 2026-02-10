@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
-namespace Craft.Value.Tests.Extensions;
+namespace Craft.Data.Tests.Extensions;
 
 public class DbContextOptionsBuilderExtensionsTests
 {

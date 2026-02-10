@@ -5,7 +5,7 @@ using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace Craft.Value.Tests.Extensions;
+namespace Craft.Data.Tests.Extensions;
 
 public class QueryFilterExtensionTests
 {

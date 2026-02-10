@@ -1,8 +1,8 @@
-using Craft.Value.DbContextFeatures;
+using Craft.Data.DbContextFeatures;
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Value.Tests.DbContextFeatures;
+namespace Craft.Data.Tests.DbContextFeatures;
 
 public class SoftDeleteFeatureTests
 {

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Value.DatabaseProviders;
+namespace Craft.Data.DatabaseProviders;
 
 public class MySqlDatabaseProvider : IDatabaseProvider
 {

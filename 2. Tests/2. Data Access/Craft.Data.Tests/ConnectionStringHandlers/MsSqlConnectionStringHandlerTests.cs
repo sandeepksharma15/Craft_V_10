@@ -1,6 +1,6 @@
-using Microsoft.Value.SqlClient;
+using Microsoft.Data.SqlClient;
 
-namespace Craft.Value.Tests.ConnectionStringHandlers;
+namespace Craft.Data.Tests.ConnectionStringHandlers;
 
 public class MsSqlConnectionStringHandlerTests
 {

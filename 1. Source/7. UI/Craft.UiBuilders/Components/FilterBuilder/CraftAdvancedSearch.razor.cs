@@ -62,7 +62,7 @@ public partial class CraftAdvancedSearch<TEntity> : ComponentBase
 
         var result = await dialog.Result;
 
-        if (!(result?.Canceled ?? true) && result.Value is FilterCriteria criteria)
+        if (!(result?.Canceled ?? true) && result.Data is FilterCriteria criteria)
             await HandleFilterAddedAsync(criteria);
     }
 

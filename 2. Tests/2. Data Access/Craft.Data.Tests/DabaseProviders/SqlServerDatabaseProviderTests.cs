@@ -1,9 +1,10 @@
 using System.Reflection;
-using Microsoft.Value.SqlClient;
+using Craft.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Craft.Value.Tests.DabaseProviders;
+namespace Craft.Data.Tests.DabaseProviders;
 
 public class SqlServerDatabaseProviderTests
 {

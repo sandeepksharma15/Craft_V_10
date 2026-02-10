@@ -1,9 +1,9 @@
-using Craft.Value.DbContextFeatures;
+using Craft.Data.DbContextFeatures;
 using Craft.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Value.Tests.DbContextFeatures;
+namespace Craft.Data.Tests.DbContextFeatures;
 
 public class IdentityFeatureTests
 {

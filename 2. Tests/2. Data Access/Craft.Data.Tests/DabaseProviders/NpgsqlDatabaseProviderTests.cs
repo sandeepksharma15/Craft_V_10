@@ -1,9 +1,10 @@
 using System.Reflection;
+using Craft.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Testcontainers.PostgreSql;
 
-namespace Craft.Value.Tests.DabaseProviders;
+namespace Craft.Data.Tests.DabaseProviders;
 
 public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderTests.PostgreSqlContainerFixture>
 {

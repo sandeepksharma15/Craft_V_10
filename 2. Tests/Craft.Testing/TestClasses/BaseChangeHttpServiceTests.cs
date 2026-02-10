@@ -164,7 +164,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
         Assert.All(results, r =>
         {
             Assert.True(r.IsSuccess);
-            Assert.NotNull(r.Data);
+            Assert.NotNull(r.Value);
             Assert.Equal(201, r.StatusCode);
         });
 
@@ -175,7 +175,7 @@ public abstract class BaseChangeHttpServiceTests<TEntity, TViewModel, TDto, TKey
 
         for (int i = 0; i < viewModels.Count; i++)
         {
-            var retrieved = allEntities.First(e => e.Id!.Equals(results[i].Data!.Id));
+            var retrieved = allEntities.First(e => e.Id!.Equals(results[i].Value!.Id));
             VerifyEntityWasCreated(viewModels[i], retrieved);
         }
     }

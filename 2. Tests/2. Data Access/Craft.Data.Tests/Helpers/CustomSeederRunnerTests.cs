@@ -1,8 +1,8 @@
-using Craft.Value.Helpers;
+using Craft.Data.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
-namespace Craft.Value.Tests.Helpers;
+namespace Craft.Data.Tests.Helpers;
 
 public class CustomSeederRunnerTests
 {

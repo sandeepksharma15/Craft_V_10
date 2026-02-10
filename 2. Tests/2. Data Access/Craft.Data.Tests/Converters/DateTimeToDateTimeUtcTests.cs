@@ -1,4 +1,6 @@
-namespace Craft.Value.Tests.Converters;
+using Craft.Data;
+
+namespace Craft.Data.Tests.Converters;
 
 public class DateTimeToDateTimeUtcTests
 {

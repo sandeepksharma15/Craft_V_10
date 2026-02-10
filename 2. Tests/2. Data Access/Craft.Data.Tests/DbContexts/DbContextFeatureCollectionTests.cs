@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Moq;
 
-namespace Craft.Value.Tests.DbContexts;
+namespace Craft.Data.Tests.DbContexts;
 
 public class DbContextFeatureCollectionTests
 {

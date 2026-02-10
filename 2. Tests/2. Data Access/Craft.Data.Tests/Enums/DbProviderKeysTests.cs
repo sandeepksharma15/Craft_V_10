@@ -1,4 +1,4 @@
-namespace Craft.Value.Tests.Enums;
+namespace Craft.Data.Tests.Enums;
 
 public class DbProviderKeysTests
 {

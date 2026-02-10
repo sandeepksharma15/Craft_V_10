@@ -1,5 +1,5 @@
 using Craft.MultiTenant.Stores;
-using Microsoft.Value.Sqlite;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.MultiTenant.Tests.StoreTests;

@@ -1,9 +1,9 @@
-using Craft.Value.DbContextFeatures;
+using Craft.Data.DbContextFeatures;
 using Craft.MultiTenant;
 using Craft.Security;
 using Moq;
 
-namespace Craft.Value.Tests.Extensions;
+namespace Craft.Data.Tests.Extensions;
 
 public class DbContextFeatureExtensionsTests
 {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Craft.Value.Helpers;
+namespace Craft.Data.Helpers;
 
 public class CustomSeederRunner(IServiceProvider serviceProvider)
 {

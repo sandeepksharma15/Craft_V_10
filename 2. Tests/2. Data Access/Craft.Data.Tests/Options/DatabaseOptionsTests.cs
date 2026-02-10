@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Craft.Value.Tests.Options;
+namespace Craft.Data.Tests.Options;
 
 public class DatabaseOptionsTests
 {

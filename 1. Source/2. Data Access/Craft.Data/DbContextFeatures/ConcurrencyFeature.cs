@@ -1,7 +1,7 @@
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.Value.DbContextFeatures;
+namespace Craft.Data.DbContextFeatures;
 
 /// <summary>
 /// Feature that enables automatic concurrency stamp management for entities implementing IHasConcurrency.

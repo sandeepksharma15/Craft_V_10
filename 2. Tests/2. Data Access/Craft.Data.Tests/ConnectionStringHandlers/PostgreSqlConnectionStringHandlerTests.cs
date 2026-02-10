@@ -1,6 +1,7 @@
+using Craft.Data;
 using Npgsql;
 
-namespace Craft.Value.Tests.ConnectionStringHandlers;
+namespace Craft.Data.Tests.ConnectionStringHandlers;
 
 public class PostgreSqlConnectionStringHandlerTests
 {

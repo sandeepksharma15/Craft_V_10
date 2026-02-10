@@ -1,5 +1,4 @@
 using Craft.Core;
-using Craft.Core.Common;
 
 namespace Craft.HttpServices.Tests;
 
@@ -28,7 +27,7 @@ public class HttpServiceBaseTests
     public async Task GetAllFromPagedAsync_ReturnsEmptyList_WhenPageResponseHasNoItems()
     {
         // Arrange
-        var pageResponse = new PageResponse<TestItem> { Items = null, TotalCount = 0 };
+        var pageResponse = new PageResponse<TestItem>([], 0, 1, 10);
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Success(pageResponse);
         
         Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
@@ -48,7 +47,7 @@ public class HttpServiceBaseTests
     {
         // Arrange
         var items = new List<TestItem> { new(1, "Item1"), new(2, "Item2") };
-        var pageResponse = new PageResponse<TestItem> { Items = items, TotalCount = 2 };
+        var pageResponse = new PageResponse<TestItem>(items, 2, 1, 10);
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Success(pageResponse);
         
         Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);

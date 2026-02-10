@@ -781,11 +781,11 @@ public class HttpServiceTests
 
         var getAllProjectedResult = await service.GetAllAsync<DummyDto>(new DummyQuery<DummyEntity, DummyDto>());
         Assert.True(getAllProjectedResult.IsSuccess);
-        Assert.Null(getAllProjectedresult.Value);
+        Assert.Null(getAllProjectedResult.Value);
 
         var getPagedListResult = await service.GetPagedListAsync(new DummyQuery<DummyEntity>());
         Assert.False(getPagedListResult.IsSuccess);
-        Assert.Null(getPagedListresult.Value);
+        Assert.Null(getPagedListResult.Value);
     }
 
     [Fact]

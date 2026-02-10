@@ -1,4 +1,6 @@
-namespace Craft.Value.Tests.ConnectionStringHandlers;
+using Craft.Data;
+
+namespace Craft.Data.Tests.ConnectionStringHandlers;
 
 /// <summary>
 /// Unit tests for <see cref="ConnectionStringService"/> ensuring full coverage of delegation logic
