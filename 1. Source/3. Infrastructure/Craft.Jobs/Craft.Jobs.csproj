@@ -11,7 +11,7 @@
     <!-- Hangfire for background job processing -->
     <PackageReference Include="Hangfire.Core" Version="1.8.23" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.21.0" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1" />
     
     <!-- Microsoft Extensions -->
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
