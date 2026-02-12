@@ -1,12 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Authors>Sandeep SHARMA</Authors>
-		<LangVersion>preview</LangVersion>
-		<RootNamespace>Craft.CryptKey</RootNamespace>
+		<Authors>Sandeep SHARMA</Authors>		<RootNamespace>Craft.CryptKey</RootNamespace>
 		<AssemblyVersion>1.0.32.9</AssemblyVersion>
 		<FileVersion>1.0.0.9</FileVersion>
 	</PropertyGroup>

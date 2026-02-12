@@ -1,12 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Authors>Sandeep SHARMA</Authors>
-		<LangVersion>preview</LangVersion>
-		<RootNamespace>Craft.QuerySpec</RootNamespace>
+		<Authors>Sandeep SHARMA</Authors>		<RootNamespace>Craft.QuerySpec</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -4,9 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Authors>Sandeep SHARMA</Authors>
-		<LangVersion>preview</LangVersion>
-		<RootNamespace>Craft.Hosting</RootNamespace>
+		<Authors>Sandeep SHARMA</Authors>		<RootNamespace>Craft.Hosting</RootNamespace>
 		<Description>Dependency injection extensions for the Craft framework. Provides a centralized location for service registration extensions.</Description>
 	</PropertyGroup>
 
