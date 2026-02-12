@@ -92,8 +92,9 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
+        // Only apply WhereEvaluator for count - skip pagination evaluators to avoid warnings
         return await _dbSet
-            .WithQuery(query)
+            .WithQuery(query, WhereEvaluator.Instance)
             .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
     }
