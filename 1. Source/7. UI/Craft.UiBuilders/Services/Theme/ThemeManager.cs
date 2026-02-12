@@ -16,9 +16,11 @@ public class ThemeManager : IThemeManager
     public ThemeManager(ILogger<ThemeManager> logger)
     {
         _logger = logger;
-        _themes = [with(StringComparer.OrdinalIgnoreCase)];
+#pragma warning disable IDE0028 // Simplify collection initialization
+        _themes = new Dictionary<string, MudTheme>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
         _currentThemeName = IThemeManager.DefaultThemeName;
-        
+
         // Register default theme
         RegisterDefaultTheme();
     }

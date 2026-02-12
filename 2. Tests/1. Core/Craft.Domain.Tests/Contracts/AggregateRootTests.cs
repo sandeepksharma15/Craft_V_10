@@ -59,7 +59,7 @@ public class AggregateRootTests
 
         // Assert
         Assert.IsType<IAggregateRoot>(aggregateRoot, exactMatch: false);
-        Assert.False(regularEntity is IAggregateRoot);
+        Assert.False((IEntity)regularEntity is IAggregateRoot);
     }
 
     [Fact]

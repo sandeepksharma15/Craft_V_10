@@ -12,12 +12,6 @@ namespace Craft.Core;
 /// <remarks>This interface defines the core functionality required for interacting with a database  in an
 /// object-relational mapping (ORM) context. It includes methods for saving changes,  accessing entity sets, tracking
 /// changes, and configuring the database context.</remarks>
-/// Usage: 
-/// services.AddDbContext<AppDbContext>(options =>
-///     options.UseSqlServer(configuration.GetConnectionString("Default")));
-///     
-/// services.AddScoped<IDbContext>(provider => provider.GetService<AppDbContext>());
-/// 
 public interface IDbContext
 {
     int SaveChanges();

@@ -122,7 +122,9 @@ public static class DictionaryExtensions
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
-        return [with(dictionary)];
+#pragma warning disable IDE0028 // Simplify collection initialization
+        return new Dictionary<TKey, TValue>(dictionary);
+#pragma warning restore IDE0028 // Simplify collection initialization
     }
 
     /// <summary>

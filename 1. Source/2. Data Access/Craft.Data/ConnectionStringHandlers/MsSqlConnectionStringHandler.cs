@@ -22,7 +22,9 @@ public sealed class SqlServerConnectionStringHandler : IConnectionStringHandler
 
         try
         {
-            builder = [with(connectionString)];
+#pragma warning disable IDE0028 // Simplify collection initialization
+            builder = new SqlConnectionStringBuilder(connectionString);
+#pragma warning restore IDE0028 // Simplify collection initialization
         }
         catch (Exception ex)
         {

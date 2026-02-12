@@ -49,8 +49,8 @@ public class HttpServiceBaseTests
         var items = new List<TestItem> { new(1, "Item1"), new(2, "Item2") };
         var pageResponse = new PageResponse<TestItem>(items, 2, 1, 10);
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Success(pageResponse);
-        
-        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
+
+        Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
@@ -67,8 +67,8 @@ public class HttpServiceBaseTests
     {
         // Arrange
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Failure(["API Error"], statusCode: 500);
-        
-        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
+
+        Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act

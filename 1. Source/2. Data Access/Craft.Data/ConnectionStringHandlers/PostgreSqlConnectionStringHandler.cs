@@ -22,7 +22,9 @@ public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
 
         try
         {
-            builder = [with(connectionString)];
+#pragma warning disable IDE0028 // Simplify collection initialization
+            builder = new NpgsqlConnectionStringBuilder(connectionString);
+#pragma warning restore IDE0028 // Simplify collection initialization
         }
         catch (Exception ex)
         {

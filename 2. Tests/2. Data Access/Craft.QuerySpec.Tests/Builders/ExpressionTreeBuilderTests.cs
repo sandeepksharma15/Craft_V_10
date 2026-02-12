@@ -127,23 +127,10 @@ public class ExpressionTreeBuilderTests
         Assert.Null(ExpressionTreeBuilder.BuildBinaryTreeExpression<TestClass>(query));
     }
 
-    public static TheoryData<string> BinaryTreeFromStringReturnsNullTestData =>
-    [
-        "idsfdsadffffdsfsdf2",
-        "id 2",
-        "id == == 2",
-        "id == != 2",
-        "id == <= 2",
-        "id == < 2",
-        "id == >= 2",
-        "id == > 2",
-        "id != > 2",
-        "id == 2  value1 == 32",
-        "(id == 2 || value1 == 32) value2 < 123",
-        "(id == 2  value1 ==32)",
-        "(id == 2 || value1 == 32) value2 < 123 || claue3 = 9898",
-        "\"this-is-id\" == id"
-    ];
+#pragma warning disable CA1825 // Avoid zero-length array allocations
+    public static TheoryData<string> BinaryTreeFromStringReturnsNullTestData => ["idsfdsadffffdsfsdf2", "id 2", "id == == 2", "id == != 2", "id == <= 2", "id == < 2", "id == >= 2", "id == > 2", "id != > 2", "id == 2  value1 == 32", "(id == 2 || value1 == 32) value2 < 123", "(id == 2  value1 ==32)", 
+        "(id == 2 || value1 == 32) value2 < 123 || claue3 = 9898", "\"this-is-id\" == id" ];
+#pragma warning restore CA1825 // Avoid zero-length array allocations
 
     [Fact]
     public void ToBinaryTree_PropertyNotExists()
