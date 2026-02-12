@@ -210,7 +210,7 @@ public class DomainEventCollectionTests
         var events = collection.DomainEvents;
 
         // Assert
-        Assert.IsAssignableFrom<IReadOnlyCollection<IDomainEvent>>(events);
+        Assert.IsType<IReadOnlyCollection<IDomainEvent>>(events, exactMatch: false);
     }
 
     [Fact]
@@ -237,7 +237,7 @@ public class DomainEventCollectionTests
         var collection = new DomainEventCollection();
 
         // Assert
-        Assert.IsAssignableFrom<IHasDomainEvents>(collection);
+        Assert.IsType<IHasDomainEvents>(collection, exactMatch: false);
     }
 
     [Fact]

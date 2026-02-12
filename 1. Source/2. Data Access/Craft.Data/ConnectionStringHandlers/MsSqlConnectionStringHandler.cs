@@ -22,7 +22,7 @@ public sealed class SqlServerConnectionStringHandler : IConnectionStringHandler
 
         try
         {
-            builder = new SqlConnectionStringBuilder(connectionString);
+            builder = [with(connectionString)];
         }
         catch (Exception ex)
         {

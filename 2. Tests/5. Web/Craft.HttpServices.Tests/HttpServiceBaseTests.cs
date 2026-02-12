@@ -12,8 +12,8 @@ public class HttpServiceBaseTests
     public async Task GetAllFromPagedAsync_ReturnsEmptyList_WhenResultIsNull()
     {
         // Arrange
-        Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(null);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = pr => pr.Items?.ToList() ?? [];
+        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(null);
+        static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
         var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
@@ -29,9 +29,9 @@ public class HttpServiceBaseTests
         // Arrange
         var pageResponse = new PageResponse<TestItem>([], 0, 1, 10);
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Success(pageResponse);
-        
-        Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = pr => pr.Items?.ToList() ?? [];
+
+        Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
+        static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
         var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
@@ -50,8 +50,8 @@ public class HttpServiceBaseTests
         var pageResponse = new PageResponse<TestItem>(items, 2, 1, 10);
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Success(pageResponse);
         
-        Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = pr => pr.Items?.ToList() ?? [];
+        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
+        static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
         var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
@@ -68,8 +68,8 @@ public class HttpServiceBaseTests
         // Arrange
         var pagedResult = ServiceResult<PageResponse<TestItem>>.Failure(["API Error"], statusCode: 500);
         
-        Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = pr => pr.Items?.ToList() ?? [];
+        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(pagedResult);
+        static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
         var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
@@ -85,8 +85,8 @@ public class HttpServiceBaseTests
     public async Task GetAllFromPagedAsync_ReturnsFailure_WhenExceptionThrown()
     {
         // Arrange
-        Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = _ => throw new InvalidOperationException("Test exception");
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = pr => pr.Items?.ToList() ?? [];
+        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken _) => throw new InvalidOperationException("Test exception");
+        static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
         var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
@@ -103,12 +103,12 @@ public class HttpServiceBaseTests
         var cts = new CancellationTokenSource();
         cts.Cancel();
         
-        Func<CancellationToken, Task<ServiceResult<PageResponse<TestItem>>?>> getPaged = ct =>
+        static Task<ServiceResult<PageResponse<TestItem>>?> getPaged(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
             return Task.FromResult<ServiceResult<PageResponse<TestItem>>?>(null);
         };
-        Func<PageResponse<TestItem>, List<TestItem>> extractItems = pr => pr.Items?.ToList() ?? [];
+        static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(

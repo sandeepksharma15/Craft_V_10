@@ -11,7 +11,7 @@ public class IServiceResultTests
         IServiceResult result = ServiceResult.Success();
 
         // Assert
-        Assert.IsAssignableFrom<IServiceResult>(result);
+        Assert.IsType<IServiceResult>(result, exactMatch: false);
     }
 
     [Fact]
@@ -21,7 +21,7 @@ public class IServiceResultTests
         IServiceResult result = ServiceResult<int>.Success(42);
 
         // Assert
-        Assert.IsAssignableFrom<IServiceResult>(result);
+        Assert.IsType<IServiceResult>(result, exactMatch: false);
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class IServiceResultTests
         IServiceResult result = new ServerResponse { IsSuccess = true };
 
         // Assert
-        Assert.IsAssignableFrom<IServiceResult>(result);
+        Assert.IsType<IServiceResult>(result, exactMatch: false);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class IServiceResultTests
         IServiceResult result = ServerResponse<int>.Success(42);
 
         // Assert
-        Assert.IsAssignableFrom<IServiceResult>(result);
+        Assert.IsType<IServiceResult>(result, exactMatch: false);
     }
 
     #endregion
@@ -159,7 +159,7 @@ public class IServiceResultTests
     public void HasErrors_ReturnsFalse_WhenErrorsIsEmpty()
     {
         // Arrange
-        IServiceResult result = ServiceResult.Failure(new List<string>());
+        IServiceResult result = ServiceResult.Failure([]);
 
         // Assert
         Assert.False(result.HasErrors);

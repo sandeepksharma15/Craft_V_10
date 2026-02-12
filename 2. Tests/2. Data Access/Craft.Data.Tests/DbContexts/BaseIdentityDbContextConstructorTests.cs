@@ -157,7 +157,7 @@ public class BaseIdentityDbContextConstructorTests
         using var context = new TestIdentityDbContext(options, currentUser.Object);
 
         // Assert
-        Assert.IsAssignableFrom<IdentityDbContext<TestUser, TestRole, KeyType>>(context);
-        Assert.IsAssignableFrom<IDbContext>(context);
+        Assert.IsType<IdentityDbContext<TestUser, TestRole, KeyType>>(context, exactMatch: false);
+        Assert.IsType<IDbContext>(context, exactMatch: false);
     }
 }

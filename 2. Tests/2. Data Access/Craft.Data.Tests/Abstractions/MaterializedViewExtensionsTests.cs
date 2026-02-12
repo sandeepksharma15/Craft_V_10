@@ -69,7 +69,7 @@ public class MaterializedViewExtensionsTests
         var view = new TestMaterializedView();
 
         // Assert
-        Assert.IsAssignableFrom<IMaterializedView>(view);
+        Assert.IsType<IMaterializedView>(view, exactMatch: false);
     }
 
     [Fact]

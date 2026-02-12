@@ -31,8 +31,8 @@ public class AggregateRootTests
         var order = new Order { Id = 1, CustomerName = "Test" };
 
         // Assert
-        Assert.IsAssignableFrom<IEntity>(order);
-        Assert.IsAssignableFrom<IEntity<long>>(order);
+        Assert.IsType<IEntity>(order, exactMatch: false);
+        Assert.IsType<IEntity<long>>(order, exactMatch: false);
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class AggregateRootTests
         var order = new OrderWithGenericKey { Id = Guid.NewGuid(), CustomerName = "Test" };
 
         // Assert
-        Assert.IsAssignableFrom<IEntity<Guid>>(order);
-        Assert.IsAssignableFrom<IAggregateRoot<Guid>>(order);
+        Assert.IsType<IEntity<Guid>>(order, exactMatch: false);
+        Assert.IsType<IAggregateRoot<Guid>>(order, exactMatch: false);
     }
 
     #endregion
@@ -58,7 +58,7 @@ public class AggregateRootTests
         var regularEntity = new RegularEntity { Id = 1 };
 
         // Assert
-        Assert.IsAssignableFrom<IAggregateRoot>(aggregateRoot);
+        Assert.IsType<IAggregateRoot>(aggregateRoot, exactMatch: false);
         Assert.False(regularEntity is IAggregateRoot);
     }
 
@@ -110,10 +110,12 @@ public class AggregateRootTests
     public void AggregateRoot_ShouldSupportSoftDelete()
     {
         // Arrange
-        var order = new Order { Id = 1 };
-
         // Act
-        order.IsDeleted = true;
+        var order = new Order
+        {
+            Id = 1,         
+            IsDeleted = true
+        };
 
         // Assert
         Assert.True(order.IsDeleted);

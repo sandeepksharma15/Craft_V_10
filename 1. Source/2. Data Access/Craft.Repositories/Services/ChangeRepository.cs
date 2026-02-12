@@ -45,7 +45,7 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
-        if (!entityList.Any())
+        if (entityList.Count == 0)
             return entityList;
 
         await _dbSet.AddRangeAsync(entityList, cancellationToken).ConfigureAwait(false);
@@ -120,7 +120,7 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
-        if (!entityList.Any())
+        if (entityList.Count == 0)
             return entityList;
 
         var softDeleteEntities = new List<T>();
@@ -221,7 +221,7 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
-        if (!entityList.Any())
+        if (entityList.Count == 0)
             return entityList;
 
         _dbSet.UpdateRange(entityList);
@@ -302,12 +302,12 @@ public class ChangeRepository<T, TKey>(IDbContext dbContext, ILogger<ChangeRepos
 
         var entityList = entities.ToList();
 
-        if (!entityList.Any())
+        if (entityList.Count == 0)
             return entityList;
 
         // Validate all entities implement ISoftDelete
         var nonSoftDeleteEntities = entityList.Where(e => e is not ISoftDelete).ToList();
-        if (nonSoftDeleteEntities.Any())
+        if (nonSoftDeleteEntities.Count != 0)
             throw new InvalidOperationException($"Entity type {typeof(T).Name} does not implement ISoftDelete and cannot be restored. {nonSoftDeleteEntities.Count} entities in the collection do not support soft delete.");
 
         foreach (var entity in entityList)

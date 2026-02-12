@@ -22,7 +22,7 @@ public sealed class PostgreSqlConnectionStringHandler : IConnectionStringHandler
 
         try
         {
-            builder = new NpgsqlConnectionStringBuilder(connectionString);
+            builder = [with(connectionString)];
         }
         catch (Exception ex)
         {

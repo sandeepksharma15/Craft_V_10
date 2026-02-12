@@ -317,11 +317,14 @@ public class AutoIncludeNavigationPropertiesEvaluatorTests
     {
         // Arrange
         var evaluator = AutoIncludeNavigationPropertiesEvaluator.Instance;
-        var query = new Query<Company> { AutoIncludeNavigationProperties = true };
-        query.IncludeExpressions = null;
+        var query = new Query<Company>
+        {
+            AutoIncludeNavigationProperties = true,
+            IncludeExpressions = null
+        };
 
         // Act
-        var result = evaluator.GetQuery(_companies, query);
+        _ = evaluator.GetQuery(_companies, query);
 
         // Assert
         Assert.NotNull(query.IncludeExpressions);
@@ -332,11 +335,14 @@ public class AutoIncludeNavigationPropertiesEvaluatorTests
     {
         // Arrange
         var evaluator = AutoIncludeNavigationPropertiesEvaluator.Instance;
-        var query = new Query<Company> { AutoIncludeNavigationProperties = true };
-        query.IncludeExpressions = [];
+        var query = new Query<Company>
+        {
+            AutoIncludeNavigationProperties = true,
+            IncludeExpressions = []
+        };
 
         // Act
-        var result = evaluator.GetQuery(_companies, query);
+        _ = evaluator.GetQuery(_companies, query);
 
         // Assert
         Assert.NotNull(query.IncludeExpressions);
@@ -355,10 +361,10 @@ public class AutoIncludeNavigationPropertiesEvaluatorTests
         var query = new Query<Company> { AutoIncludeNavigationProperties = true };
 
         // Act
-        var result1 = evaluator.GetQuery(_companies, query);
+        _ = evaluator.GetQuery(_companies, query);
         var countAfterFirst = query.IncludeExpressions?.Count ?? 0;
-        
-        var result2 = evaluator.GetQuery(_companies, query);
+
+        _ = evaluator.GetQuery(_companies, query);
         var countAfterSecond = query.IncludeExpressions?.Count ?? 0;
 
         // Assert

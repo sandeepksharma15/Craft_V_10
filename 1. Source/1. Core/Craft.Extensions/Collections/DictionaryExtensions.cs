@@ -122,7 +122,7 @@ public static class DictionaryExtensions
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
-        return new Dictionary<TKey, TValue>(dictionary);
+        return [with(dictionary)];
     }
 
     /// <summary>

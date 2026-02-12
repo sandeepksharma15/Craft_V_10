@@ -119,10 +119,8 @@ public static class MaterializedViewExtensions
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var entityType = context.Model.FindEntityType(typeof(TView));
-        if (entityType == null)
-            throw new InvalidOperationException($"Entity type {typeof(TView).Name} is not part of the model.");
-
+        var entityType = context.Model.FindEntityType(typeof(TView)) 
+            ?? throw new InvalidOperationException($"Entity type {typeof(TView).Name} is not part of the model.");
         var storeObjectId = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var viewName = storeObjectId?.Name 
             ?? throw new InvalidOperationException($"Table/View name not configured for {typeof(TView).Name}");
@@ -171,10 +169,8 @@ public static class MaterializedViewExtensions
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var entityType = context.Model.FindEntityType(typeof(TView));
-        if (entityType == null)
-            throw new InvalidOperationException($"Entity type {typeof(TView).Name} is not part of the model.");
-
+        var entityType = context.Model.FindEntityType(typeof(TView)) 
+            ?? throw new InvalidOperationException($"Entity type {typeof(TView).Name} is not part of the model.");
         var storeObjectId = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var viewName = storeObjectId?.Name 
             ?? throw new InvalidOperationException($"Table/View name not configured for {typeof(TView).Name}");
@@ -192,7 +188,7 @@ public static class MaterializedViewExtensions
                 $"Current provider: {context.Database.ProviderName}");
         }
 
-        await context.Database.ExecuteSqlRawAsync(
+        await context.Database.ExecuteSqlAsync(
             $"REFRESH MATERIALIZED VIEW CONCURRENTLY {fullName}",
             cancellationToken);
     }

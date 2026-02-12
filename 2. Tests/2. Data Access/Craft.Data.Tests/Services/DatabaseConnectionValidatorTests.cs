@@ -30,7 +30,7 @@ public class DatabaseConnectionValidatorTests
 
         var validator = new DatabaseConnectionValidator(
             optionsMock.Object,
-            new[] { providerMock.Object },
+            [providerMock.Object],
             loggerMock.Object);
 
         // Act
@@ -68,7 +68,7 @@ public class DatabaseConnectionValidatorTests
 
         var validator = new DatabaseConnectionValidator(
             optionsMock.Object,
-            new[] { providerMock.Object },
+            [providerMock.Object],
             loggerMock.Object);
 
         // Act
@@ -105,7 +105,7 @@ public class DatabaseConnectionValidatorTests
 
         var validator = new DatabaseConnectionValidator(
             optionsMock.Object,
-            new[] { providerMock.Object },
+            [providerMock.Object],
             loggerMock.Object);
 
         // Act
@@ -144,7 +144,7 @@ public class DatabaseConnectionValidatorTests
 
         var validator = new DatabaseConnectionValidator(
             optionsMock.Object,
-            new[] { providerMock.Object },
+            [providerMock.Object],
             loggerMock.Object);
 
         // Act
@@ -178,7 +178,7 @@ public class DatabaseConnectionValidatorTests
 
         var validator = new DatabaseConnectionValidator(
             optionsMock.Object,
-            new[] { providerMock.Object },
+            [providerMock.Object],
             loggerMock.Object);
 
         // Act
@@ -202,10 +202,10 @@ public class DatabaseConnectionValidatorTests
         // Act
         var validator = new DatabaseConnectionValidator(
             optionsMock.Object,
-            new[] { providerMock.Object },
+            [providerMock.Object],
             loggerMock.Object);
 
         // Assert
-        Assert.IsAssignableFrom<IHostedService>(validator);
+        Assert.IsType<IHostedService>(validator, exactMatch: false);
     }
 }

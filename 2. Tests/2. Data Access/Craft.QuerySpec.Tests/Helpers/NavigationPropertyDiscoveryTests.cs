@@ -74,8 +74,8 @@ public class NavigationPropertyDiscoveryTests
     private class EntityWithReadOnlyProperty
     {
         public int Id { get; set; }
-        public RelatedEntity? WriteOnly { set { } }
-        public RelatedEntity? ReadOnly => null;
+        public static RelatedEntity? WriteOnly { set { } }
+        public static RelatedEntity? ReadOnly => null;
     }
 
     public NavigationPropertyDiscoveryTests()

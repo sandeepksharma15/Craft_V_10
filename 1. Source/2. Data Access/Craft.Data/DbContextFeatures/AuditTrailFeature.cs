@@ -13,11 +13,9 @@ public class AuditTrailFeature : IDbContextFeature, IDbSetProvider
     private static readonly Lazy<HashSet<Type>> _auditableTypes = new(() =>
     {
         var typeNames = AuditingHelpers.GetAuditableBaseEntityTypes();
-        return new HashSet<Type>(
-            AppDomain.CurrentDomain.GetAssemblies()
+        return [.. AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
-                .Where(t => typeNames.Contains(t.Name))
-        );
+                .Where(t => typeNames.Contains(t.Name))];
     });
 
     /// <summary>

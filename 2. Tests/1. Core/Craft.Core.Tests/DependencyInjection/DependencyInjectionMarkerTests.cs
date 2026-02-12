@@ -32,7 +32,7 @@ public class DependencyInjectionMarkerTests
         var service = new TestScopedService();
 
         // Assert
-        Assert.IsAssignableFrom<IScopedDependency>(service);
+        Assert.IsType<IScopedDependency>(service, exactMatch: false);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class DependencyInjectionMarkerTests
         var service = new TestSingletonService();
 
         // Assert
-        Assert.IsAssignableFrom<ISingletonDependency>(service);
+        Assert.IsType<ISingletonDependency>(service, exactMatch: false);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class DependencyInjectionMarkerTests
         var service = new TestTransientService();
 
         // Assert
-        Assert.IsAssignableFrom<ITransientDependency>(service);
+        Assert.IsType<ITransientDependency>(service, exactMatch: false);
     }
 
     [Fact]
@@ -167,8 +167,8 @@ public class DependencyInjectionMarkerTests
         var service = new TestServiceWithLifetime();
 
         // Assert
-        Assert.IsAssignableFrom<IService>(service);
-        Assert.IsAssignableFrom<IScopedDependency>(service);
+        Assert.IsType<IService>(service, exactMatch: false);
+        Assert.IsType<IScopedDependency>(service, exactMatch: false);
     }
 
     #endregion
@@ -199,8 +199,8 @@ public class DependencyInjectionMarkerTests
         var badService = new TestMultipleMarkerService();
 
         // Assert - All markers are satisfied (but this is bad practice)
-        Assert.IsAssignableFrom<IScopedDependency>(badService);
-        Assert.IsAssignableFrom<ISingletonDependency>(badService);
+        Assert.IsType<IScopedDependency>(badService, exactMatch: false);
+        Assert.IsType<ISingletonDependency>(badService, exactMatch: false);
     }
 
     #endregion

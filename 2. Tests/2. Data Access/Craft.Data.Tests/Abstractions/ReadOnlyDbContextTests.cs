@@ -27,7 +27,7 @@ public class ReadOnlyDbContextTests
         var members = type.GetMembers();
 
         // Assert - Marker interface should have no members except inherited ones
-        Assert.Empty(members.Where(m => m.DeclaringType == type));
+        Assert.DoesNotContain(members, m => m.DeclaringType == type);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class ReadOnlyDbContextTests
         var context = new TestReadOnlyDbContext();
 
         // Assert
-        Assert.IsAssignableFrom<IReadOnlyDbContext>(context);
+        Assert.IsType<IReadOnlyDbContext>(context, exactMatch: false);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class ReadOnlyDbContextTests
         // This test verifies that IReadOnlyDbContext can be used in generic constraints
 
         // Arrange & Act
-        bool IsReadOnly<T>() where T : IReadOnlyDbContext => true;
+        static bool IsReadOnly<T>() where T : IReadOnlyDbContext => true;
         var result = IsReadOnly<TestReadOnlyDbContext>();
 
         // Assert

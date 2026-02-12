@@ -48,7 +48,7 @@ public class NullTenantTests
         var tenant = NullTenant.Instance;
 
         // Assert
-        Assert.IsAssignableFrom<ITenant>(tenant);
+        Assert.IsType<ITenant>(tenant, exactMatch: false);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class NullTenantTests
         var id = tenant.Id;
 
         // Assert
-        Assert.Equal(default(KeyType), id);
+        Assert.Equal(default, id);
     }
 
     [Fact]

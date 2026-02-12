@@ -329,7 +329,7 @@ public class ValueObjectTests
         var money = new Money(100.00m, "USD");
 
         // Assert
-        Assert.IsAssignableFrom<IEquatable<ValueObject>>(money);
+        Assert.IsType<IEquatable<ValueObject>>(money, exactMatch: false);
     }
 
     #endregion
@@ -564,7 +564,7 @@ public class SingleValueObjectTests
         var age = new Age(25);
 
         // Assert
-        Assert.IsAssignableFrom<IComparable<SingleValueObject<int>>>(age);
+        Assert.IsType<IComparable<SingleValueObject<int>>>(age, exactMatch: false);
     }
 
     #endregion

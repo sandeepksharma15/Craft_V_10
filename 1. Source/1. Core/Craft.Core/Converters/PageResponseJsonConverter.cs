@@ -34,7 +34,7 @@ public class PageResponseJsonConverter<T> : JsonConverter<PageResponse<T>> where
     public override PageResponse<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.StartObject)
-            throw new JsonException($"Invalid JSON format for {nameof(PageResponse<T>)}: expected start of object.");
+            throw new JsonException($"Invalid JSON format for {nameof(PageResponse<>)}: expected start of object.");
 
         IEnumerable<T> items = [];
         int currentPage = 1;
@@ -47,7 +47,7 @@ public class PageResponseJsonConverter<T> : JsonConverter<PageResponse<T>> where
                 break;
 
             if (reader.TokenType != JsonTokenType.PropertyName)
-                throw new JsonException($"Invalid JSON format for {nameof(PageResponse<T>)}: expected property name.");
+                throw new JsonException($"Invalid JSON format for {nameof(PageResponse<>)}: expected property name.");
 
             var propertyName = reader.GetString();
             reader.Read();
@@ -59,13 +59,13 @@ public class PageResponseJsonConverter<T> : JsonConverter<PageResponse<T>> where
             }
 
             // Case-insensitive property matching
-            if (PropertyComparer.Equals(propertyName, nameof(PageResponse<T>.Items)))
+            if (PropertyComparer.Equals(propertyName, nameof(PageResponse<>.Items)))
                 items = JsonSerializer.Deserialize<IEnumerable<T>>(ref reader, options) ?? [];
-            else if (PropertyComparer.Equals(propertyName, nameof(PageResponse<T>.CurrentPage)))
+            else if (PropertyComparer.Equals(propertyName, nameof(PageResponse<>.CurrentPage)))
                 currentPage = reader.GetInt32();
-            else if (PropertyComparer.Equals(propertyName, nameof(PageResponse<T>.PageSize)))
+            else if (PropertyComparer.Equals(propertyName, nameof(PageResponse<>.PageSize)))
                 pageSize = reader.GetInt32();
-            else if (PropertyComparer.Equals(propertyName, nameof(PageResponse<T>.TotalCount)))
+            else if (PropertyComparer.Equals(propertyName, nameof(PageResponse<>.TotalCount)))
                 totalCount = reader.GetInt64();
             else
                 reader.Skip();

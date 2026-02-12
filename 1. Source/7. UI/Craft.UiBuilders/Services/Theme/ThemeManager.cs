@@ -16,7 +16,7 @@ public class ThemeManager : IThemeManager
     public ThemeManager(ILogger<ThemeManager> logger)
     {
         _logger = logger;
-        _themes = new Dictionary<string, MudTheme>(StringComparer.OrdinalIgnoreCase);
+        _themes = [with(StringComparer.OrdinalIgnoreCase)];
         _currentThemeName = IThemeManager.DefaultThemeName;
         
         // Register default theme

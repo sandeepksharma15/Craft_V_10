@@ -266,7 +266,7 @@ public class DomainEventBaseTests
         var domainEvent = new TestDomainEvent("test");
 
         // Assert
-        Assert.IsAssignableFrom<IDomainEvent>(domainEvent);
+        Assert.IsType<IDomainEvent>(domainEvent, exactMatch: false);
     }
 
     [Fact]
