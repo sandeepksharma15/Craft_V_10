@@ -113,7 +113,7 @@ public abstract class HttpServiceBase
                 return ServiceResult<List<TItem>>.Failure(pagedResult.Errors ?? [], statusCode: pagedResult.StatusCode);
 
             var items = pagedResult.Value is not null ? extractItems(pagedResult.Value) : [];
-            return ServiceResult<List<TItem>>.Success(items);
+            return ServiceResult<List<TItem>>.Success(items, pagedResult.StatusCode ?? 200);
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)

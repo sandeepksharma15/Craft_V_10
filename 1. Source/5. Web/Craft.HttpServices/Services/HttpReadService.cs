@@ -34,7 +34,7 @@ public class HttpReadService<T, TKey> : HttpServiceBase, IHttpReadService<T, TKe
 
         // Convert to IReadOnlyList<T>
         if (result.IsSuccess)
-            return ServiceResult<IReadOnlyList<T>?>.Success(result.Value);
+            return ServiceResult<IReadOnlyList<T>?>.Success(result.Value, result.StatusCode ?? 200);
 
         return ServiceResult<IReadOnlyList<T>?>.Failure(result.Errors ?? [], statusCode: result.StatusCode);
     }
