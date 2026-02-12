@@ -28,7 +28,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
 
         return await SendAndParseNoContentAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/deletebyquery"), query, QuerySerializerOptions.Create<T>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/deletebyquery"), query, QuerySerializerOptions.Create<T>(), ct),
             cancellationToken
         );
     }
@@ -42,7 +42,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/searchall"), query, QuerySerializerOptions.Create<T>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/searchall"), query, QuerySerializerOptions.Create<T>(), ct),
             (content, ct) => content.ReadFromJsonAsync<List<T>>(cancellationToken: ct),
             cancellationToken
         );
@@ -58,7 +58,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAllAsync<{typeof(TResult).Name}>\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/searchallselect"), query, QuerySerializerOptions.Create<T, TResult>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/searchallselect"), query, QuerySerializerOptions.Create<T, TResult>(), ct),
             (content, ct) => content.ReadFromJsonAsync<List<TResult>>(cancellationToken: ct),
             cancellationToken
         );
@@ -73,7 +73,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/queryone"), query, QuerySerializerOptions.Create<T>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/queryone"), query, QuerySerializerOptions.Create<T>(), ct),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
             cancellationToken
         );
@@ -89,7 +89,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetAsync<{typeof(TResult).Name}>\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/queryoneselect"), query, QuerySerializerOptions.Create<T, TResult>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/queryoneselect"), query, QuerySerializerOptions.Create<T, TResult>(), ct),
             (content, ct) => content.ReadFromJsonAsync<TResult>(cancellationToken: ct),
             cancellationToken
         );
@@ -104,7 +104,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/countbyquery"), query, QuerySerializerOptions.Create<T>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/countbyquery"), query, QuerySerializerOptions.Create<T>(), ct),
             (content, ct) => content.ReadFromJsonAsync<long>(cancellationToken: ct),
             cancellationToken
         );
@@ -119,7 +119,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync\"]");
 
         return await SendAndParseAsync<PageResponse<T>?>(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/querypaged"), query, QuerySerializerOptions.Create<T>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/querypaged"), query, QuerySerializerOptions.Create<T>(), ct),
             (content, ct) => content.ReadFromJsonAsync<PageResponse<T>>(cancellationToken: ct),
             cancellationToken
         );
@@ -135,7 +135,7 @@ public class HttpService<T, ViewT, DataTransferT, TKey>(Uri apiURL, HttpClient h
             _logger.LogDebug($"[HttpService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetPagedListAsync<{typeof(TResult).Name}>\"]");
 
         return await SendAndParseAsync<PageResponse<TResult>?>(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/querypagedselect"), query, QuerySerializerOptions.Create<T, TResult>(), cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/querypagedselect"), query, QuerySerializerOptions.Create<T, TResult>(), ct),
             (content, ct) => content.ReadFromJsonAsync<PageResponse<TResult>>(cancellationToken: ct),
             cancellationToken
         );

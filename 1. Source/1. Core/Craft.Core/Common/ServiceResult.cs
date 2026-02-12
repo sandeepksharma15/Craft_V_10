@@ -159,6 +159,11 @@ public class ServiceResult<T> : ServiceResult
     public static ServiceResult<T> Success(T value) => new(true, value);
 
     /// <summary>
+    /// Creates a successful result with a value and status code.
+    /// </summary>
+    public static ServiceResult<T> Success(T value, int statusCode) => new(true, value, statusCode: statusCode);
+
+    /// <summary>
     /// Creates a failed result with an error message.
     /// </summary>
     public static new ServiceResult<T> Failure(string errorMessage, ErrorType errorType = ErrorType.Validation, int? statusCode = null)

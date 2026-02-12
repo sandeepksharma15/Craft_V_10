@@ -24,7 +24,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         DataTransferT dto = model.Adapt<DataTransferT>();
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(_apiURL, dto, cancellationToken: cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(_apiURL, dto, cancellationToken: ct),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
             cancellationToken
         );
@@ -40,7 +40,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/addrange"), dtos, cancellationToken: cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/addrange"), dtos, cancellationToken: ct),
             async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
             cancellationToken
         );
@@ -54,7 +54,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
             _logger.LogDebug($"[HttpChangeService] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
 
         return await SendAndParseNoContentAsync(
-            () => _httpClient.DeleteAsync(new Uri($"{_apiURL}/{id}"), cancellationToken),
+            ct => _httpClient.DeleteAsync(new Uri($"{_apiURL}/{id}"), ct),
             cancellationToken
         );
     }
@@ -69,7 +69,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
 
         return await SendAndParseNoContentAsync(
-            () => _httpClient.PutAsJsonAsync(new Uri($"{_apiURL}/deleterange"), dtos, cancellationToken: cancellationToken),
+            ct => _httpClient.PutAsJsonAsync(new Uri($"{_apiURL}/deleterange"), dtos, cancellationToken: ct),
             cancellationToken
         );
     }
@@ -84,7 +84,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         DataTransferT dto = model.Adapt<DataTransferT>();
 
         return await SendAndParseAsync(
-            () => _httpClient.PutAsJsonAsync(_apiURL, dto, cancellationToken: cancellationToken),
+            ct => _httpClient.PutAsJsonAsync(_apiURL, dto, cancellationToken: ct),
             (content, ct) => content.ReadFromJsonAsync<T>(cancellationToken: ct),
             cancellationToken
         );
@@ -100,7 +100,7 @@ public class HttpChangeService<T, ViewT, DataTransferT, TKey> : HttpReadService<
         IEnumerable<DataTransferT> dtos = models.Adapt<IEnumerable<DataTransferT>>();
 
         return await SendAndParseAsync(
-            () => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/updaterange"), dtos, cancellationToken: cancellationToken),
+            ct => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/updaterange"), dtos, cancellationToken: ct),
             async (content, ct) => (await content.ReadFromJsonAsync<List<T>>(cancellationToken: ct).ConfigureAwait(false)) ?? [],
             cancellationToken
         );

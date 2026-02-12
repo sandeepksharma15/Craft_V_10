@@ -29,9 +29,7 @@ public abstract class HttpServiceBase
             if (response.IsSuccessStatusCode)
             {
                 var data = await parseResult(response, cancellationToken).ConfigureAwait(false);
-                return data is not null
-                    ? ServiceResult<TResult>.Success(data)
-                    : ServiceResult<TResult>.Failure("No data returned", statusCode: (int)response.StatusCode);
+                return ServiceResult<TResult>.Success(data, (int)response.StatusCode);
             }
 
             var errors = await response.TryReadErrors(cancellationToken);
@@ -40,7 +38,7 @@ public abstract class HttpServiceBase
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
-            return ServiceResult<TResult>.Failure(ex.Message);
+            return ServiceResult<TResult>.Failure([ex.Message]);
         }
     }
 
@@ -56,7 +54,7 @@ public abstract class HttpServiceBase
     }
 
     protected static async Task<ServiceResult<TResult?>> SendAndParseAsync<TResult>(
-        Func<Task<HttpResponseMessage>> sendRequest,
+        Func<CancellationToken, Task<HttpResponseMessage>> sendRequest,
         Func<HttpContent, CancellationToken, Task<TResult?>> parser,
         CancellationToken cancellationToken)
     {
@@ -69,7 +67,7 @@ public abstract class HttpServiceBase
         try
         {
             return await HandleHttpOperationAsync<TResult?>(
-                _ => sendRequest(),
+                sendRequest,
                 async (response, ct) =>
                 {
                     if (response?.Content == null)
@@ -79,6 +77,7 @@ public abstract class HttpServiceBase
                 },
                 cancellationToken);
         }
+        catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             return ServiceResult<TResult?>.Failure($"Exception in SendAndParseAsync: {ex.Message}");
@@ -86,11 +85,11 @@ public abstract class HttpServiceBase
     }
 
     protected static Task<ServiceResult<bool>> SendAndParseNoContentAsync(
-        Func<Task<HttpResponseMessage>> sendRequest,
+        Func<CancellationToken, Task<HttpResponseMessage>> sendRequest,
         CancellationToken cancellationToken)
     {
         return HandleHttpOperationAsync(
-            _ => sendRequest(),
+            sendRequest,
             (response, _) => Task.FromResult(response.IsSuccessStatusCode),
             cancellationToken);
     }
