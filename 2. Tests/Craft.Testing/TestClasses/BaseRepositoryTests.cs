@@ -4,6 +4,7 @@ using Craft.Repositories;
 using Craft.Testing.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Craft.Testing.TestClasses;
 
@@ -54,7 +55,10 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<Repository<TEntity, TKey>>>();
 
-        return new Repository<TEntity, TKey>(Fixture.DbContext, logger);
+        var queryOptions = Fixture.ServiceProvider
+            .GetRequiredService<IOptions<QueryOptions>>();
+
+        return new Repository<TEntity, TKey>(Fixture.DbContext, logger, queryOptions);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Craft.QuerySpec.Tests.Services;
 
@@ -12,10 +13,14 @@ public class RepositoryTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
+    private static IOptions<QueryOptions> CreateQueryOptions() =>
+        Options.Create(new QueryOptions());
+
     private static Repository<Country, KeyType> CreateRepository(TestDbContext context)
     {
         var logger = new Logger<Repository<Country, KeyType>>(new LoggerFactory());
-        return new Repository<Country, KeyType>(context, logger);
+        var queryOptions = CreateQueryOptions();
+        return new Repository<Country, KeyType>(context, logger, queryOptions);
     }
 
     [Fact]
@@ -26,7 +31,8 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var logger = new Logger<Repository<NoSoftDeleteEntity, KeyType>>(new LoggerFactory());
-        var repo = new Repository<NoSoftDeleteEntity, KeyType>(context, logger);
+        var queryOptions = CreateQueryOptions();
+        var repo = new Repository<NoSoftDeleteEntity, KeyType>(context, logger, queryOptions);
 
         var entities = new List<NoSoftDeleteEntity>
         {

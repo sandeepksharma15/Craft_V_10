@@ -8,6 +8,7 @@ using Craft.QuerySpec.Services;
 using Craft.Repositories;
 using Craft.Testing.Abstractions;
 using Mapster;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -81,7 +82,10 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
         var logger = Fixture.ServiceProvider
             .GetRequiredService<ILogger<Repository<TEntity, TKey>>>();
 
-        return new Repository<TEntity, TKey>(Fixture.DbContext, logger);
+        var queryOptions = Fixture.ServiceProvider
+            .GetRequiredService<IOptions<QueryOptions>>();
+
+        return new Repository<TEntity, TKey>(Fixture.DbContext, logger, queryOptions);
     }
 
     /// <summary>

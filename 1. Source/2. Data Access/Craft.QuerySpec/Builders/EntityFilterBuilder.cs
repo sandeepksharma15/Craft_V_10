@@ -1,7 +1,6 @@
 using Craft.Core;
 using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
-using iText.Signatures.Validation.Lotl.Criteria;
 
 namespace Craft.QuerySpec;
 

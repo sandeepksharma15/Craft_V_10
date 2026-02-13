@@ -4,6 +4,8 @@ using Craft.Extensions.Collections;
 using Craft.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace Craft.QuerySpec;
 
@@ -12,9 +14,30 @@ namespace Craft.QuerySpec;
 /// </summary>
 /// <typeparam name="T">Entity type.</typeparam>
 /// <typeparam name="TKey">Entity key type.</typeparam>
-public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, TKey>> logger)
-    : ChangeRepository<T, TKey>(appDbContext, logger), IRepository<T, TKey> where T : class, IEntity<TKey>, new()
+public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
+    private readonly QueryOptions _queryOptions;
+    private readonly IQueryMetrics? _queryMetrics;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Repository{T, TKey}"/> class.
+    /// </summary>
+    /// <param name="appDbContext">The database context.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="queryOptions">Query configuration options.</param>
+    /// <param name="queryMetrics">Optional query metrics collector.</param>
+    public Repository(
+        IDbContext appDbContext,
+        ILogger<Repository<T, TKey>> logger,
+        IOptions<QueryOptions> queryOptions,
+        IQueryMetrics? queryMetrics = null)
+        : base(appDbContext, logger)
+    {
+        ArgumentNullException.ThrowIfNull(queryOptions);
+        _queryOptions = queryOptions.Value;
+        _queryMetrics = queryMetrics;
+    }
+
     /// <inheritdoc />
     public virtual async Task DeleteAsync(IQuery<T> query, bool autoSave = true, CancellationToken cancellationToken = default)
     {
@@ -23,22 +46,45 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"DeleteAsync\"]");
 
-        await _dbSet
-            .WithQuery(query)
-            .ForEachAsync(entity =>
-            {
-                if (entity is ISoftDelete softDeleteEntity)
-                {
-                    softDeleteEntity.IsDeleted = true;
-                    _dbSet.Update(entity);
-                }
-                else
-                    _dbSet.Remove(entity);
-            }, cancellationToken)
-            .ConfigureAwait(false);
+        var sw = Stopwatch.StartNew();
+        var deletedCount = 0;
 
-        if (autoSave)
-            await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await _dbSet
+                .WithQuery(query)
+                .ForEachAsync(entity =>
+                {
+                    if (entity is ISoftDelete softDeleteEntity)
+                    {
+                        softDeleteEntity.IsDeleted = true;
+                        _dbSet.Update(entity);
+                    }
+                    else
+                        _dbSet.Remove(entity);
+
+                    deletedCount++;
+                }, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (autoSave)
+                await _appDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            sw.Stop();
+            _queryMetrics?.RecordQueryExecution("Delete", typeof(T).Name, sw.Elapsed, deletedCount);
+
+            if (_queryOptions.EnableQueryMetrics && sw.ElapsedMilliseconds > _queryOptions.SlowQueryThresholdMs)
+            {
+                _logger.LogWarning(
+                    "Slow query detected: Delete operation on {EntityType} took {Duration}ms, deleted {Count} records",
+                    typeof(T).Name, sw.ElapsedMilliseconds, deletedCount);
+            }
+        }
+        catch (Exception ex)
+        {
+            _queryMetrics?.RecordQueryError("Delete", typeof(T).Name, ex);
+            throw;
+        }
     }
 
     /// <inheritdoc />
@@ -201,5 +247,11 @@ public class Repository<T, TKey>(IDbContext appDbContext, ILogger<Repository<T, 
 /// Repository with QuerySpec support for default key type.
 /// </summary>
 /// <typeparam name="T">Entity type.</typeparam>
-public class Repository<T>(IDbContext appDbContext, ILogger<Repository<T, KeyType>> logger)
-    : Repository<T, KeyType>(appDbContext, logger), IRepository<T> where T : class, IEntity, new();
+public class Repository<T>(
+    IDbContext appDbContext,
+    ILogger<Repository<T, KeyType>> logger,
+    IOptions<QueryOptions> queryOptions,
+    IQueryMetrics? queryMetrics = null)
+    : Repository<T, KeyType>(appDbContext, logger, queryOptions, queryMetrics), IRepository<T> 
+    where T : class, IEntity, new();
+

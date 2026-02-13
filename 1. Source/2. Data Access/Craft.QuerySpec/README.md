@@ -1,610 +1,396 @@
 # Craft.QuerySpec
 
-Craft.QuerySpec is a .NET 10 library that extends Craft.Repositories with advanced query specification capabilities for building complex, reusable, and testable queries in C# applications. It provides a fluent API for filtering, sorting, pagination, projection, and more.
+A powerful, type-safe query specification library for .NET with full HTTP serialization support. Build complex queries on the client, serialize them over HTTP, and execute them on the server with Entity Framework Core.
 
-## Features
+[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square)](https://dotnet.microsoft.com/)
+[![Tests](https://img.shields.io/badge/tests-991%20passing-brightgreen?style=flat-square)]()
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)]()
 
-- **Query Specification Pattern**: Build reusable query specifications separate from repository logic
-- **Fluent API**: Intuitive, chainable methods for building complex queries
-- **Advanced Filtering**: Support for multiple filter criteria with various comparison operators
-- **Projection Support**: Map entities to DTOs with type-safe projections
-- **Pagination**: Built-in support for efficient paging with total count
-- **Ordering**: Multi-level sorting with ascending/descending support
-- **Search**: Full-text search capabilities across multiple properties
-- **Include Details**: Eager loading of related entities
-- **Soft Delete Support**: Automatic handling of soft-deleted entities
-- **Evaluator Pipeline**: Extensible query evaluation pipeline
-- **Performance Optimized**: Single-query execution, no N+1 problems
-- **.NET 10 & C# 14**: Utilizes the latest language and framework features
+## 🎯 Features
 
-## Installation
+- ✅ **Type-Safe Queries** - Strongly-typed LINQ expressions
+- ✅ **HTTP Serialization** - Full JSON serialization/deserialization support
+- ✅ **Dynamic Filtering** - Runtime filter construction with multiple comparison operators
+- ✅ **Sorting & Pagination** - Multi-field sorting with skip/take pagination
+- ✅ **SQL-Like Search** - Contains, StartsWith, EndsWith with case-insensitive matching
+- ✅ **Navigation Includes** - Manual and automatic navigation property loading
+- ✅ **Result Projection** - Select specific fields to reduce payload size
+- ✅ **Query Validation** - Built-in validation with configurable limits
+- ✅ **Performance Monitoring** - Query metrics and slow query detection
+- ✅ **EF Core Integration** - Seamless integration with Entity Framework Core
+- ✅ **Repository Pattern** - Advanced repository implementation with QuerySpec support
+- ✅ **HTTP Services** - Ready-to-use HTTP client and controller implementations
 
-Add a project reference to `Craft.QuerySpec` in your .NET 10 solution:
+## 📦 Installation
 
 ```bash
-dotnet add reference ../Craft.QuerySpec/Craft.QuerySpec.csproj
+dotnet add package Craft.QuerySpec
 ```
 
-## Getting Started
+## 🚀 Quick Start
 
-### Basic Usage
+### Basic Setup
 
 ```csharp
-using Craft.QuerySpec;
+// In Program.cs or Startup.cs
+services.AddQuerySpec(configuration); // Register QuerySpec services
 
-// Inject repository in your service
-public class ProductService
-{
-    private readonly IRepository<Product, Guid> _repository;
-    
-    public ProductService(IRepository<Product, Guid> repository) 
-        => _repository = repository;
-
-    // Simple query
-    public async Task<Product?> GetProductByNameAsync(string name)
-    {
-        var query = new Query<Product>();
-        query.Where(p => p.Name == name);
-        
-        return await _repository.GetAsync(query);
-    }
-    
-    // Query with multiple filters
-    public async Task<List<Product>> GetActiveProductsAsync()
-    {
-        var query = new Query<Product>();
-        query.Where(p => p.IsActive)
-             .Where(p => p.Stock > 0)
-             .OrderBy(p => p.Name);
-        
-        return await _repository.GetAllAsync(query);
-    }
-}
+builder.Services
+    .AddControllers()
+    .AddQuerySpecJsonOptions(); // Enable JSON serialization for Query<T>
 ```
 
-### Pagination
+### Simple Query Example
 
 ```csharp
-public async Task<PageResponse<Product>> GetProductsPageAsync(int page, int pageSize)
-{
-    var query = new Query<Product>
-    {
-        Skip = (page - 1) * pageSize,
-        Take = pageSize
-    };
-    
-    query.Where(p => p.IsActive)
-         .OrderBy(p => p.CreatedDate, OrderDirection.Descending);
-    
-    return await _repository.GetPagedListAsync(query);
-}
+// Create a query
+var query = new Query<Product>()
+    .Where(p => p.Category == "Electronics")
+    .Where(p => p.Price < 1000)
+    .OrderBy(p => p.Price)
+    .SetPage(1, 20);
+
+// Execute the query
+var products = await repository.GetPagedListAsync(query);
 ```
 
-### Projection to DTO
+### Dynamic Filtering
 
 ```csharp
-public class ProductDto
-{
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-}
-
-public async Task<List<ProductDto>> GetProductDtosAsync()
-{
-    var query = new Query<Product, ProductDto>();
-    
-    query.Where(p => p.IsActive)
-         .Select(p => p.Name, dto => dto.Name)
-         .Select(p => p.Price, dto => dto.Price);
-    
-    return await _repository.GetAllAsync(query);
-}
-```
-
-### Advanced Filtering
-
-```csharp
-// Comparison operators
-var query = new Query<Product>();
-query.Where(p => p.Price, 100m, ComparisonType.GreaterThan)
-     .Where(p => p.Price, 1000m, ComparisonType.LessThanOrEqual);
-
-// String property by name
-query.Where("Category", "Electronics", ComparisonType.EqualTo);
-
-// Complex expressions
-query.Where(p => p.Name.Contains("Phone") && p.Stock > 0);
-```
-
-### Search
-
-```csharp
-var query = new Query<Product>
-{
-    SearchTerm = "iPhone",
-    SearchPropertyNames = new[] { "Name", "Description" }
-};
-
-var results = await _repository.GetAllAsync(query);
-```
-
-### Ordering
-
-```csharp
+// Build filters dynamically at runtime
 var query = new Query<Product>();
 
-// Single order
-query.OrderBy(p => p.Price);
+if (!string.IsNullOrEmpty(category))
+    query.Where("Category", category, ComparisonType.EqualTo);
 
-// Multiple orders
-query.OrderBy(p => p.Category)
-     .ThenOrderBy(p => p.Name);
+if (maxPrice.HasValue)
+    query.Where("Price", maxPrice.Value, ComparisonType.LessThanOrEqualTo);
 
-// Descending order
-query.OrderBy(p => p.CreatedDate, OrderDirection.Descending);
+var results = await repository.GetAllAsync(query);
 ```
 
-### Count
+### Result Projection
 
 ```csharp
-var query = new Query<Product>();
-query.Where(p => p.IsActive);
-
-var count = await _repository.GetCountAsync(query);
-```
-
-### Batch Delete
-
-```csharp
-// Delete all inactive products
-var query = new Query<Product>();
-query.Where(p => !p.IsActive);
-
-await _repository.DeleteAsync(query);
-```
-
-## Key Components
-
-### Interfaces
-
-- **`IRepository<T, TKey>`**: Repository interface with QuerySpec support
-- **`IQuery<T>`**: Query specification for entity retrieval
-- **`IQuery<T, TResult>`**: Query specification with projection support
-- **`IEvaluator`**: Interface for query evaluators
-- **`ISelectEvaluator`**: Interface for selection/projection evaluators
-
-### Implementations
-
-- **`Repository<T, TKey>`**: Repository implementation with QuerySpec support
-- **`Query<T>`**: Concrete query specification implementation
-- **`Query<T, TResult>`**: Concrete query specification with projection
-- **`QueryEvaluator`**: Main evaluator that orchestrates the evaluation pipeline
-
-### Evaluators
-
-The evaluation pipeline processes queries in this order:
-
-1. **WhereEvaluator**: Applies filtering criteria
-2. **OrderEvaluator**: Applies sorting
-3. **SearchEvaluator**: Applies search terms
-4. **PaginationEvaluator**: Applies Skip/Take for pagination
-5. **AsNoTrackingEvaluator**: Optimizes read-only queries
-6. **AsSplitQueryEvaluator**: Optimizes queries with multiple includes
-7. **IgnoreAutoIncludeEvaluator**: Controls automatic navigation property loading
-8. **IgnoreQueryFiltersEvaluator**: Bypasses global query filters
-
-### Extension Methods
-
-- **`WithQuery<T>(IQuery<T>)`**: Applies query specification to IQueryable
-- **`ToListSafeAsync<T>()`**: Safe async list conversion
-- **`LongCountSafeAsync<T>()`**: Safe async count
-- **`Where<T>(Expression<Func<T, bool>>)`**: Adds filter criteria
-- **`OrderBy<T>(Expression<Func<T, object>>)`**: Adds ordering
-- **`Select<T, TResult>(Expression)`**: Adds projection
-
-## Query Options
-
-### IQuery<T> Properties
-
-```csharp
-public class Query<T>
-{
-    // Pagination
-    public int? Skip { get; set; }
-    public int? Take { get; set; }
-    
-    // Search
-    public string? SearchTerm { get; set; }
-    public IEnumerable<string>? SearchPropertyNames { get; set; }
-    
-    // Options
-    public bool AsNoTracking { get; set; }
-    public bool AsSplitQuery { get; set; }
-    public bool IgnoreAutoIncludes { get; set; }
-    public bool IgnoreQueryFilters { get; set; }
-    
-    // Builders
-    public EntityFilterBuilder<T> EntityFilterBuilder { get; }
-    public EntityOrderBuilder<T> EntityOrderBuilder { get; }
-    
-    // Post-processing
-    public Func<IEnumerable<T>, IEnumerable<T>>? PostProcessingAction { get; set; }
-}
-```
-
-## Best Practices
-
-### 1. Reusable Query Specifications
-
-Create specification classes for common queries:
-
-```csharp
-public class ActiveProductsSpec : Query<Product>
-{
-    public ActiveProductsSpec()
+// Select only the fields you need
+var query = new Query<Product, ProductDto>()
+    .Where(p => p.IsActive)
+    .Select(p => new ProductDto
     {
-        this.Where(p => p.IsActive);
-        AsNoTracking = true;
+        Id = p.Id,
+        Name = p.Name,
+        Price = p.Price
+    })
+    .OrderBy(p => p.Name)
+    .SetPage(1, 50);
+
+var dtos = await repository.GetPagedListAsync(query);
+```
+
+### HTTP Serialization
+
+**Client Side (Blazor WebAssembly)**:
+```csharp
+// Create query on the client
+var query = new Query<Product>()
+    .Where(p => p.Category == "Electronics")
+    .OrderBy(p => p.Price);
+
+// Send query over HTTP (automatically serialized to JSON)
+var response = await httpService.GetAllAsync(query);
+
+if (response.IsSuccess)
+{
+    var products = response.Data;
+}
+```
+
+**Server Side (Web API)**:
+```csharp
+[HttpPost("search")]
+public async Task<ActionResult<List<Product>>> Search(
+    [FromBody] IQuery<Product> query,
+    CancellationToken cancellationToken)
+{
+    // Query is automatically deserialized from JSON
+    return await repository.GetAllAsync(query, cancellationToken);
+}
+```
+
+## 📚 Advanced Usage
+
+### Navigation Property Includes
+
+```csharp
+// Manually specify includes
+var query = new Query<Order>()
+    .Include(o => o.Customer)
+    .Include(o => o.OrderItems)
+    .ThenInclude<OrderItem>(oi => oi.Product);
+
+// Or use automatic includes (1 level deep)
+var query = new Query<Order>()
+{
+    AutoIncludeNavigationProperties = true
+};
+```
+
+### Search Functionality
+
+```csharp
+// SQL-like search across multiple fields
+var query = new Query<Product>()
+    .Search(p => p.Name, "laptop")
+    .Search(p => p.Description, "gaming")
+    .OrderBy(p => p.Name);
+```
+
+### Complex Filtering
+
+```csharp
+// Combine multiple filters
+var query = new Query<Employee>()
+    .Where(e => e.IsActive)
+    .Where(e => e.Department == "IT")
+    .Where(e => e.Salary >= 50000 && e.Salary <= 100000)
+    .Where(e => e.Skills.Any(s => s.Name == "C#"))
+    .OrderByDescending(e => e.HireDate)
+    .SetPage(1, 25);
+```
+
+### Query Options Configuration
+
+```csharp
+// In appsettings.json
+{
+  "QuerySpec": {
+    "Options": {
+      "CommandTimeoutSeconds": 30,
+      "MaxResultSize": 10000,
+      "MaxFilterCount": 50,
+      "MaxIncludeCount": 10,
+      "MaxPageSize": 1000,
+      "MaxOrderByFields": 5,
+      "EnableQueryMetrics": true,
+      "SlowQueryThresholdMs": 5000
     }
+  }
 }
 
-// Usage
-var products = await _repository.GetAllAsync(new ActiveProductsSpec());
-```
-
-### 2. Pagination Requirements
-
-Always set both `Skip` and `Take` for paginated queries:
-
-```csharp
-// ? Correct
-var query = new Query<Product>
+// Or configure programmatically
+services.AddQuerySpec(options =>
 {
-    Skip = 0,
-    Take = 20
-};
-
-// ? Throws ArgumentOutOfRangeException
-var badQuery = new Query<Product>
-{
-    Take = 20  // Skip is null
-};
-```
-
-### 3. Read-Only Queries
-
-Use `AsNoTracking` for read-only operations:
-
-```csharp
-var query = new Query<Product>
-{
-    AsNoTracking = true
-};
-query.Where(p => p.IsActive);
-
-var products = await _repository.GetAllAsync(query);
-```
-
-### 4. Projections for Performance
-
-Use projections to retrieve only needed data:
-
-```csharp
-// ? Better - only retrieves needed columns
-var query = new Query<Product, ProductListDto>();
-query.Select(p => p.Id)
-     .Select(p => p.Name)
-     .Select(p => p.Price);
-
-// ? Retrieves entire entity
-var allData = await _repository.GetAllAsync(new Query<Product>());
-```
-
-### 5. Soft Delete Handling
-
-Soft-deletable entities are handled automatically:
-
-```csharp
-// Hard delete for non-ISoftDelete entities
-// Soft delete (sets IsDeleted = true) for ISoftDelete entities
-await _repository.DeleteAsync(query);
-```
-
-## Performance Considerations
-
-### Single Query Execution
-
-Queries are optimized to execute as a single database call:
-
-```csharp
-// This executes ONE database query
-var page = await _repository.GetPagedListAsync(query);
-// Items are retrieved with applied filters/sorting/paging
-// Total count uses only WHERE clause (no pagination)
-```
-
-### Avoid N+1 Problems
-
-Use split queries for complex includes:
-
-```csharp
-var query = new Query<Order>
-{
-    AsSplitQuery = true  // Prevents N+1 for multiple collections
-};
-```
-
-### Efficient Counting
-
-`GetPagedListAsync` optimizes count queries:
-
-```csharp
-// Count query: SELECT COUNT(*) WHERE [filters]
-// Data query: SELECT * WHERE [filters] ORDER BY [order] SKIP X TAKE Y
-var page = await _repository.GetPagedListAsync(query);
-```
-
-## Error Handling
-
-### Multiple Matches
-
-`GetAsync` throws if multiple entities match:
-
-```csharp
-try
-{
-    var product = await _repository.GetAsync(query);
-}
-catch (InvalidOperationException ex)
-{
-    // "Sequence contains more than one matching element."
-}
-```
-
-### Pagination Validation
-
-Pagination parameters are validated:
-
-```csharp
-// Throws ArgumentOutOfRangeException
-var query = new Query<Product> 
-{ 
-    Skip = -1,  // Must be >= 0
-    Take = 0    // Must be > 0
-};
-```
-
-## Testing
-
-### Unit Testing with In-Memory Data
-
-```csharp
-[Fact]
-public async Task GetAsync_WithValidQuery_ReturnsEntity()
-{
-    // Arrange
-    var options = new DbContextOptionsBuilder<TestDbContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options;
-    
-    await using var context = new TestDbContext(options);
-    var repository = new Repository<Product, Guid>(context, logger);
-    
-    var product = new Product { Name = "Test" };
-    context.Products.Add(product);
-    await context.SaveChangesAsync();
-    
-    // Act
-    var query = new Query<Product>();
-    query.Where(p => p.Name == "Test");
-    var result = await repository.GetAsync(query);
-    
-    // Assert
-    Assert.NotNull(result);
-    Assert.Equal("Test", result.Name);
-}
-```
-
-### Integration Testing
-
-```csharp
-[Collection(nameof(SystemTestCollectionDefinition))]
-public class RepositoryIntegrationTests
-{
-    private readonly IRepository<Product, Guid> _repository;
-    
-    public RepositoryIntegrationTests(TestFixture fixture)
-    {
-        _repository = fixture.GetService<IRepository<Product, Guid>>();
-    }
-    
-    [Fact]
-    public async Task GetPagedListAsync_ReturnsCorrectPage()
-    {
-        // Arrange
-        var query = new Query<Product>
-        {
-            Skip = 10,
-            Take = 10
-        };
-        
-        // Act
-        var page = await _repository.GetPagedListAsync(query);
-        
-        // Assert
-        Assert.Equal(10, page.Items.Count);
-        Assert.Equal(2, page.CurrentPage);
-    }
-}
-```
-
-## Advanced Scenarios
-
-### Custom Evaluator
-
-Create custom evaluators for specialized logic:
-
-```csharp
-public class TenantEvaluator : IEvaluator
-{
-    private readonly string _tenantId;
-    
-    public TenantEvaluator(string tenantId) => _tenantId = tenantId;
-    
-    public IQueryable<T>? GetQuery<T>(IQueryable<T> queryable, IQuery<T> query) 
-        where T : class
-    {
-        if (typeof(T).GetInterface(nameof(ITenant)) != null)
-            return queryable.Where(x => ((ITenant)x).TenantId == _tenantId);
-        
-        return queryable;
-    }
-}
-
-// Usage
-var evaluator = new QueryEvaluator(new IEvaluator[]
-{
-    WhereEvaluator.Instance,
-    new TenantEvaluator(currentTenantId),
-    OrderEvaluator.Instance,
-    // ... other evaluators
+    options.MaxPageSize = 500;
+    options.EnableQueryMetrics = true;
+    options.SlowQueryThresholdMs = 3000;
 });
 ```
 
-### Post-Processing
-
-Apply in-memory transformations after database retrieval:
+### Query Validation
 
 ```csharp
-var query = new Query<Product>
+// Inject validator in your controller
+public class ProductController : EntityController<Product, ProductDto, long>
 {
-    PostProcessingAction = items => items
-        .OrderBy(p => SomeComplexCalculation(p))
-        .Take(10)
-};
-
-var products = await _repository.GetAllAsync(query);
-```
-
-### SelectMany for Flattening
-
-Use SelectMany to flatten collections:
-
-```csharp
-var query = new Query<Order, OrderItem>();
-query.SelectMany(order => order.OrderItems);
-
-var allItems = await _repository.GetAllAsync(query);
-```
-
-## Migration from Direct LINQ
-
-### Before (Direct LINQ)
-
-```csharp
-var products = await dbContext.Products
-    .Where(p => p.IsActive)
-    .Where(p => p.Price > 100)
-    .OrderBy(p => p.Name)
-    .Skip(20)
-    .Take(10)
-    .AsNoTracking()
-    .ToListAsync();
-```
-
-### After (QuerySpec)
-
-```csharp
-var query = new Query<Product>
-{
-    Skip = 20,
-    Take = 10,
-    AsNoTracking = true
-};
-
-query.Where(p => p.IsActive)
-     .Where(p => p.Price > 100)
-     .OrderBy(p => p.Name);
-
-var products = await _repository.GetAllAsync(query);
-```
-
-## Comparison Operators
-
-```csharp
-public enum ComparisonType
-{
-    EqualTo,              // ==
-    NotEqualTo,           // !=
-    GreaterThan,          // >
-    GreaterThanOrEqual,   // >=
-    LessThan,             // <
-    LessThanOrEqual,      // <=
-    Contains,             // LIKE %value%
-    StartsWith,           // LIKE value%
-    EndsWith              // LIKE %value
+    private readonly IQueryValidator<Product> _validator;
+    
+    public ProductController(
+        IRepository<Product, long> repository,
+        IQueryValidator<Product> validator,
+        ILogger<ProductController> logger)
+        : base(repository, logger)
+    {
+        _validator = validator;
+    }
+    
+    [HttpPost("search")]
+    public async Task<ActionResult<List<Product>>> Search(
+        [FromBody] IQuery<Product> query)
+    {
+        // Validate query before execution
+        var validation = await _validator.ValidateAsync(query);
+        
+        if (!validation.IsValid)
+            return BadRequest(validation.Errors);
+        
+        return await repository.GetAllAsync(query);
+    }
 }
 ```
 
-## Integration with Craft.Repositories
+## 🏗️ Architecture
 
-Craft.QuerySpec extends Craft.Repositories:
+### Core Components
 
+#### Query<T>
+The main query specification class that encapsulates all query logic:
+- Filtering (Where clauses)
+- Sorting (OrderBy, OrderByDescending)
+- Pagination (Skip, Take)
+- Includes (Navigation properties)
+- Query options (AsNoTracking, AsSplitQuery, etc.)
+
+#### Query<T, TResult>
+Extension of Query<T> with result projection support for selecting specific fields.
+
+#### EntityFilterBuilder<T>
+Fluent builder for constructing filter expressions dynamically at runtime.
+
+#### SortOrderBuilder<T>
+Builder for creating multi-field sorting specifications.
+
+#### QueryEvaluator
+Chain of responsibility pattern implementation that applies query specifications to IQueryable<T>.
+
+### Evaluators
+
+The library uses pluggable evaluators to apply different aspects of the query:
+
+- **WhereEvaluator** - Applies filter conditions
+- **OrderEvaluator** - Applies sorting
+- **SearchEvaluator** - Applies SQL-like search
+- **PaginationEvaluator** - Applies skip/take
+- **IncludeEvaluator** - Applies navigation property includes
+- **AsNoTrackingEvaluator** - Applies change tracking options
+- **AsSplitQueryEvaluator** - Applies split query options
+
+### JSON Serialization
+
+Custom JSON converters enable full serialization of:
+- LINQ expressions
+- Filter criteria
+- Sort descriptors
+- Include expressions
+- All query options
+
+## 🔒 Security Features
+
+### Built-in Validation
+- Maximum filter count limits
+- Maximum include depth limits
+- Maximum page size enforcement
+- Property access validation
+- Query complexity checks
+
+### Best Practices
+```csharp
+// ✅ Good: Use validation
+var validation = await validator.ValidateAsync(query);
+if (!validation.IsValid)
+    return BadRequest(validation.Errors);
+
+// ✅ Good: Configure reasonable limits
+options.MaxFilterCount = 50;
+options.MaxPageSize = 1000;
+
+// ✅ Good: Enable metrics for monitoring
+options.EnableQueryMetrics = true;
+options.SlowQueryThresholdMs = 5000;
 ```
-IBaseRepository<T, TKey>
-    ?
-IReadRepository<T, TKey>
-    ?
-IChangeRepository<T, TKey>  (from Craft.Repositories)
-    ?
-IRepository<T, TKey>         (from Craft.QuerySpec)
-```
 
-All methods from Craft.Repositories are available plus QuerySpec methods.
+## 📊 Performance
 
-## Troubleshooting
+### Optimization Features
 
-### "Sequence contains more than one matching element"
+- **AsNoTracking by default** - Read-only queries don't track changes
+- **Expression caching** - Common expressions are cached
+- **Lazy evaluation** - Queries execute only when enumerated
+- **Compiled queries** - Frequently used queries can be compiled
+- **Projection support** - Select only needed fields
 
-This occurs when `GetAsync` finds multiple matches. Use `GetAllAsync` instead or refine your query.
-
-### "No Selection defined in query"
-
-For `IQuery<T, TResult>`, you must define either `Select` or `SelectMany`:
+### Performance Tips
 
 ```csharp
-// ? Correct
-var query = new Query<Product, ProductDto>();
-query.Select(p => p.Name);
+// ✅ Use projection to reduce payload
+var query = new Query<Order, OrderSummary>()
+    .Select(o => new OrderSummary { Id = o.Id, Total = o.Total });
 
-// ? Wrong - no selection
-var query = new Query<Product, ProductDto>();
+// ✅ Use AsNoTracking for read-only queries (default)
+query.AsNoTracking = true;
+
+// ✅ Use pagination for large result sets
+query.SetPage(1, 50);
+
+// ✅ Use AsSplitQuery for multiple includes
+query.AsSplitQuery = true;
+query.Include(o => o.OrderItems)
+     .Include(o => o.Customer);
 ```
 
-### "Page size (Take) must be set and greater than zero"
+## 🧪 Testing
 
-For `GetPagedListAsync`, both `Skip` and `Take` must be set:
+The library includes 991 comprehensive tests covering:
+- All builders and components
+- JSON serialization round-trips
+- Expression building
+- Query evaluation
+- Repository operations
+- Validation logic
+
+Run tests:
+```bash
+dotnet test Craft.QuerySpec.Tests
+```
+
+## 📖 API Reference
+
+### IQuery<T> Interface
 
 ```csharp
-// ? Correct
-var query = new Query<Product> { Skip = 0, Take = 20 };
-
-// ? Wrong
-var query = new Query<Product> { Skip = 0 };  // Take is null
+public interface IQuery<T> where T : class
+{
+    bool AsNoTracking { get; set; }
+    bool AsSplitQuery { get; set; }
+    bool IgnoreAutoIncludes { get; set; }
+    bool IgnoreQueryFilters { get; set; }
+    bool AutoIncludeNavigationProperties { get; set; }
+    int? Skip { get; set; }
+    int? Take { get; set; }
+    SortOrderBuilder<T>? SortOrderBuilder { get; set; }
+    SqlLikeSearchCriteriaBuilder<T>? SqlLikeSearchCriteriaBuilder { get; set; }
+    EntityFilterBuilder<T>? EntityFilterBuilder { get; set; }
+    List<IncludeExpression>? IncludeExpressions { get; set; }
+    Func<IEnumerable<T>, IEnumerable<T>>? PostProcessingAction { get; set; }
+    
+    bool IsSatisfiedBy(T entity);
+    void SetPage(int page, int pageSize);
+    void Clear();
+}
 ```
 
-## Contributing
+### IRepository<T, TKey> Interface
 
-Contributions are welcome! Please ensure:
-- All new features have comprehensive unit tests
-- XML documentation is provided for public APIs
-- Code follows the Craft coding standards
-- Integration tests are added for repository operations
+```csharp
+public interface IRepository<T, TKey> where T : class, IEntity<TKey>
+{
+    Task<T?> GetAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<TResult?> GetAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default);
+    Task DeleteAsync(IQuery<T> query, bool autoSave = true, CancellationToken cancellationToken = default);
+    Task<long> GetCountAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<List<T>> GetAllAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<List<TResult>> GetAllAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default);
+    Task<PageResponse<T>> GetPagedListAsync(IQuery<T> query, CancellationToken cancellationToken = default);
+    Task<PageResponse<TResult>> GetPagedListAsync<TResult>(IQuery<T, TResult> query, CancellationToken cancellationToken = default);
+}
+```
 
-## License
+## 🤝 Contributing
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🔗 Related Projects
+
+- [Craft Framework](https://github.com/sandeepksharma15/Craft_V_10) - Complete framework ecosystem
+- [Entity Framework Core](https://github.com/dotnet/efcore) - ORM integration
+
+## 📞 Support
+
+For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/sandeepksharma15/Craft_V_10).
 
 ---
 
-For more information, review the source code, XML documentation, and unit tests in the project.
+**Built with ❤️ using .NET 10**
