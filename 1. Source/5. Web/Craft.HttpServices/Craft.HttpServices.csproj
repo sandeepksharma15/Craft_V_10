@@ -9,16 +9,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Extensions\**" />
+	  <EmbeddedResource Remove="Extensions\**" />
+	  <None Remove="Extensions\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Mapster" Version="10.0.0-pre01" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
 	  <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Extensions\" />
 	</ItemGroup>
 
 </Project>
