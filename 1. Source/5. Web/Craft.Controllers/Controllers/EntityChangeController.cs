@@ -20,10 +20,8 @@ namespace Craft.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-public abstract class EntityChangeController<T, DataTransferT, TKey>(
-    IChangeRepository<T, TKey> repository,
-    ILogger<EntityChangeController<T, DataTransferT, TKey>> logger,
-    IDatabaseErrorHandler databaseErrorHandler)
+public abstract class EntityChangeController<T, DataTransferT, TKey>(IChangeRepository<T, TKey> repository,
+    ILogger<EntityChangeController<T, DataTransferT, TKey>> logger, IDatabaseErrorHandler databaseErrorHandler)
     : EntityReadController<T, DataTransferT, TKey>(repository, logger), IEntityChangeController<T, DataTransferT, TKey>
         where T : class, IEntity<TKey>, new()
         where DataTransferT : class, IModel<TKey>, new()
@@ -283,12 +281,101 @@ public abstract class EntityChangeController<T, DataTransferT, TKey>(
             return BadRequest(new[] { $"Failed to update multiple {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
+
+    /// <summary>
+    /// Restores a soft-deleted entity.
+    /// </summary>
+    /// <param name="model">The data transfer object identifying the entity to restore.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The restored entity.</returns>
+    /// <response code="200">Returns the restored entity.</response>
+    /// <response code="400">If the model is invalid or the entity does not support soft delete.</response>
+    /// <response code="404">If the entity is not found.</response>
+    /// <response code="500">If an internal server error occurs.</response>
+    [HttpPut("restore")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<T>> RestoreAsync(DataTransferT model, CancellationToken cancellationToken = default)
+    {
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityChangeController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"RestoreAsync\"] Id: [\"{model.Id}\"]");
+
+        try
+        {
+            T? entity = await repository.GetAsync(model.Id, cancellationToken: cancellationToken);
+
+            if (entity == null)
+                return NotFound();
+
+            return Ok(await repository.RestoreAsync(entity, cancellationToken: cancellationToken));
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "[EntityChangeController] Cannot restore {EntityType} - does not implement ISoftDelete", typeof(T).Name);
+            return BadRequest(new[] { $"Entity type {typeof(T).Name} does not support soft delete and cannot be restored." });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "[EntityChangeController] Error in RestoreAsync for {EntityType}: {Message}", typeof(T).Name, ex.Message);
+            return BadRequest(new[] { $"Failed to restore {typeof(T).Name.ToLower()}: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// Restores multiple soft-deleted entities in a single batch operation.
+    /// </summary>
+    /// <param name="models">The collection of data transfer objects identifying entities to restore.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>Success response if all entities are restored.</returns>
+    /// <response code="200">If all entities are restored successfully.</response>
+    /// <response code="400">If any model is invalid or the entities do not support soft delete.</response>
+    /// <response code="404">If any entity is not found.</response>
+    /// <response code="500">If an internal server error occurs.</response>
+    [HttpPost("restorerange")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<List<T>>> RestoreRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default)
+    {
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityChangeController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"RestoreRangeAsync\"]");
+
+        try
+        {
+            // Validate that all entities exist before attempting batch restore
+            var modelsList = models.ToList();
+            var ids = modelsList.Select(m => m.Id).ToList();
+            var existingEntities = new List<T>();
+
+            foreach (var id in ids)
+            {
+                var entity = await repository.GetAsync(id, cancellationToken: cancellationToken);
+                if (entity == null)
+                    return NotFound($"Entity with ID {id} not found");
+                existingEntities.Add(entity);
+            }
+
+            var restoredEntities = await repository.RestoreRangeAsync(existingEntities, cancellationToken: cancellationToken);
+            return Ok(restoredEntities);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "[EntityChangeController] Cannot restore {EntityType} - does not implement ISoftDelete", typeof(T).Name);
+            return BadRequest(new[] { $"Entity type {typeof(T).Name} does not support soft delete and cannot be restored." });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "[EntityChangeController] Error in RestoreRangeAsync for {EntityType}: {Message}", typeof(T).Name, ex.Message);
+            return BadRequest(new[] { $"Failed to restore multiple {typeof(T).Name.ToLower()}: {ex.Message}" });
+        }
+    }
 }
 
-public abstract class EntityChangeController<T, DataTransferT>(
-IChangeRepository<T> repository,
-ILogger<EntityChangeController<T, DataTransferT>> logger,
-IDatabaseErrorHandler databaseErrorHandler)
+public abstract class EntityChangeController<T, DataTransferT>(IChangeRepository<T> repository,
+    ILogger<EntityChangeController<T, DataTransferT>> logger, IDatabaseErrorHandler databaseErrorHandler)
 : EntityChangeController<T, DataTransferT, KeyType>(repository, logger, databaseErrorHandler), IEntityChangeController<T, DataTransferT>
     where T : class, IEntity, new()
     where DataTransferT : class, IModel, new();

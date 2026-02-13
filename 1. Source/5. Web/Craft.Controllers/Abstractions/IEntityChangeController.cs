@@ -18,6 +18,10 @@ public interface IEntityChangeController<T, DataTransferT, TKey> : IEntityReadCo
     Task<ActionResult<T>> UpdateAsync(DataTransferT model, CancellationToken cancellationToken = default);
 
     Task<ActionResult<List<T>>> UpdateRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default);
+
+    Task<ActionResult<T>> RestoreAsync(DataTransferT model, CancellationToken cancellationToken = default);
+
+    Task<ActionResult<List<T>>> RestoreRangeAsync(IEnumerable<DataTransferT> models, CancellationToken cancellationToken = default);
 }
 
 public interface IEntityChangeController<T, DataTransferT> : IEntityChangeController<T, DataTransferT, KeyType>
