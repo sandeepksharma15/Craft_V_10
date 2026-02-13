@@ -27,6 +27,16 @@ public interface IEntityReadController<T, TKey> : IEntityController where T : cl
     Task<ActionResult<PageResponse<T>>> GetPagedListAsync(int page, int pageSize, bool includeDetails = false,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Checks if an entity with the given identifier exists.
+    /// </summary>
+    Task<ActionResult<bool>> ExistsAsync(TKey id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if any entities exist in the repository.
+    /// </summary>
+    Task<ActionResult<bool>> AnyAsync(CancellationToken cancellationToken = default);
+
 }
 
 public interface IEntityReadController<T> : IEntityReadController<T, KeyType> where T : class, IEntity, new();

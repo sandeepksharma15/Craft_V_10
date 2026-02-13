@@ -155,6 +155,61 @@ public class EntityReadController<T, DataTransferT, TKey>(IReadRepository<T, TKe
             return BadRequest(new[] { $"Failed to retrieve paged list of {typeof(T).Name.ToLower()}: {ex.Message}" });
         }
     }
+
+    /// <summary>
+    /// Checks if an entity with the given identifier exists in the repository.
+    /// </summary>
+    /// <param name="id">The unique identifier of the entity to check.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>True if the entity exists, false otherwise.</returns>
+    /// <response code="200">Returns true if entity exists, false otherwise.</response>
+    /// <response code="500">If an internal server error occurs.</response>
+    [HttpGet]
+    [Route("exists/{id}")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<bool>> ExistsAsync(TKey id, CancellationToken cancellationToken = default)
+    {
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"ExistsAsync\"] Id: [\"{id}\"]");
+
+        try
+        {
+            return Ok(await repository.ExistsAsync(id, cancellationToken));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "[EntityReadController] Error in ExistsAsync for {EntityType} with ID {Id}", typeof(T).Name, id);
+            return BadRequest(new[] { $"Failed to check existence of {typeof(T).Name.ToLower()} with ID {id}: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// Checks if any entities exist in the repository.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>True if any entities exist, false otherwise.</returns>
+    /// <response code="200">Returns true if any entities exist, false otherwise.</response>
+    /// <response code="500">If an internal server error occurs.</response>
+    [HttpGet]
+    [Route("any")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<ActionResult<bool>> AnyAsync(CancellationToken cancellationToken = default)
+    {
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug($"[EntityReadController] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"AnyAsync\"]");
+
+        try
+        {
+            return Ok(await repository.AnyAsync(cancellationToken));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "[EntityReadController] Error in AnyAsync for {EntityType}", typeof(T).Name);
+            return BadRequest(new[] { $"Failed to check if any {typeof(T).Name.ToLower()} exist: {ex.Message}" });
+        }
+    }
 }
 
 public class EntityReadController<T, DataTransferT>(IReadRepository<T> repository, ILogger<EntityReadController<T, DataTransferT>> logger)
