@@ -27,7 +27,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(configuration);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -50,7 +50,7 @@ public class JobExtensionsTests
         var section = configuration.GetSection("JobOptions");
 
         // Act
-        services.AddJobServices(section);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, section);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -64,7 +64,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(options =>
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, options =>
         {
             options.ConnectionString = "Host=localhost;Database=test";
             options.SchemaName = "hangfire";
@@ -93,7 +93,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(configuration);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<JobOptions>>().Value;
 
@@ -111,7 +111,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => services.AddJobServices(configuration));
+        Assert.Throws<InvalidOperationException>(() => Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration));
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddJobServices(configuration);
+        var result = Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
 
         // Assert
         Assert.Same(services, result);
@@ -147,7 +147,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(configuration);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
 
         // Assert
         var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IJobScheduler));
@@ -171,7 +171,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(configuration);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<JobOptions>>().Value;
 
@@ -195,7 +195,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(configuration);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<JobOptions>>().Value;
 
@@ -219,7 +219,7 @@ public class JobExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddJobServices(configuration);
+        Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<JobOptions>>().Value;
 

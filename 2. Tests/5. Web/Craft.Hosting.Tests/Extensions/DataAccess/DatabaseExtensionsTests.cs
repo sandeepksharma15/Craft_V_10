@@ -113,7 +113,7 @@ public class DatabaseExtensionsTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["DatabaseOptions:Provider"] = "PostgreSql",
+                ["DatabaseOptions:DbProvider"] = "PostgreSql",
                 ["DatabaseOptions:ConnectionString"] = "Host=localhost;Database=test"
             })
             .Build();
@@ -121,7 +121,7 @@ public class DatabaseExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.ConfigureDatabases(configuration);
+        Craft.Hosting.Extensions.DatabaseExtensions.ConfigureDatabases(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -138,14 +138,14 @@ public class DatabaseExtensionsTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["DatabaseOptions:Provider"] = "PostgreSql"
+                ["DatabaseOptions:DbProvider"] = "PostgreSql"
             })
             .Build();
 
         var services = new ServiceCollection();
 
         // Act
-        services.ConfigureDatabases(configuration);
+        Craft.Hosting.Extensions.DatabaseExtensions.ConfigureDatabases(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -161,14 +161,14 @@ public class DatabaseExtensionsTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["DatabaseOptions:Provider"] = "PostgreSql"
+                ["DatabaseOptions:DbProvider"] = "PostgreSql"
             })
             .Build();
 
         var services = new ServiceCollection();
 
         // Act
-        services.ConfigureDatabases(configuration);
+        Craft.Hosting.Extensions.DatabaseExtensions.ConfigureDatabases(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -182,7 +182,7 @@ public class DatabaseExtensionsTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["DatabaseOptions:Provider"] = "PostgreSql",
+                ["DatabaseOptions:DbProvider"] = "PostgreSql",
                 ["DatabaseOptions:ConnectionString"] = "Host=localhost;Database=test"
             })
             .Build();
@@ -190,12 +190,12 @@ public class DatabaseExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.ConfigureDatabases(configuration);
+        Craft.Hosting.Extensions.DatabaseExtensions.ConfigureDatabases(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
 
         // Assert
-        Assert.Equal("PostgreSql", options.Provider);
+        Assert.Equal("PostgreSql", options.DbProvider);
         Assert.Equal("Host=localhost;Database=test", options.ConnectionString);
     }
 
@@ -207,7 +207,7 @@ public class DatabaseExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        var result = services.ConfigureDatabases(configuration);
+        var result = Craft.Hosting.Extensions.DatabaseExtensions.ConfigureDatabases(services, configuration);
 
         // Assert
         Assert.Same(services, result);

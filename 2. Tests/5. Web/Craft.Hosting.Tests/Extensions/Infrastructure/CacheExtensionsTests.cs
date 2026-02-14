@@ -26,7 +26,7 @@ public class CacheExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddCacheServices(configuration);
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -52,7 +52,7 @@ public class CacheExtensionsTests
         var section = configuration.GetSection("CacheOptions");
 
         // Act
-        services.AddCacheServices(section);
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, section);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -69,7 +69,7 @@ public class CacheExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddCacheServices(options =>
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, options =>
         {
             options.Provider = "memory";
             options.DefaultExpiration = TimeSpan.FromHours(1);
@@ -91,7 +91,7 @@ public class CacheExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddCacheServices(options =>
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, options =>
         {
             options.Provider = "memory";
         });
@@ -113,7 +113,7 @@ public class CacheExtensionsTests
         var configuration = new ConfigurationBuilder().Build().GetSection("CacheOptions");
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => services.AddCacheServices(configuration));
+        Assert.Throws<ArgumentNullException>(() => Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configuration));
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class CacheExtensionsTests
         IConfigurationSection configurationSection = null!;
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => services.AddCacheServices(configurationSection));
+        Assert.Throws<ArgumentNullException>(() => Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configurationSection));
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class CacheExtensionsTests
         Action<CacheOptions> configureOptions = null!;
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => services.AddCacheServices(configureOptions));
+        Assert.Throws<ArgumentNullException>(() => Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configureOptions));
     }
 
     [Fact]
@@ -145,9 +145,8 @@ public class CacheExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services
-            .AddCacheServices(options => options.Provider = "memory")
-            .AddCacheProvider<TestCacheProvider>();
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, options => options.Provider = "memory");
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheProvider<TestCacheProvider>(services);
 
         var serviceProvider = services.BuildServiceProvider();
         var providers = serviceProvider.GetServices<ICacheProvider>();
@@ -170,7 +169,7 @@ public class CacheExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddCacheServices(configuration);
+        Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configuration);
         var serviceProvider = services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<CacheOptions>>().Value;
 
@@ -186,7 +185,7 @@ public class CacheExtensionsTests
         var configuration = new ConfigurationBuilder().Build();
 
         // Act
-        var result = services.AddCacheServices(configuration);
+        var result = Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configuration);
 
         // Assert
         Assert.Same(services, result);
@@ -196,17 +195,35 @@ public class CacheExtensionsTests
     {
         public string Name => "test";
         public bool IsConfigured() => true;
+
         public Task<CacheResult<T>> GetAsync<T>(string key, CancellationToken cancellationToken = default)
-            => Task.FromResult(CacheResult<T>.Miss(key));
-        public Task SetAsync<T>(string key, T value, CacheEntryOptions? options = null, CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
-        public Task RemoveAsync(string key, CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
+            => Task.FromResult(CacheResult<T>.Success());
+
+        public Task<CacheResult> SetAsync<T>(string key, T? value, CacheEntryOptions? options = null, CancellationToken cancellationToken = default)
+            => Task.FromResult(CacheResult.Success());
+
+        public Task<CacheResult> RemoveAsync(string key, CancellationToken cancellationToken = default)
+            => Task.FromResult(CacheResult.Success());
+
         public Task<bool> ExistsAsync(string key, CancellationToken cancellationToken = default)
             => Task.FromResult(false);
-        public Task ClearAsync(CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
+
+        public Task<IDictionary<string, T?>> GetManyAsync<T>(IEnumerable<string> keys, CancellationToken cancellationToken = default)
+            => Task.FromResult<IDictionary<string, T?>>(new Dictionary<string, T?>());
+
+        public Task<CacheResult> SetManyAsync<T>(IDictionary<string, T?> items, CacheEntryOptions? options = null, CancellationToken cancellationToken = default)
+            => Task.FromResult(CacheResult.Success());
+
+        public Task<int> RemoveByPatternAsync(string pattern, CancellationToken cancellationToken = default)
+            => Task.FromResult(0);
+
         public Task<CacheStats> GetStatsAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(new CacheStats());
+
+        public Task<CacheResult> ClearAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(CacheResult.Success());
+
+        public Task<CacheResult> RefreshAsync(string key, CancellationToken cancellationToken = default)
+            => Task.FromResult(CacheResult.Success());
     }
 }

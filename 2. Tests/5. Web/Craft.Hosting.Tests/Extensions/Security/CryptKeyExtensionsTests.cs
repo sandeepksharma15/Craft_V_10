@@ -17,7 +17,7 @@ public class CryptKeyExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddHashKeys(options =>
+        Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services, options =>
         {
             options.Salt = "TestSalt";
             options.MinHashLength = 8;
@@ -36,7 +36,7 @@ public class CryptKeyExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddHashKeys();
+        Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services);
         var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -52,7 +52,7 @@ public class CryptKeyExtensionsTests
         const int minLength = 10;
 
         // Act
-        services.AddHashKeys(options =>
+        Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services, options =>
         {
             options.Salt = testSalt;
             options.MinHashLength = minLength;
@@ -73,7 +73,7 @@ public class CryptKeyExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddHashKeys(options =>
+        Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services, options =>
         {
             options.Salt = "TestSalt";
         });
@@ -93,7 +93,7 @@ public class CryptKeyExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        services.AddHashKeys();
+        Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services);
 
         // Assert
         var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IHashKeys));
@@ -108,7 +108,7 @@ public class CryptKeyExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddHashKeys();
+        var result = Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services);
 
         // Assert
         Assert.Same(services, result);
@@ -122,7 +122,7 @@ public class CryptKeyExtensionsTests
         const string testSalt = "TestSalt123";
 
         // Act
-        services.AddHashKeys(options =>
+        Craft.Hosting.Extensions.CryptKeyExtensions.AddHashKeys(services, options =>
         {
             options.Salt = testSalt;
         });
