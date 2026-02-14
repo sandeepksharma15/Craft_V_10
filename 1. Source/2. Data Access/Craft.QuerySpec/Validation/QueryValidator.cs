@@ -39,7 +39,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
         ValidateIncludeCount(query, errors);
         ValidatePageSize(query, errors);
         ValidateOrderByCount(query, errors);
-        ValidatePropertyAccess(query, errors);
+        QueryValidator<T>.ValidatePropertyAccess(query, errors);
 
         if (errors.Count > 0)
         {
@@ -101,14 +101,14 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
         }
     }
 
-    private void ValidatePropertyAccess(IQuery<T> query, List<string> errors)
+    private static void ValidatePropertyAccess(IQuery<T> query, List<string> errors)
     {
         // Validate filter properties exist and are accessible
         if (query.EntityFilterBuilder != null)
         {
             foreach (var filter in query.EntityFilterBuilder.EntityFilterList)
             {
-                if (!IsValidFilterProperty(filter, out var propertyName))
+                if (!QueryValidator<T>.IsValidFilterProperty(filter, out var propertyName))
                 {
                     errors.Add($"Invalid or inaccessible property in filter: {propertyName ?? "unknown"}");
                 }
@@ -120,7 +120,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
         {
             foreach (var orderDescriptor in query.SortOrderBuilder.OrderDescriptorList)
             {
-                if (!IsValidOrderProperty(orderDescriptor, out var propertyName))
+                if (!QueryValidator<T>.IsValidOrderProperty(orderDescriptor, out var propertyName))
                 {
                     errors.Add($"Invalid or inaccessible property in order by: {propertyName ?? "unknown"}");
                 }
@@ -128,7 +128,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
         }
     }
 
-    private bool IsValidFilterProperty(EntityFilterCriteria<T> filter, out string? propertyName)
+    private static bool IsValidFilterProperty(EntityFilterCriteria<T> filter, out string? propertyName)
     {
         propertyName = null;
 
@@ -138,7 +138,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
             if (filter.Metadata != null)
             {
                 propertyName = filter.Metadata.Name;
-                return IsPropertyAccessible(propertyName);
+                return QueryValidator<T>.IsPropertyAccessible(propertyName);
             }
 
             // If Metadata is null, the filter expression is still valid
@@ -151,7 +151,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
         }
     }
 
-    private bool IsValidOrderProperty(OrderDescriptor<T> orderDescriptor, out string? propertyName)
+    private static bool IsValidOrderProperty(OrderDescriptor<T> orderDescriptor, out string? propertyName)
     {
         propertyName = null;
 
@@ -161,7 +161,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
             if (orderDescriptor.OrderItem.Body is MemberExpression memberExpr)
             {
                 propertyName = memberExpr.Member.Name;
-                return IsPropertyAccessible(propertyName);
+                return QueryValidator<T>.IsPropertyAccessible(propertyName);
             }
 
             // Handle UnaryExpression (e.g., Convert)
@@ -169,7 +169,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
                 unaryExpr.Operand is MemberExpression innerMemberExpr)
             {
                 propertyName = innerMemberExpr.Member.Name;
-                return IsPropertyAccessible(propertyName);
+                return QueryValidator<T>.IsPropertyAccessible(propertyName);
             }
 
             return true; // Expression is valid, just couldn't extract property name
@@ -180,7 +180,7 @@ public class QueryValidator<T> : IQueryValidator<T> where T : class
         }
     }
 
-    private bool IsPropertyAccessible(string? propertyName)
+    private static bool IsPropertyAccessible(string? propertyName)
     {
         if (string.IsNullOrWhiteSpace(propertyName))
             return false;

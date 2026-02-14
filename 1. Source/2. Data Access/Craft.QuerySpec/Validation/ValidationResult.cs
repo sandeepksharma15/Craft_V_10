@@ -24,7 +24,7 @@ public class ValidationResult
     /// <summary>
     /// Creates a successful validation result.
     /// </summary>
-    public static ValidationResult Success() => new(true, Array.Empty<string>());
+    public static ValidationResult Success() => new(true, []);
 
     /// <summary>
     /// Creates a failed validation result with the specified errors.
@@ -33,7 +33,7 @@ public class ValidationResult
     public static ValidationResult Failure(IEnumerable<string> errors)
     {
         ArgumentNullException.ThrowIfNull(errors);
-        return new ValidationResult(false, errors.ToList());
+        return new ValidationResult(false, [.. errors]);
     }
 
     /// <summary>
@@ -43,6 +43,6 @@ public class ValidationResult
     public static ValidationResult Failure(string error)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(error);
-        return new ValidationResult(false, new[] { error });
+        return new ValidationResult(false, [error]);
     }
 }
