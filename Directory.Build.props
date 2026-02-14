@@ -4,6 +4,26 @@
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <Deterministic>true</Deterministic>
-    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <!-- Enable ProduceReferenceAssembly for better incremental build performance -->
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <!-- Additional Live Unit Testing support -->
+    <!-- Disable package lock files to avoid path issues -->
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+    <DisableImplicitNuGetFallbackFolder>false</DisableImplicitNuGetFallbackFolder>
+
+    <!-- Ensure obj and bin folders are in the project directory -->
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <!-- Configure paths for Live Unit Testing -->
+  <PropertyGroup Condition="'$(BuildingForLiveUnitTesting)' == 'true'">
+    <!-- Ensure deterministic builds -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+
+    <!-- Disable automatic restore (we'll do it explicitly) -->
+    <RestoreForce>false</RestoreForce>
   </PropertyGroup>
 </Project>

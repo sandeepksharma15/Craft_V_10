@@ -1,8 +1,72 @@
 <Project>
-  <!-- Redirect Live Unit Testing to use source obj folders instead of shadow directory -->
-  <PropertyGroup Condition="'$(BuildingForLiveUnitTesting)' == 'true'">
-    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>$(MSBuildProjectDirectory)\obj\$(Configuration)\</IntermediateOutputPath>
-    <MSBuildProjectExtensionsPath>$(MSBuildProjectDirectory)\obj\</MSBuildProjectExtensionsPath>
+  <!-- Detection: Check if we're in Live Unit Testing shadow directory -->
+  <PropertyGroup>
+    <!-- Simple detection: if path contains 'CraftTestsRun', we're in shadow directory -->
+    <IsInLiveUnitTestingShadowDirectory Condition="$(MSBuildProjectDirectory.Contains('CraftTestsRun'))">true</IsInLiveUnitTestingShadowDirectory>
+    <IsInLiveUnitTestingShadowDirectory Condition="'$(IsInLiveUnitTestingShadowDirectory)' == ''">false</IsInLiveUnitTestingShadowDirectory>
   </PropertyGroup>
+
+  <!-- CRITICAL: Redirect Live Unit Testing to use ORIGINAL source directories -->
+  <PropertyGroup Condition="'$(BuildingForLiveUnitTesting)' == 'true' OR '$(IsInLiveUnitTestingShadowDirectory)' == 'true'">
+    <!-- Calculate the original source directory by removing the shadow path prefix -->
+    <!-- Shadow path format: H:\CraftTestsRun\GccPT\v2\{NUMBER}\b\{OriginalPath} -->
+    <!-- We need to extract everything after \b\ and prepend F:\Projects\ -->
+
+    <!-- First, check if we're in GccPT shadow directory -->
+    <_TempPath Condition="$(MSBuildProjectDirectory.Contains('CraftTestsRun\GccPT'))">$(MSBuildProjectDirectory.Substring($(MSBuildProjectDirectory.IndexOf('\b\'))))</_TempPath>
+    <_TempPath Condition="'$(_TempPath)' != ''">$(_TempPath.Substring(3))</_TempPath>
+    <OriginalProjectDirectory Condition="'$(_TempPath)' != ''">F:\Projects\$(_TempPath)</OriginalProjectDirectory>
+
+    <!-- Fallback: if path translation failed, use current directory -->
+    <OriginalProjectDirectory Condition="'$(OriginalProjectDirectory)' == ''">$(MSBuildProjectDirectory)</OriginalProjectDirectory>
+
+    <!-- Force using the ORIGINAL project directory for ALL intermediate outputs -->
+    <BaseIntermediateOutputPath>$(OriginalProjectDirectory)\obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(OriginalProjectDirectory)\obj\$(Configuration)\</IntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(OriginalProjectDirectory)\obj\</MSBuildProjectExtensionsPath>
+
+    <!-- Force project.assets.json to point to original location -->
+    <ProjectAssetsFile>$(OriginalProjectDirectory)\obj\project.assets.json</ProjectAssetsFile>
+    <RestoreOutputPath>$(OriginalProjectDirectory)\obj\</RestoreOutputPath>
+
+    <!-- Force output to original bin directory -->
+    <OutputPath>$(OriginalProjectDirectory)\bin\$(Configuration)\</OutputPath>
+    <OutDir>$(OriginalProjectDirectory)\bin\$(Configuration)\</OutDir>
+
+    <!-- Disable incremental build and fast up-to-date checks -->
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <DisableIncrementalBuild>true</DisableIncrementalBuild>
+
+    <!-- Ensure referenced projects use their own obj directories -->
+    <ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>
+  </PropertyGroup>
+
+  <!-- Force restore in original directory if assets file doesn't exist -->
+  <Target Name="ForceRestoreForLiveUnitTesting" 
+          BeforeTargets="ResolveProjectReferences;ResolveAssemblyReferences;ResolvePackageAssets" 
+          Condition="('$(BuildingForLiveUnitTesting)' == 'true' OR '$(IsInLiveUnitTestingShadowDirectory)' == 'true') AND !Exists('$(ProjectAssetsFile)')">
+    <Message Importance="High" Text="Live Unit Testing: ProjectAssetsFile='$(ProjectAssetsFile)' does not exist" />
+    <Message Importance="High" Text="Live Unit Testing: OriginalProjectDirectory='$(OriginalProjectDirectory)'" />
+    <Message Importance="High" Text="Live Unit Testing: Forcing NuGet restore for $(MSBuildProjectName)" />
+
+    <PropertyGroup>
+      <RestoreCommand>dotnet restore &quot;$(OriginalProjectDirectory)\$(MSBuildProjectFile)&quot;</RestoreCommand>
+    </PropertyGroup>
+
+    <Exec Command="$(RestoreCommand)" 
+          WorkingDirectory="$(OriginalProjectDirectory)" 
+          IgnoreExitCode="false"
+          ContinueOnError="false" />
+  </Target>
+
+  <!-- Diagnostic logging -->
+  <Target Name="DiagnoseLiveUnitTesting" BeforeTargets="BeforeBuild" Condition="'$(BuildingForLiveUnitTesting)' == 'true'">
+    <Message Importance="High" Text="=== Live Unit Testing Diagnostics ===" />
+    <Message Importance="High" Text="BuildingForLiveUnitTesting: $(BuildingForLiveUnitTesting)" />
+    <Message Importance="High" Text="IsInLiveUnitTestingShadowDirectory: $(IsInLiveUnitTestingShadowDirectory)" />
+    <Message Importance="High" Text="MSBuildProjectDirectory: $(MSBuildProjectDirectory)" />
+    <Message Importance="High" Text="OriginalProjectDirectory: $(OriginalProjectDirectory)" />
+    <Message Importance="High" Text="ProjectAssetsFile: $(ProjectAssetsFile)" />
+    <Message Importance="High" Text="BaseIntermediateOutputPath: $(BaseIntermediateOutputPath)" />
+  </Target>
 </Project>

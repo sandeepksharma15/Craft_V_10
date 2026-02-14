@@ -1,0 +1,66 @@
+<Project>
+  <!-- This file is automatically imported when building for Live Unit Testing -->
+  <!-- It helps configure builds to work with cross-solution project references -->
+
+  <!-- Detect if we're in a shadow directory and calculate original path -->
+  <PropertyGroup>
+    <IsInShadowDirectory Condition="$(MSBuildProjectDirectory.Contains('CraftTestsRun'))">true</IsInShadowDirectory>
+    <OriginalSourceDirectory Condition="'$(IsInShadowDirectory)' == 'true'">$(MSBuildProjectDirectory.Replace('H:\CraftTestsRun\GccPT\v2\0\b\', 'F:\Projects\'))</OriginalSourceDirectory>
+    <OriginalSourceDirectory Condition="'$(OriginalSourceDirectory)' == ''">$(MSBuildProjectDirectory)</OriginalSourceDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Force use of original project directory -->
+    <BaseIntermediateOutputPath>$(OriginalSourceDirectory)\obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(OriginalSourceDirectory)\obj\$(Configuration)\</IntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(OriginalSourceDirectory)\obj\</MSBuildProjectExtensionsPath>
+
+    <!-- Ensure project.assets.json is in the correct location -->
+    <ProjectAssetsFile>$(OriginalSourceDirectory)\obj\project.assets.json</ProjectAssetsFile>
+
+    <!-- Force NuGet to use project directory for restore -->
+    <RestoreOutputPath>$(OriginalSourceDirectory)\obj\</RestoreOutputPath>
+
+    <!-- Output paths -->
+    <OutputPath>$(OriginalSourceDirectory)\bin\$(Configuration)\</OutputPath>
+    <OutDir>$(OriginalSourceDirectory)\bin\$(Configuration)\</OutDir>
+
+    <!-- Disable shadow copying -->
+    <ShadowCopyBuildOutputs>false</ShadowCopyBuildOutputs>
+
+    <!-- Disable fast up-to-date check to ensure fresh builds -->
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+
+    <!-- Ensure referenced projects are built with correct paths -->
+    <BuildProjectReferences>true</BuildProjectReferences>
+
+    <!-- Additional restore settings -->
+    <RestoreForce>false</RestoreForce>
+    <RestoreNoCache>false</RestoreNoCache>
+  </PropertyGroup>
+
+  <!-- Ensure NuGet assets exist before attempting build -->
+  <Target Name="EnsureNuGetAssetsExist" BeforeTargets="ResolveAssemblyReferences;ResolvePackageAssets">
+    <Warning Condition="!Exists('$(ProjectAssetsFile)')" 
+             Text="Project assets file '$(ProjectAssetsFile)' not found. Attempting restore..." />
+
+    <!-- Attempt automatic restore if assets file is missing -->
+    <Exec Condition="!Exists('$(ProjectAssetsFile)')"
+          Command="dotnet restore &quot;$(OriginalSourceDirectory)\$(MSBuildProjectFile)&quot;"
+          WorkingDirectory="$(OriginalSourceDirectory)"
+          ContinueOnError="true"
+          IgnoreExitCode="false" />
+
+    <!-- Final check and error if still missing -->
+    <Error Condition="!Exists('$(ProjectAssetsFile)')" 
+           Text="Project assets file '$(ProjectAssetsFile)' still not found after restore attempt. Run 'dotnet restore' manually on $(MSBuildProjectFile)" />
+  </Target>
+
+  <!-- Diagnostic logging -->
+  <Target Name="DiagnoseLiveUnitTestingProps" BeforeTargets="BeforeBuild">
+    <Message Importance="High" Text="[LiveUnitTesting.props] IsInShadowDirectory: $(IsInShadowDirectory)" />
+    <Message Importance="High" Text="[LiveUnitTesting.props] OriginalSourceDirectory: $(OriginalSourceDirectory)" />
+    <Message Importance="High" Text="[LiveUnitTesting.props] ProjectAssetsFile: $(ProjectAssetsFile)" />
+    <Message Importance="High" Text="[LiveUnitTesting.props] ProjectAssetsFile Exists: $([System.IO.File]::Exists('$(ProjectAssetsFile)'))" />
+  </Target>
+</Project>
