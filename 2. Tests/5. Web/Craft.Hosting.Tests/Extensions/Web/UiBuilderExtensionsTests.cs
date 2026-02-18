@@ -2,7 +2,9 @@ using Craft.Hosting.Extensions;
 using Craft.UiBuilders.Services.Theme;
 using Craft.UiBuilders.Services.UserPreference;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using Moq;
 
 namespace Craft.Hosting.Tests.Extensions.Web;
@@ -12,13 +14,28 @@ namespace Craft.Hosting.Tests.Extensions.Web;
 /// </summary>
 public class UiBuilderExtensionsTests
 {
+    /// <summary>
+    /// Creates a fake ProtectedLocalStorage for testing purposes.
+    /// </summary>
+    private static ProtectedLocalStorage CreateFakeProtectedLocalStorage()
+    {
+        var mockJsRuntime = new Mock<IJSRuntime>();
+        var mockDataProtectionProvider = new Mock<IDataProtectionProvider>();
+        var mockDataProtector = new Mock<IDataProtector>();
+
+        mockDataProtectionProvider
+            .Setup(x => x.CreateProtector(It.IsAny<string>()))
+            .Returns(mockDataProtector.Object);
+
+        return new ProtectedLocalStorage(mockJsRuntime.Object, mockDataProtectionProvider.Object);
+    }
     [Fact]
     public void AddUserPreferences_RegistersUserPreferencesManager()
     {
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
+        services.AddSingleton(CreateFakeProtectedLocalStorage());
 
         // Act
         services.AddUserPreferences();
@@ -48,7 +65,7 @@ public class UiBuilderExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
+        services.AddSingleton(CreateFakeProtectedLocalStorage());
         const string appName = "TestApp";
 
         // Act
@@ -141,7 +158,7 @@ public class UiBuilderExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
+        services.AddSingleton(CreateFakeProtectedLocalStorage());
 
         // Act
         services.AddUiBuilders();
@@ -159,7 +176,7 @@ public class UiBuilderExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
+        services.AddSingleton(CreateFakeProtectedLocalStorage());
         const string appName = "MyApplication";
 
         // Act

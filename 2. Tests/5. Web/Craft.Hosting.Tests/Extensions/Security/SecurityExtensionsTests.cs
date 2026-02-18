@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System.Security.Claims;
 
 namespace Craft.Hosting.Tests.Extensions.Security;
 
@@ -15,6 +16,22 @@ namespace Craft.Hosting.Tests.Extensions.Security;
 /// </summary>
 public class SecurityExtensionsTests
 {
+    /// <summary>
+    /// Creates a mock AuthenticationStateProvider that returns an authenticated user.
+    /// </summary>
+    private static AuthenticationStateProvider CreateMockAuthenticationStateProvider()
+    {
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Name, "TestUser")], "TestAuth");
+        var user = new ClaimsPrincipal(identity);
+        var authState = new AuthenticationState(user);
+
+        var mockAuthStateProvider = new Mock<AuthenticationStateProvider>();
+        mockAuthStateProvider
+            .Setup(x => x.GetAuthenticationStateAsync())
+            .ReturnsAsync(authState);
+
+        return mockAuthStateProvider.Object;
+    }
     [Fact]
     public void AddCurrentApiUser_RegistersApiUserProvider()
     {
@@ -65,7 +82,7 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        services.AddSingleton(Mock.Of<AuthenticationStateProvider>());
+        services.AddSingleton(CreateMockAuthenticationStateProvider());
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCurrentUiUser(services);
@@ -82,7 +99,7 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        services.AddSingleton(Mock.Of<AuthenticationStateProvider>());
+        services.AddSingleton(CreateMockAuthenticationStateProvider());
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCurrentUiUser(services);
