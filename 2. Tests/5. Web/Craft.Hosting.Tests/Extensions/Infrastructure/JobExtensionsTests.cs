@@ -25,6 +25,7 @@ public class JobExtensionsTests
             .Build();
 
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, configuration);
@@ -47,6 +48,7 @@ public class JobExtensionsTests
             .Build();
 
         var services = new ServiceCollection();
+        services.AddLogging();
         var section = configuration.GetSection("JobOptions");
 
         // Act
@@ -62,6 +64,7 @@ public class JobExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.JobExtensions.AddJobServices(services, options =>

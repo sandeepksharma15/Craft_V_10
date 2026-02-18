@@ -48,8 +48,8 @@ public static class EmailExtensions
         services.TryAddSingleton<IEmailQueue, InMemoryEmailQueue>();
         services.TryAddSingleton<IEmailTemplateRenderer, RazorEmailTemplateRenderer>();
 
-        services.TryAddTransient<IEmailProvider, SmtpEmailProvider>();
-        services.TryAddTransient<IEmailProvider, MockEmailProvider>();
+        services.AddTransient<IEmailProvider, SmtpEmailProvider>();
+        services.AddTransient<IEmailProvider, MockEmailProvider>();
         services.TryAddSingleton<IEmailProviderFactory, EmailProviderFactory>();
 
         services.TryAddScoped<IMailService, MailService>();
@@ -96,8 +96,8 @@ public static class EmailExtensions
         services.TryAddSingleton<IEmailQueue, InMemoryEmailQueue>();
         services.TryAddSingleton<IEmailTemplateRenderer, RazorEmailTemplateRenderer>();
 
-        services.TryAddTransient<IEmailProvider, SmtpEmailProvider>();
-        services.TryAddTransient<IEmailProvider, MockEmailProvider>();
+        services.AddTransient<IEmailProvider, SmtpEmailProvider>();
+        services.AddTransient<IEmailProvider, MockEmailProvider>();
         services.TryAddSingleton<IEmailProviderFactory, EmailProviderFactory>();
 
         services.TryAddScoped<IMailService, MailService>();

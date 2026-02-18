@@ -1,7 +1,9 @@
 using Craft.Hosting.Extensions;
 using Craft.UiBuilders.Services.Theme;
 using Craft.UiBuilders.Services.UserPreference;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Craft.Hosting.Tests.Extensions.Web;
 
@@ -15,6 +17,8 @@ public class UiBuilderExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
 
         // Act
         services.AddUserPreferences();
@@ -43,6 +47,8 @@ public class UiBuilderExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
         const string appName = "TestApp";
 
         // Act
@@ -91,6 +97,7 @@ public class UiBuilderExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         services.AddThemeManager();
@@ -133,6 +140,8 @@ public class UiBuilderExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
 
         // Act
         services.AddUiBuilders();
@@ -149,6 +158,8 @@ public class UiBuilderExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(Mock.Of<ProtectedLocalStorage>());
         const string appName = "MyApplication";
 
         // Act

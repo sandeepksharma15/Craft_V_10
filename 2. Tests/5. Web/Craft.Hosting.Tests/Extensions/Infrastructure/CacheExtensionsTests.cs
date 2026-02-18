@@ -24,6 +24,7 @@ public class CacheExtensionsTests
             .Build();
 
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, configuration);
@@ -49,6 +50,7 @@ public class CacheExtensionsTests
             .Build();
 
         var services = new ServiceCollection();
+        services.AddLogging();
         var section = configuration.GetSection("CacheOptions");
 
         // Act
@@ -67,6 +69,7 @@ public class CacheExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, options =>
@@ -89,6 +92,7 @@ public class CacheExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, options =>
@@ -143,6 +147,7 @@ public class CacheExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.CacheExtensions.AddCacheServices(services, options => options.Provider = "memory");

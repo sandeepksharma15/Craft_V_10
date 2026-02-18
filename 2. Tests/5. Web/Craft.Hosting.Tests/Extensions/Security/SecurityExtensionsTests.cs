@@ -3,7 +3,10 @@ using Craft.Domain;
 using Craft.Hosting.Extensions;
 using Craft.Security;
 using Craft.Security.Tokens;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Craft.Hosting.Tests.Extensions.Security;
 
@@ -17,6 +20,7 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddSingleton(Mock.Of<IHttpContextAccessor>());
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCurrentApiUser(services);
@@ -33,6 +37,7 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddSingleton(Mock.Of<IHttpContextAccessor>());
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCurrentApiUser(services);
@@ -60,6 +65,7 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddSingleton(Mock.Of<AuthenticationStateProvider>());
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCurrentUiUser(services);
@@ -76,6 +82,7 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddSingleton(Mock.Of<AuthenticationStateProvider>());
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCurrentUiUser(services);
@@ -103,6 +110,17 @@ public class SecurityExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton(Mock.Of<ITokenBlacklist>());
+        services.Configure<JwtSettings>(options =>
+        {
+            options.ValidIssuer = "test";
+            options.ValidAudiences = ["test"];
+            options.IssuerSigningKey = "this-is-a-very-long-secret-key-for-testing-purposes-only-do-not-use-in-production";
+            options.TokenExpirationInMinutes = 60;
+            options.RefreshTokenExpirationInDays = 7;
+        });
 
         // Act
         Craft.Hosting.Extensions.SecurityExtensions.AddCraftSecurity(services);

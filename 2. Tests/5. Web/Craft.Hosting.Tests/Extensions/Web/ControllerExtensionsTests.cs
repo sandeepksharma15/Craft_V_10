@@ -32,6 +32,7 @@ public class ControllerExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         services.AddDatabaseErrorHandling();

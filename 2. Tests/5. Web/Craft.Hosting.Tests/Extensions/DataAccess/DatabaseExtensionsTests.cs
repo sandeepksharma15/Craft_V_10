@@ -166,6 +166,7 @@ public class DatabaseExtensionsTests
             .Build();
 
         var services = new ServiceCollection();
+        services.AddLogging();
 
         // Act
         Craft.Hosting.Extensions.DatabaseExtensions.ConfigureDatabases(services, configuration);
