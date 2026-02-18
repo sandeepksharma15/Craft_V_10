@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Craft.Domain;
+using Craft.Extensions.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Components;
@@ -32,7 +33,7 @@ public partial class CraftGridColumn<TEntity> : ComponentBase
 
     /// <summary>
     /// Column title/caption displayed in headers.
-    /// If not provided, auto-derived from property name.
+    /// If not provided, auto-derived from the final property name (e.g., "Name" from "Location.Name").
     /// </summary>
     [Parameter]
     public string Title
@@ -42,8 +43,11 @@ public partial class CraftGridColumn<TEntity> : ComponentBase
             if (!string.IsNullOrWhiteSpace(_title))
                 return _title;
 
-            if (!string.IsNullOrWhiteSpace(PropertyName))
-                return Regex.Replace(PropertyName, "([a-z])([A-Z])", "$1 $2");
+            if (PropertyExpression is not null)
+            {
+                var finalName = PropertyExpression.GetFinalPropertyName();
+                return Regex.Replace(finalName, "([a-z])([A-Z])", "$1 $2");
+            }
 
             return "Column";
         }
@@ -155,7 +159,8 @@ public partial class CraftGridColumn<TEntity> : ComponentBase
     #region Public Properties
 
     /// <summary>
-    /// Property name derived from PropertyExpression.
+    /// Full property path derived from PropertyExpression (e.g., "Location.Name" for navigation properties).
+    /// Used for sorting and uniquely identifying columns.
     /// </summary>
     public string? PropertyName
     {
@@ -167,7 +172,7 @@ public partial class CraftGridColumn<TEntity> : ComponentBase
             if (PropertyExpression is null)
                 return null;
 
-            _propertyName = GetPropertyName(PropertyExpression);
+            _propertyName = PropertyExpression.GetFullPropertyPath();
             return _propertyName;
         }
     }
@@ -305,17 +310,6 @@ public partial class CraftGridColumn<TEntity> : ComponentBase
     #endregion
 
     #region Private Methods
-
-    private static string GetPropertyName(Expression expression)
-    {
-        return expression switch
-        {
-            MemberExpression memberExpression => memberExpression.Member.Name,
-            UnaryExpression unaryExpression when unaryExpression.Operand is MemberExpression operand => operand.Member.Name,
-            LambdaExpression lambdaExpression => GetPropertyName(lambdaExpression.Body),
-            _ => throw new ArgumentException($"Cannot determine property name from expression: {expression}")
-        };
-    }
 
     private static string FormatEnumValue(object enumValue)
     {

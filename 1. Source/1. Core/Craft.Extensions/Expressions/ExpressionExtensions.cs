@@ -175,4 +175,139 @@ public static class ExpressionExtensions
 
         return Expression.Lambda<Func<T, bool>>(body, parameter);
     }
+
+    /// <summary>
+    /// Gets the full property path from a lambda expression, including navigation properties.
+    /// </summary>
+    /// <remarks>
+    /// This method handles simple properties (e.g., x => x.Name returns "Name"),
+    /// navigation properties (e.g., x => x.Location.Name returns "Location.Name"),
+    /// null-forgiving operators (e.g., x => x.Location!.Name), and
+    /// null-conditional operators (e.g., x => x.Location?.Name).
+    /// </remarks>
+    /// <typeparam name="T">The type of the parameter in the expression.</typeparam>
+    /// <param name="expression">The lambda expression representing property access.</param>
+    /// <returns>The full dot-separated property path.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if expression is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
+    public static string GetFullPropertyPath<T>(this Expression<Func<T, object>> expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+
+        return GetFullPropertyPathFromExpression(expression.Body);
+    }
+
+    /// <summary>
+    /// Gets the full property path from a lambda expression, including navigation properties.
+    /// </summary>
+    /// <remarks>
+    /// This method handles simple properties (e.g., x => x.Name returns "Name"),
+    /// navigation properties (e.g., x => x.Location.Name returns "Location.Name"),
+    /// null-forgiving operators (e.g., x => x.Location!.Name), and
+    /// null-conditional operators (e.g., x => x.Location?.Name).
+    /// </remarks>
+    /// <param name="expression">The lambda expression representing property access.</param>
+    /// <returns>The full dot-separated property path.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if expression is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
+    public static string GetFullPropertyPath(this LambdaExpression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+
+        return GetFullPropertyPathFromExpression(expression.Body);
+    }
+
+    /// <summary>
+    /// Gets the final (leaf) property name from a lambda expression.
+    /// </summary>
+    /// <remarks>
+    /// For navigation properties like x => x.Location.Name, this returns only "Name".
+    /// Use <see cref="GetFullPropertyPath{T}"/> if you need the full path.
+    /// </remarks>
+    /// <typeparam name="T">The type of the parameter in the expression.</typeparam>
+    /// <param name="expression">The lambda expression representing property access.</param>
+    /// <returns>The final property name in the expression chain.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if expression is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
+    public static string GetFinalPropertyName<T>(this Expression<Func<T, object>> expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+
+        var path = GetFullPropertyPathFromExpression(expression.Body);
+        var lastDotIndex = path.LastIndexOf('.');
+
+        return lastDotIndex >= 0 ? path[(lastDotIndex + 1)..] : path;
+    }
+
+    private static string GetFullPropertyPathFromExpression(Expression expression)
+    {
+        var parts = new List<string>();
+        var current = expression;
+
+        while (current is not null)
+        {
+            switch (current)
+            {
+                case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary:
+                    // Handle boxing conversion (x => (object)x.Property)
+                    current = unary.Operand;
+                    break;
+
+                case MemberExpression member:
+                    parts.Add(member.Member.Name);
+                    current = member.Expression;
+                    break;
+
+                case MethodCallExpression methodCall when IsNullConditionalAccess(methodCall):
+                    // Handle null-conditional access (x?.Property compiles to method call)
+                    var memberArg = GetMemberFromNullConditional(methodCall);
+
+                    if (memberArg is not null)
+                    {
+                        parts.Add(memberArg.Member.Name);
+                        current = memberArg.Expression;
+                    }
+                    else
+                    {
+                        current = null;
+                    }
+                    break;
+
+                case ParameterExpression:
+                    // Reached the root parameter, stop
+                    current = null;
+                    break;
+
+                default:
+                    throw new ArgumentException(
+                        $"Expression type '{current.GetType().Name}' is not supported for property path extraction. " +
+                        "Expected a property or field access expression.",
+                        nameof(expression));
+            }
+        }
+
+        if (parts.Count == 0)
+            throw new ArgumentException("Could not extract property path from expression.", nameof(expression));
+
+        parts.Reverse();
+
+        return string.Join(".", parts);
+    }
+
+    private static bool IsNullConditionalAccess(MethodCallExpression methodCall)
+    {
+        // Null-conditional member access compiles to a call to a special method
+        // Check if this looks like a null-conditional pattern
+        return methodCall.Method.Name == "get_Item" ||
+               (methodCall.Object is null && methodCall.Arguments.Count > 0);
+    }
+
+    private static MemberExpression? GetMemberFromNullConditional(MethodCallExpression methodCall)
+    {
+        // Try to extract the member expression from null-conditional access patterns
+        if (methodCall.Arguments.Count > 0 && methodCall.Arguments[0] is MemberExpression member)
+            return member;
+
+        return null;
+    }
 }

@@ -309,6 +309,152 @@ public class ExpressionExtensionsTests
         Assert.False(compiled(obj3));
     }
 
+    #region GetFullPropertyPath Tests
+
+    [Fact]
+    public void GetFullPropertyPath_SimpleProperty_ReturnsPropertyName()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Name;
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Name", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_NavigationProperty_ReturnsFullPath()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Location.Name;
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Location.Name", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_NullForgivingOperator_ReturnsFullPath()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Location!.Name;
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Location.Name", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_DeeplyNestedProperty_ReturnsFullPath()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Location.Country.Code;
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Location.Country.Code", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_ValueTypeProperty_ReturnsPropertyName()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Id;
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Id", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_NavigationPropertyValueType_ReturnsFullPath()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Location.Id;
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Location.Id", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_NullExpression_ThrowsArgumentNullException()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = null!;
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => expression.GetFullPropertyPath());
+    }
+
+    [Fact]
+    public void GetFinalPropertyName_SimpleProperty_ReturnsPropertyName()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Name;
+
+        // Act
+        var result = expression.GetFinalPropertyName();
+
+        // Assert
+        Assert.Equal("Name", result);
+    }
+
+    [Fact]
+    public void GetFinalPropertyName_NavigationProperty_ReturnsFinalPropertyName()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Location.Name;
+
+        // Act
+        var result = expression.GetFinalPropertyName();
+
+        // Assert
+        Assert.Equal("Name", result);
+    }
+
+    [Fact]
+    public void GetFinalPropertyName_DeeplyNestedProperty_ReturnsFinalPropertyName()
+    {
+        // Arrange
+        Expression<Func<TestEntity, object>> expression = x => x.Location.Country.Code;
+
+        // Act
+        var result = expression.GetFinalPropertyName();
+
+        // Assert
+        Assert.Equal("Code", result);
+    }
+
+    [Fact]
+    public void GetFullPropertyPath_LambdaExpression_ReturnsFullPath()
+    {
+        // Arrange
+        LambdaExpression expression = (Expression<Func<TestEntity, object>>)(x => x.Location.Name);
+
+        // Act
+        var result = expression.GetFullPropertyPath();
+
+        // Assert
+        Assert.Equal("Location.Name", result);
+    }
+
+    #endregion
+
+    #region Test Classes
+
     private class MyClass
     {
         public int AnotherProperty { get; set; }
@@ -318,4 +464,27 @@ public class ExpressionExtensionsTests
         public int GetPrivateField() => _privateField;
         public void SetPrivateField(int value) => _privateField = value;
     }
+
+    private class TestEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public TestLocation Location { get; set; } = new();
+    }
+
+    private class TestLocation
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public TestCountry Country { get; set; } = new();
+    }
+
+    private class TestCountry
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+    }
+
+    #endregion
 }

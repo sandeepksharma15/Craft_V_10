@@ -21,6 +21,7 @@ public static class ExpressionBuilder
 
     /// <summary>
     /// Creates a LINQ where expression for the given filter criteria.
+    /// Supports both simple property names and dot-notation paths for navigation properties (e.g., "Location.Name").
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
     /// <param name="filterInfo">The filter criteria.</param>
@@ -31,11 +32,22 @@ public static class ExpressionBuilder
         ArgumentNullException.ThrowIfNull(filterInfo);
         ArgumentException.ThrowIfNullOrEmpty(filterInfo.Name, nameof(filterInfo.Name));
 
-        _ = typeof(T).GetProperty(filterInfo.Name)
-            ?? throw new ArgumentException($"Property '{filterInfo.Name}' does not exist on type '{typeof(T).Name}'.");
-
         ParameterExpression lambdaParam = Expression.Parameter(typeof(T));
-        MemberExpression leftExpression = Expression.Property(lambdaParam, filterInfo.Name);
+
+        // Support dot-notation for navigation properties (e.g., "Location.Name")
+        Expression memberAccess = lambdaParam;
+        var propertyNames = filterInfo.Name.Split('.');
+
+        foreach (var propertyName in propertyNames)
+        {
+            var propertyInfo = memberAccess.Type.GetProperty(propertyName)
+                ?? throw new ArgumentException($"Property '{propertyName}' does not exist on type '{memberAccess.Type.Name}'.");
+
+            memberAccess = Expression.Property(memberAccess, propertyInfo);
+        }
+
+        if (memberAccess is not MemberExpression leftExpression)
+            throw new ArgumentException($"Could not create member expression for property path '{filterInfo.Name}'.");
 
         Type dataType = filterInfo.PropertyType;
         object? value = filterInfo.Value;
@@ -76,9 +88,10 @@ public static class ExpressionBuilder
 
     /// <summary>
     /// Gets a property selector expression for the given property name.
+    /// Supports both simple property names and dot-notation paths for navigation properties (e.g., "Location.Name").
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
-    /// <param name="propName">The property name.</param>
+    /// <param name="propName">The property name or dot-notation path (e.g., "Name" or "Location.Name").</param>
     /// <returns>A property selector expression, or null if not found or not user-defined.</returns>
     public static Expression<Func<T, object>>? GetPropertyExpression<T>(string propName)
     {
@@ -90,9 +103,15 @@ public static class ExpressionBuilder
 
         try
         {
-            var member = Expression.Property(lambdaParam, propName);
+            Expression memberAccess = lambdaParam;
 
-            return Expression.Lambda<Func<T, object>>(Expression.Convert(member, typeof(object)), lambdaParam);
+            // Support dot-notation for navigation properties (e.g., "Location.Name")
+            foreach (var propertyName in propName.Split('.'))
+            {
+                memberAccess = Expression.Property(memberAccess, propertyName);
+            }
+
+            return Expression.Lambda<Func<T, object>>(Expression.Convert(memberAccess, typeof(object)), lambdaParam);
         }
         catch (ArgumentException)
         {

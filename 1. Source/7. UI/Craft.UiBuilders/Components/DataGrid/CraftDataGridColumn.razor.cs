@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Craft.Extensions.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Craft.UiBuilders.Components;
@@ -30,7 +31,7 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
 
     /// <summary>
     /// Column title displayed in the header.
-    /// If not provided, it will be auto-derived from the property name.
+    /// If not provided, it will be auto-derived from the final property name (e.g., "Name" from "Location.Name").
     /// </summary>
     [Parameter]
     public string Title
@@ -40,15 +41,12 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
             if (!string.IsNullOrWhiteSpace(_title))
                 return _title;
 
-            // Auto-derive title from property name
-            if (!string.IsNullOrWhiteSpace(PropertyName))
+            // Auto-derive title from final property name
+            if (PropertyExpression is not null)
             {
+                var finalName = PropertyExpression.GetFinalPropertyName();
                 // Convert PascalCase to Title Case with spaces
-                return System.Text.RegularExpressions.Regex.Replace(
-                    PropertyName,
-                    "([a-z])([A-Z])",
-                    "$1 $2"
-                );
+                return Regex.Replace(finalName, "([a-z])([A-Z])", "$1 $2");
             }
 
             return "Column";
@@ -130,7 +128,8 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
     #region Public Properties
 
     /// <summary>
-    /// Property name derived from the PropertyExpression.
+    /// Full property path derived from PropertyExpression (e.g., "Location.Name" for navigation properties).
+    /// Used for sorting and uniquely identifying columns.
     /// </summary>
     public string? PropertyName
     {
@@ -142,7 +141,7 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
             if (PropertyExpression is null)
                 return null;
 
-            _propertyName = GetPropertyName(PropertyExpression);
+            _propertyName = PropertyExpression.GetFullPropertyPath();
 
             return _propertyName;
         }
@@ -251,17 +250,6 @@ public partial class CraftDataGridColumn<TEntity> : ComponentBase, ICraftDataGri
     #endregion
 
     #region Private Methods
-
-    private static string GetPropertyName(Expression expression)
-    {
-        return expression switch
-        {
-            MemberExpression memberExpression => memberExpression.Member.Name,
-            UnaryExpression unaryExpression when unaryExpression.Operand is MemberExpression operand => operand.Member.Name,
-            LambdaExpression lambdaExpression => GetPropertyName(lambdaExpression.Body),
-            _ => throw new ArgumentException($"Cannot determine property name from expression: {expression}")
-        };
-    }
 
     private static Type? GetPropertyType(Expression expression)
     {
