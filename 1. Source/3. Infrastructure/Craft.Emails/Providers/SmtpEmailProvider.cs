@@ -71,9 +71,7 @@ public class SmtpEmailProvider : IEmailProvider
     {
         var email = new MimeMessage();
 
-        email.From.Add(new MailboxAddress(
-            request.DisplayName ?? _options.DisplayName,
-            request.From ?? _options.From));
+        email.From.Add(new MailboxAddress(request.DisplayName ?? _options.DisplayName, request.From ?? _options.From ?? string.Empty));
 
         foreach (var address in request.To)
             email.To.Add(MailboxAddress.Parse(address));
@@ -94,9 +92,7 @@ public class SmtpEmailProvider : IEmailProvider
                 email.Headers.Add(header.Key, header.Value);
 
         var builder = new BodyBuilder();
-        email.Sender = new MailboxAddress(
-            request.DisplayName ?? _options.DisplayName,
-            request.From ?? _options.From);
+        email.Sender = new MailboxAddress(request.DisplayName ?? _options.DisplayName, request.From ?? _options.From ?? string.Empty);
         email.Subject = request.Subject;
         builder.HtmlBody = request.Body;
 
