@@ -8,16 +8,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Examples\**" />
+	  <Content Remove="Examples\**" />
+	  <EmbeddedResource Remove="Examples\**" />
+	  <None Remove="Examples\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
 	  <ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Examples\" />
 	</ItemGroup>
 
 </Project>
