@@ -1,18 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
 
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\GccPT\GccPT.Shared\GccPT.Shared.csproj" />
+	  <ProjectReference Include="..\..\2. Data Access\Craft.QuerySpec\Craft.QuerySpec.csproj" />
+	  <ProjectReference Include="..\..\4. Security\Craft.Auditing\Craft.Auditing.csproj" />
+	</ItemGroup>
 
 </Project>

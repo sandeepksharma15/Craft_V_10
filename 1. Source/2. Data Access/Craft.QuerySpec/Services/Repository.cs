@@ -26,10 +26,7 @@ public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKe
     /// <param name="logger">The logger.</param>
     /// <param name="queryOptions">Query configuration options.</param>
     /// <param name="queryMetrics">Optional query metrics collector.</param>
-    public Repository(
-        IDbContext appDbContext,
-        ILogger<Repository<T, TKey>> logger,
-        IOptions<QueryOptions> queryOptions,
+    public Repository(IDbContext appDbContext, ILogger<Repository<T, TKey>> logger, IOptions<QueryOptions> queryOptions,
         IQueryMetrics? queryMetrics = null)
         : base(appDbContext, logger)
     {
