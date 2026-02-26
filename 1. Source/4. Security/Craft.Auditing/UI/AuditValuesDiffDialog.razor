@@ -1,0 +1,43 @@
+@namespace Craft.Auditing.UI
+
+<MudDialog>
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.CompareArrows" Color="@GetHeaderColor()" />
+            <MudText Typo="Typo.h6">@TableName</MudText>
+            <MudChip T="string" Color="@GetHeaderColor()" Size="Size.Small">@GetChangeTypeLabel()</MudChip>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <Show When="@_diffRows.Any()">
+            <MudTable Items="@_diffRows" Dense="true" Hover="true" Striped="true" Bordered="true">
+                <HeaderContent>
+                    <MudTh>Property</MudTh>
+                    <MudTh>Old Value</MudTh>
+                    <MudTh>New Value</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Property">
+                        <MudText Typo="Typo.body2"><b>@context.Property</b></MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Old Value" Style="@(context.HasChanged ? "background-color: #fdecea;" : string.Empty)">
+                        <MudText Typo="Typo.body2" Color="@(context.HasChanged ? Color.Error : Color.Default)">
+                            @(context.OldValue ?? "-")
+                        </MudText>
+                    </MudTd>
+                    <MudTd DataLabel="New Value" Style="@(context.HasChanged ? "background-color: #e8f5e9;" : string.Empty)">
+                        <MudText Typo="Typo.body2" Color="@(context.HasChanged ? Color.Success : Color.Default)">
+                            @(context.NewValue ?? "-")
+                        </MudText>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </Show>
+        <Show When="@(!_diffRows.Any())">
+            <MudAlert Severity="Severity.Info">No value changes recorded for this audit entry.</MudAlert>
+        </Show>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@Close" Color="Color.Primary" Variant="Variant.Filled">Close</MudButton>
+    </DialogActions>
+</MudDialog>

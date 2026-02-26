@@ -19,8 +19,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
 	  <ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
+	  <ProjectReference Include="..\..\7. UI\Craft.UiBuilders\Craft.UiBuilders.csproj" />
 	</ItemGroup>
 
 </Project>
