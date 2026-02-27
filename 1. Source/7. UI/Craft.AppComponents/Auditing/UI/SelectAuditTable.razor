@@ -1,5 +1,19 @@
-﻿<h3>SelectAuditTable</h3>
+﻿@namespace Craft.AppComponents.Auditing
+@using MudBlazor
 
-@code {
-
-}
+<MudSelect T="string"
+           Value="@(Value ?? string.Empty)"
+           ValueChanged="@OnValueChangedAsync"
+           Label="@Label"
+           Placeholder="@Placeholder"
+           Variant="@Variant"
+           Required="@Required"
+           ReadOnly="@ReadOnly"
+           Disabled="@(_tableNames is null || Disabled)"
+           AnchorOrigin="Origin.BottomLeft">
+    <MudSelectItem T="string" Value="@string.Empty">All</MudSelectItem>
+    @foreach (var tableName in (_tableNames ?? []))
+    {
+        <MudSelectItem T="string" Value="@tableName">@tableName</MudSelectItem>
+    }
+</MudSelect>

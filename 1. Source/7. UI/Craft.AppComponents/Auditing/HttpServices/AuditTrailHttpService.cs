@@ -16,8 +16,7 @@ public class AuditTrailHttpService(Uri apiURL, HttpClient httpClient, ILogger<Au
     /// <inheritdoc />
     public async Task<ServiceResult<List<string>?>> GetTableNamesAsync(CancellationToken cancellationToken = default)
     {
-        return await GetAndParseAsync(
-            ct => _httpClient.GetAsync(new Uri($"{_apiURL}/tablenames"), ct),
+        return await GetAndParseAsync(ct => _httpClient.GetAsync(new Uri($"{_apiURL}/tablenames"), ct),
             (content, ct) => content.ReadFromJsonAsync<List<string>>(cancellationToken: ct),
             cancellationToken);
     }
@@ -25,8 +24,7 @@ public class AuditTrailHttpService(Uri apiURL, HttpClient httpClient, ILogger<Au
     /// <inheritdoc />
     public async Task<ServiceResult<List<AuditUserDTO>?>> GetAuditUsersAsync(CancellationToken cancellationToken = default)
     {
-        return await GetAndParseAsync(
-            ct => _httpClient.GetAsync(new Uri($"{_apiURL}/auditusers"), ct),
+        return await GetAndParseAsync(ct => _httpClient.GetAsync(new Uri($"{_apiURL}/auditusers"), ct),
             (content, ct) => content.ReadFromJsonAsync<List<AuditUserDTO>>(cancellationToken: ct),
             cancellationToken);
     }
