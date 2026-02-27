@@ -6,16 +6,15 @@ using Craft.QuerySpec.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using GccPT.Shared.Models.Authentication;
 
 namespace Craft.AppComponents.Auditing;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, ILogger<EntityController<AuditTrail, AuditTrail, KeyType>> logger,
-    IDatabaseErrorHandler databaseErrorHandler, IDbContext dbContext, ILogger<AuditTrailController> auditTrailLogger)
-    : EntityController<AuditTrail, AuditTrail, KeyType>(repository, logger, databaseErrorHandler)
+public class AuditTrailController(IRepository<AuditTrail, KeyType> repository,
+    ILogger<EntityController<AuditTrail, AuditTrail, KeyType>> logger, IDatabaseErrorHandler databaseErrorHandler,
+    IAuditTrailRepository auditTrailRepository, ILogger<AuditTrailController> auditTrailLogger)
+        : EntityController<AuditTrail, AuditTrail, KeyType>(repository, logger, databaseErrorHandler)
 {
     /// <summary>
     /// Returns the distinct table names that have audit trail entries.
@@ -27,13 +26,7 @@ public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, I
     {
         try
         {
-            var tableNames = await dbContext.Set<AuditTrail>()
-                .Where(x => !x.IsDeleted)
-                .Select(x => x.TableName!)
-                .Distinct()
-                .OrderBy(x => x)
-                .ToListAsync(cancellationToken);
-
+            var tableNames = await auditTrailRepository.GetTableNamesAsync(cancellationToken);
             return Ok(tableNames);
         }
         catch (Exception ex)
@@ -53,17 +46,7 @@ public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, I
     {
         try
         {
-            var userIds = await dbContext.Set<AuditTrail>()
-                .Where(x => !x.IsDeleted)
-                .Select(x => x.UserId)
-                .Distinct()
-                .ToListAsync(cancellationToken);
-
-            var users = await dbContext.Set<AppUser>()
-                .Where(u => userIds.Contains(u.Id))
-                .Select(u => new AuditUserDTO(u.Id, u.UserName ?? u.Email ?? u.Id.ToString()))
-                .ToListAsync(cancellationToken);
-
+            var users = await auditTrailRepository.GetAuditUsersAsync(cancellationToken);
             return Ok(users);
         }
         catch (Exception ex)
@@ -72,5 +55,5 @@ public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, I
             return BadRequest(new[] { "Failed to retrieve audit users" });
         }
     }
-
 }
+
