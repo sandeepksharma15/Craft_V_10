@@ -24,6 +24,7 @@
 	  <ProjectReference Include="..\..\2. Data Access\Craft.QuerySpec\Craft.QuerySpec.csproj" />
 	  <ProjectReference Include="..\..\4. Security\Craft.Auditing\Craft.Auditing.csproj" />
 	  <ProjectReference Include="..\..\4. Security\Craft.Security\Craft.Security.csproj" />
+	  <ProjectReference Include="..\Craft.UiBuilders\Craft.UiBuilders.csproj" />
 	</ItemGroup>
 
 </Project>

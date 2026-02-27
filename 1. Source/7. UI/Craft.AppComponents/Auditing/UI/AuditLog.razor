@@ -1,3 +1,47 @@
-﻿<h3>AuditLog</h3>
+﻿@namespace Craft.AppComponents.Auditing
+@using Craft.Auditing
+@using Craft.UiBuilders.Components
+@using MudBlazor
 
+<MudStack Spacing="4">
 
+    {{-- Filter Row --}}
+    <MudPaper Elevation="2" Class="pa-4">
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6" md="3">
+                <SelectAuditTable @bind-Value="_filterTable" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <SelectAuditUser @bind-Value="_filterUserId" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="2">
+                <SelectEntityChangeType @bind-Value="_filterChangeType" />
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <DateRangePicker @bind-StartDate="_filterStartDate"
+                                 @bind-EndDate="_filterEndDate"
+                                 PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    {{-- Audit Grid --}}
+    <MudDataGrid T="AuditTrail"
+                 Items="@_auditTrails"
+                 Loading="@_isLoading"
+                 Elevation="2"
+                 Dense="true"
+                 Hover="true"
+                 Striped="true">
+        <Columns>
+            <PropertyColumn Property="x => x.DateTimeUTC" Title="Date / Time" />
+            <PropertyColumn Property="x => x.TableName" Title="Table" />
+            <PropertyColumn Property="x => x.ChangeType" Title="Action" />
+            <PropertyColumn Property="x => x.UserId" Title="User ID" />
+        </Columns>
+        <NoRecordsContent>
+            <MudText Typo="Typo.body2" Class="pa-2">No audit records found.</MudText>
+        </NoRecordsContent>
+    </MudDataGrid>
+
+</MudStack>
