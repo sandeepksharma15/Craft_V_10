@@ -1,5 +1,20 @@
-﻿<h3>SelectEntityChangeType</h3>
+﻿@namespace Craft.AppComponents.Auditing
+@using Craft.Auditing
+@using MudBlazor
 
-@code {
-
-}
+<MudSelect T="EntityChangeType?"
+           Value="@Value"
+           ValueChanged="@ValueChanged"
+           Label="@Label"
+           Placeholder="@Placeholder"
+           Variant="@Variant"
+           Required="@Required"
+           ReadOnly="@ReadOnly"
+           Disabled="@Disabled"
+           Clearable="true"
+           AnchorOrigin="Origin.BottomLeft">
+    @foreach (var (changeType, description) in _descriptions)
+    {
+        <MudSelectItem T="EntityChangeType?" Value="@changeType">@description</MudSelectItem>
+    }
+</MudSelect>
