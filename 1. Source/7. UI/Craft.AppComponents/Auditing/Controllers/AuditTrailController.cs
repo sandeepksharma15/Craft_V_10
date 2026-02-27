@@ -14,7 +14,7 @@ namespace Craft.AppComponents.Auditing;
 [Route("api/[controller]")]
 [ApiController]
 public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, ILogger<EntityController<AuditTrail, AuditTrail, KeyType>> logger,
-    IDatabaseErrorHandler databaseErrorHandler, IDbContext dbContext)
+    IDatabaseErrorHandler databaseErrorHandler, IDbContext dbContext, ILogger<AuditTrailController> auditTrailLogger)
     : EntityController<AuditTrail, AuditTrail, KeyType>(repository, logger, databaseErrorHandler)
 {
     /// <summary>
@@ -38,7 +38,7 @@ public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, I
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "[AuditTrailController] Error retrieving table names");
+            auditTrailLogger.LogError(ex, "[AuditTrailController] Error retrieving table names");
             return BadRequest(new[] { "Failed to retrieve table names" });
         }
     }
@@ -68,7 +68,7 @@ public class AuditTrailController(IRepository<AuditTrail, KeyType> repository, I
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "[AuditTrailController] Error retrieving audit users");
+            auditTrailLogger.LogError(ex, "[AuditTrailController] Error retrieving audit users");
             return BadRequest(new[] { "Failed to retrieve audit users" });
         }
     }
