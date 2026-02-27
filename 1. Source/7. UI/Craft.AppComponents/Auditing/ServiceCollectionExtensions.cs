@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Craft.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.AppComponents.Auditing;
@@ -39,6 +40,20 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// Registers audit trail services for the API layer using the built-in <see cref="CraftUserAuditResolver{TUser}"/>.
+    /// Eliminates the need for a host-application-specific <see cref="IAuditUserResolver"/> implementation
+    /// when the user entity inherits from <see cref="CraftUser"/>.
+    /// </summary>
+    /// <typeparam name="TUser">The application user entity type, which must implement <see cref="ICraftUser"/>.</typeparam>
+    /// <param name="services">The service collection.</param>
+    public static IServiceCollection AddAuditTrailApi<TUser>(this IServiceCollection services)
+        where TUser : class, ICraftUser
+    {
+        services.AddScoped<IAuditUserResolver, CraftUserAuditResolver<TUser>>();
+        return services.AddAuditTrailApi();
     }
 }
 
