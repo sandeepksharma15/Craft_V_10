@@ -1,5 +1,22 @@
-﻿<h3>SelectAuditUser</h3>
+﻿@namespace Craft.AppComponents.Auditing
+@using MudBlazor
 
-@code {
-
-}
+<MudSelect T="KeyType?"
+           Value="@Value"
+           ValueChanged="@ValueChanged"
+           Label="@Label"
+           Placeholder="@Placeholder"
+           Variant="@Variant"
+           Required="@Required"
+           ReadOnly="@ReadOnly"
+           Disabled="@(_users is null || Disabled)"
+           AnchorOrigin="Origin.BottomLeft"
+           ToStringFunc="@(id => GetDisplayName(id))">
+    <MudSelectItem T="KeyType?" Value="@((KeyType?)null)">All</MudSelectItem>
+    @foreach (var user in (_users ?? []))
+    {
+        <MudSelectItem T="KeyType?" Value="@((KeyType?)user.UserId)">
+            @(user.UserName ?? user.UserId.ToString())
+        </MudSelectItem>
+    }
+</MudSelect>
