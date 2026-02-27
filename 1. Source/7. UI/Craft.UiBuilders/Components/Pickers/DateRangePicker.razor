@@ -1,0 +1,29 @@
+﻿@namespace Craft.UiBuilders.Components
+
+@inherits CraftComponent
+
+@using MudBlazor
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Wrap="Wrap.Wrap">
+
+    <MudDatePicker Label="@StartLabel" 
+                   Date="@StartDate"
+                   DateChanged="@OnStartDateChangedAsync"
+                   AutoClose="true"
+                   IsDateDisabledFunc="@IsStartDateDisabled"
+                   Variant="@Variant"
+                   PickerVariant="@PickerVariant"
+                   Placeholder="Select start date" />
+
+    <MudIcon Icon="@Icons.Material.Filled.ArrowRightAlt" Color="Color.Default" />
+
+    <MudDatePicker Label="@EndLabel"
+                   Date="@EndDate"
+                   DateChanged="@OnEndDateChangedAsync"
+                   AutoClose="true"
+                   IsDateDisabledFunc="@IsEndDateDisabled"
+                   Variant="@Variant"
+                   PickerVariant="@PickerVariant"
+                   Placeholder="Select end date" />
+
+</MudStack>
