@@ -1,8 +1,9 @@
 using System.Text.Json;
+using Craft.Auditing;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Craft.Auditing.UI;
+namespace Craft.AppComponents.Auditing;
 
 public partial class AuditValuesDiffDialog
 {

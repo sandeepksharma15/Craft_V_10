@@ -6,8 +6,7 @@ namespace Craft.CryptKey;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddHashKeys(this IServiceCollection services,
-        Action<HashKeyOptions> configureOptions = null!)
+    public static IServiceCollection AddHashKeys(this IServiceCollection services, Action<HashKeyOptions> configureOptions = null!)
     {
         services.Configure(configureOptions ?? (_ => { }));
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<HashKeyOptions>>().Value);
