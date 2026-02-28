@@ -2,47 +2,70 @@
 
 @using Craft.Auditing
 @using Craft.UiBuilders.Components
+@using Craft.QuerySpec
 @using MudBlazor
 
 <MudStack Spacing="4">
 
-    {{-- Filter Row --}}
     <MudPaper Elevation="2" Class="pa-4">
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="4" md="4" lg="3" xl="3">
+        <MudGrid Spacing="2" AlignItems="AlignItems.End">
+            <MudItem xs="12" sm="6" md="4" lg="3" xl="3">
                 <SelectAuditTable @bind-Value="_filterTable" />
             </MudItem>
-            <MudItem xs="12" sm="4" md="4" lg="3" xl="3">
+            <MudItem xs="12" sm="6" md="4" lg="3" xl="3">
                 <SelectAuditUser @bind-Value="_filterUserId" />
             </MudItem>
-            <MudItem xs="12" sm="4" md="4" lg="2" xl="2">
+            <MudItem xs="12" sm="6" md="4" lg="2" xl="2">
                 <SelectEntityChangeType @bind-Value="_filterChangeType" />
             </MudItem>
-            <MudItem xs="12" sm="12" md="12" lg="4" xl="4">
+            <MudItem xs="12" sm="12" md="8" lg="3" xl="3">
                 <DateRangePicker @bind-StartDate="_filterStartDate"
                                  @bind-EndDate="_filterEndDate"
                                  PickerVariant="PickerVariant.Dialog" />
             </MudItem>
+            <MudItem xs="12" sm="12" md="4" lg="1" xl="1">
+                <MudButton OnClick="@ApplyFilters"
+                           Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           FullWidth="true"
+                           StartIcon="@Icons.Material.Filled.FilterAlt"
+                           Size="Size.Medium"
+                           Style="height: 40px;">
+                    Apply
+                </MudButton>
+            </MudItem>
         </MudGrid>
     </MudPaper>
 
-    {{-- Audit Grid --}}
-    <MudDataGrid T="AuditTrail"
-                 Items="@_auditTrails"
-                 Loading="@_isLoading"
-                 Elevation="2"
-                 Dense="true"
-                 Hover="true"
-                 Striped="true">
-        <Columns>
-            <PropertyColumn Property="x => x.DateTimeUTC" Title="Date / Time" />
-            <PropertyColumn Property="x => x.TableName" Title="Table" />
-            <PropertyColumn Property="x => x.ChangeType" Title="Action" />
-            <PropertyColumn Property="x => x.UserId" Title="User ID" />
-        </Columns>
-        <NoRecordsContent>
-            <MudText Typo="Typo.body2" Class="pa-2">No audit records found.</MudText>
-        </NoRecordsContent>
-    </MudDataGrid>
+    <CraftGrid TEntity="AuditTrail"
+               HttpService="_auditTrailService"
+               QueryBuilder="@BuildQueryFunc"
+               InitialPageSize="25"
+               SwitchBreakpoint="Breakpoint.Sm"
+               ShowCardViewOnSmallScreens="true"
+               CardXs="12"
+               CardSm="12"
+               CardMd="6"
+               CardLg="4"
+               CardXl="3"
+               AllowView="true"
+               AllowRefresh="true"
+               ShowSearch="false"
+               OnView="@HandleView"
+               Dense="true"
+               Striped="true"
+               NoRecordsMessage="No audit records found. Try adjusting your filters.">
+
+        <CraftGridColumn TEntity="AuditTrail" PropertyExpression="@(x => x.DateTimeUTC)" Title="Date / Time" Visible="true" Sortable="true" Format="g" />
+        <CraftGridColumn TEntity="AuditTrail" PropertyExpression="@(x => x.TableName)" Title="Table" Visible="true" Sortable="true" />
+        <CraftGridColumn TEntity="AuditTrail" PropertyExpression="@(x => x.ChangeType)" Title="Action" Visible="true" Sortable="true" />
+        <CraftGridColumn TEntity="AuditTrail" PropertyExpression="@(x => x.UserId)" Title="User" Visible="true" Sortable="true">
+            <Template>
+                @GetUserName(context)
+            </Template>
+        </CraftGridColumn>
+        <CraftGridColumn TEntity="AuditTrail" PropertyExpression="@(x => x.KeyValues)" Title="Key Values" Visible="true" Sortable="false" />
+
+    </CraftGrid>
 
 </MudStack>
