@@ -35,8 +35,14 @@ public static class TextExtractor
     {
         try
         {
-            // TODO: Implement code to extract text from PDF using a library like iTextSharp or PdfSharp
-            return string.Empty;
+            var sb = new StringBuilder();
+
+            using var document = UglyToad.PdfPig.PdfDocument.Open(fileName);
+
+            foreach (var page in document.GetPages())
+                sb.Append(page.Text);
+
+            return sb.ToString();
         }
         catch
         {
