@@ -1,4 +1,5 @@
 ﻿@namespace Craft.AppComponents.Auditing
+
 @using Craft.Auditing
 @using Craft.UiBuilders.Components
 @using MudBlazor
@@ -8,16 +9,16 @@
     {{-- Filter Row --}}
     <MudPaper Elevation="2" Class="pa-4">
         <MudGrid Spacing="2">
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12" sm="4" md="4" lg="2">
                 <SelectAuditTable @bind-Value="_filterTable" />
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12" sm="4" md="4" lg="2">
                 <SelectAuditUser @bind-Value="_filterUserId" />
             </MudItem>
-            <MudItem xs="12" sm="6" md="2">
+            <MudItem xs="12" sm="4" md="4" lg="2">
                 <SelectEntityChangeType @bind-Value="_filterChangeType" />
             </MudItem>
-            <MudItem xs="12" sm="12" md="4">
+            <MudItem xs="12" sm="12" md="12" lg="6">
                 <DateRangePicker @bind-StartDate="_filterStartDate"
                                  @bind-EndDate="_filterEndDate"
                                  PickerVariant="PickerVariant.Dialog" />
