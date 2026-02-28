@@ -14,13 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
     <ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
-    <ProjectReference Include="..\..\1. Core\Craft.Utilities\Craft.Utilities.csproj" />
     <ProjectReference Include="..\..\3. Infrastructure\Craft.Cache\Craft.Cache.csproj" />
   </ItemGroup>
 

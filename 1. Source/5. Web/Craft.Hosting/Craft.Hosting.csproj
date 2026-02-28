@@ -10,17 +10,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- Core Dependencies -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.3" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<!-- Craft Framework References - Core -->
 		<ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
 		<ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />

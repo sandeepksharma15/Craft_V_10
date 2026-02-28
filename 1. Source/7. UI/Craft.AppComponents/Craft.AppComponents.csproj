@@ -15,12 +15,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="9.0.1" />
-		<PackageReference Include="MudBlazor" Version="9.0.0" />
+		<PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="9.0.1">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
+		<PackageReference Include="MudBlazor" Version="9.0.0">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\GccPT\GccPT.Shared\GccPT.Shared.csproj" />
 	  <ProjectReference Include="..\..\2. Data Access\Craft.QuerySpec\Craft.QuerySpec.csproj" />
 	  <ProjectReference Include="..\..\4. Security\Craft.Auditing\Craft.Auditing.csproj" />
 	  <ProjectReference Include="..\..\4. Security\Craft.Security\Craft.Security.csproj" />
