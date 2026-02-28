@@ -37,23 +37,10 @@
         </MudGrid>
     </MudPaper>
 
-    <CraftGrid TEntity="AuditTrail"
-               HttpService="_auditTrailService"
-               QueryBuilder="@BuildQueryFunc"
-               InitialPageSize="25"
-               SwitchBreakpoint="Breakpoint.Sm"
-               ShowCardViewOnSmallScreens="true"
-               CardXs="12"
-               CardSm="12"
-               CardMd="6"
-               CardLg="4"
-               CardXl="3"
-               AllowView="true"
-               AllowRefresh="true"
-               ShowSearch="false"
-               OnView="@HandleView"
-               Dense="true"
-               Striped="true"
+    <CraftGrid TEntity="AuditTrail" HttpService="@_auditTrailService" QueryBuilder="@_buildQueryFunc" InitialPageSize="25"
+               SwitchBreakpoint="Breakpoint.Sm" ShowCardViewOnSmallScreens="true"
+               CardXs="12" CardSm="12" CardMd="6" CardLg="4" CardXl="3"
+               AllowView="true" AllowRefresh="true" ShowSearch="false" OnView="@HandleView" Dense="true" Striped="true"
                NoRecordsMessage="No audit records found. Try adjusting your filters.">
 
         <CraftGridColumn TEntity="AuditTrail" PropertyExpression="@(x => x.DateTimeUTC)" Title="Date / Time" Visible="true" Sortable="true" Format="g" />

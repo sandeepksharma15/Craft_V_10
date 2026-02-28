@@ -8,7 +8,7 @@ namespace Craft.AppComponents.Auditing;
 /// Provides HTTP access to the audit trail API, extending the standard CRUD operations
 /// with audit-specific queries for table names and user lookups.
 /// </summary>
-public interface IAuditTrailHttpService : IHttpService<AuditTrail, AuditTrail, AuditTrail, KeyType>
+public interface IAuditTrailHttpService : IHttpService<AuditTrail>
 {
     /// <summary>
     /// Returns the distinct table names that have audit trail entries.

@@ -21,11 +21,12 @@ public partial class AuditLog : ComponentBase
     private Dictionary<KeyType, string> _userLookup = [];
     private bool _filtersApplied;
 
-    // Query builder function that can be passed to CraftGrid
-    private Func<Query<AuditTrail>, Query<AuditTrail>>? BuildQueryFunc => BuildQuery;
+    // Stable delegate reference - assigned once so Blazor does not see a new instance on every render
+    private Func<Query<AuditTrail>, Query<AuditTrail>>? _buildQueryFunc;
 
     protected override async Task OnInitializedAsync()
     {
+        _buildQueryFunc = BuildQuery;
         await LoadAuditUsersAsync();
     }
 
@@ -35,10 +36,9 @@ public partial class AuditLog : ComponentBase
     private async Task LoadAuditUsersAsync()
     {
         var result = await _auditTrailService.GetAuditUsersAsync();
+
         if (result.IsSuccess && result.Value != null)
-        {
             _userLookup = result.Value.ToDictionary(u => u.UserId, u => u.UserName ?? $"User {u.UserId}");
-        }
     }
 
     /// <summary>
