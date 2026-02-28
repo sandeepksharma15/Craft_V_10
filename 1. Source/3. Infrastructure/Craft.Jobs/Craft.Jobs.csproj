@@ -10,7 +10,10 @@
     <PackageReference Include="Hangfire.Core" Version="1.8.23" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1" />
-    
+
+    <!-- Pin Newtonsoft.Json to fix NU1903 vulnerability (GHSA-5crp-9r3c-p9vr) in transitive 11.0.1 from Hangfire -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
     <!-- Microsoft Extensions -->
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
