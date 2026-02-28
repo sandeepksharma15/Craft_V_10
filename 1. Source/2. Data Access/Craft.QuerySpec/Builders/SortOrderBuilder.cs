@@ -1,4 +1,3 @@
-using Craft.Core;
 using System.Linq.Expressions;
 using Craft.Extensions.Expressions;
 
@@ -123,10 +122,20 @@ public class SortOrderBuilder<T> where T : class
     internal OrderTypeEnum AdjustOrderType(OrderTypeEnum orderType)
     {
         if (OrderDescriptorList.Any(x => x.OrderType is OrderTypeEnum.OrderBy or OrderTypeEnum.OrderByDescending))
+        {
             if (orderType is OrderTypeEnum.OrderBy)
                 orderType = OrderTypeEnum.ThenBy;
             else if (orderType is OrderTypeEnum.OrderByDescending)
                 orderType = OrderTypeEnum.ThenByDescending;
+        }
+        else
+        {
+            // No primary sort yet — promote secondary types to primary
+            if (orderType is OrderTypeEnum.ThenBy)
+                orderType = OrderTypeEnum.OrderBy;
+            else if (orderType is OrderTypeEnum.ThenByDescending)
+                orderType = OrderTypeEnum.OrderByDescending;
+        }
 
         return orderType;
     }

@@ -5,9 +5,7 @@ using Craft.UiComponents.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.JSInterop;
 using Moq;
-using MudBlazor;
 using MudBlazor.Services;
 
 namespace Craft.UiBuilders.Tests.Base;
