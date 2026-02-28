@@ -35,19 +35,8 @@ public static class TextExtractor
     {
         try
         {
-            using var reader = new iText.Kernel.Pdf.PdfReader(fileName);
-            using var pdfDoc = new iText.Kernel.Pdf.PdfDocument(reader);
-
-            var text = new StringBuilder();
-
-            for (int i = 1; i <= pdfDoc.GetNumberOfPages(); i++)
-            {
-                var page = pdfDoc.GetPage(i);
-                text.Append(iText.Kernel.Pdf.Canvas.Parser.PdfTextExtractor.GetTextFromPage(page));
-                text.Append(' ');
-            }
-
-            return text.ToString().Trim();
+            // TODO: Implement code to extract text from PDF using a library like iTextSharp or PdfSharp
+            return string.Empty;
         }
         catch
         {
