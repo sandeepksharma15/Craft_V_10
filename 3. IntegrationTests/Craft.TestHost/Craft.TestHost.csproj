@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\1. Source\5. Web\Craft.OpenAPI\Craft.OpenAPI.csproj" />
     <ProjectReference Include="..\..\1. Source\5. Web\Craft.Controllers\Craft.Controllers.csproj" />
     <ProjectReference Include="..\..\1. Source\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
     <ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Repositories\Craft.Repositories.csproj" />
