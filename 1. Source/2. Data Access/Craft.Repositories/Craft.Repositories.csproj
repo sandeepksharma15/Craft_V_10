@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
 	<ProjectReference Include="..\..\1. Core\Craft.Core\Craft.Core.csproj" />
 	<ProjectReference Include="..\..\1. Core\Craft.Domain\Craft.Domain.csproj" />
 	<ProjectReference Include="..\..\1. Core\Craft.Extensions\Craft.Extensions.csproj" />
