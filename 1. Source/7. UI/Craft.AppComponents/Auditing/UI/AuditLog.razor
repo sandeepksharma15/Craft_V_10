@@ -9,16 +9,16 @@
     {{-- Filter Row --}}
     <MudPaper Elevation="2" Class="pa-4">
         <MudGrid Spacing="2">
-            <MudItem xs="12" sm="4" md="4" lg="2">
+            <MudItem xs="12" sm="4" md="4" lg="3" xl="3">
                 <SelectAuditTable @bind-Value="_filterTable" />
             </MudItem>
-            <MudItem xs="12" sm="4" md="4" lg="2">
+            <MudItem xs="12" sm="4" md="4" lg="3" xl="3">
                 <SelectAuditUser @bind-Value="_filterUserId" />
             </MudItem>
-            <MudItem xs="12" sm="4" md="4" lg="2">
+            <MudItem xs="12" sm="4" md="4" lg="2" xl="2">
                 <SelectEntityChangeType @bind-Value="_filterChangeType" />
             </MudItem>
-            <MudItem xs="12" sm="12" md="12" lg="6">
+            <MudItem xs="12" sm="12" md="12" lg="4" xl="4">
                 <DateRangePicker @bind-StartDate="_filterStartDate"
                                  @bind-EndDate="_filterEndDate"
                                  PickerVariant="PickerVariant.Dialog" />
