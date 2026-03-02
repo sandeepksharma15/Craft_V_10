@@ -1,6 +1,9 @@
-﻿namespace Craft.AppComponents.Auditing;
+﻿using Craft.Auditing;
+using Craft.QuerySpec;
 
-public interface IAuditTrailRepository
+namespace Craft.AppComponents.Auditing;
+
+public interface IAuditTrailRepository : IRepository<AuditTrail, KeyType>
 {
     /// <summary>
     /// Retrieves the distinct table names that have audit trail entries.
