@@ -9,6 +9,7 @@ public partial class AuditLog : ComponentBase
 {
     [Inject] private IAuditTrailHttpService _auditTrailService { get; set; } = default!;
     [Inject] private IDialogService _dialogService { get; set; } = default!;
+    [Inject] private ISnackbar _snackbar { get; set; } = default!;
 
     // Filter state
     private string? _filterTable;
@@ -19,7 +20,9 @@ public partial class AuditLog : ComponentBase
 
     // User lookup cache
     private Dictionary<KeyType, string> _userLookup = [];
-    private bool _filtersApplied;
+
+    // Incremented on each filter apply to force the grid to recreate and reload with the new criteria
+    private int _gridKey;
 
     // Stable delegate reference - assigned once so Blazor does not see a new instance on every render
     private Func<Query<AuditTrail>, Query<AuditTrail>>? _buildQueryFunc;
@@ -33,21 +36,26 @@ public partial class AuditLog : ComponentBase
     /// <summary>
     /// Loads audit users and builds a lookup dictionary for display.
     /// </summary>
-    private async Task LoadAuditUsersAsync()
+    private async Task LoadAuditUsersAsync(CancellationToken cancellationToken = default)
     {
-        var result = await _auditTrailService.GetAuditUsersAsync();
+        var result = await _auditTrailService.GetAuditUsersAsync(cancellationToken);
 
         if (result.IsSuccess && result.Value != null)
+        {
             _userLookup = result.Value.ToDictionary(u => u.UserId, u => u.UserName ?? $"User {u.UserId}");
+            return;
+        }
+
+        _snackbar.Add(result.Message ?? "Failed to load audit users.", Severity.Warning);
     }
 
     /// <summary>
-    /// Applies filters to refresh the grid data.
+    /// Applies filters by forcing the grid to recreate and reload with the updated criteria.
     /// </summary>
-    private void ApplyFilters()
+    private Task ApplyFiltersAsync()
     {
-        _filtersApplied = true;
-        StateHasChanged();
+        _gridKey++;
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -101,7 +109,7 @@ public partial class AuditLog : ComponentBase
     /// <summary>
     /// Handles the view action to show the diff dialog.
     /// </summary>
-    private async Task HandleView(AuditTrail auditTrail)
+    private async Task HandleViewAsync(AuditTrail auditTrail)
     {
         var parameters = new DialogParameters
         {
