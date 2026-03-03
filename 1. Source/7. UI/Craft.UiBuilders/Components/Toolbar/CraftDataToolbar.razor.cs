@@ -60,6 +60,11 @@ public partial class CraftDataToolbar<TEntity> : ComponentBase
     [Parameter] public RenderFragment? SortContent { get; set; }
 
     /// <summary>
+    /// Custom page size selector content (for CardGrid).
+    /// </summary>
+    [Parameter] public RenderFragment? PageSizeContent { get; set; }
+
+    /// <summary>
     /// Whether to show the refresh button.
     /// </summary>
     [Parameter] public bool ShowRefresh { get; set; }

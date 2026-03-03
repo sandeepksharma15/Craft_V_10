@@ -220,7 +220,7 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     /// Text displayed on the add button.
     /// Default is "Add New".
     /// </summary>
-    [Parameter] public string AddButtonText { get; set; } = "Add New";
+    [Parameter] public string AddButtonText { get; set; } = "Add";
 
     /// <summary>
     /// Icon displayed on the add button.

@@ -22,7 +22,12 @@
 
         @* Right Section: Action Buttons (stay together) *@
         <CraftDiv Class="d-flex align-center gap-2" Style="flex-shrink: 0;">
-            
+
+            @* Page Size Selector *@
+            <Show When="@(PageSizeContent != null)">
+                @PageSizeContent
+            </Show>
+
             @* Sort Menu *@
             <Show When="@ShowSort">
                 @SortContent

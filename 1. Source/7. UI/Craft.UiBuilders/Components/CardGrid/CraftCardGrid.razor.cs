@@ -224,7 +224,7 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
     /// Text displayed on the add button.
     /// Default is "Add New".
     /// </summary>
-    [Parameter] public string AddButtonText { get; set; } = "Add New";
+    [Parameter] public string AddButtonText { get; set; } = "Add";
 
     /// <summary>
     /// Icon displayed on the add button.
