@@ -697,6 +697,9 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         if (!string.IsNullOrWhiteSpace(column.MaxWidth))
             styles.Add($"max-width: {column.MaxWidth}");
 
+        if (column.Alignment != Alignment.Start)
+            styles.Add($"text-align: {column.Alignment.ToString().ToLowerInvariant()}");
+
         return styles.Count != 0 ? string.Join("; ", styles) : null;
     }
 
