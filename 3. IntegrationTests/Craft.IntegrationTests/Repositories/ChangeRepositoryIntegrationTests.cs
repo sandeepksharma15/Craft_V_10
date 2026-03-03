@@ -24,7 +24,7 @@ public class ChangeRepositoryIntegrationTests : IAsyncLifetime
         _fixture = fixture;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
         _dbContext = _fixture.DbContext;
@@ -33,7 +33,7 @@ public class ChangeRepositoryIntegrationTests : IAsyncLifetime
         _repository = new ChangeRepository<Product>(_dbContext, logger);
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => default;
 
     #region Complete CRUD Loop Tests
 

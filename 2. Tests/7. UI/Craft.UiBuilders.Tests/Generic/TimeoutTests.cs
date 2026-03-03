@@ -37,7 +37,7 @@ public class TimeoutTests : ComponentTestBase
         Assert.Contains("Expiring content", cut.Markup);
 
         // Act - wait for expiration
-        await Task.Delay(200);
+        await Task.Delay(200, Xunit.TestContext.Current.CancellationToken);
         cut.Render();
 
         // Assert - should be hidden
@@ -81,7 +81,7 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Act - wait for expiration
-        await Task.Delay(200);
+        await Task.Delay(200, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(callbackInvoked);
@@ -97,7 +97,7 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Act - wait for expiration
-        await Task.Delay(200);
+        await Task.Delay(200, Xunit.TestContext.Current.CancellationToken);
         cut.Render();
 
         // Assert - should not throw, content should be hidden
@@ -117,7 +117,7 @@ public class TimeoutTests : ComponentTestBase
         Assert.Contains("Quick expire", cut.Markup);
 
         // Act
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
         cut.Render();
 
         // Assert - should be expired
@@ -134,7 +134,7 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Act - wait less than duration
-        await Task.Delay(500);
+        await Task.Delay(500, Xunit.TestContext.Current.CancellationToken);
         cut.Render();
 
         // Assert - should still be visible
@@ -177,12 +177,12 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Act & Assert
-        var exception = await Record.ExceptionAsync(async () =>
+        var exception = await Record.ExceptionAsync((Func<Task>)(async () =>
         {
-            await Task.Delay(50);
+            await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
             cut.Dispose();
-            await Task.Delay(100);
-        });
+            await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
+        }));
 
         Assert.Null(exception);
     }
@@ -215,14 +215,14 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Act - wait for first to expire
-        await Task.Delay(150);
+        await Task.Delay(150, Xunit.TestContext.Current.CancellationToken);
 
         // Assert - first should expire, second should not
         Assert.True(callback1Invoked);
         Assert.False(callback2Invoked);
 
         // Act - wait for second to expire
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Assert - both should be expired
         Assert.True(callback1Invoked);
@@ -260,7 +260,7 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Act - wait well past expiration
-        await Task.Delay(300);
+        await Task.Delay(300, Xunit.TestContext.Current.CancellationToken);
 
         // Assert - callback should only be invoked once
         Assert.Equal(1, callbackCount);
@@ -284,7 +284,7 @@ public class TimeoutTests : ComponentTestBase
         );
 
         // Small delay to allow timer to fire
-        await Task.Delay(50);
+        await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
 
         // Assert - content should be expired and callback invoked
         Assert.DoesNotContain("Instant timeout", cut.Markup);

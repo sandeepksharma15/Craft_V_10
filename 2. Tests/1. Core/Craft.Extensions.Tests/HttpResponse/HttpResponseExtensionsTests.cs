@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using Craft.Extensions.HttpResponse;
@@ -17,7 +17,7 @@ public class HttpResponseExtensionsTests
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
-        var cancellationToken = CancellationToken.None;
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var result = await response.TryReadErrors(cancellationToken);
@@ -35,7 +35,7 @@ public class HttpResponseExtensionsTests
         {
             Content = new StringContent(errorText, Encoding.UTF8, "text/plain")
         };
-        var cancellationToken = CancellationToken.None;
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var result = await response.TryReadErrors(cancellationToken);
@@ -54,7 +54,7 @@ public class HttpResponseExtensionsTests
             Content = new StringContent(string.Empty, Encoding.UTF8, "text/plain"),
             ReasonPhrase = "Not Found"
         };
-        var cancellationToken = CancellationToken.None;
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var result = await response.TryReadErrors(cancellationToken);
@@ -73,7 +73,7 @@ public class HttpResponseExtensionsTests
             Content = new StringContent("   ", Encoding.UTF8, "text/plain"),
             ReasonPhrase = "Server Error"
         };
-        var cancellationToken = CancellationToken.None;
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var result = await response.TryReadErrors(cancellationToken);
@@ -92,7 +92,7 @@ public class HttpResponseExtensionsTests
             Content = new StringContent("null", Encoding.UTF8, "application/json"),
             ReasonPhrase = "Bad Request"
         };
-        var cancellationToken = CancellationToken.None;
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var result = await response.TryReadErrors(cancellationToken);
@@ -111,7 +111,7 @@ public class HttpResponseExtensionsTests
             Content = new StringContent("{ not valid json }", Encoding.UTF8, "application/json"),
             ReasonPhrase = "Bad Request"
         };
-        var cancellationToken = CancellationToken.None;
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var result = await response.TryReadErrors(cancellationToken);

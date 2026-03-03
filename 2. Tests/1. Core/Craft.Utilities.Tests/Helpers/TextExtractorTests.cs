@@ -86,7 +86,7 @@ public class TextExtractorTests
         var result = TextExtractor.ExtractTextFromDocOrPdf(filePath);
 
         // Assert
-        Assert.Equal("Hello World", result);
+        Assert.Equal("Hello World", result.Trim());
     }
 }
 

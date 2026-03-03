@@ -128,16 +128,17 @@ public class QueryOrderExtensionsTests
         // Arrange
         IQuery<Company> query = new Query<Company>();
         Expression<Func<Company, object>> propExpr = x => x.Name!;
+        query.OrderBy(x => x.Id); // Establish a primary sort order first
 
         // Act
         var result = query.ThenBy(propExpr);
 
         // Assert
         Assert.Same(query, result);
-        Assert.Single(query.SortOrderBuilder?.OrderDescriptorList!);
-        Assert.NotNull(query.SortOrderBuilder?.OrderDescriptorList[0].OrderItem);
-        Assert.Equal("x.Name", query.SortOrderBuilder.OrderDescriptorList[0].OrderItem.Body.ToString());
-        Assert.Equal(OrderTypeEnum.ThenBy, query.SortOrderBuilder.OrderDescriptorList[0].OrderType);
+        Assert.Equal(2, query.SortOrderBuilder?.OrderDescriptorList!.Count);
+        Assert.NotNull(query.SortOrderBuilder?.OrderDescriptorList[1].OrderItem);
+        Assert.Equal("x.Name", query.SortOrderBuilder.OrderDescriptorList[1].OrderItem.Body.ToString());
+        Assert.Equal(OrderTypeEnum.ThenBy, query.SortOrderBuilder.OrderDescriptorList[1].OrderType);
     }
 
     [Fact]
@@ -173,16 +174,17 @@ public class QueryOrderExtensionsTests
         // Arrange
         IQuery<Company> query = new Query<Company>();
         Expression<Func<Company, object>> propExpr = x => x.Name!;
+        query.OrderBy(x => x.Id); // Establish a primary sort order first
 
         // Act
         var result = query.ThenByDescending(propExpr);
 
         // Assert
         Assert.Same(query, result);
-        Assert.Single(query.SortOrderBuilder?.OrderDescriptorList!);
-        Assert.NotNull(query.SortOrderBuilder?.OrderDescriptorList[0].OrderItem);
-        Assert.Equal("x.Name", query.SortOrderBuilder.OrderDescriptorList[0].OrderItem.Body.ToString());
-        Assert.Equal(OrderTypeEnum.ThenByDescending, query.SortOrderBuilder.OrderDescriptorList[0].OrderType);
+        Assert.Equal(2, query.SortOrderBuilder?.OrderDescriptorList!.Count);
+        Assert.NotNull(query.SortOrderBuilder?.OrderDescriptorList[1].OrderItem);
+        Assert.Equal("x.Name", query.SortOrderBuilder.OrderDescriptorList[1].OrderItem.Body.ToString());
+        Assert.Equal(OrderTypeEnum.ThenByDescending, query.SortOrderBuilder.OrderDescriptorList[1].OrderType);
     }
 
     [Fact]
@@ -314,7 +316,7 @@ public class QueryOrderExtensionsTests
         Assert.Same(query, result);
         Assert.Single(query.SortOrderBuilder?.OrderDescriptorList!);
         Assert.NotNull(query.SortOrderBuilder?.OrderDescriptorList[0].OrderItem);
-        Assert.Equal(OrderTypeEnum.ThenBy, query.SortOrderBuilder.OrderDescriptorList[0].OrderType);
+        Assert.Equal(OrderTypeEnum.OrderBy, query.SortOrderBuilder.OrderDescriptorList[0].OrderType);
     }
 
     [Fact]
@@ -358,7 +360,7 @@ public class QueryOrderExtensionsTests
         Assert.Same(query, result);
         Assert.Single(query.SortOrderBuilder?.OrderDescriptorList!);
         Assert.NotNull(query.SortOrderBuilder?.OrderDescriptorList[0].OrderItem);
-        Assert.Equal(OrderTypeEnum.ThenByDescending, query.SortOrderBuilder.OrderDescriptorList[0].OrderType);
+        Assert.Equal(OrderTypeEnum.OrderByDescending, query.SortOrderBuilder.OrderDescriptorList[0].OrderType);
     }
 
     [Fact]

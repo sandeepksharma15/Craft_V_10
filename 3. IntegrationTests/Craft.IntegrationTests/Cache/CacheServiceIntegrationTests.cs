@@ -143,7 +143,7 @@ public class CacheServiceIntegrationTests
         Assert.True(beforeExpire.HasValue);
 
         // Wait for expiration
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
 
         // Verify expired
         var afterExpire = await _cacheService.GetAsync<string>(key);
@@ -189,7 +189,7 @@ public class CacheServiceIntegrationTests
         var result = await _cacheService.GetOrSetAsync(key, async () =>
         {
             factoryCallCount++;
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return "Factory Value";
         });
 
@@ -201,7 +201,7 @@ public class CacheServiceIntegrationTests
         var secondResult = await _cacheService.GetOrSetAsync(key, async () =>
         {
             factoryCallCount++;
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return "Should Not Be Called";
         });
 
@@ -221,7 +221,7 @@ public class CacheServiceIntegrationTests
         var result = await _cacheService.GetOrSetAsync(key, async () =>
         {
             factoryCalled = true;
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return "Factory Value";
         });
 

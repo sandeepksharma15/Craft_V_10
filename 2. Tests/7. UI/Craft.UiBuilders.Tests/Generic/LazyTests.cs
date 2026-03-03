@@ -158,11 +158,11 @@ public class LazyTests : ComponentTestBase
         );
 
         // Act & Assert
-        var exception = await Record.ExceptionAsync(async () =>
+        var exception = await Record.ExceptionAsync((Func<Task>)(async () =>
         {
             cut.Dispose();
-            await Task.Delay(50);
-        });
+            await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
+        }));
 
         Assert.Null(exception);
     }

@@ -17,5 +17,8 @@
     
     <!-- Copy local lock file assemblies to output directory -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- Suppress xUnit1051: use TestContext.Current.CancellationToken - informational only -->
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
   </PropertyGroup>
 </Project>

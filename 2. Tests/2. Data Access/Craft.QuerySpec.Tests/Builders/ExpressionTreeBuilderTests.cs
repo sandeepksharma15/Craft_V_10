@@ -485,8 +485,8 @@ public class ToBinaryTree_EmptyOrNullOrIncorrectFilter_ReturnsNull_Data : Theory
 {
     public ToBinaryTree_EmptyOrNullOrIncorrectFilter_ReturnsNull_Data()
     {
-        Add(null!);
-        Add(new Dictionary<string, string>());
-        Add(new Dictionary<string, string> { { nameof(TestClass.NumericValue), "d" } });
+        Add((IDictionary<string, string>)null!);
+        Add((IDictionary<string, string>)new Dictionary<string, string>());
+        Add((IDictionary<string, string>)new Dictionary<string, string> { { nameof(TestClass.NumericValue), "d" } });
     }
 }

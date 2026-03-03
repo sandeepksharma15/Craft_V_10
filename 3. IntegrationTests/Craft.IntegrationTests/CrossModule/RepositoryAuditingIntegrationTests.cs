@@ -26,7 +26,7 @@ public class RepositoryAuditingIntegrationTests : IAsyncLifetime
         _fixture = fixture;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
         _dbContext = _fixture.DbContext;
@@ -40,7 +40,7 @@ public class RepositoryAuditingIntegrationTests : IAsyncLifetime
         AuditTrail.IncludeNavigationProperties = true;
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => default;
 
     #region Complete Audit Loop Tests
 

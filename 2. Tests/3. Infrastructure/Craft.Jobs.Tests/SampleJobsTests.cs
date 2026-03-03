@@ -17,7 +17,7 @@ public class SampleJobsTests
         var context = new JobExecutionContext { JobId = "test-job" };
 
         // Act
-        await job.ExecuteAsync(parameters, context, CancellationToken.None);
+        await job.ExecuteAsync(parameters, context, TestContext.Current.CancellationToken);
 
         // Assert
         loggerMock.Verify(
@@ -39,7 +39,7 @@ public class SampleJobsTests
         var context = new JobExecutionContext { JobId = "test-job", TenantId = "tenant-123" };
 
         // Act
-        await job.ExecuteAsync(context, CancellationToken.None);
+        await job.ExecuteAsync(context, TestContext.Current.CancellationToken);
 
         // Assert
         loggerMock.Verify(
@@ -65,7 +65,7 @@ public class SampleJobsTests
         var context = new JobExecutionContext { JobId = "test-job" };
 
         // Act
-        await job.ExecuteAsync(parameters, context, CancellationToken.None);
+        await job.ExecuteAsync(parameters, context, TestContext.Current.CancellationToken);
 
         // Assert
         loggerMock.Verify(

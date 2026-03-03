@@ -354,6 +354,13 @@ public class AuditTrail : BaseEntity, IAuditTrail
 
             // For simplicity, use the first FK property
             var foreignKeyProperty = foreignKey.Properties[0];
+
+            // Skip principal-side navigations: the FK belongs to the dependent entity, not this one.
+            // e.g., when auditing Employee, skip Employee.ContractorDetails because
+            // the FK (EmployeeId) lives on ContractorDetails, not on Employee.
+            if (foreignKey.DeclaringEntityType.ClrType != entity.Entity.GetType())
+                continue;
+
             var fkPropertyEntry = entity.Property(foreignKeyProperty.Name);
 
             // Track new value (for Added/Modified)

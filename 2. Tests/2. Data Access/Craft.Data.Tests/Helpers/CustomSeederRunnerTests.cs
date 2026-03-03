@@ -17,7 +17,7 @@ public class CustomSeederRunnerTests
         var provider = services.BuildServiceProvider();
         var logger = CreateMockLogger();
         var runner = new CustomSeederRunner(provider, logger.Object);
-        var token = CancellationToken.None;
+        var token = TestContext.Current.CancellationToken;
 
         // Act / Assert
         await runner.RunSeedersAsync(token);
@@ -52,7 +52,7 @@ public class CustomSeederRunnerTests
     {
         // Arrange
         var callOrder = new List<int>();
-        var token = CancellationToken.None;
+        var token = TestContext.Current.CancellationToken;
 
         var first = new Mock<ICustomSeeder>();
         first.Setup(s => s.InitializeAsync(token))
@@ -88,7 +88,7 @@ public class CustomSeederRunnerTests
     public async Task RunSeedersAsync_SeederThrows_ExceptionPropagatesAndStopsLaterSeeders()
     {
         // Arrange
-        var token = CancellationToken.None;
+        var token = TestContext.Current.CancellationToken;
         var first = new Mock<ICustomSeeder>();
         first.Setup(s => s.InitializeAsync(token))
             .ThrowsAsync(new InvalidOperationException("boom"));

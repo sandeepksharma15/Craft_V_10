@@ -72,7 +72,7 @@ public class CacheServiceIntegrationTests : IDisposable
         var value1 = await _cacheService.GetOrSetAsync(key, async () =>
         {
             callCount++;
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return "computed-value";
         });
 
@@ -80,7 +80,7 @@ public class CacheServiceIntegrationTests : IDisposable
         var value2 = await _cacheService.GetOrSetAsync(key, async () =>
         {
             callCount++;
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return "computed-value";
         });
 
@@ -178,7 +178,7 @@ public class CacheServiceIntegrationTests : IDisposable
         var existsBefore = await _cacheService.ExistsAsync(key);
         
         // Wait for expiration
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
         
         var existsAfter = await _cacheService.ExistsAsync(key);
 

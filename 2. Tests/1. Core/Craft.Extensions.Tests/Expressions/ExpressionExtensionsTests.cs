@@ -117,7 +117,7 @@ public class ExpressionExtensionsTests
     public void CreateMemberExpression_ValidProperty_ShouldNotThrowException(string propertyName)
     {
         // Arrange & Act
-        Exception ex = Record.Exception(() => propertyName.CreateMemberExpression<MyClass>());
+        Exception? ex = Record.Exception(() => propertyName.CreateMemberExpression<MyClass>());
 
         // Assert
         Assert.Null(ex);

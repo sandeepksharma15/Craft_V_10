@@ -128,12 +128,12 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     /// <summary>
     /// Called before each test - clears the database to ensure test isolation.
     /// </summary>
-    public virtual async Task InitializeAsync() => await ClearDatabaseAsync();
+    public virtual async ValueTask InitializeAsync() => await ClearDatabaseAsync();
 
     /// <summary>
     /// Called after each test - clears the database to clean up.
     /// </summary>
-    public virtual async Task DisposeAsync() => await ClearDatabaseAsync();
+    public virtual async ValueTask DisposeAsync() => await ClearDatabaseAsync();
 
     #region GetAsync Tests
 

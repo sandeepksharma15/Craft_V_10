@@ -27,7 +27,7 @@ public class CacheRepositoryIntegrationTests : IAsyncLifetime
         _fixture = fixture;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
         _dbContext = _fixture.DbContext;
@@ -60,7 +60,7 @@ public class CacheRepositoryIntegrationTests : IAsyncLifetime
             loggerFactory.CreateLogger<CacheService>());
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => default;
 
     #region Cache-Aside Pattern Tests
 

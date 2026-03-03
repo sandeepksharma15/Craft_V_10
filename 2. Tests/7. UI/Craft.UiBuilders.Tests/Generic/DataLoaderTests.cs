@@ -160,7 +160,7 @@ public class DataLoaderTests : ComponentTestBase
         button.Click();
 
         // Wait a bit for the event to propagate
-        await Task.Delay(50);
+        await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(retryClicked);

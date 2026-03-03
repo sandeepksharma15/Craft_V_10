@@ -62,7 +62,7 @@ public class FileAccessTokenServiceTests
         var fileId = "file123";
         var (token, _) = _tokenService.GenerateToken(fileId, -1);
 
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         // Act
         var isValid = _tokenService.ValidateToken(token, fileId);
@@ -136,7 +136,7 @@ public class FileAccessTokenServiceTests
 
         // Act
         var (token1, _) = _tokenService.GenerateToken(fileId, 60);
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
         var (token2, _) = _tokenService.GenerateToken(fileId, 60);
 
         // Assert

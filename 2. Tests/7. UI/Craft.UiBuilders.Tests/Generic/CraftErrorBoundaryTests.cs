@@ -138,7 +138,7 @@ public class CraftErrorBoundaryTests : ComponentTestBase
         var instance = cut.Instance;
 
         // Act & Assert - should not throw
-        var exception = await Record.ExceptionAsync(async () => await instance.RecoverAsync());
+        var exception = await Record.ExceptionAsync((Func<Task>)(async () => await instance.RecoverAsync()));
         Assert.Null(exception);
     }
 

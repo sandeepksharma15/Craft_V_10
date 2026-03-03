@@ -1,4 +1,4 @@
-﻿using Craft.Testing.Fixtures;
+using Craft.Testing.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -123,7 +123,7 @@ public class BaseRepositoryTests
 
         // Act
         context.Companies!.Add(company);
-        var result = await repo.SaveChangesAsync(CancellationToken.None);
+        var result = await repo.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, result);

@@ -51,8 +51,8 @@ public class TokenBlacklistCleanupServiceTests
 
         // Act
         await service.StartAsync(cts.Token);
-        await Task.Delay(150);
-        await service.StopAsync(CancellationToken.None);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
+        await service.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert
         _mockLogger.Verify(
@@ -79,8 +79,8 @@ public class TokenBlacklistCleanupServiceTests
 
         // Act
         await service.StartAsync(cts.Token);
-        await Task.Delay(150);
-        await service.StopAsync(CancellationToken.None);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
+        await service.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert - Service should start but may not complete first cleanup due to 1-hour interval
         _mockLogger.Verify(
@@ -103,13 +103,13 @@ public class TokenBlacklistCleanupServiceTests
         // Act
         await service.StartAsync(cts.Token);
         
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         
         await cts.CancelAsync();
         
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         
-        await service.StopAsync(CancellationToken.None);
+        await service.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert
         _mockLogger.Verify(
@@ -142,8 +142,8 @@ public class TokenBlacklistCleanupServiceTests
 
         // Act
         await service.StartAsync(cts.Token);
-        await Task.Delay(150);
-        await service.StopAsync(CancellationToken.None);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
+        await service.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert - Service handles exceptions and continues
         _mockLogger.Verify(
@@ -167,6 +167,6 @@ public class TokenBlacklistCleanupServiceTests
         Assert.IsType<BackgroundService>(service, exactMatch: false);
 
         // Cleanup
-        await service.StopAsync(CancellationToken.None);
+        await service.StopAsync(TestContext.Current.CancellationToken);
     }
 }

@@ -34,7 +34,7 @@ public class DelayTests : ComponentTestBase
         );
 
         // Act - wait for the delay plus buffer
-        await Task.Delay(200);
+        await Task.Delay(200, Xunit.TestContext.Current.CancellationToken);
         cut.Render();
 
         // Assert
@@ -51,7 +51,7 @@ public class DelayTests : ComponentTestBase
         );
 
         // Act
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
         cut.Render();
 
         // Assert
@@ -88,12 +88,12 @@ public class DelayTests : ComponentTestBase
         );
 
         // Act & Assert
-        await Task.Delay(50);
-        var exception = await Record.ExceptionAsync(async () =>
+        await Task.Delay(50, Xunit.TestContext.Current.CancellationToken);
+        var exception = await Record.ExceptionAsync((Func<Task>)(async () =>
         {
             cut.Dispose();
-            await Task.Delay(100);
-        });
+            await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
+        }));
 
         Assert.Null(exception);
     }

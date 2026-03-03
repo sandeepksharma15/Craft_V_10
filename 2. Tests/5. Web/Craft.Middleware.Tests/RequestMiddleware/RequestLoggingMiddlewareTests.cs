@@ -239,7 +239,7 @@ public class RequestLoggingMiddlewareTests
         async Task next(HttpContext ctx)
         {
             nextCalled = true;
-            await Task.Delay(10); // Add small delay
+            await Task.Delay(10, TestContext.Current.CancellationToken); // Add small delay
         }
 
         // Act

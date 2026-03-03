@@ -19,7 +19,7 @@ public class TestHostFixture : IAsyncLifetime
     public HttpClient Client { get; private set; } = null!;
     private readonly string _dbName = $"TestHostDb_{Guid.NewGuid()}";
 
-    public Task InitializeAsync()
+    public ValueTask InitializeAsync()
     {
         Factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
@@ -44,7 +44,7 @@ public class TestHostFixture : IAsyncLifetime
         // Seed the database manually
         SeedDatabase();
 
-        return Task.CompletedTask;
+        return default;
     }
 
     private void SeedDatabase()
@@ -65,7 +65,7 @@ public class TestHostFixture : IAsyncLifetime
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         Client?.Dispose();
 

@@ -22,7 +22,7 @@ public class ReadRepositoryIntegrationTests : IAsyncLifetime
         _fixture = fixture;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
 
@@ -30,7 +30,7 @@ public class ReadRepositoryIntegrationTests : IAsyncLifetime
         _repository = new ReadRepository<Product>(_fixture.DbContext, logger);
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => default;
 
     [Fact]
     public async Task GetAsync_WithValidId_ReturnsProduct()

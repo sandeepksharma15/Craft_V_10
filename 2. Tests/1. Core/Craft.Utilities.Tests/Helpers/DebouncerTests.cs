@@ -1,4 +1,4 @@
-﻿using Craft.Utilities.Helpers;
+using Craft.Utilities.Helpers;
 
 namespace Craft.Utilities.Tests.Helpers;
 
@@ -16,7 +16,7 @@ public class DebouncerTests : IDisposable
         _debouncer.Debounce(100, action);
         _debouncer.Debounce(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
@@ -31,14 +31,14 @@ public class DebouncerTests : IDisposable
         _debouncer.Throttle(100, action);
         _debouncer.Throttle(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
 
         // Wait for interval to pass, then call again
         _debouncer.Throttle(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(2, callCount);
     }
@@ -59,7 +59,7 @@ public class DebouncerTests : IDisposable
         _debouncer.Debounce(100, action);
         _debouncer.Dispose();
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(0, callCount);
     }
@@ -76,7 +76,7 @@ public class DebouncerTests : IDisposable
 
         _debouncer.Debounce(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
@@ -93,7 +93,7 @@ public class DebouncerTests : IDisposable
 
         _debouncer.Throttle(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
@@ -107,10 +107,10 @@ public class DebouncerTests : IDisposable
         for (int i = 0; i < 10; i++)
         {
             _debouncer.Debounce(100, action);
-            await Task.Delay(10);
+            await Task.Delay(10, TestContext.Current.CancellationToken);
         }
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
@@ -122,11 +122,11 @@ public class DebouncerTests : IDisposable
         Task action() { callCount++; return Task.CompletedTask; }
 
         _debouncer.Throttle(100, action);
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
         _debouncer.Throttle(100, action);
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
         _debouncer.Throttle(100, action);
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
 
         Assert.Equal(3, callCount);
     }
@@ -143,7 +143,7 @@ public class DebouncerTests : IDisposable
 
         _debouncer.Debounce(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
@@ -160,7 +160,7 @@ public class DebouncerTests : IDisposable
 
         _debouncer.Throttle(100, action);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
@@ -174,7 +174,7 @@ public class DebouncerTests : IDisposable
         var tasks = Enumerable.Range(0, 20).Select(_ => Task.Run(() => _debouncer.Debounce(100, action)));
         await Task.WhenAll(tasks);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }

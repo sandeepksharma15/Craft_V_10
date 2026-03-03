@@ -18,7 +18,7 @@ public class DatabaseFixture : IAsyncLifetime
     public IServiceProvider ServiceProvider { get; private set; } = null!;
     private readonly string _dbName = $"IntegrationTestDb_{Guid.NewGuid()}";
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var services = new ServiceCollection();
 
@@ -105,7 +105,7 @@ public class DatabaseFixture : IAsyncLifetime
         await SeedTestDataAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (DbContext != null)
             await DbContext.DisposeAsync();
@@ -120,7 +120,7 @@ public class InMemoryDatabaseFixture : IAsyncLifetime
     public IntegrationTestDbContext DbContext { get; private set; } = null!;
     public IServiceProvider ServiceProvider { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var services = new ServiceCollection();
 
@@ -164,7 +164,7 @@ public class InMemoryDatabaseFixture : IAsyncLifetime
         DbContext.ChangeTracker.Clear();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (DbContext != null)
             await DbContext.DisposeAsync();

@@ -147,10 +147,10 @@ public class DarkModeToggleTests : ComponentTestBase
         };
 
         // Act & Assert
-        var exception = await Record.ExceptionAsync(async () =>
+        var exception = await Record.ExceptionAsync((Func<Task>)(async () =>
         {
             await component.OnDarkModeChanged(true);
-        });
+        }));
 
         Assert.Null(exception);
     }
@@ -317,7 +317,7 @@ public class DarkModeToggleTests : ComponentTestBase
             DarkMode = false,
             DarkModeChanged = EventCallback.Factory.Create<bool>(this, async value =>
             {
-                await Task.Delay(10); // Simulate async work
+                await Task.Delay(10, Xunit.TestContext.Current.CancellationToken); // Simulate async work
                 callbackCompleted = true;
                 tcs.SetResult(value);
             })

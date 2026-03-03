@@ -16,7 +16,7 @@ public class HttpServiceBaseTests
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -34,7 +34,7 @@ public class HttpServiceBaseTests
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -54,7 +54,7 @@ public class HttpServiceBaseTests
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -72,7 +72,7 @@ public class HttpServiceBaseTests
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -89,7 +89,7 @@ public class HttpServiceBaseTests
         static List<TestItem> extractItems(PageResponse<TestItem> pr) => pr.Items?.ToList() ?? [];
 
         // Act
-        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, CancellationToken.None);
+        var result = await HttpServiceBase.GetAllFromPagedAsync(getPaged, extractItems, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsSuccess);

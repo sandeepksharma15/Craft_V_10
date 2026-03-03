@@ -131,7 +131,7 @@ public class CacheStatsTests
         // Arrange
         var stats = new CacheStats();
         var originalTimestamp = stats.Timestamp;
-        await Task.Delay(10);
+        await Task.Delay(10, TestContext.Current.CancellationToken);
 
         // Act
         stats.Reset();

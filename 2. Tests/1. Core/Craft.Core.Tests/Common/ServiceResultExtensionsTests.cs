@@ -556,7 +556,7 @@ public class ServiceResultExtensionsTests
         // Act
         var mapped = await resultTask.MapAsync(async x =>
         {
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return x * 3;
         });
 
@@ -574,7 +574,7 @@ public class ServiceResultExtensionsTests
         // Act
         var bound = await resultTask.BindAsync(async x =>
         {
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             return ServiceResult<string>.Success($"Value: {x}");
         });
 
@@ -593,7 +593,7 @@ public class ServiceResultExtensionsTests
         // Act
         var result = await resultTask.TapAsync(async _ =>
         {
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             actionExecuted = true;
         });
 
@@ -612,7 +612,7 @@ public class ServiceResultExtensionsTests
         // Act
         var result = await resultTask.TapErrorAsync(async _ =>
         {
-            await Task.Delay(1);
+            await Task.Delay(1, TestContext.Current.CancellationToken);
             actionExecuted = true;
         });
 
@@ -631,12 +631,12 @@ public class ServiceResultExtensionsTests
         var matched = await resultTask.MatchAsync(
             async value =>
             {
-                await Task.Delay(1);
+                await Task.Delay(1, TestContext.Current.CancellationToken);
                 return $"Success: {value}";
             },
             async _ =>
             {
-                await Task.Delay(1);
+                await Task.Delay(1, TestContext.Current.CancellationToken);
                 return "Failure";
             });
 
@@ -707,7 +707,7 @@ public class ServiceResultExtensionsTests
             // Act
             var mapped = await resultTask.MapAsync(async x =>
             {
-                await Task.Delay(1);
+                await Task.Delay(1, TestContext.Current.CancellationToken);
                 return x.ToString();
             });
 
@@ -725,7 +725,7 @@ public class ServiceResultExtensionsTests
             // Act
             var bound = await resultTask.BindAsync(async x =>
             {
-                await Task.Delay(1);
+                await Task.Delay(1, TestContext.Current.CancellationToken);
                 return ServiceResult<string>.Success($"Value: {x}");
             });
 
@@ -745,7 +745,7 @@ public class ServiceResultExtensionsTests
             // Act
             var result = await resultTask.TapAsync(async _ =>
             {
-                await Task.Delay(1);
+                await Task.Delay(1, TestContext.Current.CancellationToken);
                 actionExecuted = true;
             });
 
@@ -764,7 +764,7 @@ public class ServiceResultExtensionsTests
             // Act
             var result = await resultTask.TapErrorAsync(async _ =>
             {
-                await Task.Delay(1);
+                await Task.Delay(1, TestContext.Current.CancellationToken);
                 actionExecuted = true;
             });
 
@@ -783,12 +783,12 @@ public class ServiceResultExtensionsTests
             var matched = await resultTask.MatchAsync(
                 async value =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(1, TestContext.Current.CancellationToken);
                     return $"Success: {value}";
                 },
                 async result =>
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(1, TestContext.Current.CancellationToken);
                     return $"Failure: {result.Message}";
                 });
 

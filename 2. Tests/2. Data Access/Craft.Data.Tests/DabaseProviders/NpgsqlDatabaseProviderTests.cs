@@ -131,7 +131,7 @@ public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderT
         public string? ConnectionString => _container?.GetConnectionString();
         public bool IsAvailable { get; private set; }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             try
             {
@@ -153,7 +153,7 @@ public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderT
             }
         }
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             if (_container is not null)
                 await _container.DisposeAsync();

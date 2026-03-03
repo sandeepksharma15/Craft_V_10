@@ -34,10 +34,10 @@ public class JobExecutorTests
         var context = new JobExecutionContext { JobId = "test-job", JobType = "SimpleTestJob" };
 
         // Act
-        await executor.ExecuteAsync(null, context, CancellationToken.None);
+        await executor.ExecuteAsync(null, context, TestContext.Current.CancellationToken);
 
         // Assert
-        jobMock.Verify(x => x.ExecuteAsync(context, CancellationToken.None), Times.Once);
+        jobMock.Verify(x => x.ExecuteAsync(context, TestContext.Current.CancellationToken), Times.Once);
     }
 
     [Fact]
@@ -68,10 +68,10 @@ public class JobExecutorTests
         var parameters = new { Value = "test" };
 
         // Act
-        await executor.ExecuteAsync(parameters, context, CancellationToken.None);
+        await executor.ExecuteAsync(parameters, context, TestContext.Current.CancellationToken);
 
         // Assert
-        jobMock.Verify(x => x.ExecuteAsync(parameters, context, CancellationToken.None), Times.Once);
+        jobMock.Verify(x => x.ExecuteAsync(parameters, context, TestContext.Current.CancellationToken), Times.Once);
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class JobExecutorTests
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            executor.ExecuteAsync(null, context, CancellationToken.None));
+            executor.ExecuteAsync(null, context, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class JobExecutorTests
         var context = new JobExecutionContext { JobId = "test-job", JobType = "SimpleTestJob" };
 
         // Act
-        await executor.ExecuteAsync(null, context, CancellationToken.None);
+        await executor.ExecuteAsync(null, context, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(context.StartedAt);

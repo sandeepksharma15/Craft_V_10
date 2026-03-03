@@ -19,7 +19,7 @@ public class CraftJsComponentTests : ComponentTestBase
     {
         // Act
         var cut = Render<TestCraftJsComponentWithoutModule>();
-        await Task.Delay(100); // Allow OnAfterRender to complete
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken); // Allow OnAfterRender to complete
 
         // Assert
         Assert.False(cut.Instance.IsJsInitialized);
@@ -34,7 +34,7 @@ public class CraftJsComponentTests : ComponentTestBase
 
         // Act
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100); // Allow OnAfterRender to complete
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken); // Allow OnAfterRender to complete
 
         // Assert
         Assert.True(cut.Instance.IsJsInitialized);
@@ -49,7 +49,7 @@ public class CraftJsComponentTests : ComponentTestBase
 
         // Act
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100); // Allow OnAfterRender to complete
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken); // Allow OnAfterRender to complete
 
         // Assert
         Assert.True(cut.Instance.InitializedCallbackInvoked);
@@ -63,12 +63,12 @@ public class CraftJsComponentTests : ComponentTestBase
 
         // Act
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
         
         var initialModule = cut.Instance.JsModule;
         
         cut.Render(); // Re-render
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Same(initialModule, cut.Instance.JsModule);
@@ -84,7 +84,7 @@ public class CraftJsComponentTests : ComponentTestBase
         // Arrange
         SetupJsModule();
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Act
         await cut.Instance.TestInvokeVoidAsync("testFunction", "arg1", 42);
@@ -101,7 +101,7 @@ public class CraftJsComponentTests : ComponentTestBase
         JSInterop.Setup<string>("testFunction").SetResult("test result");
         
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Act
         var result = await cut.Instance.TestInvokeAsync<string>("testFunction");
@@ -116,7 +116,7 @@ public class CraftJsComponentTests : ComponentTestBase
         // Arrange
         SetupJsModule();
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Act
         await cut.Instance.TestInvokeVoidAsync("complexFunction", "string", 123, true, new { prop = "value" });
@@ -143,7 +143,7 @@ public class CraftJsComponentTests : ComponentTestBase
         // Arrange
         SetupJsModule();
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Act
         await cut.Instance.TestInvokeVoidAsync("noArgsFunction");
@@ -162,7 +162,7 @@ public class CraftJsComponentTests : ComponentTestBase
         JSInterop.Setup<string>("getString").SetResult("test");
         
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Act
         var number = await cut.Instance.TestInvokeAsync<int>("getNumber");
@@ -211,12 +211,12 @@ public class CraftJsComponentTests : ComponentTestBase
         var cut = Render<TestCraftJsComponentWithModule>();
         
         // Act - First render (OnAfterRenderAsync with firstRender = true)
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
         var firstInitCount = cut.Instance.InitializationCount;
 
         // Re-render (OnAfterRenderAsync with firstRender = false)
         cut.Render();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
         var secondInitCount = cut.Instance.InitializationCount;
 
         // Assert
@@ -236,7 +236,7 @@ public class CraftJsComponentTests : ComponentTestBase
             .Add(p => p.OnClick, EventCallback.Factory.Create<Microsoft.AspNetCore.Components.Web.MouseEventArgs>(
                 this, _ => clicked = true)));
         
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
         cut.Find("div").Click();
 
         // Assert
@@ -253,7 +253,7 @@ public class CraftJsComponentTests : ComponentTestBase
         // Arrange
         SetupJsModule();
         var cut = Render<TestCraftJsComponentWithModule>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         Assert.True(cut.Instance.IsJsInitialized);
         var wasInitialized = cut.Instance.IsJsInitialized;
@@ -289,7 +289,7 @@ public class CraftJsComponentTests : ComponentTestBase
 
         // Act
         var cut = Render<TestCraftJsComponentWithCustomInit>();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(cut.Instance.CustomInitCalled);
@@ -305,7 +305,7 @@ public class CraftJsComponentTests : ComponentTestBase
             .Add(p => p.Class, "test-class"));
 
         // Act
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(cut.Instance.IsJsInitialized);
@@ -325,7 +325,7 @@ public class CraftJsComponentTests : ComponentTestBase
 
         // Act - Manually trigger initialization
         await cut.Instance.ManuallyInitialize();
-        await Task.Delay(100);
+        await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(cut.Instance.IsJsInitialized);

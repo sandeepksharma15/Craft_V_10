@@ -63,7 +63,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidOperationException("Test error");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -86,7 +86,7 @@ public class GlobalExceptionHandlerTests
         var exception = new TestCraftException("Custom error", HttpStatusCode.Conflict);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -107,7 +107,7 @@ public class GlobalExceptionHandlerTests
         var exception = new KeyNotFoundException("Resource not found");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -121,7 +121,7 @@ public class GlobalExceptionHandlerTests
         var exception = new UnauthorizedAccessException("Access denied");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -144,7 +144,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidOperationException("Test error");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -170,7 +170,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidOperationException("Test error");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -208,7 +208,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidOperationException("Test error");
 
         // Act
-        var result = await handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -229,7 +229,7 @@ public class GlobalExceptionHandlerTests
         var exception = new TestCraftException("Validation failed", errors, HttpStatusCode.BadRequest);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -257,7 +257,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidOperationException("Test error");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -277,7 +277,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidOperationException("Test error");
 
         // Act
-        await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         _loggerMock.Verify(
@@ -297,7 +297,7 @@ public class GlobalExceptionHandlerTests
         var exception = new Exception("Server error");
 
         // Act
-        await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         _loggerMock.Verify(
@@ -322,7 +322,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ModelValidationException("Validation failed", validationErrors);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -364,7 +364,7 @@ public class GlobalExceptionHandlerTests
         var exception = new AlreadyExistsException("Product", "ABC123");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -385,7 +385,7 @@ public class GlobalExceptionHandlerTests
         var exception = new InvalidCredentialsException("Invalid username or password");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -406,7 +406,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ForbiddenException("Access to this resource is forbidden");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -427,7 +427,7 @@ public class GlobalExceptionHandlerTests
         var exception = new UnauthorizedException("You must be authenticated to access this resource");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -448,7 +448,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ConcurrencyException("Order", 123);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -472,7 +472,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ConcurrencyException("Invoice", 456, "v1", "v2");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -501,7 +501,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ConcurrencyException("Concurrency conflict detected", errors);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -526,7 +526,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ConfigurationException("Database:ConnectionString", "Value is missing or empty");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -550,7 +550,7 @@ public class GlobalExceptionHandlerTests
         var exception = new DatabaseException("INSERT", "Unique constraint violation on column 'Email'");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -574,7 +574,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ExternalServiceException("PaymentGateway", 503, "Service temporarily unavailable");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -604,7 +604,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ConfigurationException("Configuration validation failed", errors);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -634,7 +634,7 @@ public class GlobalExceptionHandlerTests
         var exception = new DatabaseException("Database operation failed", errors);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -664,7 +664,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ExternalServiceException("External service call failed", errors);
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -689,7 +689,7 @@ public class GlobalExceptionHandlerTests
         var exception = new OperationCanceledException("Request was cancelled");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -703,7 +703,7 @@ public class GlobalExceptionHandlerTests
         var exception = new ArgumentNullException("parameter", "Parameter cannot be null");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -717,7 +717,7 @@ public class GlobalExceptionHandlerTests
         var exception = new NotImplementedException("Feature not implemented");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -731,7 +731,7 @@ public class GlobalExceptionHandlerTests
         var exception = new TimeoutException("Request timeout");
 
         // Act
-        var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -764,7 +764,7 @@ public class GlobalExceptionHandlerTests
         var exception = new Exception("Outer error", innerException);
 
         // Act
-        var result = await handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
+        var result = await handler.TryHandleAsync(_httpContext, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -799,7 +799,7 @@ public class GlobalExceptionHandlerTests
         mockHttpContext.Setup(c => c.Items).Returns(items);
 
         // Act
-        var result = await _handler.TryHandleAsync(mockHttpContext.Object, exception, CancellationToken.None);
+        var result = await _handler.TryHandleAsync(mockHttpContext.Object, exception, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);

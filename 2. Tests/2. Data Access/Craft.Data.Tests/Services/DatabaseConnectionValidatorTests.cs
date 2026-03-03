@@ -34,7 +34,7 @@ public class DatabaseConnectionValidatorTests
             loggerMock.Object);
 
         // Act
-        await validator.StartAsync(CancellationToken.None);
+        await validator.StartAsync(TestContext.Current.CancellationToken);
 
         // Assert
         providerMock.Verify(p => p.ValidateConnection(options.ConnectionString), Times.Once);
@@ -72,7 +72,7 @@ public class DatabaseConnectionValidatorTests
             loggerMock.Object);
 
         // Act
-        await validator.StartAsync(CancellationToken.None);
+        await validator.StartAsync(TestContext.Current.CancellationToken);
 
         // Assert
         providerMock.Verify(p => p.ValidateConnection(options.ConnectionString), Times.Once);
@@ -109,7 +109,7 @@ public class DatabaseConnectionValidatorTests
             loggerMock.Object);
 
         // Act
-        await validator.StartAsync(CancellationToken.None);
+        await validator.StartAsync(TestContext.Current.CancellationToken);
 
         // Assert
         providerMock.Verify(p => p.ValidateConnection(It.IsAny<string>()), Times.Never);
@@ -148,7 +148,7 @@ public class DatabaseConnectionValidatorTests
             loggerMock.Object);
 
         // Act
-        await validator.StartAsync(CancellationToken.None);
+        await validator.StartAsync(TestContext.Current.CancellationToken);
 
         // Assert
         loggerMock.Verify(
@@ -182,7 +182,7 @@ public class DatabaseConnectionValidatorTests
             loggerMock.Object);
 
         // Act
-        await validator.StopAsync(CancellationToken.None);
+        await validator.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert - Should complete without errors
         Assert.True(true);

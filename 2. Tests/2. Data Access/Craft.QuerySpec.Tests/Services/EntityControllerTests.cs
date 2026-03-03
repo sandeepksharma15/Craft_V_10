@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Craft.Controllers.ErrorHandling;
 using Craft.Core;
 using Craft.Domain;
@@ -65,7 +65,7 @@ public class EntityControllerTests
     private readonly TestEntityController _controller;
     private readonly TestQuery<TestEntity> _query;
     private readonly TestQuery<TestEntity, TestModel> _querySelect;
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private readonly CancellationToken _cancellationToken = TestContext.Current.CancellationToken;
 
     public EntityControllerTests()
     {
