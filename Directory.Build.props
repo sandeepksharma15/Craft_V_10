@@ -1,29 +1,11 @@
 <Project>
   <PropertyGroup>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <Deterministic>true</Deterministic>
-    <!-- Enable ProduceReferenceAssembly for better incremental build performance -->
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-
-    <!-- Additional Live Unit Testing support -->
-    <!-- Disable package lock files to avoid path issues -->
-    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
-    <DisableImplicitNuGetFallbackFolder>false</DisableImplicitNuGetFallbackFolder>
-
-    <!-- Ensure obj and bin folders are in the project directory -->
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-  </PropertyGroup>
-
-  <!-- Configure paths for Live Unit Testing -->
-  <PropertyGroup Condition="'$(BuildingForLiveUnitTesting)' == 'true'">
-    <!-- Ensure deterministic builds -->
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-
-    <!-- Disable automatic restore (we'll do it explicitly) -->
-    <RestoreForce>false</RestoreForce>
+    <!--
+      Disables the Visual Studio Fast Up-To-Date Check (FUTDC) to prevent the
+      "Potential build performance issue - BuildWithSkipAnalyzers does not exist"
+      warnings that occur when the .NET SDK does not produce the tracking file
+      for every build configuration. MSBuild's own incremental build still applies.
+    -->
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
 </Project>
