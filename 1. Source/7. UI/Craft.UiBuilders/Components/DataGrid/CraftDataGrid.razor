@@ -37,9 +37,10 @@
                           ShowRefresh="@AllowRefresh" OnRefresh="@RefreshAsync" ShowAdd="@_showAddButton" AddButtonText="@AddButtonText"
                           AddIcon="@AddIcon" OnAdd="@HandleAddAsync" />
 
-        <MudTable @ref="_table" Items="@_items" Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
+        <MudTable @ref="_table" Items="@_items" RowsPerPage="@_pageSize" CurrentPage="0"
+                  Hover="@Hover" Striped="@Striped" Dense="@Dense" Bordered="@Bordered" FixedHeader="@FixedHeader"
                   Height="@Height" Loading="@_isLoading" LoadingProgressColor="@LoadingProgressColor" Class="@Class" Style="@Style"
-                  CurrentPage="@(_currentPage - 1)" SortLabel="@_currentSortColumn">
+                  SortLabel="@_currentSortColumn">
 
             <HeaderContent>
                 <Show When="@_showActionsColumn">
@@ -115,11 +116,12 @@
             </LoadingContent>
 
             <PagerContent>
-                <Show When="@EnablePagination">
-                    <MudTablePager PageSizeOptions="@PageSizeOptions"
-                                   RowsPerPageString="@RowsPerPageString"
-                                   InfoFormat="@InfoFormat"
-                                   HorizontalAlignment="HorizontalAlignment.End" />
+                <Show When="@(EnablePagination && _hasItems)">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-2">
+                        <MudText Typo="Typo.body2" Class="me-3">@GetPaginationInfo()</MudText>
+                        <MudPagination Count="@TotalPages" Selected="@_currentPage" SelectedChanged="@GoToPageAsync"
+                                       Color="Color.Primary" Size="Size.Medium" ShowFirstButton="true" ShowLastButton="true" />
+                    </MudStack>
                 </Show>
             </PagerContent>
         </MudTable>

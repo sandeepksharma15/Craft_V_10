@@ -600,7 +600,6 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
         if (string.IsNullOrWhiteSpace(sortLabel))
             return;
 
-        // Update current sort state
         _currentSortColumn = sortLabel;
         _currentSortDirection = direction switch
         {
@@ -609,10 +608,8 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
             _ => GridSortDirection.None
         };
 
-        // Reset to first page when sorting changes
         _currentPage = 1;
 
-        // Reload data with new sorting
         await LoadDataAsync();
     }
 
@@ -683,6 +680,20 @@ public partial class CraftDataGrid<TEntity> : ICraftDataGrid<TEntity>
     #endregion
 
     #region Private Methods - Styling
+
+    private string GetPaginationInfo()
+    {
+        if (_totalCount == 0)
+            return string.Empty;
+
+        var first = (_currentPage - 1) * _pageSize + 1;
+        var last = (int)Math.Min((long)_currentPage * _pageSize, _totalCount);
+
+        return InfoFormat
+            .Replace("{first_item}", first.ToString())
+            .Replace("{last_item}", last.ToString())
+            .Replace("{all_items}", _totalCount.ToString());
+    }
 
     private static string? GetColumnStyle(ICraftDataGridColumn<TEntity> column)
     {
