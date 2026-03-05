@@ -35,10 +35,8 @@ namespace Craft.QuerySpec.Services;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-public abstract class EntityController<T, DataTransferT, TKey>(
-    IRepository<T, TKey> repository,
-    ILogger<EntityController<T, DataTransferT, TKey>> logger,
-    IDatabaseErrorHandler databaseErrorHandler)
+public abstract class EntityController<T, DataTransferT, TKey>(IRepository<T, TKey> repository,
+    ILogger<EntityController<T, DataTransferT, TKey>> logger, IDatabaseErrorHandler databaseErrorHandler)
     : EntityChangeController<T, DataTransferT, TKey>(repository, logger, databaseErrorHandler), IEntityController<T, DataTransferT, TKey>
         where T : class, IEntity<TKey>, new()
         where DataTransferT : class, IModel<TKey>, new()
