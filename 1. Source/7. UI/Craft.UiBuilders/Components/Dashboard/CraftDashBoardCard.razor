@@ -5,10 +5,10 @@
 @inherits CraftComponent
 
 <Show When="@(Visible)">
-    <MudPaper Elevation="@_currentElevation" Class="pa-3 cursor-pointer transition-all" Style="height: 100%;"
+    <MudPaper Elevation="@_currentElevation" Class="pa-2 cursor-pointer transition-all" Style="height: 100%;"
               @onmouseenter="OnMouseEnter" @onmouseleave="OnMouseLeave">
 
-        <MudGrid Spacing="3" Style="height: 100%;">
+        <MudGrid Spacing="2" Style="height: 100%;">
             <!-- Title Area -->
             <MudItem xs="12" Class="flex-grow-1">
                 <MudText Typo="Typo.caption">@Title</MudText>
@@ -17,7 +17,7 @@
             <!-- Large Icon on Left -->
             <MudItem xs="3" Class="flex-grow-1">
                 <CraftDiv class="d-flex justify-center align-center">
-                    <MudIcon Icon="@Icon" Color="Color.Primary" Size="Size.Large" Style="font-size: 4rem;" />
+                    <MudIcon Icon="@Icon" Color="Color.Primary" Size="Size.Large" Style="font-size: 3rem;" />
                 </CraftDiv>
             </MudItem>
 
