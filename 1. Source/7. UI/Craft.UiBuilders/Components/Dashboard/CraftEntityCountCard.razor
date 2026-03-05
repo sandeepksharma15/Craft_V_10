@@ -1,0 +1,24 @@
+@using Craft.UiBuilders.Components.RunningNumber
+@using Craft.UiBuilders.Generic
+@using Craft.UiComponents
+@using Craft.UiComponents.Semantic
+
+@inherits CraftComponent
+
+<CraftDashBoardCard Icon="@Icon" Title="@Title" Href="@(Href ?? string.Empty)">
+	<CraftDiv Class="d-flex justify-center align-center">
+		<DataLoader IsLoading="@IsLoading" HasError="@HasError">
+			<Error>
+				<CraftDiv Class="d-flex flex-column align-center gap-2">
+					<MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Large" />
+					<MudText Typo="Typo.caption" Color="Color.Error">Failed to load</MudText>
+				</CraftDiv>
+			</Error>
+			<ChildContent>
+				<MudText Typo="Typo.h2" Color="Color.Primary">
+					<CraftRunningNumber FirstNumber="0" LastNumber="@Count" TotalTime="@AnimationDuration" UseSmoothEasing="true" />
+				</MudText>
+			</ChildContent>
+		</DataLoader>
+	</CraftDiv>
+</CraftDashBoardCard>
