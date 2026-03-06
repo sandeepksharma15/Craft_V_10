@@ -1,5 +1,6 @@
 ﻿using Craft.Domain;
 using Craft.QuerySpec.Extensions;
+using Craft.Security;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.AppComponents.Security;
@@ -9,6 +10,31 @@ namespace Craft.AppComponents.Security;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers the authentication controller for the API layer via
+    /// <see cref="AuthControllerFeatureProvider{TUser}"/>, so that the host application does
+    /// not need to define a concrete <c>AuthController</c> class.
+    /// All four standard endpoints (<c>login</c>, <c>refresh</c>, <c>logout</c>, <c>register</c>)
+    /// are served from <see cref="AuthControllerBase{TUser,TKey}"/> at <c>api/auth</c>.
+    /// </summary>
+    /// <typeparam name="TUser">The application user entity type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    /// <remarks>
+    /// Do <b>not</b> call this method when the host application supplies its own class that
+    /// derives from <see cref="AuthControllerBase{TUser,TKey}"/> — doing so would register two
+    /// controllers on the same <c>api/auth</c> route and cause an MVC startup error.
+    /// </remarks>
+    public static IServiceCollection AddAuthApi<TUser>(this IServiceCollection services)
+        where TUser : CraftUser<KeyType>
+    {
+        services.AddControllers()
+            .ConfigureApplicationPartManager(apm =>
+                apm.FeatureProviders.Add(new AuthControllerFeatureProvider<TUser>()));
+
+        return services;
+    }
+
     /// <summary>
     /// Registers security repositories and controllers for the API layer.
     /// Adds typed <see cref="IUsersRepository{T,TKey}"/> and <see cref="IRolesRepository{T,TKey}"/>
