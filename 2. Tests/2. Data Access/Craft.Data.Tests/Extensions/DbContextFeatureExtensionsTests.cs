@@ -252,5 +252,83 @@ public class DbContextFeatureExtensionsTests
         // Assert - should allow duplicates (up to consumer to manage)
         Assert.Equal(2, collection.Count);
     }
+
+    [Fact]
+    public void AddRefreshTokens_Should_Add_RefreshTokensFeature()
+    {
+        // Arrange
+        var collection = new DbContextFeatureCollection();
+
+        // Act
+        var result = collection.AddRefreshTokens();
+
+        // Assert
+        Assert.Same(collection, result);
+        Assert.Single(collection);
+        Assert.IsType<RefreshTokensFeature>(collection[0]);
+    }
+
+    [Fact]
+    public void AddRefreshTokens_Generic_Should_Add_RefreshTokensFeature_With_Custom_Key()
+    {
+        // Arrange
+        var collection = new DbContextFeatureCollection();
+
+        // Act
+        var result = collection.AddRefreshTokens<KeyType>();
+
+        // Assert
+        Assert.Same(collection, result);
+        Assert.Single(collection);
+        Assert.IsType<RefreshTokensFeature<KeyType>>(collection[0]);
+    }
+
+    [Fact]
+    public void AddLoginHistory_Should_Add_LoginHistoryFeature()
+    {
+        // Arrange
+        var collection = new DbContextFeatureCollection();
+
+        // Act
+        var result = collection.AddLoginHistory();
+
+        // Assert
+        Assert.Same(collection, result);
+        Assert.Single(collection);
+        Assert.IsType<LoginHistoryFeature>(collection[0]);
+    }
+
+    [Fact]
+    public void AddLoginHistory_Generic_Should_Add_LoginHistoryFeature_With_Custom_Key()
+    {
+        // Arrange
+        var collection = new DbContextFeatureCollection();
+
+        // Act
+        var result = collection.AddLoginHistory<KeyType>();
+
+        // Assert
+        Assert.Same(collection, result);
+        Assert.Single(collection);
+        Assert.IsType<LoginHistoryFeature<KeyType>>(collection[0]);
+    }
+
+    [Fact]
+    public void AddRefreshTokens_And_AddLoginHistory_Should_Support_Fluent_Chaining()
+    {
+        // Arrange
+        var collection = new DbContextFeatureCollection();
+
+        // Act
+        var result = collection
+            .AddRefreshTokens()
+            .AddLoginHistory();
+
+        // Assert
+        Assert.Same(collection, result);
+        Assert.Equal(2, collection.Count);
+        Assert.IsType<RefreshTokensFeature>(collection[0]);
+        Assert.IsType<LoginHistoryFeature>(collection[1]);
+    }
 }
 

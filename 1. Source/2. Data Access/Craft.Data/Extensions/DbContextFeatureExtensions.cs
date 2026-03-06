@@ -79,6 +79,48 @@ public static class DbContextFeatureExtensions
     }
 
     /// <summary>
+    /// Adds refresh token support to the DbContext.
+    /// Configures the ID_RefreshTokens table, a unique index on Token, an index on UserId,
+    /// and a global query filter that excludes soft-deleted records.
+    /// </summary>
+    /// <typeparam name="TKey">The primary key type shared with the user entity.</typeparam>
+    public static DbContextFeatureCollection AddRefreshTokens<TKey>(this DbContextFeatureCollection features)
+        where TKey : IEquatable<TKey>
+    {
+        return features.AddFeature(new RefreshTokensFeature<TKey>());
+    }
+
+    /// <summary>
+    /// Adds refresh token support to the DbContext using the default <see cref="KeyType"/>.
+    /// Configures the ID_RefreshTokens table, a unique index on Token, an index on UserId,
+    /// and a global query filter that excludes soft-deleted records.
+    /// </summary>
+    public static DbContextFeatureCollection AddRefreshTokens(this DbContextFeatureCollection features)
+    {
+        return features.AddFeature<RefreshTokensFeature>();
+    }
+
+    /// <summary>
+    /// Adds login history support to the DbContext.
+    /// Configures the ID_LoginHistory table, an index on UserId, and an index on LastLoginOn.
+    /// </summary>
+    /// <typeparam name="TKey">The primary key type shared with the user entity.</typeparam>
+    public static DbContextFeatureCollection AddLoginHistory<TKey>(this DbContextFeatureCollection features)
+        where TKey : IEquatable<TKey>
+    {
+        return features.AddFeature(new LoginHistoryFeature<TKey>());
+    }
+
+    /// <summary>
+    /// Adds login history support to the DbContext using the default <see cref="KeyType"/>.
+    /// Configures the ID_LoginHistory table, an index on UserId, and an index on LastLoginOn.
+    /// </summary>
+    public static DbContextFeatureCollection AddLoginHistory(this DbContextFeatureCollection features)
+    {
+        return features.AddFeature<LoginHistoryFeature>();
+    }
+
+    /// <summary>
     /// Adds all common features: AuditTrail, SoftDelete, Concurrency, and VersionTracking.
     /// </summary>
     public static DbContextFeatureCollection AddCommonFeatures(this DbContextFeatureCollection features)
