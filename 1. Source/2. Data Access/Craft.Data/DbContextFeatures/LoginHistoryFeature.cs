@@ -24,6 +24,19 @@ public class LoginHistoryFeature<TKey> : IDbContextFeature
 }
 
 /// <summary>
-/// Feature that registers and configures the LoginHistory entity using the default <see cref="KeyType"/>.
+/// Feature that registers and configures the concrete <see cref="LoginHistory"/> entity
+/// using the default <see cref="KeyType"/>.
 /// </summary>
-public class LoginHistoryFeature : LoginHistoryFeature<KeyType>;
+public class LoginHistoryFeature : IDbContextFeature
+{
+    /// <inheritdoc/>
+    public void ConfigureModel(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<LoginHistory>(entity =>
+        {
+            entity.ToTable("ID_LoginHistory");
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.LastLoginOn);
+        });
+    }
+}

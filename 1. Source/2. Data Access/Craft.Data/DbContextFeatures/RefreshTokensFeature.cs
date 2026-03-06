@@ -26,6 +26,20 @@ public class RefreshTokensFeature<TKey> : IDbContextFeature
 }
 
 /// <summary>
-/// Feature that registers and configures the RefreshToken entity using the default <see cref="KeyType"/>.
+/// Feature that registers and configures the concrete <see cref="RefreshToken"/> entity
+/// using the default <see cref="KeyType"/>.
 /// </summary>
-public class RefreshTokensFeature : RefreshTokensFeature<KeyType>;
+public class RefreshTokensFeature : IDbContextFeature
+{
+    /// <inheritdoc/>
+    public void ConfigureModel(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("ID_RefreshTokens");
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.HasQueryFilter(e => !e.IsDeleted);
+        });
+    }
+}
