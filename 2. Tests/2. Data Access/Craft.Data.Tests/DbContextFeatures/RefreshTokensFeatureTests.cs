@@ -72,7 +72,7 @@ public class RefreshTokensFeatureTests
 
         // Assert
         Assert.Contains(indexes, i =>
-            i.Properties.Any(p => p.Name == nameof(RefreshToken<KeyType>.Token)) && i.IsUnique);
+            i.Properties.Any(p => p.Name == nameof(RefreshToken<>.Token)) && i.IsUnique);
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class RefreshTokensFeatureTests
 
         // Assert
         Assert.Contains(indexes, i =>
-            i.Properties.Any(p => p.Name == nameof(RefreshToken<KeyType>.UserId)));
+            i.Properties.Any(p => p.Name == nameof(RefreshToken<>.UserId)));
     }
 
     [Fact]

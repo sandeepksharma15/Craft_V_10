@@ -55,7 +55,7 @@ public class LoginHistoryFeatureTests
 
         // Assert
         Assert.Contains(indexes, i =>
-            i.Properties.Any(p => p.Name == nameof(LoginHistory<KeyType>.UserId)));
+            i.Properties.Any(p => p.Name == nameof(LoginHistory<>.UserId)));
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class LoginHistoryFeatureTests
 
         // Assert
         Assert.Contains(indexes, i =>
-            i.Properties.Any(p => p.Name == nameof(LoginHistory<KeyType>.LastLoginOn)));
+            i.Properties.Any(p => p.Name == nameof(LoginHistory<>.LastLoginOn)));
     }
 
     [Fact]
