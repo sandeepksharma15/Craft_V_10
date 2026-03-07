@@ -7,5 +7,5 @@
     [Parameter] public string LoginRoute { get; set; } = "/login";
 
     protected override void OnInitialized()
-        => Nav.NavigateTo($"{LoginRoute}?returnUrl={Uri.EscapeDataString(Nav.Uri)}", forceLoad: true);
+        => Nav.NavigateTo($"{LoginRoute}?returnUrl={Uri.EscapeDataString(Nav.Uri)}");
 }

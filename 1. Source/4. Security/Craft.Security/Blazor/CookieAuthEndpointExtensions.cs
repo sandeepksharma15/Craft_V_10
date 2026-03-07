@@ -31,14 +31,14 @@ public static class CookieAuthEndpointExtensions
             });
 
             return Results.Redirect(returnUrl);
-        });
+        }).AllowAnonymous();
 
         app.MapGet("/auth/sign-out", (string returnUrl, HttpResponse response) =>
         {
             response.Cookies.Delete(BearerTokenCookie);
 
             return Results.Redirect(returnUrl);
-        });
+        }).AllowAnonymous();
 
         return app;
     }
