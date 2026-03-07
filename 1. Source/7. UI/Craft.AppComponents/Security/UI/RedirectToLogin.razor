@@ -1,0 +1,11 @@
+@inject NavigationManager Nav
+
+@code {
+    /// <summary>
+    /// The route to the login page (e.g. "/login"). Defaults to "/login".
+    /// </summary>
+    [Parameter] public string LoginRoute { get; set; } = "/login";
+
+    protected override void OnInitialized()
+        => Nav.NavigateTo($"{LoginRoute}?returnUrl={Uri.EscapeDataString(Nav.Uri)}", forceLoad: true);
+}
