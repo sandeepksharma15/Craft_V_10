@@ -6,6 +6,16 @@
     /// </summary>
     [Parameter] public string LoginRoute { get; set; } = "/login";
 
-    protected override void OnInitialized()
-        => Nav.NavigateTo($"{LoginRoute}?returnUrl={Uri.EscapeDataString(Nav.Uri)}");
+    // OnAfterRender is used instead of OnInitialized because in Blazor Web App with
+    // InteractiveServerRenderMode(prerender: false) the circuit is still completing
+    // its initial handshake with blazor.web.js when OnInitialized fires. The JS
+    // navigation command would be batched into the first render update but the client
+    // discards it while in its own initialising state. OnAfterRender fires after that
+    // first batch has been applied and acknowledged, so the navigation is sent as a
+    // separate SignalR message that the client processes correctly.
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            Nav.NavigateTo($"{LoginRoute}?returnUrl={Uri.EscapeDataString(Nav.Uri)}");
+    }
 }
