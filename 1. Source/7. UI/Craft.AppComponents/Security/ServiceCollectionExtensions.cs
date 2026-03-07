@@ -124,10 +124,8 @@ public static class ServiceCollectionExtensions
     /// <param name="httpClientFactory">Factory function to resolve the <see cref="HttpClient"/> from DI.</param>
     /// <param name="baseAddress">The base address of the API (e.g., "https+http://api").</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddAuthUI<TUserVM>(
-        this IServiceCollection services,
-        Func<IServiceProvider, HttpClient> httpClientFactory,
-        string baseAddress)
+    public static IServiceCollection AddAuthUI<TUserVM>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress)
         where TUserVM : class
     {
         services.AddTransient<IAuthHttpService<TUserVM>>(sp =>
