@@ -15,7 +15,10 @@
     // separate SignalR message that the client processes correctly.
     protected override void OnAfterRender(bool firstRender)
     {
-        if (firstRender)
-            Nav.NavigateTo($"{LoginRoute}?returnUrl={Uri.EscapeDataString(Nav.Uri)}");
+        var returnUrl = Nav.ToBaseRelativePath(Nav.Uri);
+
+        Nav.NavigateTo(
+            $"{LoginRoute}?returnUrl={Uri.EscapeDataString("/" + returnUrl)}",
+            forceLoad: true);
     }
 }
