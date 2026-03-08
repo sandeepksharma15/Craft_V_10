@@ -22,10 +22,9 @@ public static class BlazorAuthExtensions
     {
         // Register the JwtCookie authentication handler as the default scheme so that
         // UseAuthentication / UseAuthorization and [Authorize] work at the middleware level.
-        services.AddAuthentication(JwtCookieAuthenticationHandler.SchemeName)
+        services.AddAuthentication(JwtCookieAuthenticationOptions.SchemeName)
             .AddScheme<JwtCookieAuthenticationOptions, JwtCookieAuthenticationHandler>(
-                JwtCookieAuthenticationHandler.SchemeName,
-                options => options.LoginPath = loginPath);
+                JwtCookieAuthenticationOptions.SchemeName, options => options.LoginPath = loginPath);
 
         services.AddAuthorizationCore();
 
