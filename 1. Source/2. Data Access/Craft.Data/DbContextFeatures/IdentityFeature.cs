@@ -6,7 +6,8 @@ namespace Craft.Data.DbContextFeatures;
 
 /// <summary>
 /// Feature that configures ASP.NET Core Identity with custom table naming conventions.
-/// Registers LoginHistory and RefreshToken DbSets and applies table name conventions.
+/// RefreshToken and LoginHistory are handled by their dedicated features
+/// (<see cref="RefreshTokensFeature"/> and <see cref="LoginHistoryFeature"/>).
 /// </summary>
 /// <typeparam name="TUser">The user entity type (must inherit from CraftUser).</typeparam>
 /// <typeparam name="TRole">The role entity type (must inherit from CraftRole).</typeparam>
@@ -47,25 +48,6 @@ public class IdentityFeature<TUser, TRole, TKey> : IDbContextFeature, IDbSetProv
         modelBuilder.Entity<IdentityUserLogin<TKey>>(b => b.ToTable($"{_tablePrefix}Logins"));
         modelBuilder.Entity<IdentityUserToken<TKey>>(b => b.ToTable($"{_tablePrefix}UserTokens"));
         modelBuilder.Entity<IdentityRoleClaim<TKey>>(b => b.ToTable($"{_tablePrefix}RoleClaims"));
-
-        // Configure LoginHistory
-        modelBuilder.Entity<LoginHistory<TKey>>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.ToTable($"{_tablePrefix}LoginHistory");
-            entity.HasIndex(e => e.UserId);
-            entity.HasIndex(e => e.LastLoginOn);
-        });
-
-        // Configure RefreshToken
-        modelBuilder.Entity<RefreshToken<TKey>>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.ToTable($"{_tablePrefix}RefreshTokens");
-            entity.HasIndex(e => e.UserId);
-            entity.HasIndex(e => e.Token);
-            entity.HasIndex(e => e.ExpiryTime);
-        });
     }
 }
 

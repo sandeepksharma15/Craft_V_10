@@ -2,6 +2,7 @@
 using Craft.QuerySpec.Extensions;
 using Craft.Security;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Craft.AppComponents.Security;
 
@@ -108,6 +109,32 @@ public static class ServiceCollectionExtensions
         // Forward the strongly-typed roles interface to the already-registered service
         services.AddTransient<IRolesHttpService<TRole, TRoleVM, TRoleDTO, KeyType>>(sp =>
             sp.GetRequiredService<RolesHttpService<TRole, TRoleVM, TRoleDTO, KeyType>>());
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the <see cref="IAuthHttpService{TUserVM}"/> HTTP service for the Blazor UI layer,
+    /// backed by <see cref="AuthHttpService{TUserVM}"/>.
+    /// The service communicates with the four standard <c>/api/auth</c> endpoints
+    /// (<c>login</c>, <c>refresh</c>, <c>logout</c>, <c>register</c>).
+    /// </summary>
+    /// <typeparam name="TUserVM">The view-model type used for user registration.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="httpClientFactory">Factory function to resolve the <see cref="HttpClient"/> from DI.</param>
+    /// <param name="baseAddress">The base address of the API (e.g., "https+http://api").</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAuthUI<TUserVM>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress)
+        where TUserVM : class
+    {
+        services.AddTransient<IAuthHttpService<TUserVM>>(sp =>
+        {
+            var apiUrl = new Uri(new Uri(baseAddress), "/api/auth");
+            var httpClient = httpClientFactory(sp);
+            var logger = sp.GetRequiredService<ILogger<AuthHttpService<TUserVM>>>();
+            return new AuthHttpService<TUserVM>(apiUrl, httpClient, logger);
+        });
 
         return services;
     }

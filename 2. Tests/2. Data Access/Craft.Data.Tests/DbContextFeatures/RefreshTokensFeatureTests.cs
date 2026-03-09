@@ -14,8 +14,6 @@ public class RefreshTokensFeatureTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<RefreshToken<KeyType>>(b => b.HasKey(rt => rt.Id));
-
             var feature = new RefreshTokensFeature();
             feature.ConfigureModel(modelBuilder);
         }
@@ -23,15 +21,13 @@ public class RefreshTokensFeatureTests
 
     private class TestDbContextFiltered : DbContext
     {
-        public DbSet<RefreshToken<KeyType>> RefreshTokens { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
         public TestDbContextFiltered(DbContextOptions<TestDbContextFiltered> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<RefreshToken<KeyType>>(b => b.HasKey(rt => rt.Id));
 
             var feature = new RefreshTokensFeature();
             feature.ConfigureModel(modelBuilder);
@@ -49,7 +45,7 @@ public class RefreshTokensFeatureTests
         using var context = new TestDbContext(options);
 
         // Act
-        var entity = context.Model.FindEntityType(typeof(RefreshToken<KeyType>));
+        var entity = context.Model.FindEntityType(typeof(RefreshToken));
 
         // Assert
         Assert.NotNull(entity);
@@ -67,12 +63,12 @@ public class RefreshTokensFeatureTests
         using var context = new TestDbContext(options);
 
         // Act
-        var entity = context.Model.FindEntityType(typeof(RefreshToken<KeyType>));
+        var entity = context.Model.FindEntityType(typeof(RefreshToken));
         var indexes = entity!.GetIndexes().ToList();
 
         // Assert
         Assert.Contains(indexes, i =>
-            i.Properties.Any(p => p.Name == nameof(RefreshToken<>.Token)) && i.IsUnique);
+            i.Properties.Any(p => p.Name == nameof(RefreshToken.Token)) && i.IsUnique);
     }
 
     [Fact]
@@ -86,12 +82,12 @@ public class RefreshTokensFeatureTests
         using var context = new TestDbContext(options);
 
         // Act
-        var entity = context.Model.FindEntityType(typeof(RefreshToken<KeyType>));
+        var entity = context.Model.FindEntityType(typeof(RefreshToken));
         var indexes = entity!.GetIndexes().ToList();
 
         // Assert
         Assert.Contains(indexes, i =>
-            i.Properties.Any(p => p.Name == nameof(RefreshToken<>.UserId)));
+            i.Properties.Any(p => p.Name == nameof(RefreshToken.UserId)));
     }
 
     [Fact]
@@ -104,8 +100,8 @@ public class RefreshTokensFeatureTests
 
         using var context = new TestDbContextFiltered(options);
 
-        var active = new RefreshToken<KeyType> { Id = 1, Token = "active", IsDeleted = false };
-        var deleted = new RefreshToken<KeyType> { Id = 2, Token = "deleted", IsDeleted = true };
+        var active = new RefreshToken { Id = 1, Token = "active", IsDeleted = false };
+        var deleted = new RefreshToken { Id = 2, Token = "deleted", IsDeleted = true };
 
         context.RefreshTokens.Add(active);
         context.RefreshTokens.Add(deleted);
@@ -120,10 +116,10 @@ public class RefreshTokensFeatureTests
     }
 
     [Fact]
-    public void DefaultFeature_Should_Derive_From_Generic_With_KeyType()
+    public void DefaultFeature_Should_Implement_IDbContextFeature()
     {
         // Assert
-        Assert.True(typeof(RefreshTokensFeature).IsAssignableTo(typeof(RefreshTokensFeature<KeyType>)));
+        Assert.True(typeof(RefreshTokensFeature).IsAssignableTo(typeof(IDbContextFeature)));
     }
 
     [Fact]

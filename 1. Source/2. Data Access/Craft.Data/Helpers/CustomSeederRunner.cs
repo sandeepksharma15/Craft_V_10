@@ -33,11 +33,11 @@ public class CustomSeederRunner(IServiceProvider serviceProvider, ILogger<Custom
 
         if (dbContext == null)
         {
-            logger.LogWarning(
-                "No DbContext found in service provider. Running seeders without transaction support. " +
+            logger.LogWarning("No DbContext found in service provider. Running seeders without transaction support. " +
                 "This may leave the database in an inconsistent state if a seeder fails.");
 
             await RunSeedersWithoutTransactionAsync(cancellationToken);
+
             return;
         }
 

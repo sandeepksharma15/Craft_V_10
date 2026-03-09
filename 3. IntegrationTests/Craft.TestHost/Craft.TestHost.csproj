@@ -4,6 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Suppress buggy MvcAnalyzer (ASP0023/ASP0026) that throws ArgumentException on SyntaxTree not part of compilation -->
+    <NoWarn>$(NoWarn);ASP0023;ASP0026</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

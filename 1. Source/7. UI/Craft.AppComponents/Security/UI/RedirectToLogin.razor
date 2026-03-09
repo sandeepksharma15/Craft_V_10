@@ -1,0 +1,33 @@
+@inject NavigationManager Nav
+
+@code {
+    /// <summary>
+    /// The route to the login page (e.g. "/login"). Defaults to "/login".
+    /// </summary>
+    [Parameter] public string LoginRoute { get; set; } = "/login";
+
+    private bool _redirected;
+
+    // Uses OnInitialized for the redirect because it reliably fires for both initial
+    // page load and subsequent SPA (NavLink) navigation within an established circuit.
+    // In .NET 10 interactive server mode (prerender: false), the RemoteNavigationManager
+    // queues the forceLoad navigation until the circuit handshake completes for the first
+    // load, and dispatches it immediately for SPA navigations.
+    //
+    // The previous OnAfterRender approach only worked for the initial load; during SPA
+    // navigation the synchronous OnAfterRender JS-interop dispatch was unreliable,
+    // leaving the user on a blank page.
+    protected override void OnInitialized()
+    {
+        if (_redirected)
+            return;
+
+        _redirected = true;
+
+        var returnUrl = Nav.ToBaseRelativePath(Nav.Uri);
+
+        Nav.NavigateTo(
+            $"{LoginRoute}?returnUrl={Uri.EscapeDataString("/" + returnUrl)}",
+            forceLoad: true);
+    }
+}

@@ -171,53 +171,6 @@ public class IdentityFeatureTests
     }
 
     [Fact]
-    public void ConfigureModel_Should_Configure_LoginHistory()
-    {
-        // Arrange
-        var prefix = "Test_";
-        var options = new DbContextOptionsBuilder<TestDbContextTest>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new TestDbContextTest(options);
-
-        // Act
-        var loginHistoryEntity = context.Model.FindEntityType(typeof(LoginHistory<KeyType>));
-
-        // Assert
-        Assert.NotNull(loginHistoryEntity);
-        Assert.Equal($"{prefix}LoginHistory", loginHistoryEntity.GetTableName());
-        
-        var indexes = loginHistoryEntity.GetIndexes().ToList();
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(LoginHistory<>.UserId)));
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(LoginHistory<>.LastLoginOn)));
-    }
-
-    [Fact]
-    public void ConfigureModel_Should_Configure_RefreshToken()
-    {
-        // Arrange
-        var prefix = "Test_";
-        var options = new DbContextOptionsBuilder<TestDbContextTest>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new TestDbContextTest(options);
-
-        // Act
-        var refreshTokenEntity = context.Model.FindEntityType(typeof(RefreshToken<KeyType>));
-
-        // Assert
-        Assert.NotNull(refreshTokenEntity);
-        Assert.Equal($"{prefix}RefreshTokens", refreshTokenEntity.GetTableName());
-        
-        var indexes = refreshTokenEntity.GetIndexes().ToList();
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<>.UserId)));
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<>.Token)));
-        Assert.Contains(indexes, i => i.Properties.Any(p => p.Name == nameof(RefreshToken<>.ExpiryTime)));
-    }
-
-    [Fact]
     public void Generic_IdentityFeature_Should_Work_With_Custom_Types()
     {
         // Arrange

@@ -34,5 +34,28 @@ public class LoginHistory<TKey> : ILoginHistory<TKey> where TKey : IEquatable<TK
 
 [DoNotAudit]
 [Table("ID_LoginHistory")]
-public class LoginHistory : LoginHistory<KeyType>, IEntity, IModel;
+public class LoginHistory : ILoginHistory<KeyType>, IEntity, IModel
+{
+    public LoginHistory() { }
+
+    public LoginHistory(string lastIpAddress, DateTime? lastLoginOn, KeyType userId)
+    {
+        LastIpAddress = lastIpAddress;
+        LastLoginOn = lastLoginOn;
+        UserId = userId;
+    }
+
+    public KeyType Id { get; set; } = default!;
+
+    public bool IsDeleted { get; set; }
+
+    public string? LastIpAddress { get; set; }
+
+    public DateTime? LastLoginOn { get; set; }
+
+    public string? Provider { get; set; }
+
+    [ForeignKey("UserId")]
+    public KeyType UserId { get; set; } = default!;
+}
 
