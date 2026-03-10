@@ -63,12 +63,8 @@ public abstract class AuthControllerBase<TUser, TKey> : ControllerBase
     /// <see cref="LoginHistory{TKey}"/> records.
     /// </param>
     /// <param name="logger">Logger for this controller.</param>
-    protected AuthControllerBase(
-        UserManager<TUser> userManager,
-        ITokenManager tokenManager,
-        ITokenBlacklist tokenBlacklist,
-        IDbContext dbContext,
-        ILogger<AuthControllerBase<TUser, TKey>> logger)
+    protected AuthControllerBase(UserManager<TUser> userManager, ITokenManager tokenManager,
+        ITokenBlacklist tokenBlacklist, IDbContext dbContext, ILogger<AuthControllerBase<TUser, TKey>> logger)
     {
         _userManager = userManager;
         _tokenManager = tokenManager;
@@ -90,8 +86,7 @@ public abstract class AuthControllerBase<TUser, TKey> : ControllerBase
     [HttpPost("login")]
     [ProducesResponseType(typeof(JwtAuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public virtual async Task<IActionResult> LoginAsync(
-        [FromBody] UserLoginRequest request,
+    public virtual async Task<IActionResult> LoginAsync([FromBody] UserLoginRequest request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -151,8 +146,7 @@ public abstract class AuthControllerBase<TUser, TKey> : ControllerBase
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(JwtAuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public virtual async Task<IActionResult> RefreshTokenAsync(
-        [FromBody] RefreshTokenRequest request,
+    public virtual async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -285,8 +279,7 @@ public abstract class AuthControllerBase<TUser, TKey> : ControllerBase
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(IEnumerable<IdentityError>), StatusCodes.Status400BadRequest)]
-    public virtual async Task<IActionResult> RegisterAsync(
-        [FromBody] UserRegistrationRequest<TUser> request,
+    public virtual async Task<IActionResult> RegisterAsync([FromBody] UserRegistrationRequest<TUser> request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);

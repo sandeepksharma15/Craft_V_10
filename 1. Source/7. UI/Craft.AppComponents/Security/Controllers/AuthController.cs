@@ -21,11 +21,7 @@ namespace Craft.AppComponents.Security;
 /// would produce a duplicate <c>api/auth</c> route and cause an MVC startup error).
 /// </remarks>
 [ApiController]
-public class AuthController<TUser>(
-    UserManager<TUser> userManager,
-    ITokenManager tokenManager,
-    ITokenBlacklist tokenBlacklist,
-    IDbContext dbContext,
-    ILogger<AuthControllerBase<TUser, KeyType>> logger)
+public class AuthController<TUser>(UserManager<TUser> userManager, ITokenManager tokenManager,
+    ITokenBlacklist tokenBlacklist, IDbContext dbContext, ILogger<AuthControllerBase<TUser, KeyType>> logger)
     : AuthControllerBase<TUser, KeyType>(userManager, tokenManager, tokenBlacklist, dbContext, logger)
     where TUser : CraftUser<KeyType>;
