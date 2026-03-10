@@ -1,8 +1,9 @@
-﻿using Craft.Security;
+﻿using Craft.Repositories;
+using Craft.Security;
 
 namespace Craft.AppComponents.Security;
 
-public interface IAuthRepository
+public interface IAuthRepository : IBaseRepository<RefreshToken, KeyType>
 {
     /// <summary>Authenticates a user by e-mail and password, returning a JWT token pair.</summary>
     Task<JwtAuthResponse?> LoginAsync(IUserLoginRequest request, CancellationToken cancellationToken = default);

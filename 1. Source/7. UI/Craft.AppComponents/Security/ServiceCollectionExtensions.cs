@@ -1,7 +1,9 @@
 ﻿using Craft.Domain;
 using Craft.QuerySpec.Extensions;
 using Craft.Security;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.AppComponents.Security;
@@ -27,8 +29,11 @@ public static class ServiceCollectionExtensions
     /// controllers on the same <c>api/auth</c> route and cause an MVC startup error.
     /// </remarks>
     public static IServiceCollection AddAuthApi<TUser>(this IServiceCollection services)
-        where TUser : CraftUser<KeyType>
+        where TUser : CraftUser<KeyType>, new()
     {
+        services.AddScoped<IAuthRepository, AuthRepository<TUser>>();
+        services.TryAddScoped<IEmailSender<TUser>, NoOpEmailSender<TUser>>();
+
         services.AddControllers()
             .ConfigureApplicationPartManager(apm =>
                 apm.FeatureProviders.Add(new AuthControllerFeatureProvider<TUser>()));
