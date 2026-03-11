@@ -19,13 +19,8 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     private readonly ITokenManager _tokenManager;
     private readonly IEmailSender<TUser> _emailSender;
 
-    public AuthRepository(
-        IDbContext dbContext,
-        ILoggerFactory loggerFactory,
-        UserManager<TUser> userManager,
-        SignInManager<TUser> signInManager,
-        ITokenManager tokenManager,
-        IEmailSender<TUser> emailSender)
+    public AuthRepository(IDbContext dbContext, ILoggerFactory loggerFactory, UserManager<TUser> userManager,
+        SignInManager<TUser> signInManager, ITokenManager tokenManager, IEmailSender<TUser> emailSender)
         : base(dbContext, loggerFactory.CreateLogger<BaseRepository<RefreshToken, KeyType>>())
     {
         _authLogger = loggerFactory.CreateLogger<AuthRepository<TUser>>();
@@ -63,6 +58,7 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
         var oldTokens = await _dbSet
             .Where(rt => rt.UserId == user.Id && !rt.IsDeleted)
             .ToListAsync(cancellationToken);
+
         oldTokens.ForEach(rt => rt.IsDeleted = true);
 
         _dbSet.Add(new RefreshToken(authResponse.RefreshToken, authResponse.RefreshTokenExpiryTime, user.Id));
@@ -102,8 +98,7 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
             return null;
         }
 
-        var stored = await _dbSet
-            .FirstOrDefaultAsync(rt => rt.UserId == userId
+        var stored = await _dbSet.FirstOrDefaultAsync(rt => rt.UserId == userId
                                        && rt.Token == request.RefreshToken
                                        && !rt.IsDeleted, cancellationToken);
 
