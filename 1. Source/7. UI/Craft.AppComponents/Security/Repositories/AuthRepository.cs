@@ -186,11 +186,8 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = await _userManager.FindByIdAsync(request.Id.ToString()!);
-
-        if (user is null)
-            throw new InvalidOperationException($"User {request.Id} not found.");
-
+        var user = await _userManager.FindByIdAsync(request.Id.ToString()!) 
+            ?? throw new InvalidOperationException($"User {request.Id} not found.");
         var result = await _userManager.ChangePasswordAsync(user, request.Password!, request.NewPassword!);
 
         if (!result.Succeeded)
@@ -230,11 +227,8 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = await _userManager.FindByEmailAsync(request.Email!);
-
-        if (user is null)
-            throw new InvalidOperationException($"User with email {request.Email} not found.");
-
+        var user = await _userManager.FindByEmailAsync(request.Email!) 
+            ?? throw new InvalidOperationException($"User with email {request.Email} not found.");
         var result = await _userManager.ResetPasswordAsync(user, request.Token!, request.Password!);
 
         if (!result.Succeeded)

@@ -66,7 +66,7 @@ public class JwtCookieAuthenticationHandlerTests
         var context = new DefaultHttpContext();
 
         if (cookieValue is not null)
-            context.Request.Headers["Cookie"] = $"{opts.CookieName}={cookieValue}";
+            context.Request.Headers.Cookie = $"{opts.CookieName}={cookieValue}";
 
         var scheme = new AuthenticationScheme(
             JwtCookieAuthenticationOptions.SchemeName,
