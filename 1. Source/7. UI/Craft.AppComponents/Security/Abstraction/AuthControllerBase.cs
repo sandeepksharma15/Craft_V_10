@@ -146,7 +146,7 @@ public abstract class AuthControllerBase : ControllerBase
 
         _logger.LogInformation("[AuthController] New user registered: {Email} (Id={UserId})", request.Email, userId);
 
-        return CreatedAtAction(nameof(RegisterUserAsync), new { id = userId }, null);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
     /// <summary>

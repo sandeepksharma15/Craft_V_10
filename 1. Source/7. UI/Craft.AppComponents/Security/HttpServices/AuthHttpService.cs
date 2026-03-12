@@ -78,6 +78,51 @@ public class AuthHttpService<TUserVM>(Uri apiURL, HttpClient httpClient, ILogger
         return ToNonGeneric(result);
     }
 
+    /// <inheritdoc />
+    public async Task<ServiceResult> ChangePasswordAsync(PasswordChangeRequest model, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("[AuthHttpService] Method: [\"ChangePasswordAsync\"]");
+
+        var result = await SendAndParseNoContentAsync(
+            token => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/change-password"), model, cancellationToken: token),
+            ct).ConfigureAwait(false);
+
+        return ToNonGeneric(result);
+    }
+
+    /// <inheritdoc />
+    public async Task<ServiceResult> ForgotPasswordAsync(PasswordForgotRequest model, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("[AuthHttpService] Method: [\"ForgotPasswordAsync\"]");
+
+        var result = await SendAndParseNoContentAsync(
+            token => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/forgot-password"), model, cancellationToken: token),
+            ct).ConfigureAwait(false);
+
+        return ToNonGeneric(result);
+    }
+
+    /// <inheritdoc />
+    public async Task<ServiceResult> ResetPasswordAsync(ResetPasswordRequest model, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("[AuthHttpService] Method: [\"ResetPasswordAsync\"]");
+
+        var result = await SendAndParseNoContentAsync(
+            token => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/reset-password"), model, cancellationToken: token),
+            ct).ConfigureAwait(false);
+
+        return ToNonGeneric(result);
+    }
+
     /// <summary>
     /// Converts a nullable <see cref="ServiceResult{T}"/> to a non-nullable variant,
     /// returning a failure if the response body was empty.
