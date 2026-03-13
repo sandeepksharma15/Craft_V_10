@@ -137,16 +137,24 @@ public abstract class AuthControllerBase : ControllerBase
     [AllowAnonymous]
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(List<string>), StatusCodes.Status400BadRequest)]
     public virtual async Task<IActionResult> RegisterUserAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = await _authRepository.RegisterUserAsync(request, cancellationToken);
+        try
+        {
+            var userId = await _authRepository.RegisterUserAsync(request, cancellationToken);
 
-        _logger.LogInformation("[AuthController] New user registered: {Email} (Id={UserId})", request.Email, userId);
+            _logger.LogInformation("[AuthController] New user registered: {Email} (Id={UserId})", request.Email, userId);
 
-        return StatusCode(StatusCodes.Status201Created);
+            return StatusCode(StatusCodes.Status201Created);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("[AuthController] Registration rejected for {Email}: {Message}", request.Email, ex.Message);
+            return BadRequest(new List<string> { ex.Message });
+        }
     }
 
     /// <summary>

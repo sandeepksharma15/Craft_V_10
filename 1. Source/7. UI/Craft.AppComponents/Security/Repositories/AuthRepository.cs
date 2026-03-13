@@ -153,6 +153,14 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        var existing = await _userManager.FindByEmailAsync(request.Email!);
+
+        if (existing is not null)
+        {
+            _authLogger.LogWarning("[AuthRepository] Registration rejected: email already in use {Email}", request.Email);
+            throw new InvalidOperationException("An account with this email address already exists.");
+        }
+
         var user = new TUser
         {
             UserName = request.Email,
@@ -162,7 +170,20 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
             IsActive = true
         };
 
-        var result = await _userManager.CreateAsync(user, request.Password!);
+        IdentityResult result;
+
+        try
+        {
+            result = await _userManager.CreateAsync(user, request.Password!);
+        }
+        catch (DbUpdateException ex)
+        {
+            _authLogger.LogError(ex, "[AuthRepository] Database error during registration for {Email}", request.Email);
+
+            throw new InvalidOperationException(IsUniqueConstraintViolation(ex)
+                ? "An account with this email address already exists."
+                : "Registration failed due to a database error. Please try again.");
+        }
 
         if (!result.Succeeded)
         {
@@ -249,5 +270,30 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         return claims;
+    }
+
+    /// <summary>
+    /// Detects unique-constraint violations from a <see cref="DbUpdateException"/> without
+    /// taking a hard dependency on any specific database provider package.
+    /// Covers PostgreSQL (SQLSTATE 23505), SQL Server (errors 2601 / 2627), and SQLite.
+    /// </summary>
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        var inner = ex.InnerException;
+        if (inner is null) return false;
+
+        // PostgreSQL: SqlState property == "23505" (unique_violation)
+        var sqlState = inner.GetType().GetProperty("SqlState")?.GetValue(inner) as string;
+        if (sqlState == "23505") return true;
+
+        // SQL Server: Number property 2601 (duplicate index) or 2627 (primary key constraint)
+        var sqlNumber = inner.GetType().GetProperty("Number")?.GetValue(inner) as int?;
+        if (sqlNumber is 2601 or 2627) return true;
+
+        // Generic fallback for SQLite and other providers
+        var message = inner.Message;
+        return message.Contains("23505", StringComparison.Ordinal)
+            || message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("UNIQUE constraint", StringComparison.OrdinalIgnoreCase);
     }
 }
