@@ -47,6 +47,17 @@ public class JwtCookieAuthStateProviderTests
         return new JwtCookieAuthStateProvider(accessorMock.Object);
     }
 
+    private static JwtCookieAuthStateProvider BuildProvider(ClaimsPrincipal user)
+    {
+        var httpContextMock = new Mock<HttpContext>();
+        httpContextMock.Setup(c => c.User).Returns(user);
+
+        var accessorMock = new Mock<IHttpContextAccessor>();
+        accessorMock.Setup(a => a.HttpContext).Returns(httpContextMock.Object);
+
+        return new JwtCookieAuthStateProvider(accessorMock.Object);
+    }
+
     // -----------------------------------------------------------------------
     // GetAuthenticationStateAsync
     // -----------------------------------------------------------------------
@@ -81,17 +92,34 @@ public class JwtCookieAuthStateProviderTests
     public async Task GetAuthenticationStateAsync_Should_ReturnAuthenticated_WhenValidTokenPresent()
     {
         // Arrange
-        var claims = new[] { new Claim("sub", "user-42"), new Claim("name", "Test User") };
-        var provider = BuildProvider(CreateToken(claims));
+        var user = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim("sub", "user-42"), new Claim("name", "Test User")],
+                JwtBearerDefaults.AuthenticationScheme));
+        var provider = BuildProvider(user);
 
         // Act
         var result = await provider.GetAuthenticationStateAsync();
 
         // Assert
         Assert.True(result.User.Identity?.IsAuthenticated);
+    }
+
+    [Fact]
+    public async Task GetAuthenticationStateAsync_Should_SetJwtBearerAuthenticationType_WhenValidTokenPresent()
+    {
+        // Arrange
+        var user = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim("sub", "user-42")],
+                JwtBearerDefaults.AuthenticationScheme));
+        var provider = BuildProvider(user);
+
+        // Act
+        var result = await provider.GetAuthenticationStateAsync();
+
+        // Assert
         Assert.Equal(JwtBearerDefaults.AuthenticationScheme, result.User.Identity?.AuthenticationType);
-        Assert.Equal("user-42", result.User.FindFirst("sub")?.Value);
-        Assert.Equal("Test User", result.User.FindFirst("name")?.Value);
     }
 
     [Fact]
@@ -136,8 +164,11 @@ public class JwtCookieAuthStateProviderTests
         Assert.False(result.User.Identity?.IsAuthenticated);
     }
 
-    [Fact]
-    public async Task GetAuthenticationStateAsync_Should_IncludeAllClaimsFromToken()
+    [Theory]
+    [InlineData("sub", "99")]
+    [InlineData("email", "user@example.com")]
+    [InlineData("role", "Admin")]
+    public async Task GetAuthenticationStateAsync_Should_IncludeClaimFromToken(string claimType, string expectedValue)
     {
         // Arrange
         var claims = new[]
@@ -146,15 +177,14 @@ public class JwtCookieAuthStateProviderTests
             new Claim("email", "user@example.com"),
             new Claim("role", "Admin")
         };
-        var provider = BuildProvider(CreateToken(claims));
+        var user = new ClaimsPrincipal(new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme));
+        var provider = BuildProvider(user);
 
         // Act
         var result = await provider.GetAuthenticationStateAsync();
 
         // Assert
-        Assert.Equal("99", result.User.FindFirst("sub")?.Value);
-        Assert.Equal("user@example.com", result.User.FindFirst("email")?.Value);
-        Assert.Equal("Admin", result.User.FindFirst("role")?.Value);
+        Assert.Equal(expectedValue, result.User.FindFirst(claimType)?.Value);
     }
 
     // -----------------------------------------------------------------------

@@ -153,7 +153,8 @@ public class AuthControllerBaseTests
         var result = await _controller.RegisterUserAsync(request);
 
         // Assert
-        Assert.IsType<CreatedAtActionResult>(result);
+        var statusResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status201Created, statusResult.StatusCode);
     }
 
     [Fact]
