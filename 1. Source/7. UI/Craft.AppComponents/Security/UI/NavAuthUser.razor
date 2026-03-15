@@ -1,0 +1,27 @@
+@using System.Security.Claims
+@using Craft.Security
+@using MudBlazor
+
+@namespace Craft.AppComponents.Security
+
+@typeparam TUser where TUser : class
+
+@if (_isAuthenticated)
+{
+    <MudNavGroup Title="@_displayName"
+                 Icon="@UserGroupIcon"
+                 Expanded="false">
+        <MudNavLink Icon="@LogoutIcon" OnClick="HandleLogoutAsync" Disabled="@_isProcessing">
+            @if (_isProcessing)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Logout
+        </MudNavLink>
+    </MudNavGroup>
+}
+else
+{
+    <MudNavLink Href="@LoginHref" Icon="@LoginIcon">Login</MudNavLink>
+    <MudNavLink Href="@RegisterHref" Icon="@RegisterIcon">Register</MudNavLink>
+}
