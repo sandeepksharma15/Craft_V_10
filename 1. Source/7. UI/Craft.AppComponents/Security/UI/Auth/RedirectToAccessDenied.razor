@@ -1,0 +1,25 @@
+@namespace Craft.AppComponents.Security
+
+@inject NavigationManager Nav
+
+@code {
+    /// <summary>
+    /// The route to the access-denied page. Defaults to <c>"/access-denied"</c>.
+    /// </summary>
+    [Parameter] public string AccessDeniedRoute { get; set; } = "/access-denied";
+
+    private bool _redirected;
+
+    // Mirrors RedirectToLogin: OnInitialized fires reliably for both initial page load
+    // and SPA navigation within an established circuit, avoiding the blank-page issue
+    // that the OnAfterRender approach exhibited during SPA nav in .NET 10.
+    protected override void OnInitialized()
+    {
+        if (_redirected)
+            return;
+
+        _redirected = true;
+
+        Nav.NavigateTo(AccessDeniedRoute, forceLoad: true);
+    }
+}
