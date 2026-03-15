@@ -1,0 +1,71 @@
+@using Craft.Security
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+@namespace Craft.AppComponents.Security
+
+@typeparam TUser where TUser : class, ICreateUserRequest, new()
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="min-height: 80vh;">
+    <MudCard Class="mx-auto" Style="width: 100%; max-width: 480px;" Elevation="4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4" Align="Align.Center">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <EditForm Model="@_model" OnValidSubmit="HandleRegisterAsync">
+                <DataAnnotationsValidator />
+
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_model.FirstName" Label="First Name" For="@(() => _model.FirstName)"
+                                      Variant="Variant.Outlined" Immediate="true" />
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_model.LastName" Label="Last Name" For="@(() => _model.LastName)"
+                                      Variant="Variant.Outlined" Immediate="true" />
+                    </MudItem>
+                </MudGrid>
+
+                <MudTextField @bind-Value="_model.Email" Label="Email" InputType="InputType.Email" For="@(() => _model.Email)"
+                              Variant="Variant.Outlined" Class="mt-3" Immediate="true" />
+
+                <MudTextField @bind-Value="_model.Password" Label="Password" InputType="@_passwordInputType" For="@(() => _model.Password)"
+                              Variant="Variant.Outlined" Class="mt-3" Immediate="true" Adornment="Adornment.End" AdornmentIcon="@_passwordIcon"
+                              OnAdornmentClick="TogglePasswordVisibility" />
+
+                <MudTextField @bind-Value="_model.ConfirmPassword" Label="Confirm Password" InputType="InputType.Password" For="@(() => _model.ConfirmPassword)"
+                              Variant="Variant.Outlined" Class="mt-3" Immediate="true" />
+
+                @if (AdditionalFields is not null)
+                {
+                    @AdditionalFields
+                }
+
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                           Disabled="@_isProcessing" Class="mt-4 mb-3">
+
+                    @if (_isProcessing)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        <span>Creating account…</span>
+                    }
+                    else
+                    {
+                        <span>Register</span>
+                    }
+                </MudButton>
+            </EditForm>
+
+            <MudDivider Class="my-3" />
+
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Already have an account?
+                <MudLink Href="@LoginHref">Sign In</MudLink>
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
