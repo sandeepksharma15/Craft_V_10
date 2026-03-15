@@ -58,7 +58,7 @@ public abstract class AuthControllerBase : ControllerBase
         if (response is null)
         {
             _logger.LogWarning("[AuthController] Login attempt failed for {Email}", request.Email);
-            return Unauthorized();
+            return Unauthorized(new List<string> { "Invalid email or password." });
         }
 
         _logger.LogInformation("[AuthController] User authenticated successfully: {Email}", request.Email);
@@ -90,7 +90,7 @@ public abstract class AuthControllerBase : ControllerBase
         if (response is null)
         {
             _logger.LogWarning("[AuthController] Token refresh failed");
-            return Unauthorized();
+            return Unauthorized(new List<string> { "Session expired. Please sign in again." });
         }
 
         _logger.LogInformation("[AuthController] Tokens refreshed successfully");
@@ -176,11 +176,19 @@ public abstract class AuthControllerBase : ControllerBase
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        await _authRepository.ChangePasswordAsync(request, cancellationToken);
+        try
+        {
+            await _authRepository.ChangePasswordAsync(request, cancellationToken);
 
-        _logger.LogInformation("[AuthController] Password changed for user {UserId}", request.Id);
+            _logger.LogInformation("[AuthController] Password changed for user {UserId}", request.Id);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("[AuthController] Password change rejected for user {UserId}: {Message}", request.Id, ex.Message);
+            return BadRequest(new List<string> { "Password change failed. Please check your input and try again." });
+        }
     }
 
     /// <summary>
@@ -198,9 +206,17 @@ public abstract class AuthControllerBase : ControllerBase
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        await _authRepository.ForgotPasswordAsync(request, cancellationToken);
+        try
+        {
+            await _authRepository.ForgotPasswordAsync(request, cancellationToken);
 
-        _logger.LogInformation("[AuthController] Password reset e-mail dispatched for {Email}", request.Email);
+            _logger.LogInformation("[AuthController] Password reset e-mail dispatched for {Email}", request.Email);
+        }
+        catch (Exception ex)
+        {
+            // Never reveal whether the e-mail exists or whether sending failed.
+            _logger.LogError(ex, "[AuthController] Forgot-password failed silently for {Email}", request.Email);
+        }
 
         return NoContent();
     }
@@ -224,10 +240,18 @@ public abstract class AuthControllerBase : ControllerBase
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        await _authRepository.ResetPasswordAsync(request, cancellationToken);
+        try
+        {
+            await _authRepository.ResetPasswordAsync(request, cancellationToken);
 
-        _logger.LogInformation("[AuthController] Password reset successfully for {Email}", request.Email);
+            _logger.LogInformation("[AuthController] Password reset successfully for {Email}", request.Email);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("[AuthController] Password reset rejected for {Email}: {Message}", request.Email, ex.Message);
+            return BadRequest(new List<string> { "Password reset failed. Please check your input and try again." });
+        }
     }
 }

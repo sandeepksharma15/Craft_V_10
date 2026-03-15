@@ -18,24 +18,12 @@
             <EditForm Model="@_model" OnValidSubmit="HandleLoginAsync">
                 <DataAnnotationsValidator />
 
-                <MudTextField @bind-Value="_model.Email"
-                              Label="Email"
-                              InputType="InputType.Email"
-                              For="@(() => _model.Email)"
-                              Variant="Variant.Outlined"
-                              Class="mb-3"
-                              Immediate="true" />
+                <MudTextField @bind-Value="_model.Email" Label="Email" InputType="InputType.Email" For="@(() => _model.Email)"
+                              Variant="Variant.Outlined" Class="mb-3" Immediate="true" />
 
-                <MudTextField @bind-Value="_model.Password"
-                              Label="Password"
-                              InputType="@_passwordInputType"
-                              For="@(() => _model.Password)"
-                              Variant="Variant.Outlined"
-                              Class="mb-3"
-                              Immediate="true"
-                              Adornment="Adornment.End"
-                              AdornmentIcon="@_passwordIcon"
-                              OnAdornmentClick="TogglePasswordVisibility" />
+                <MudTextField @bind-Value="_model.Password" Label="Password" InputType="@_passwordInputType" For="@(() => _model.Password)"
+                              Variant="Variant.Outlined" Class="mb-3" Immediate="true" Adornment="Adornment.End"
+                              AdornmentIcon="@_passwordIcon" OnAdornmentClick="TogglePasswordVisibility" />
 
                 @if (!string.IsNullOrWhiteSpace(ForgotPasswordHref))
                 {
@@ -46,10 +34,7 @@
 
                 @if (ShowRememberMe)
                 {
-                    <MudCheckBox @bind-Value="_model.RememberMe"
-                                 Label="Remember me"
-                                 Color="Color.Primary"
-                                 Class="mb-3" />
+                    <MudCheckBox @bind-Value="_model.RememberMe" Label="Remember me" Color="Color.Primary" Class="mb-3" />
                 }
 
                 @if (AdditionalFields is not null)
@@ -57,12 +42,8 @@
                     @AdditionalFields
                 }
 
-                <MudButton ButtonType="ButtonType.Submit"
-                           Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           FullWidth="true"
-                           Disabled="@_isProcessing"
-                           Class="mb-3">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                           Disabled="@_isProcessing" Class="mb-3">
                     @if (_isProcessing)
                     {
                         <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />

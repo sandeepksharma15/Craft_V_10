@@ -61,7 +61,9 @@ public class AuthControllerBaseTests
         var result = await _controller.LoginAsync(request);
 
         // Assert
-        Assert.IsType<UnauthorizedResult>(result);
+        var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+        var errors = Assert.IsType<List<string>>(unauthorized.Value);
+        Assert.Contains("Invalid email or password.", errors);
     }
 
     [Fact]
@@ -100,7 +102,9 @@ public class AuthControllerBaseTests
         var result = await _controller.RefreshTokenAsync(request);
 
         // Assert
-        Assert.IsType<UnauthorizedResult>(result);
+        var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+        var errors = Assert.IsType<List<string>>(unauthorized.Value);
+        Assert.Contains("Session expired. Please sign in again.", errors);
     }
 
     [Fact]
@@ -182,6 +186,23 @@ public class AuthControllerBaseTests
         await Assert.ThrowsAsync<ArgumentNullException>(() => _controller.ChangePasswordAsync(null!));
     }
 
+    [Fact]
+    public async Task ChangePasswordAsync_ReturnsBadRequest_WhenRepositoryThrows()
+    {
+        // Arrange
+        var request = new PasswordChangeRequest { Id = 1, Password = "wrong", NewPassword = "new" };
+        _repoMock.Setup(r => r.ChangePasswordAsync(request, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Password change failed: incorrect current password."));
+
+        // Act
+        var result = await _controller.ChangePasswordAsync(request);
+
+        // Assert
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        var errors = Assert.IsType<List<string>>(badRequest.Value);
+        Assert.Contains("Password change failed. Please check your input and try again.", errors);
+    }
+
     // ── ForgotPasswordAsync ──────────────────────────────────────────────────────
 
     [Fact]
@@ -205,6 +226,21 @@ public class AuthControllerBaseTests
         await Assert.ThrowsAsync<ArgumentNullException>(() => _controller.ForgotPasswordAsync(null!));
     }
 
+    [Fact]
+    public async Task ForgotPasswordAsync_ReturnsNoContent_WhenSenderThrows()
+    {
+        // Arrange — simulates SMTP failure; response must still be 204 to avoid e-mail enumeration.
+        var request = new PasswordForgotRequest { Email = "user@example.com", ClientURI = "https://app/reset" };
+        _repoMock.Setup(r => r.ForgotPasswordAsync(request, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("SMTP unavailable."));
+
+        // Act
+        var result = await _controller.ForgotPasswordAsync(request);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+    }
+
     // ── ResetPasswordAsync ───────────────────────────────────────────────────────
 
     [Fact]
@@ -226,5 +262,22 @@ public class AuthControllerBaseTests
     {
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => _controller.ResetPasswordAsync(null!));
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_ReturnsBadRequest_WhenRepositoryThrows()
+    {
+        // Arrange
+        var request = new ResetPasswordRequest { Email = "user@example.com", Token = "expired-token", Password = "newP@ss" };
+        _repoMock.Setup(r => r.ResetPasswordAsync(request, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Password reset failed: token has expired."));
+
+        // Act
+        var result = await _controller.ResetPasswordAsync(request);
+
+        // Assert
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        var errors = Assert.IsType<List<string>>(badRequest.Value);
+        Assert.Contains("Password reset failed. Please check your input and try again.", errors);
     }
 }
