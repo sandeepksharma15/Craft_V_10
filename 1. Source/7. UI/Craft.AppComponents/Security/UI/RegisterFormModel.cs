@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Craft.Security;
 
 namespace Craft.AppComponents.Security;
 
@@ -7,7 +8,7 @@ namespace Craft.AppComponents.Security;
 /// Includes a <see cref="ConfirmPassword"/> field for in-browser validation that
 /// is never sent to the server.
 /// </summary>
-public sealed class RegisterFormModel
+public sealed class RegisterFormModel : ICreateUserRequest
 {
     /// <summary>Gets or sets the user's first name.</summary>
     [StringLength(50, ErrorMessage = "First Name cannot exceed 50 characters.")]
