@@ -1,0 +1,86 @@
+@using Craft.Security
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+@namespace Craft.AppComponents.Security
+
+@typeparam TUser where TUser : class
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="min-height: 80vh;">
+    <MudCard Class="mx-auto" Style="width: 100%; max-width: 440px;" Elevation="4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4" Align="Align.Center">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <EditForm Model="@_model" OnValidSubmit="HandleLoginAsync">
+                <DataAnnotationsValidator />
+
+                <MudTextField @bind-Value="_model.Email"
+                              Label="Email"
+                              InputType="InputType.Email"
+                              For="@(() => _model.Email)"
+                              Variant="Variant.Outlined"
+                              Class="mb-3"
+                              Immediate="true" />
+
+                <MudTextField @bind-Value="_model.Password"
+                              Label="Password"
+                              InputType="@_passwordInputType"
+                              For="@(() => _model.Password)"
+                              Variant="Variant.Outlined"
+                              Class="mb-3"
+                              Immediate="true"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@_passwordIcon"
+                              OnAdornmentClick="TogglePasswordVisibility" />
+
+                @if (!string.IsNullOrWhiteSpace(ForgotPasswordHref))
+                {
+                    <MudText Typo="Typo.body2" Align="Align.Right" Class="mb-3">
+                        <MudLink Href="@ForgotPasswordHref">Forgot password?</MudLink>
+                    </MudText>
+                }
+
+                @if (ShowRememberMe)
+                {
+                    <MudCheckBox @bind-Value="_model.RememberMe"
+                                 Label="Remember me"
+                                 Color="Color.Primary"
+                                 Class="mb-3" />
+                }
+
+                @if (AdditionalFields is not null)
+                {
+                    @AdditionalFields
+                }
+
+                <MudButton ButtonType="ButtonType.Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           Disabled="@_isProcessing"
+                           Class="mb-3">
+                    @if (_isProcessing)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        <span>Signing in…</span>
+                    }
+                    else
+                    {
+                        <span>Sign In</span>
+                    }
+                </MudButton>
+            </EditForm>
+
+            <MudDivider Class="my-3" />
+
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Don't have an account?
+                <MudLink Href="@RegisterHref">Register</MudLink>
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
