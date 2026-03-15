@@ -25,10 +25,9 @@ public class AuthControllerBaseTests
         // Arrange: shared setup
         _repoMock = new Mock<IAuthRepository>();
         _loggerMock = new Mock<ILogger<AuthControllerBase>>();
-        _controller = new TestAuthController(_repoMock.Object, _loggerMock.Object);
-        _controller.ControllerContext = new ControllerContext
+        _controller = new TestAuthController(_repoMock.Object, _loggerMock.Object)
         {
-            HttpContext = new DefaultHttpContext()
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
     }
 

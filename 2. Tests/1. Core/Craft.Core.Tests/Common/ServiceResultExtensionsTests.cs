@@ -1,5 +1,3 @@
-using Craft.Core;
-
 namespace Craft.Core.Tests.Common;
 
 public class ServiceResultExtensionsTests
