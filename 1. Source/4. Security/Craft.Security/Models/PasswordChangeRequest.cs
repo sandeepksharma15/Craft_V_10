@@ -18,7 +18,7 @@ public class PasswordChangeRequest<TKey> : IPasswordChangeRequest<TKey>
     [DataType(DataType.Password)]
     public string? Password { get; set; } = default!;
 
-    [Required]
+    // Token is used by the reset-password flow only; not required for change-password.
     public string? Token { get; set; }
 }
 

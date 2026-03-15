@@ -1,5 +1,6 @@
 @using System.Security.Claims
 @using Craft.Security
+@using Craft.UiBuilders.Generic
 @using MudBlazor
 
 @namespace Craft.AppComponents.Security
@@ -8,14 +9,13 @@
 
 @if (_isAuthenticated)
 {
-    <MudNavGroup Title="@_displayName"
-                 Icon="@UserGroupIcon"
-                 Expanded="false">
+    <MudNavGroup Title="@_displayName" Icon="@UserGroupIcon" Expanded="false">
+        @if (!string.IsNullOrWhiteSpace(ChangePasswordHref))
+        {
+            <MudNavLink Href="@ChangePasswordHref" Icon="@ChangePasswordIcon">Change Password</MudNavLink>
+        }
         <MudNavLink Icon="@LogoutIcon" OnClick="HandleLogoutAsync" Disabled="@_isProcessing">
-            @if (_isProcessing)
-            {
-                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-            }
+            <Spinner Visible="@_isProcessing" />
             Logout
         </MudNavLink>
     </MudNavGroup>

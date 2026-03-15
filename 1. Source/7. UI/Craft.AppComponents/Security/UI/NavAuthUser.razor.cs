@@ -58,6 +58,15 @@ public partial class NavAuthUser<TUser> : ComponentBase, IDisposable
     [Parameter] public string LogoutIcon { get; set; } = Icons.Material.Filled.Logout;
 
     /// <summary>
+    /// When set, a "Change Password" nav link is rendered above Logout in the authenticated group.
+    /// Leave <see langword="null"/> to hide the link.
+    /// </summary>
+    [Parameter] public string? ChangePasswordHref { get; set; }
+
+    /// <summary>Icon for the Change Password nav link. Defaults to <see cref="Icons.Material.Filled.Lock"/>.</summary>
+    [Parameter] public string ChangePasswordIcon { get; set; } = Icons.Material.Filled.Lock;
+
+    /// <summary>
     /// Icon for the authenticated user nav group.
     /// Defaults to <see cref="Icons.Material.Filled.AccountCircle"/>.
     /// </summary>
