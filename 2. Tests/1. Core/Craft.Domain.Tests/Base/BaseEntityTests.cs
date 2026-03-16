@@ -310,5 +310,9 @@ public class BaseEntityTests
     private class MockTenantEntity(long id, long tenantId) : BaseEntity(id), IHasTenant
     {
         public KeyType TenantId { get; set; } = tenantId;
+
+        protected override bool AdditionalEqualityCheck(BaseEntity<KeyType> other)
+            => other is IHasTenant otherTenant
+               && EqualityComparer<KeyType>.Default.Equals(TenantId, otherTenant.TenantId);
     }
 }
