@@ -1,4 +1,4 @@
-namespace Craft.Core.Tests.DependencyInjection;
+namespace Craft.Core.Tests.Abstractions;
 
 public class DependencyInjectionMarkerTests
 {
