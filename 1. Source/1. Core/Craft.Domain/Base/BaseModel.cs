@@ -18,7 +18,7 @@
 /// </para>
 /// </remarks>
 [Serializable]
-public abstract class BaseModel : BaseModel<KeyType>, IDataTransferObject;
+public abstract record BaseModel : BaseModel<KeyType>, IDataTransferObject;
 
 /// <summary>
 /// Abstract base class for data transfer models with a strongly-typed identifier.
@@ -38,7 +38,7 @@ public abstract class BaseModel : BaseModel<KeyType>, IDataTransferObject;
 /// </para>
 /// </remarks>
 [Serializable]
-public abstract class BaseModel<TKey> : IDataTransferObject<TKey>
+public abstract record BaseModel<TKey> : IDataTransferObject<TKey>
 {
     /// <summary>
     /// Gets or sets the model identifier.

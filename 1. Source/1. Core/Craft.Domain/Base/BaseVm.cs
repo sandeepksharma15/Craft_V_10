@@ -5,7 +5,7 @@
 /// </summary>
 /// <inheritdoc cref="BaseVm{TKey}"/>
 [Serializable]
-public abstract class BaseVm : BaseVm<KeyType>, IDataTransferObject;
+public abstract record BaseVm : BaseVm<KeyType>, IDataTransferObject;
 
 /// <summary>
 /// Abstract base class for View Models (VMs) with a strongly-typed identifier.
@@ -60,7 +60,7 @@ public abstract class BaseVm : BaseVm<KeyType>, IDataTransferObject;
 /// </code>
 /// </example>
 [Serializable]
-public abstract class BaseVm<TKey> : IDataTransferObject<TKey>
+public abstract record BaseVm<TKey> : IDataTransferObject<TKey>
 {
     /// <summary>
     /// Gets or sets the view model identifier.

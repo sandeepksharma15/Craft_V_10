@@ -1,6 +1,4 @@
-﻿using Moq;
-
-namespace Craft.Domain.Tests.Base;
+﻿namespace Craft.Domain.Tests.Base;
 
 public class BaseModelTests
 {
@@ -9,13 +7,10 @@ public class BaseModelTests
     {
         // Arrange
         const string testConcurrencyStamp = "test-concurrency-stamp";
-        var dto = new Mock<BaseModel>();
+        var dto = new TestDto { ConcurrencyStamp = testConcurrencyStamp };
 
-        //Act
-        dto.SetupProperty(x => x.ConcurrencyStamp, testConcurrencyStamp);
-
-        //Assert
-        Assert.Equal(testConcurrencyStamp, dto.Object.ConcurrencyStamp);
+        // Assert
+        Assert.Equal(testConcurrencyStamp, dto.ConcurrencyStamp);
     }
 
     [Fact]
@@ -23,13 +18,10 @@ public class BaseModelTests
     {
         // Arrange
         const int testId = 1;
-        var dto = new Mock<BaseModel>();
+        var dto = new TestDto { Id = testId };
 
-        //Act
-        dto.SetupProperty(x => x.Id, testId);
-
-        //Assert
-        Assert.Equal(testId, dto.Object.Id);
+        // Assert
+        Assert.Equal(testId, dto.Id);
     }
 
     [Fact]
@@ -37,13 +29,10 @@ public class BaseModelTests
     {
         // Arrange
         const bool isDeleted = true;
-        var dto = new Mock<BaseModel>();
+        var dto = new TestDto { IsDeleted = isDeleted };
 
-        //Act
-        dto.SetupProperty(x => x.IsDeleted, isDeleted);
-
-        //Assert
-        Assert.Equal(isDeleted, dto.Object.IsDeleted);
+        // Assert
+        Assert.Equal(isDeleted, dto.IsDeleted);
     }
 
     [Fact]
@@ -130,6 +119,6 @@ public class BaseModelTests
         Assert.Equal(expectedIsDeleted, isDeleted);
     }
 
-    // TestDto class for testing the abstract BaseDto
-    public class TestDto : BaseModel;
+    // TestDto record for testing the abstract BaseModel
+    public record TestDto : BaseModel;
 }

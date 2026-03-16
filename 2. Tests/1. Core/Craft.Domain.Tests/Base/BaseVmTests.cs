@@ -1,6 +1,4 @@
-﻿using Moq;
-
-namespace Craft.Domain.Tests.Base;
+﻿namespace Craft.Domain.Tests.Base;
 
 public class BaseVmTests
 {
@@ -9,13 +7,10 @@ public class BaseVmTests
     {
         // Arrange
         const string testConcurrencyStamp = "test-concurrency-stamp";
-        var Vm = new Mock<BaseVm>();
+        var vm = new TestVm { ConcurrencyStamp = testConcurrencyStamp };
 
-        //Act
-        Vm.SetupProperty(x => x.ConcurrencyStamp, testConcurrencyStamp);
-
-        //Assert
-        Assert.Equal(testConcurrencyStamp, Vm.Object.ConcurrencyStamp);
+        // Assert
+        Assert.Equal(testConcurrencyStamp, vm.ConcurrencyStamp);
     }
 
     [Fact]
@@ -23,13 +18,10 @@ public class BaseVmTests
     {
         // Arrange
         const int testId = 1;
-        var Vm = new Mock<BaseVm>();
+        var vm = new TestVm { Id = testId };
 
-        //Act
-        Vm.SetupProperty(x => x.Id, testId);
-
-        //Assert
-        Assert.Equal(testId, Vm.Object.Id);
+        // Assert
+        Assert.Equal(testId, vm.Id);
     }
 
     [Fact]
@@ -37,13 +29,10 @@ public class BaseVmTests
     {
         // Arrange
         const bool isDeleted = true;
-        var Vm = new Mock<BaseVm>();
+        var vm = new TestVm { IsDeleted = isDeleted };
 
-        //Act
-        Vm.SetupProperty(x => x.IsDeleted, isDeleted);
-
-        //Assert
-        Assert.Equal(isDeleted, Vm.Object.IsDeleted);
+        // Assert
+        Assert.Equal(isDeleted, vm.IsDeleted);
     }
 
     [Fact]
@@ -130,5 +119,5 @@ public class BaseVmTests
         Assert.Equal(expectedIsDeleted, isDeleted);
     }
 
-    public class TestVm : BaseVm;
+    public record TestVm : BaseVm;
 }

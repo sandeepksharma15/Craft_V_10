@@ -45,7 +45,7 @@
 /// </code>
 /// </example>
 [Serializable]
-public abstract class BaseDto<TKey> : IDataTransferObject<TKey>
+public abstract record BaseDto<TKey> : IDataTransferObject<TKey>
 {
     /// <summary>
     /// Gets or sets the DTO identifier.
@@ -76,4 +76,4 @@ public abstract class BaseDto<TKey> : IDataTransferObject<TKey>
 /// </summary>
 /// <inheritdoc cref="BaseDto{TKey}"/>
 [Serializable]
-public abstract class BaseDto : BaseDto<KeyType>, IDataTransferObject;
+public abstract record BaseDto : BaseDto<KeyType>, IDataTransferObject;

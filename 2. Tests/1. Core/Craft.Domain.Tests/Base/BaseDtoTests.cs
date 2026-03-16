@@ -1,5 +1,3 @@
-using Moq;
-
 namespace Craft.Domain.Tests.Base;
 
 /// <summary>
@@ -12,13 +10,10 @@ public class BaseDtoTests
     {
         // Arrange
         const int testId = 1;
-        var dto = new Mock<BaseDto>();
-
-        // Act
-        dto.SetupProperty(x => x.Id, testId);
+        var dto = new TestDto { Id = testId };
 
         // Assert
-        Assert.Equal(testId, dto.Object.Id);
+        Assert.Equal(testId, dto.Id);
     }
 
     [Fact]
@@ -26,13 +21,10 @@ public class BaseDtoTests
     {
         // Arrange
         const long testId = 123456L;
-        var dto = new Mock<BaseDto<long>>();
-
-        // Act
-        dto.SetupProperty(x => x.Id, testId);
+        var dto = new TestGenericDto { Id = testId };
 
         // Assert
-        Assert.Equal(testId, dto.Object.Id);
+        Assert.Equal(testId, dto.Id);
     }
 
     [Fact]
@@ -154,15 +146,15 @@ public class BaseDtoTests
         Assert.NotEmpty(attributes);
     }
 
-    // Test classes for testing the abstract BaseDto
-    public class TestDto : BaseDto;
+    // Test records for testing the abstract BaseDto
+    public record TestDto : BaseDto;
 
-    public class TestGenericDto : BaseDto<long>;
+    public record TestGenericDto : BaseDto<long>;
 
-    public class TestStringDto : BaseDto<string>
+    public record TestStringDto : BaseDto<string>
     {
         public override string Id { get; set; } = string.Empty;
     }
 
-    public class TestGuidDto : BaseDto<Guid>;
+    public record TestGuidDto : BaseDto<Guid>;
 }
