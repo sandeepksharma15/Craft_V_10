@@ -12,6 +12,9 @@ public abstract class BaseMapperTests<T, EntityDTO, EntityVM, IType>
     protected virtual TClass? CreateInstance<TClass>() where TClass : class
     {
         var fixture = new Fixture();
+        fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+            .ForEach(b => fixture.Behaviors.Remove(b));
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
         return fixture.Create<TClass>();
     }
