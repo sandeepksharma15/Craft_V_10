@@ -45,31 +45,7 @@
 /// </code>
 /// </example>
 [Serializable]
-public abstract record BaseDto<TKey> : IDataTransferObject<TKey>
-{
-    /// <summary>
-    /// Gets or sets the DTO identifier.
-    /// </summary>
-    public virtual TKey Id { get; set; } = default!;
-
-    /// <summary>
-    /// Gets or sets the concurrency stamp used for optimistic concurrency control.
-    /// </summary>
-    /// <remarks>
-    /// When updating an entity via API, this stamp must match the current value in the database.
-    /// A mismatch indicates the entity was modified by another user/process since it was last read.
-    /// </remarks>
-    public virtual string? ConcurrencyStamp { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the entity should be soft-deleted or restored.
-    /// </summary>
-    /// <remarks>
-    /// <para>For create operations: typically false</para>
-    /// <para>For update operations: set to true to soft-delete, false to restore</para>
-    /// </remarks>
-    public virtual bool IsDeleted { get; set; }
-}
+public abstract record BaseDto<TKey> : BaseTransferObject<TKey>;
 
 /// <summary>
 /// Abstract base class for Data Transfer Objects (DTOs) with the default KeyType identifier.

@@ -38,20 +38,4 @@ public abstract record BaseModel : BaseModel<KeyType>, IDataTransferObject;
 /// </para>
 /// </remarks>
 [Serializable]
-public abstract record BaseModel<TKey> : IDataTransferObject<TKey>
-{
-    /// <summary>
-    /// Gets or sets the model identifier.
-    /// </summary>
-    public virtual TKey Id { get; set; } = default!;
-
-    /// <summary>
-    /// Gets or sets the concurrency stamp used for optimistic concurrency control.
-    /// </summary>
-    public virtual string? ConcurrencyStamp { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the model represents a soft-deleted entity.
-    /// </summary>
-    public virtual bool IsDeleted { get; set; }
-}
+public abstract record BaseModel<TKey> : BaseTransferObject<TKey>;

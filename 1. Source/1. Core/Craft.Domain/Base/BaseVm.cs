@@ -60,27 +60,4 @@ public abstract record BaseVm : BaseVm<KeyType>, IDataTransferObject;
 /// </code>
 /// </example>
 [Serializable]
-public abstract record BaseVm<TKey> : IDataTransferObject<TKey>
-{
-    /// <summary>
-    /// Gets or sets the view model identifier.
-    /// </summary>
-    public virtual TKey Id { get; set; } = default!;
-
-    /// <summary>
-    /// Gets or sets the concurrency stamp for optimistic concurrency control.
-    /// </summary>
-    /// <remarks>
-    /// This value should be stored by the client and sent back on subsequent update requests
-    /// to enable the server to detect concurrent modifications.
-    /// </remarks>
-    public virtual string? ConcurrencyStamp { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the entity is soft-deleted.
-    /// </summary>
-    /// <remarks>
-    /// When true, the UI can display appropriate visual indicators or enable restore functionality.
-    /// </remarks>
-    public virtual bool IsDeleted { get; set; }
-}
+public abstract record BaseVm<TKey> : BaseTransferObject<TKey>;
