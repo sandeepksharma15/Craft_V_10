@@ -117,7 +117,7 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
     /// </summary>
     /// <returns>A hash code for the current entity.</returns>
     public override int GetHashCode()
-        => 2108858624 + EqualityComparer<TKey>.Default.GetHashCode(Id ?? default!);
+        => HashCode.Combine(Id);
 
     /// <summary>
     /// Determines whether the entity is new (has the default identifier value).
