@@ -9,7 +9,6 @@ namespace Craft.QuerySpec;
 /// </summary>
 /// <typeparam name="T">The source type.</typeparam>
 /// <typeparam name="TResult">The result type.</typeparam>
-[Serializable]
 public sealed class SelectDescriptor<T, TResult> where T : class where TResult : class
 {
     /// Gets the assignor lambda expression (source property selector).

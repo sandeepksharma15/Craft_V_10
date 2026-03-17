@@ -1,10 +1,9 @@
-﻿namespace Craft.Domain;
+namespace Craft.Domain;
 
 /// <summary>
 /// Abstract base class for View Models (VMs) with the default KeyType identifier.
 /// </summary>
 /// <inheritdoc cref="BaseVm{TKey}"/>
-[Serializable]
 public abstract record BaseVm : BaseVm<KeyType>, IDataTransferObject;
 
 /// <summary>
@@ -59,5 +58,4 @@ public abstract record BaseVm : BaseVm<KeyType>, IDataTransferObject;
 /// }
 /// </code>
 /// </example>
-[Serializable]
 public abstract record BaseVm<TKey> : BaseTransferObject<TKey>;

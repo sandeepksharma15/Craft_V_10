@@ -1,4 +1,4 @@
-﻿namespace Craft.Domain;
+namespace Craft.Domain;
 
 /// <summary>
 /// Abstract base class for data transfer models with the default KeyType identifier.
@@ -17,7 +17,6 @@
 /// </list>
 /// </para>
 /// </remarks>
-[Serializable]
 public abstract record BaseModel : BaseModel<KeyType>, IDataTransferObject;
 
 /// <summary>
@@ -37,5 +36,4 @@ public abstract record BaseModel : BaseModel<KeyType>, IDataTransferObject;
 /// </list>
 /// </para>
 /// </remarks>
-[Serializable]
 public abstract record BaseModel<TKey> : BaseTransferObject<TKey>;

@@ -7,7 +7,6 @@ namespace Craft.QuerySpec;
 /// Represents information for an SQL LIKE search functionality.
 /// </summary>
 /// <typeparam name="T">The entity type.</typeparam>
-[Serializable]
 public sealed class SqlLikeSearchInfo<T> where T : class
 {
     /// Gets the group number for the search (useful for grouping multiple LIKE conditions).

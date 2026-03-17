@@ -11,7 +11,6 @@ namespace Craft.QuerySpec;
 /// This class is NOT thread-safe. Do not share instances across threads.
 /// </remarks>
 /// <typeparam name="T">The entity type.</typeparam>
-[Serializable]
 public class SqlLikeSearchCriteriaBuilder<T> where T : class
 {
     public List<SqlLikeSearchInfo<T>> SqlLikeSearchCriteriaList { get; }

@@ -10,7 +10,6 @@ namespace Craft.QuerySpec;
 /// <remarks>
 /// This class does not require disposal. All resources are managed by the garbage collector.
 /// </remarks>
-[Serializable]
 public class Query<T, TResult> : Query<T>, IQuery<T, TResult>
     where T : class
     where TResult : class
@@ -43,7 +42,6 @@ public class Query<T, TResult> : Query<T>, IQuery<T, TResult>
 /// This class does not require disposal. All resources are managed by the garbage collector.
 /// This class is NOT thread-safe. Do not share instances across threads.
 /// </remarks>
-[Serializable]
 public class Query<T> : IQuery<T> where T : class
 {
     public bool AsNoTracking { get; set; } = true;

@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 
 namespace Craft.QuerySpec;
 
-[Serializable]
 public sealed class OrderDescriptor<T> where T : class
 {
     public LambdaExpression OrderItem { get; internal set; }

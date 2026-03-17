@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Craft.Core;
 
@@ -6,7 +6,6 @@ namespace Craft.Core;
 /// Represents a paginated response containing a collection of items and pagination information.
 /// </summary>
 /// <typeparam name="T">The type of items in the collection.</typeparam>
-[Serializable]
 public class PageResponse<T> : PageInfo where T : class
 {
     /// <summary>

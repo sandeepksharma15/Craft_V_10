@@ -38,7 +38,6 @@ namespace Craft.Domain;
 /// </code>
 /// </para>
 /// </remarks>
-[Serializable]
 public abstract class ValueObject : IEquatable<ValueObject>
 {
     /// <summary>
@@ -123,7 +122,6 @@ public abstract class ValueObject : IEquatable<ValueObject>
 /// }
 /// </code>
 /// </remarks>
-[Serializable]
 public abstract class SingleValueObject<TValue> : ValueObject, IComparable<SingleValueObject<TValue>>
     where TValue : IComparable<TValue>
 {

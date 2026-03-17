@@ -4,7 +4,6 @@ using System.Reflection;
 
 namespace Craft.QuerySpec;
 
-[Serializable]
 public class QuerySelectBuilder<T> : QuerySelectBuilder<T, T>, IQuerySelectBuilder<T> where T : class;
 
 /// <summary>
@@ -13,7 +12,6 @@ public class QuerySelectBuilder<T> : QuerySelectBuilder<T, T>, IQuerySelectBuild
 /// <remarks>
 /// This class is NOT thread-safe. Do not share instances across threads.
 /// </remarks>
-[Serializable]
 public class QuerySelectBuilder<T, TResult> : IQuerySelectBuilder<T, TResult>
     where T : class
     where TResult : class

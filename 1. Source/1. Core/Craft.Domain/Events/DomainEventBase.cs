@@ -19,7 +19,6 @@ namespace Craft.Domain;
 /// }
 /// </code>
 /// </remarks>
-[Serializable]
 public abstract class DomainEventBase : IDomainEvent, IEquatable<DomainEventBase>
 {
     /// <summary>

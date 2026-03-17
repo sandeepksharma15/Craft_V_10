@@ -9,7 +9,6 @@ namespace Craft.Domain;
 /// type directly.
 /// </remarks>
 /// <typeparam name="TKey">The type of the identifier.</typeparam>
-[Serializable]
 public abstract record BaseTransferObject<TKey> : IDataTransferObject<TKey>
 {
     /// <summary>

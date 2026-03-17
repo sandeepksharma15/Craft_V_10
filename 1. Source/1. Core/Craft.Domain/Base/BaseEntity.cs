@@ -7,7 +7,6 @@ namespace Craft.Domain;
 /// Abstract base class for domain entities with the default KeyType identifier.
 /// Provides common entity functionality including identity, concurrency control, and soft deletion.
 /// </summary>
-[Serializable]
 public abstract class BaseEntity : BaseEntity<KeyType>, IEntity, IModel
 {
     /// <summary>
@@ -27,7 +26,6 @@ public abstract class BaseEntity : BaseEntity<KeyType>, IEntity, IModel
 /// Implements entity identity, equality, concurrency control, and soft deletion.
 /// </summary>
 /// <typeparam name="TKey">The type of the entity identifier.</typeparam>
-[Serializable]
 public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDelete, IModel<TKey>, IEquatable<BaseEntity<TKey>>
 {
     /// <summary>

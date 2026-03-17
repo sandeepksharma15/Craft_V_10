@@ -1,4 +1,4 @@
-﻿namespace Craft.Domain;
+namespace Craft.Domain;
 
 /// <summary>
 /// Abstract base class for Data Transfer Objects (DTOs) with a strongly-typed identifier.
@@ -44,12 +44,10 @@
 /// }
 /// </code>
 /// </example>
-[Serializable]
 public abstract record BaseDto<TKey> : BaseTransferObject<TKey>;
 
 /// <summary>
 /// Abstract base class for Data Transfer Objects (DTOs) with the default KeyType identifier.
 /// </summary>
 /// <inheritdoc cref="BaseDto{TKey}"/>
-[Serializable]
 public abstract record BaseDto : BaseDto<KeyType>, IDataTransferObject;

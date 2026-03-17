@@ -15,7 +15,6 @@ namespace Craft.QuerySpec;
 /// expression tree manipulation and efficient compiled predicate evaluation.
 /// The filter function is compiled lazily and cached for performance.
 /// </remarks>
-[Serializable]
 public sealed class EntityFilterCriteria<T> : IEquatable<EntityFilterCriteria<T>> where T : class
 {
     private readonly Lazy<Func<T, bool>> _filterFunc;
