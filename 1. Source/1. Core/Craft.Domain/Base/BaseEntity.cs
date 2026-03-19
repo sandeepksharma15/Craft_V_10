@@ -79,7 +79,6 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
 
     /// <summary>
     /// Determines whether the specified object is equal to the current entity.
-    /// For multi-tenant entities, equality considers both TenantId and Id.
     /// </summary>
     /// <param name="obj">The object to compare with the current entity.</param>
     /// <returns>True if the specified object is equal to the current entity; otherwise, false.</returns>
@@ -88,7 +87,8 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
 
     /// <summary>
     /// Determines whether the specified entity is equal to the current entity.
-    /// For multi-tenant entities, equality considers both TenantId and Id.
+    /// Two entities are equal when they share the same runtime type, the same <see cref="Id"/>,
+    /// and any additional criteria defined by <see cref="AdditionalEqualityCheck"/>.
     /// </summary>
     /// <param name="other">The entity to compare with the current entity.</param>
     /// <returns>True if the specified entity is equal to the current entity; otherwise, false.</returns>
@@ -103,12 +103,20 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDe
         if (GetType() != other.GetType())
             return false;
 
-        // Different tenants may have an entity with same Id.
-        if (this is IHasTenant self && other is IHasTenant otherTenant && self.TenantId != otherTenant.TenantId)
-            return false;
-
-        return EqualityComparer<TKey>.Default.Equals(Id, other.Id);
+        return AdditionalEqualityCheck(other) && EqualityComparer<TKey>.Default.Equals(Id, other.Id);
     }
+
+    /// <summary>
+    /// Provides an extension point for subclasses to include additional equality criteria.
+    /// </summary>
+    /// <remarks>
+    /// Override this method when two entities with the same <see cref="Id"/> can still be
+    /// considered distinct — for example, entities partitioned by tenant, region, or shard key.
+    /// The default implementation returns <see langword="true"/> (no additional checks).
+    /// </remarks>
+    /// <param name="other">The other entity to compare against. Guaranteed to be non-null and the same runtime type.</param>
+    /// <returns>True if additional equality conditions are satisfied; otherwise, false.</returns>
+    protected virtual bool AdditionalEqualityCheck(BaseEntity<TKey> other) => true;
 
     /// <summary>
     /// Returns the hash code for this entity based on its identifier.
