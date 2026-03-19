@@ -146,6 +146,48 @@ public static class DomainConstants
 
     #endregion
 
+    #region FluentValidation Message Templates
+
+    /// <summary>
+    /// Provides message templates formatted with FluentValidation's <c>{PropertyName}</c> placeholder.
+    /// Use these in <c>.WithMessage()</c> calls to keep all validation strings in one place.
+    /// </summary>
+    /// <remarks>
+    /// Fixed messages are <c>const</c> strings; parameterised messages (max length, range, etc.)
+    /// are static methods so the values remain part of the message definition.
+    /// </remarks>
+    public static class Fv
+    {
+        /// <summary>"{PropertyName} is required"</summary>
+        public const string Required = "{PropertyName} is required";
+
+        /// <summary>"{PropertyName} must contain only alphabets (1st Uppercase) and ,.'() "</summary>
+        public const string NameFormat = "{PropertyName} must contain only alphabets (1st Uppercase) and ,.'() ";
+
+        /// <summary>"{PropertyName} must contain only alphanumeric characters (1st uppercase)"</summary>
+        public const string AlphaNumCode = "{PropertyName} must contain only alphanumeric characters (1st uppercase)";
+
+        /// <summary>"{PropertyName} is not a valid email address"</summary>
+        public const string InvalidEmail = "{PropertyName} is not a valid email address";
+
+        /// <summary>"{PropertyName} is not a valid phone number"</summary>
+        public const string InvalidPhone = "{PropertyName} is not a valid phone number";
+
+        /// <summary>Returns "{PropertyName} cannot be more than {max}"</summary>
+        public static string MaxLength(int max) => $"{{PropertyName}} cannot be more than {max}";
+
+        /// <summary>Returns "{PropertyName} must be between {min} and {max}"</summary>
+        public static string InclusiveBetween(int min, int max) => $"{{PropertyName}} must be between {min} and {max}";
+
+        /// <summary>Returns "{PropertyName} must be between {min} and {max}"</summary>
+        public static string InclusiveBetween(decimal min, decimal max) => $"{{PropertyName}} must be between {min} and {max}";
+
+        /// <summary>Returns "{PropertyName} must be exactly {length} characters"</summary>
+        public static string ExactLength(int length) => $"{{PropertyName}} must be exactly {length} characters";
+    }
+
+    #endregion
+
     #region Localized Error Messages
 
     /// <summary>
