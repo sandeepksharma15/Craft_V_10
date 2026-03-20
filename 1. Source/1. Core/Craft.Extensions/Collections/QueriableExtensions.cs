@@ -11,10 +11,8 @@ public static class QueriableExtensions
     /// <param name="queryable">The queryable source to check for asynchronous support.</param>
     /// <returns><see langword="true"/> if the queryable source implements <see
     /// cref="System.Collections.Generic.IAsyncEnumerable{T}"/>; otherwise, <see langword="false"/>.</returns>
-    public static bool SupportsAsync<T>(this IQueryable<T> queryable)
-    {
-        return queryable is IAsyncEnumerable<T>;
-    }
+    public static bool SupportsAsync<T>(this IQueryable<T> queryable) 
+        => queryable is IAsyncEnumerable<T>;
 
     /// <summary>
     /// Asynchronously converts an <see cref="IQueryable{T}"/> to a <see cref="List{T}"/> in a safe manner.

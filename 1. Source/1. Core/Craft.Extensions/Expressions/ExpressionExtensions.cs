@@ -143,8 +143,7 @@ public static class ExpressionExtensions
     /// <param name="expr1">The first boolean expression to combine.</param>
     /// <param name="expr2">The second boolean expression to combine.</param>
     /// <returns>A new expression that represents the logical AND of <paramref name="expr1"/> and <paramref name="expr2"/>.</returns>
-    public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,
-        Expression<Func<T, bool>> expr2)
+    public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1, Expression<Func<T, bool>> expr2)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
 
@@ -164,8 +163,7 @@ public static class ExpressionExtensions
     /// <param name="expr1">The first boolean expression to combine. Cannot be <see langword="null"/>.</param>
     /// <param name="expr2">The second boolean expression to combine. Cannot be <see langword="null"/>.</param>
     /// <returns>A new expression that represents the logical OR of <paramref name="expr1"/> and <paramref name="expr2"/>.</returns>
-    public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1,
-        Expression<Func<T, bool>> expr2)
+    public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1, Expression<Func<T, bool>> expr2)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
 

@@ -17,10 +17,8 @@ public static class ServiceProviderExtensions
     /// <returns>The IServiceCollection with the added service.</returns>
     /// <exception cref="ArgumentNullException">Thrown if services, serviceType, or implementationType is null.</exception>
     /// <exception cref="ArgumentException">Thrown if an invalid lifetime is specified.</exception>
-    public static IServiceCollection AddService(this IServiceCollection services,
-        Type serviceType,
-        Type implementationType,
-        ServiceLifetime lifetime)
+    public static IServiceCollection AddService(this IServiceCollection services, Type serviceType,
+        Type implementationType, ServiceLifetime lifetime)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(serviceType);
@@ -44,9 +42,7 @@ public static class ServiceProviderExtensions
     /// <param name="lifetime">The desired lifetime of the registered services.</param>
     /// <returns>The IServiceCollection with the added services.</returns>
     /// <exception cref="ArgumentNullException">Thrown if services or interfaceType is null.</exception>
-    public static IServiceCollection AddServices(this IServiceCollection services,
-        Type interfaceType,
-        ServiceLifetime lifetime)
+    public static IServiceCollection AddServices(this IServiceCollection services, Type interfaceType, ServiceLifetime lifetime)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(interfaceType);

@@ -57,6 +57,7 @@ public static class ConditionRemover
         {
             if (IsEquivalentCondition(body, cond.Body))
                 return null;
+
             var visitor = new ConditionRemoverVisitor<T>(cond.Body);
             body = visitor.Visit(body);
         }
@@ -77,8 +78,7 @@ public static class ConditionRemover
     /// <returns>A new expression with all occurrences of <paramref name="oldCondition"/> replaced by <paramref
     /// name="newCondition"/>.</returns>
     public static Expression<Func<T, bool>> ReplaceCondition<T>(this Expression<Func<T, bool>> expression,
-        Expression<Func<T, bool>> oldCondition,
-        Expression<Func<T, bool>> newCondition)
+        Expression<Func<T, bool>> oldCondition, Expression<Func<T, bool>> newCondition)
     {
         ArgumentNullException.ThrowIfNull(expression);
         ArgumentNullException.ThrowIfNull(oldCondition);

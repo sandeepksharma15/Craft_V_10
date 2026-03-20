@@ -22,16 +22,13 @@ public static class DbSetExtensions
         var model = dbSet.GetService<IModel>();
         var entityType = model.FindEntityType(typeof(T));
 
-        // Use GetDeclaredQueryFilters() instead of the obsolete GetQueryFilter()
-        // GetDeclaredQueryFilters() returns IReadOnlyCollection<IQueryFilter>
-        // We return the first filter's expression if any exist
         var declaredFilters = entityType?.GetDeclaredQueryFilters();
 
         return declaredFilters == null || declaredFilters.Count == 0
-            ? null
+            ? null 
             : declaredFilters.FirstOrDefault() is { Expression: Expression<Func<T, bool>> expr }
-            ? expr
-            : null;
+                ? expr 
+                : null;
     }
 
     /// <summary>

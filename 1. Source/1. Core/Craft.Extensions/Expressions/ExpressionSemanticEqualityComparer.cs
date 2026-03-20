@@ -94,10 +94,8 @@ public sealed class ExpressionSemanticEqualityComparer : IEqualityComparer<Expre
 
 internal static class ExpressionComparer
 {
-    public static bool AreEqual(Expression x, Expression y)
-    {
-        return new Impl().Equals(x, y);
-    }
+    public static bool AreEqual(Expression x, Expression y) 
+        => new Impl().Equals(x, y);
 
     private class Impl : ExpressionVisitor
     {
@@ -161,6 +159,7 @@ internal static class ExpressionComparer
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             var other = (LambdaExpression)_y!;
+
             if (node.Parameters.Count != other.Parameters.Count)
                 return null!;
 

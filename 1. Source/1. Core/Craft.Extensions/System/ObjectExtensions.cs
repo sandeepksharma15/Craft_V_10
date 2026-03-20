@@ -42,9 +42,9 @@ public static class ObjectExtensions
         return obj is null
             ? default
             : typeof(T) == typeof(Guid)
-            ? Guid.TryParse(obj.ToString(), out var guid) ? (T)(object)guid : default
-            : obj is IConvertible convertible
-            ? (T)Convert.ChangeType(convertible, typeof(T), CultureInfo.CurrentCulture)
-            : default;
+                ? Guid.TryParse(obj.ToString(), out var guid) ? (T)(object)guid : default
+                : obj is IConvertible convertible
+                    ? (T)Convert.ChangeType(convertible, typeof(T), CultureInfo.CurrentCulture)
+                    : default;
     }
 }
