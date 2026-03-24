@@ -129,21 +129,37 @@ public class BaseDtoTests
     }
 
     [Fact]
-    public void BaseDto_IsSerializable()
+    public void BaseDto_IsJsonSerializable()
     {
-        // Arrange & Act & Assert
-        var type = typeof(BaseDto);
-        var attributes = type.GetCustomAttributes(typeof(SerializableAttribute), false);
-        Assert.NotEmpty(attributes);
+        // Arrange
+        var dto = new TestDto { Id = 42, ConcurrencyStamp = "stamp-abc", IsDeleted = true };
+
+        // Act
+        var json = JsonSerializer.Serialize(dto);
+        var result = JsonSerializer.Deserialize<TestDto>(json);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(dto.Id, result.Id);
+        Assert.Equal(dto.ConcurrencyStamp, result.ConcurrencyStamp);
+        Assert.Equal(dto.IsDeleted, result.IsDeleted);
     }
 
     [Fact]
-    public void BaseDto_Generic_IsSerializable()
+    public void BaseDto_Generic_IsJsonSerializable()
     {
-        // Arrange & Act & Assert
-        var type = typeof(BaseDto<>);
-        var attributes = type.GetCustomAttributes(typeof(SerializableAttribute), false);
-        Assert.NotEmpty(attributes);
+        // Arrange
+        var dto = new TestGenericDto { Id = 999L, ConcurrencyStamp = "stamp-xyz", IsDeleted = false };
+
+        // Act
+        var json = JsonSerializer.Serialize(dto);
+        var result = JsonSerializer.Deserialize<TestGenericDto>(json);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(dto.Id, result.Id);
+        Assert.Equal(dto.ConcurrencyStamp, result.ConcurrencyStamp);
+        Assert.Equal(dto.IsDeleted, result.IsDeleted);
     }
 
     // Test records for testing the abstract BaseDto
