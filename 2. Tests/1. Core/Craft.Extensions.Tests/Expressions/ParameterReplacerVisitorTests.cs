@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using Craft.Utilities.Helpers;
+using System.Linq.Expressions;
+using Craft.Extensions.Expressions;
 
-namespace Craft.Utilities.Tests.Helpers;
+namespace Craft.Extensions.Tests.Expressions;
 
 public class ParameterReplacerVisitorTests
 {

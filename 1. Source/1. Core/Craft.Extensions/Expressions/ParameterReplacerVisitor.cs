@@ -1,6 +1,6 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
-namespace Craft.Utilities.Helpers;
+namespace Craft.Extensions.Expressions;
 
 /// <summary>
 /// Provides functionality to replace occurrences of a specific parameter in an expression tree with a new expression.

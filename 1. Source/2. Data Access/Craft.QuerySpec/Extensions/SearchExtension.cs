@@ -2,7 +2,7 @@ using Craft.Core;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using Craft.Utilities.Helpers;
+using Craft.Extensions.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Craft.QuerySpec;
