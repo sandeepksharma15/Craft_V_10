@@ -128,7 +128,7 @@ public class NpgsqlDatabaseProviderTests : IClassFixture<NpgsqlDatabaseProviderT
     {
         private PostgreSqlContainer? _container;
 
-        public string? ConnectionString => _container?.GetConnectionString();
+        public string? ConnectionString => IsAvailable ? _container?.GetConnectionString() : null;
         public bool IsAvailable { get; private set; }
 
         public async ValueTask InitializeAsync()
