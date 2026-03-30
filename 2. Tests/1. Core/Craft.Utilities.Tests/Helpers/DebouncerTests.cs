@@ -67,16 +67,18 @@ public class DebouncerTests : IDisposable
     [Fact]
     public async Task Debounce_HandlesExceptionGracefully()
     {
+        var tcs = new TaskCompletionSource();
         int callCount = 0;
         Task action()
         {
             callCount++;
+            tcs.TrySetResult();
             throw new InvalidOperationException("Test exception");
         }
 
         _debouncer.Debounce(100, action);
 
-        await Task.Delay(200, TestContext.Current.CancellationToken);
+        await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         Assert.Equal(1, callCount);
     }
