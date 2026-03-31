@@ -117,11 +117,9 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
     /// </summary>
     private void RegisterFeatureDbSets(ModelBuilder modelBuilder)
     {
+        // Register the entity type with EF Core
         foreach (var entityType in Features.GetRequiredDbSetTypes())
-        {
-            // Register the entity type with EF Core
             modelBuilder.Model.AddEntityType(entityType);
-        }
     }
 
     /// <summary>

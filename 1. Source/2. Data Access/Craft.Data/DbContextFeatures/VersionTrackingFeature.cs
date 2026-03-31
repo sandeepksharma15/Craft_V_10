@@ -20,11 +20,9 @@ public class VersionTrackingFeature : IDbContextFeature
 
         foreach (var entry in entries)
         {
+            // Set initial version for new entities
             if (entry.State == EntityState.Added)
-            {
-                // Set initial version for new entities
                 entry.Entity.SetVersion(1);
-            }
             else if (entry.State == EntityState.Modified)
             {
                 // Increment version for modified entities

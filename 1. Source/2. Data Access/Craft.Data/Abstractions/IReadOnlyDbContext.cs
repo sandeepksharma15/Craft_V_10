@@ -68,6 +68,4 @@ namespace Craft.Data;
 /// }
 /// </code>
 /// </remarks>
-public interface IReadOnlyDbContext
-{
-}
+public interface IReadOnlyDbContext { }

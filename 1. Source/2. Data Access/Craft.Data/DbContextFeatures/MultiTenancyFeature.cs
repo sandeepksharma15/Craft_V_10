@@ -56,11 +56,9 @@ public class MultiTenancyFeature : IDbContextFeature
             .Where(e => e.State == EntityState.Added)
             .ToList();
 
+        // Set tenant ID for new entities
         foreach (var entry in entries)
-        {
-            // Set tenant ID for new entities
             entry.Entity.SetTenantId(_currentTenant.GetId());
-        }
     }
 }
 

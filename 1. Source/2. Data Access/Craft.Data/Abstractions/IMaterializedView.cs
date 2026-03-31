@@ -87,9 +87,7 @@ namespace Craft.Data;
 /// </item>
 /// </list>
 /// </remarks>
-public interface IMaterializedView
-{
-}
+public interface IMaterializedView { }
 
 /// <summary>
 /// Extension methods for working with materialized views.
@@ -112,16 +110,16 @@ public static class MaterializedViewExtensions
     /// <item>MySQL: Not supported (throws exception)</item>
     /// </list>
     /// </remarks>
-    public static async Task RefreshMaterializedViewAsync<TView>(
-        this DbContext context,
-        CancellationToken cancellationToken = default)
+    public static async Task RefreshMaterializedViewAsync<TView>(this DbContext context, CancellationToken cancellationToken = default)
         where TView : class, IMaterializedView
     {
         ArgumentNullException.ThrowIfNull(context);
 
         var entityType = context.Model.FindEntityType(typeof(TView)) 
             ?? throw new InvalidOperationException($"Entity type {typeof(TView).Name} is not part of the model.");
+
         var storeObjectId = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
+
         var viewName = storeObjectId?.Name 
             ?? throw new InvalidOperationException($"Table/View name not configured for {typeof(TView).Name}");
         
@@ -133,14 +131,12 @@ public static class MaterializedViewExtensions
 
         var sql = providerName switch
         {
-            "microsoft.entityframeworkcore.sqlserver" =>
-                // SQL Server indexed views refresh automatically
-                // We can force a recompute by updating statistics
-                $"UPDATE STATISTICS {fullName}",
+            // SQL Server indexed views refresh automatically
+            // We can force a recompute by updating statistics
+            "microsoft.entityframeworkcore.sqlserver" => $"UPDATE STATISTICS {fullName}",
 
-            "npgsql.entityframeworkcore.postgresql" =>
-                // PostgreSQL materialized view refresh
-                $"REFRESH MATERIALIZED VIEW {fullName}",
+            // PostgreSQL materialized view refresh
+            "npgsql.entityframeworkcore.postgresql" => $"REFRESH MATERIALIZED VIEW {fullName}",
 
             "pomelo.entityframeworkcore.mysql" or "mysql.data.entityframeworkcore" =>
                 throw new NotSupportedException(
@@ -162,16 +158,16 @@ public static class MaterializedViewExtensions
     /// <param name="context">The DbContext containing the view.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Task representing the async operation.</returns>
-    public static async Task RefreshMaterializedViewConcurrentlyAsync<TView>(
-        this DbContext context,
-        CancellationToken cancellationToken = default)
+    public static async Task RefreshMaterializedViewConcurrentlyAsync<TView>(this DbContext context, CancellationToken cancellationToken = default)
         where TView : class, IMaterializedView
     {
         ArgumentNullException.ThrowIfNull(context);
 
         var entityType = context.Model.FindEntityType(typeof(TView)) 
             ?? throw new InvalidOperationException($"Entity type {typeof(TView).Name} is not part of the model.");
+
         var storeObjectId = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
+
         var viewName = storeObjectId?.Name 
             ?? throw new InvalidOperationException($"Table/View name not configured for {typeof(TView).Name}");
         
@@ -182,14 +178,9 @@ public static class MaterializedViewExtensions
         var providerName = context.Database.ProviderName?.ToLowerInvariant();
         
         if (providerName != "npgsql.entityframeworkcore.postgresql")
-        {
-            throw new NotSupportedException(
-                "Concurrent materialized view refresh is only supported on PostgreSQL. " +
+            throw new NotSupportedException("Concurrent materialized view refresh is only supported on PostgreSQL. " +
                 $"Current provider: {context.Database.ProviderName}");
-        }
 
-        await context.Database.ExecuteSqlAsync(
-            $"REFRESH MATERIALIZED VIEW CONCURRENTLY {fullName}",
-            cancellationToken);
+        await context.Database.ExecuteSqlAsync($"REFRESH MATERIALIZED VIEW CONCURRENTLY {fullName}", cancellationToken);
     }
 }

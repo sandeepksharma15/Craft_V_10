@@ -41,10 +41,7 @@ public interface IDatabaseProvider
     /// <param name="timeout">Optional timeout for the test (default: 5 seconds).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Connection test result with latency and error information.</returns>
-    Task<ConnectionTestResult> TestConnectionAsync(
-        string connectionString,
-        TimeSpan? timeout = null,
-        CancellationToken cancellationToken = default)
+    Task<ConnectionTestResult> TestConnectionAsync(string connectionString, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(new ConnectionTestResult
         {

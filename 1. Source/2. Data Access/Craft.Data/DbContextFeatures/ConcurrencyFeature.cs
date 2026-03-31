@@ -18,11 +18,9 @@ public class ConcurrencyFeature : IDbContextFeature
             .Where(e => e.State is EntityState.Added or EntityState.Modified)
             .ToList();
 
+        // Generate new concurrency stamp
         foreach (var entry in entries)
-        {
-            // Generate new concurrency stamp
             entry.Entity.SetConcurrencyStamp(Guid.NewGuid().ToString());
-        }
     }
 
     /// <summary>
@@ -31,14 +29,10 @@ public class ConcurrencyFeature : IDbContextFeature
     public void ConfigureModel(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
             if (typeof(IHasConcurrency).IsAssignableFrom(entityType.ClrType))
-            {
                 modelBuilder.Entity(entityType.ClrType)
                     .Property(nameof(IHasConcurrency.ConcurrencyStamp))
                     .IsConcurrencyToken();
-            }
-        }
     }
 }
 

@@ -19,11 +19,8 @@ public static class MigrationExtensions
     /// <param name="migrationTimeout">Optional timeout for migration operations (default: 10 minutes).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
-    public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(
-        this WebApplication app,
-        TimeSpan? migrationTimeout = null,
-        CancellationToken cancellationToken = default)
-        where TContext : DbContext
+    public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(this WebApplication app,
+        TimeSpan? migrationTimeout = null, CancellationToken cancellationToken = default) where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(app);
 
@@ -50,23 +47,16 @@ public static class MigrationExtensions
 
                 if (pendingCount > 0)
                 {
-                    logger.LogInformation(
-                        "Applying {MigrationCount} pending migrations for {ContextType} with timeout of {Timeout} minutes",
-                        pendingCount,
-                        typeof(TContext).Name,
-                        migrationTimeout.Value.TotalMinutes);
+                    logger.LogInformation("Applying {MigrationCount} pending migrations for {ContextType} with timeout of {Timeout} minutes",
+                        pendingCount, typeof(TContext).Name, migrationTimeout.Value.TotalMinutes);
 
                     await context.Database.MigrateAsync(cancellationToken);
 
-                    logger.LogInformation(
-                        "Successfully applied migrations for {ContextType}",
-                        typeof(TContext).Name);
+                    logger.LogInformation("Successfully applied migrations for {ContextType}", typeof(TContext).Name);
                 }
                 else
                 {
-                    logger.LogInformation(
-                        "No pending migrations for {ContextType}",
-                        typeof(TContext).Name);
+                    logger.LogInformation("No pending migrations for {ContextType}", typeof(TContext).Name);
                 }
             }
             finally
@@ -130,10 +120,7 @@ public static class MigrationExtensions
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Error occurred while ensuring database exists for {ContextType}",
-                typeof(TContext).Name);
+            logger.LogError(ex, "Error occurred while ensuring database exists for {ContextType}", typeof(TContext).Name);
             throw;
         }
 
@@ -169,10 +156,7 @@ public static class MigrationExtensions
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Error occurred while deleting database for {ContextType}",
-                typeof(TContext).Name);
+            logger.LogError(ex, "Error occurred while deleting database for {ContextType}", typeof(TContext).Name);
             throw;
         }
 

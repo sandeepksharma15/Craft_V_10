@@ -71,9 +71,9 @@ public class SoftDeleteFeature : IDbContextFeature
             .Where(e => e.State == EntityState.Deleted)
             .ToList();
 
+        // Convert hard delete to soft delete
         foreach (var entry in entries)
         {
-            // Convert hard delete to soft delete
             entry.State = EntityState.Modified;
             entry.Entity.Delete();
         }

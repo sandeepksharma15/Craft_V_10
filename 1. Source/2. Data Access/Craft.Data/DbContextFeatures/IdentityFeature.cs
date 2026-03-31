@@ -60,8 +60,7 @@ public class IdentityFeature : IdentityFeature<CraftUser, CraftRole, KeyType>
     /// Initializes a new instance of IdentityFeature with default types and custom table prefix.
     /// </summary>
     /// <param name="tablePrefix">Prefix for Identity tables (default: "Id_").</param>
-    public IdentityFeature(string tablePrefix = "Id_") : base(tablePrefix)
-    {
-    }
+    public IdentityFeature(string tablePrefix = "Id_") 
+        : base(tablePrefix) { }
 }
 

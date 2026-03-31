@@ -27,8 +27,8 @@ public static class CraftDbContextExtensions
         services.AddDbContext<TContext>((serviceProvider, options) =>
         {
             // Configure logger factory from DI
-
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+
             if (loggerFactory != null)
                 options.UseLoggerFactory(loggerFactory);
 
@@ -129,10 +129,7 @@ public static class CraftDbContextExtensions
         options.UseNpgsql(dataSource, npgsqlOptions =>
         {
             // Enable retry on failure
-            npgsqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorCodesToAdd: null);
+            npgsqlOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null);
         });
 
         // Apply additional configuration
