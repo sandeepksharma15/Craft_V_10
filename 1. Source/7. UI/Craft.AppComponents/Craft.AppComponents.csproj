@@ -15,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="9.0.3">
+		<PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="9.0.4">
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
 		<PackageReference Include="MudBlazor" Version="9.3.0">
