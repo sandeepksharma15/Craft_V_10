@@ -42,7 +42,7 @@ public class SmtpEmailProvider : IEmailProvider
             smtp.Timeout = _options.Smtp!.TimeoutSeconds * 1000;
 
             await smtp.ConnectAsync(
-                _options.Smtp.Host,
+                _options.Smtp.Host!,
                 _options.Smtp.Port,
                 _options.Smtp.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None,
                 cancellationToken);
