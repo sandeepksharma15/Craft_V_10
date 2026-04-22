@@ -1,7 +1,16 @@
 ﻿@namespace Craft.AppComponents.Security
+@using Craft.UiBuilders.Components
+@using Craft.Security
+@using MudBlazor
+@typeparam TRole where TRole : class, ICraftRole, new()
 
-<h3>RolesList</h3>
+<CraftGrid TEntity="TRole" HttpService="@HttpService" InitialPageSize="10" SwitchBreakpoint="Breakpoint.Xs" ShowCardViewOnSmallScreens="true"
+           CardXs="12" CardSm="12" CardMd="6" CardLg="4" CardXl="3" AllowAdd="true" AllowEdit="true" AllowView="true" AllowRefresh="true" AllowDelete="true"
+           OnAdd="@HandleAddAsync" OnEdit="@HandleEditAsync" OnView="@HandleViewAsync" OnDelete="@HandleDeleteAsync">
 
-@code {
+    <CraftGridColumn TEntity="TRole" PropertyExpression="@(x => x.Id)" Title="ID" Visible="false" Sortable="true" />
+    <CraftGridColumn TEntity="TRole" PropertyExpression="@(x => x.Name)" Title="Name" Visible="true" Sortable="true" Searchable="true" />
+    <CraftGridColumn TEntity="TRole" PropertyExpression="@(x => x.Description)" Title="Description" Visible="true" Sortable="true" />
+    <CraftGridColumn TEntity="TRole" PropertyExpression="@(x => x.IsActive)" Title="Active" Visible="true" Sortable="true" />
 
-}
+</CraftGrid>

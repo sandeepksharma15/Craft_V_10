@@ -1,7 +1,52 @@
 ﻿@namespace Craft.AppComponents.Security
+@using Craft.Components.Generic
+@using Craft.Security
+@using Craft.UiBuilders.Generic
+@using MudBlazor
+@typeparam TUser where TUser : class, ICraftUser, new()
+@typeparam TUserVM where TUserVM : class, ICraftUser, new()
+@typeparam TUserDTO where TUserDTO : class, ICraftUser, new()
+@typeparam TRole where TRole : class, ICraftRole, new()
 
-<h3>UsersEdit</h3>
+<DataLoader IsLoading="@(_viewModel is null)">
+    <EditForm Model="@_viewModel" OnValidSubmit="HandleSubmitAsync">
+        <DataAnnotationsValidator />
+        <CustomValidator @ref="_customValidator" />
 
-@code {
+        <MudGrid>
+            <Show When="@(_customValidator!.HasErrors)">
+                <MudItem xs="12" Class="pt-4">
+                    <MudPaper Class="px-2 pt-3 pb-1">
+                        <ValidationSummary />
+                    </MudPaper>
+                </MudItem>
+            </Show>
 
-}
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField @bind-Value="_viewModel!.Email" Label="Email / Username" For="@(() => _viewModel!.Email)"
+                                      Required="true" Immediate="true" Class="mb-3" Variant="Variant.Outlined" ReadOnly="@IsViewMode" />
+                        <MudTextField @bind-Value="_viewModel!.FirstName" Label="First Name" For="@(() => _viewModel!.FirstName)"
+                                      Immediate="true" Class="mb-3" Variant="Variant.Outlined" ReadOnly="@IsViewMode" />
+                        <MudTextField @bind-Value="_viewModel!.LastName" Label="Last Name" For="@(() => _viewModel!.LastName)"
+                                      Immediate="true" Class="mb-3" Variant="Variant.Outlined" ReadOnly="@IsViewMode" />
+                        <Show When="@(RoleHttpService is not null)">
+                            <RolesLookup TRole="TRole" HttpService="@RoleHttpService" @bind-SelectedRoleId="_selectedRoleId"
+                                         Label="Role" Required="true" ReadOnly="@IsViewMode" Disabled="@IsViewMode" Class="mb-3" />
+                        </Show>
+                        <MudSwitch @bind-Value="_viewModel!.IsActive" Label="Active" Color="Color.Primary" Disabled="@IsViewMode" Class="mb-3" />
+                    </MudCardContent>
+                    <MudCardActions Class="pa-3">
+                        <Show When="@(!IsViewMode)">
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-1">Save</MudButton>
+                        </Show>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="HandleCancelAsync" Class="ml-3">@(IsViewMode ? "Back" : "Cancel")</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</DataLoader>
+
+<Spinner Visible="@_isSpinnerVisible" />

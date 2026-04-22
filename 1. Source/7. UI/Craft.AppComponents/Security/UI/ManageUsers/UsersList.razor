@@ -1,7 +1,18 @@
 ﻿@namespace Craft.AppComponents.Security
+@using Craft.UiBuilders.Components
+@using Craft.Security
+@using MudBlazor
+@typeparam TUser where TUser : class, ICraftUser, new()
 
-<h3>UsersList</h3>
+<CraftGrid TEntity="TUser" HttpService="@HttpService" InitialPageSize="10" SwitchBreakpoint="Breakpoint.Xs" ShowCardViewOnSmallScreens="true"
+           CardXs="12" CardSm="12" CardMd="6" CardLg="4" CardXl="3" AllowAdd="true" AllowEdit="true" AllowView="true" AllowRefresh="true" AllowDelete="true"
+           OnAdd="@HandleAddAsync" OnEdit="@HandleEditAsync" OnView="@HandleViewAsync" OnDelete="@HandleDeleteAsync">
 
-@code {
+    <CraftGridColumn TEntity="TUser" PropertyExpression="@(x => x.Id)" Title="ID" Visible="false" Sortable="true" />
+    <CraftGridColumn TEntity="TUser" PropertyExpression="@(x => x.UserName)" Title="Username" Visible="true" Sortable="true" Searchable="true" />
+    <CraftGridColumn TEntity="TUser" PropertyExpression="@(x => x.Email)" Title="Email" Visible="true" Sortable="true" Searchable="true" />
+    <CraftGridColumn TEntity="TUser" PropertyExpression="@(x => x.FirstName)" Title="First Name" Visible="true" Sortable="true" />
+    <CraftGridColumn TEntity="TUser" PropertyExpression="@(x => x.LastName)" Title="Last Name" Visible="true" Sortable="true" />
+    <CraftGridColumn TEntity="TUser" PropertyExpression="@(x => x.IsActive)" Title="Active" Visible="true" Sortable="true" />
 
-}
+</CraftGrid>

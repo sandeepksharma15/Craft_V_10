@@ -1,0 +1,24 @@
+@namespace Craft.AppComponents.Security
+@using Craft.Security
+@using Craft.UiBuilders.Components
+@using MudBlazor
+@typeparam TRole where TRole : class, ICraftRole, new()
+
+<MudSelect T="KeyType?"
+           @bind-Value="SelectedRoleId"
+           Label="@Label"
+           Placeholder="@Placeholder"
+           Variant="@Variant"
+           Required="@Required"
+           ReadOnly="@ReadOnly"
+           Disabled="@Disabled"
+           Class="@Class"
+           AnchorOrigin="Origin.BottomLeft"
+           ToStringFunc="@(id => GetRoleDisplayText(id))">
+    <Show When="@(_roles != null)">
+        @foreach (var role in (_roles ?? []))
+        {
+            <MudSelectItem T="KeyType?" Value="@role.Id">@role.Name</MudSelectItem>
+        }
+    </Show>
+</MudSelect>

@@ -1,0 +1,24 @@
+@namespace Craft.AppComponents.Security
+@using Craft.Security
+@using Craft.UiBuilders.Components
+@using MudBlazor
+@typeparam TUser where TUser : class, ICraftUser, new()
+
+<MudSelect T="KeyType?"
+           @bind-Value="SelectedUserId"
+           Label="@Label"
+           Placeholder="@Placeholder"
+           Variant="@Variant"
+           Required="@Required"
+           ReadOnly="@ReadOnly"
+           Disabled="@Disabled"
+           Class="@Class"
+           AnchorOrigin="Origin.BottomLeft"
+           ToStringFunc="@(id => GetUserDisplayText(id))">
+    <Show When="@(_users != null)">
+        @foreach (var user in (_users ?? []))
+        {
+            <MudSelectItem T="KeyType?" Value="@user.Id">@GetUserDisplayText(user)</MudSelectItem>
+        }
+    </Show>
+</MudSelect>
