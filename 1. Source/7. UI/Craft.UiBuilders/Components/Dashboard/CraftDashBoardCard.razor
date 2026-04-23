@@ -5,8 +5,8 @@
 @inherits CraftComponent
 
 <Show When="@(Visible)">
-    <MudPaper Elevation="@_currentElevation" Class="pa-2 cursor-pointer transition-all" Style="height: 100%;"
-              @onmouseenter="OnMouseEnter" @onmouseleave="OnMouseLeave">
+    <MudPaper Elevation="@_currentElevation" Class="@($"pa-2 cursor-pointer transition-all {ColorClass}")" Style="height: 100%;"
+              @onmouseenter="OnMouseEnter" @onmouseleave="OnMouseLeave" @onclick="OnCardClickAsync">
 
         <MudGrid Spacing="2" Style="height: 100%;">
             <!-- Title Area -->
@@ -30,10 +30,11 @@
 
             <!-- More Info Link at Bottom -->
             <MudItem xs="12" Class="d-flex justify-end align-center">
-                <MudLink Href="@Href" Color="Color.Primary" Class="d-flex align-center gap-1">
-                    <MudText Typo="Typo.body2">More Info</MudText>
-                    <MudIcon Icon="@MoreInfoIcon" Size="Size.Small" />
-                </MudLink>
+                <span @onclick="OnMoreInfoClickAsync" @onclick:stopPropagation="true"
+                      class="d-flex align-center gap-1 cursor-pointer mud-primary-text">
+                    <MudText Typo="Typo.body2">@MoreInfoText</MudText>
+                    <MudIcon Icon="@MoreInfoIcon" Size="Size.Small" Color="Color.Primary" />
+                </span>
             </MudItem>
         </MudGrid>
     </MudPaper>
