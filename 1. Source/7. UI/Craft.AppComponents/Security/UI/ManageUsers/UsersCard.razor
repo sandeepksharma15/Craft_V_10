@@ -1,7 +1,16 @@
 ﻿@namespace Craft.AppComponents.Security
 
-<h3>UsersCard</h3>
+@using Craft.Domain
+@using Craft.UiBuilders.Components.Dashboard
+@using MudBlazor
+
+<CraftEntityCountCard TEntity="TUser"
+                 Icon="@Icons.Material.Filled.People"
+                 Title="Users"
+                 Href="@Href" />
+
+@typeparam TUser where TUser : class, IEntity, IModel, new()
 
 @code {
-
+    [Parameter] public string? Href { get; set; }
 }

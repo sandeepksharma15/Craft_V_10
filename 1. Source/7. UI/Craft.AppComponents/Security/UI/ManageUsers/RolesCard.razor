@@ -1,7 +1,16 @@
 ﻿@namespace Craft.AppComponents.Security
 
-<h3>RolesCard</h3>
+@using Craft.Domain
+@using Craft.UiBuilders.Components.Dashboard
+@using MudBlazor
+
+<CraftEntityCountCard TEntity="TRole"
+                 Icon="@Icons.Material.Filled.ManageAccounts"
+                 Title="Roles"
+                 Href="@Href" />
+
+@typeparam TRole where TRole : class, IEntity, IModel, new()
 
 @code {
-
+    [Parameter] public string? Href { get; set; }
 }
