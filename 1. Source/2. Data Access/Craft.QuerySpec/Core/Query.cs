@@ -52,7 +52,7 @@ public class Query<T> : IQuery<T> where T : class
 
     public int? Skip
     {
-        get => field;
+        get;
         set
         {
             if (value is < 0)
@@ -63,7 +63,7 @@ public class Query<T> : IQuery<T> where T : class
 
     public int? Take
     {
-        get => field;
+        get;
         set
         {
             if (value.HasValue && value <= 0)
