@@ -1,0 +1,61 @@
+@namespace Craft.Permissions
+@using Craft.UiBuilders.Generic
+@using MudBlazor
+
+@inject IPermissionDefinitionRegistry Registry
+@inject ISnackbar Snackbar
+
+<DataLoader IsLoading="@_isLoading">
+    @if (_groups.Count == 0)
+    {
+        <MudText Typo="Typo.body1" Color="Color.Secondary">No permissions are registered for this application.</MudText>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var group in _groups)
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1" Class="mb-1 mt-3">@(string.IsNullOrEmpty(group.Key) ? "General" : group.Key)</MudText>
+                    <MudDivider Class="mb-2" />
+                </MudItem>
+
+                @foreach (var definition in group.Value)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudCheckBox T="bool"
+                                     Value="@_selected.Contains(definition.Code)"
+                                     ValueChanged="@(v => OnPermissionToggled(definition.Code, v))"
+                                     Label="@definition.Name"
+                                     Disabled="@IsViewMode" />
+                    </MudItem>
+                }
+            }
+
+            @if (!IsViewMode)
+            {
+                <MudItem xs="12" Class="mt-3">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               OnClick="SaveAsync"
+                               Disabled="@_isSaving">
+                        @if (_isSaving)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        }
+                        Save Permissions
+                    </MudButton>
+                    @if (OnCancelRequested.HasDelegate)
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Secondary"
+                                   OnClick="@(() => OnCancelRequested.InvokeAsync())"
+                                   Class="ml-3">
+                            Cancel
+                        </MudButton>
+                    }
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</DataLoader>

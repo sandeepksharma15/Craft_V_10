@@ -1,0 +1,32 @@
+@namespace Craft.Permissions
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IPermissionChecker PermissionChecker
+@inject AuthenticationStateProvider AuthStateProvider
+
+@if (_isAuthorized)
+{
+    @Authorized
+}
+else if (NotAuthorized is not null)
+{
+    @NotAuthorized
+}
+
+@code {
+    private bool _isAuthorized;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var hasRole = !string.IsNullOrWhiteSpace(Roles) &&
+                      Roles.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                           .Any(user.IsInRole);
+
+        var hasPermission = Permission.HasValue && PermissionChecker.HasPermission(Permission.Value);
+
+        _isAuthorized = hasRole || hasPermission;
+    }
+}

@@ -1,0 +1,13 @@
+@namespace Craft.Permissions
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IPermissionChecker PermissionChecker
+
+@if (PermissionChecker.HasPermission(Permission))
+{
+    @Authorized
+}
+else if (NotAuthorized is not null)
+{
+    @NotAuthorized
+}
