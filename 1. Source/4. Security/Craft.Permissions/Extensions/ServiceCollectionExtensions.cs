@@ -20,6 +20,8 @@ public static class ServiceCollectionExtensions
         where TUser : IdentityUser<KeyType>
     {
         services.TryAddSingleton<IPermissionDefinitionRegistry, PermissionDefinitionRegistry>();
+        // RolePermissionRepository resolves DbContext directly — the consuming app must register
+        // its DbContext and call Features.AddPermissions() to include the RolePermission entity.
         services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddHostedService<PermissionStartupValidatorService>();
 

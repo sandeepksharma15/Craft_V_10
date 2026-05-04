@@ -6,14 +6,15 @@ namespace Craft.Permissions;
 
 /// <summary>
 /// EF Core implementation of <see cref="IRolePermissionRepository"/>.
-/// Requires the consuming app's <see cref="DbContext"/> to implement <see cref="IPermissionDbContext"/>.
+/// Requires the consuming app to call <c>Features.AddPermissions()</c> in its DbContext
+/// so that <see cref="RolePermission"/> is included in the model.
 /// </summary>
 public class RolePermissionRepository : IRolePermissionRepository
 {
-    private readonly IPermissionDbContext _dbContext;
+    private readonly DbContext _dbContext;
     private readonly ILogger<RolePermissionRepository> _logger;
 
-    public RolePermissionRepository(IPermissionDbContext dbContext, ILogger<RolePermissionRepository> logger)
+    public RolePermissionRepository(DbContext dbContext, ILogger<RolePermissionRepository> logger)
     {
         _dbContext = dbContext;
         _logger = logger;
@@ -22,7 +23,7 @@ public class RolePermissionRepository : IRolePermissionRepository
     /// <inheritdoc />
     public async Task<IReadOnlyCollection<int>> GetPermissionCodesForRoleAsync(KeyType roleId, CancellationToken cancellationToken = default)
     {
-        var codes = await _dbContext.RolePermissions
+        var codes = await _dbContext.Set<RolePermission>()
             .Where(rp => rp.RoleId == roleId)
             .Select(rp => rp.PermissionCode)
             .ToListAsync(cancellationToken);
@@ -37,7 +38,7 @@ public class RolePermissionRepository : IRolePermissionRepository
 
         var idList = roleIds.ToList();
 
-        var codes = await _dbContext.RolePermissions
+        var codes = await _dbContext.Set<RolePermission>()
             .Where(rp => idList.Contains(rp.RoleId))
             .Select(rp => rp.PermissionCode)
             .Distinct()
@@ -49,7 +50,7 @@ public class RolePermissionRepository : IRolePermissionRepository
     /// <inheritdoc />
     public async Task AssignPermissionAsync(KeyType roleId, int permissionCode, CancellationToken cancellationToken = default)
     {
-        var exists = await _dbContext.RolePermissions
+        var exists = await _dbContext.Set<RolePermission>()
             .AnyAsync(rp => rp.RoleId == roleId && rp.PermissionCode == permissionCode, cancellationToken);
 
         if (exists)
@@ -58,13 +59,13 @@ public class RolePermissionRepository : IRolePermissionRepository
             return;
         }
 
-        _dbContext.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionCode = permissionCode });
+        _dbContext.Set<RolePermission>().Add(new RolePermission { RoleId = roleId, PermissionCode = permissionCode });
     }
 
     /// <inheritdoc />
     public async Task RevokePermissionAsync(KeyType roleId, int permissionCode, CancellationToken cancellationToken = default)
     {
-        var entry = await _dbContext.RolePermissions
+        var entry = await _dbContext.Set<RolePermission>()
             .FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionCode == permissionCode, cancellationToken);
 
         if (entry is null)
@@ -73,7 +74,7 @@ public class RolePermissionRepository : IRolePermissionRepository
             return;
         }
 
-        _dbContext.RolePermissions.Remove(entry);
+        _dbContext.Set<RolePermission>().Remove(entry);
     }
 
     /// <inheritdoc />
@@ -81,26 +82,20 @@ public class RolePermissionRepository : IRolePermissionRepository
     {
         ArgumentNullException.ThrowIfNull(permissionCodes);
 
-        var existing = await _dbContext.RolePermissions
+        var existing = await _dbContext.Set<RolePermission>()
             .Where(rp => rp.RoleId == roleId)
             .ToListAsync(cancellationToken);
 
-        _dbContext.RolePermissions.RemoveRange(existing);
+        _dbContext.Set<RolePermission>().RemoveRange(existing);
 
         var newEntries = permissionCodes
             .Distinct()
             .Select(code => new RolePermission { RoleId = roleId, PermissionCode = code });
 
-        _dbContext.RolePermissions.AddRange(newEntries);
+        _dbContext.Set<RolePermission>().AddRange(newEntries);
     }
 
     /// <inheritdoc />
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        if (_dbContext is DbContext efContext)
-            return await efContext.SaveChangesAsync(cancellationToken);
-
-        _logger.LogWarning("IPermissionDbContext does not inherit DbContext; SaveChangesAsync was not called.");
-        return 0;
-    }
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        => _dbContext.SaveChangesAsync(cancellationToken);
 }
