@@ -20,6 +20,9 @@ public partial class RolesList<TRole>
     /// <summary>Raised when the user clicks View on a role. The parent page handles navigation to the view route.</summary>
     [Parameter] public EventCallback<TRole> OnViewRequested { get; set; }
 
+    /// <summary>Raised when the user clicks Permissions on a role. The parent page handles navigation to the permissions route.</summary>
+    [Parameter] public EventCallback<TRole> OnPermissionsRequested { get; set; }
+
     private async Task HandleAddAsync()
     {
         if (OnAddRequested.HasDelegate)
@@ -36,6 +39,12 @@ public partial class RolesList<TRole>
     {
         if (OnViewRequested.HasDelegate)
             await OnViewRequested.InvokeAsync(role);
+    }
+
+    private async Task HandlePermissionsAsync(TRole role)
+    {
+        if (OnPermissionsRequested.HasDelegate)
+            await OnPermissionsRequested.InvokeAsync(role);
     }
 
     private async Task HandleDeleteAsync(TRole role)

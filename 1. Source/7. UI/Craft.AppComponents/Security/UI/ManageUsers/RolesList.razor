@@ -13,4 +13,16 @@
     <CraftGridColumn TEntity="TRole" PropertyExpression="@(x => x.Description)" Title="Description" Visible="true" Sortable="true" />
     <CraftGridColumn TEntity="TRole" PropertyExpression="@(x => x.IsActive)" Title="Active" Visible="true" Sortable="true" />
 
+    @if (OnPermissionsRequested.HasDelegate)
+    {
+        <CraftGridColumn TEntity="TRole" Title="Permissions" Visible="true" Sortable="false" ShowInCardView="false"
+                         Template="_permissionsTemplate" />
+    }
+
 </CraftGrid>
+
+@code {
+    private RenderFragment<TRole> _permissionsTemplate => role =>
+        @<MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Color="Color.Warning"
+                        Title="Manage Permissions" OnClick="@(() => HandlePermissionsAsync(role))" />;
+}

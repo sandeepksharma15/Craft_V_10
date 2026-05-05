@@ -25,6 +25,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddHostedService<PermissionStartupValidatorService>();
 
+        // Dynamically register PermissionsController<TUser> without requiring a concrete class in the host app
+        services.AddControllers()
+            .ConfigureApplicationPartManager(apm =>
+                apm.FeatureProviders.Add(new PermissionsControllerFeatureProvider<TUser>()));
+
         return new PermissionBuilder(services);
     }
 
