@@ -27,6 +27,7 @@
 		<!-- Craft Framework References - Security -->
 		<ProjectReference Include="..\..\4. Security\Craft.CryptKey\Craft.CryptKey.csproj" />
 		<ProjectReference Include="..\..\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+		<ProjectReference Include="..\..\4. Security\Craft.Permissions\Craft.Permissions.csproj" />
 		<ProjectReference Include="..\..\4. Security\Craft.Security\Craft.Security.csproj" />
 		
 		<!-- Craft Framework References - Web -->
