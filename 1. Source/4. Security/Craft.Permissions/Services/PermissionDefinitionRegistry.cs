@@ -31,7 +31,7 @@ public sealed class PermissionDefinitionRegistry : IPermissionDefinitionRegistry
 
     /// <inheritdoc />
     public IReadOnlyCollection<PermissionDefinition> GetAll()
-        => _definitions.Values.OrderBy(d => d.Group).ThenBy(d => d.Name).ToList();
+        => [.. _definitions.Values.OrderBy(d => d.Group).ThenBy(d => d.Name)];
 
     /// <inheritdoc />
     public PermissionDefinition? GetByCode(int code)

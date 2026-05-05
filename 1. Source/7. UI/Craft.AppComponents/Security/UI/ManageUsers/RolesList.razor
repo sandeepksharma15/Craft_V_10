@@ -23,6 +23,8 @@
 
 @code {
     private RenderFragment<TRole> _permissionsTemplate => role =>
-        @<MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Color="Color.Warning"
-                        Title="Manage Permissions" OnClick="@(() => HandlePermissionsAsync(role))" />;
+        @<MudTooltip Text="Manage Permissions">
+            <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Color="Color.Warning"
+                           OnClick="@(() => HandlePermissionsAsync(role))" />
+        </MudTooltip>;
 }
