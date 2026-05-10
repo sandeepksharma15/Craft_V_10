@@ -1,0 +1,15 @@
+@namespace Craft.UiBuilders.Components
+
+@inherits CraftComponent
+
+@if (StatusService.Current is { } msg)
+{
+    <MudAlert Severity="@msg.Severity"
+              Dense="true"
+              Square="true"
+              ShowCloseIcon="true"
+              CloseIconClicked="@HandleCloseAsync"
+              Class="@($"craft-status-bar {Class}")">
+        @msg.Text
+    </MudAlert>
+}

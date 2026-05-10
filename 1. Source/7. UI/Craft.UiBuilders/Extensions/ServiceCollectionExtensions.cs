@@ -1,3 +1,4 @@
+using Craft.UiBuilders.Services.AppStatus;
 using Craft.UiBuilders.Services.Theme;
 using Craft.UiBuilders.Services.UserPreference;
 using Microsoft.AspNetCore.DataProtection;
@@ -49,7 +50,29 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers all UI Builder services including user preferences and theme management.
+    /// Registers <see cref="IAppStatusService"/> so any component or service can post
+    /// status messages to the <c>CraftStatusBar</c> component.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configure">Optional delegate to customise auto-clear durations.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddAppStatusService(
+        this IServiceCollection services,
+        Action<AppStatusOptions>? configure = null)
+    {
+        services.AddOptions<AppStatusOptions>();
+
+        if (configure is not null)
+            services.Configure(configure);
+
+        services.AddScoped<IAppStatusService, AppStatusService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers all UI Builder services including user preferences, theme management,
+    /// and the application status service.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="applicationName">Optional application name for data protection isolation.</param>
@@ -58,6 +81,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddUserPreferences(applicationName);
         services.AddThemeManager();
+        services.AddAppStatusService();
 
         return services;
     }
