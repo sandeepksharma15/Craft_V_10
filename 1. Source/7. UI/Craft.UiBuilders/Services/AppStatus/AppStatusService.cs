@@ -84,12 +84,15 @@ public sealed class AppStatusService : IAppStatusService, IAsyncDisposable
 
     private async Task CancelAutoClearAsync()
     {
-        if (_autoClearCts is null)
+        // Capture into a local before the first await — a concurrent call can null
+        // the field between the null-check and the subsequent await/dispose.
+        var cts = _autoClearCts;
+        if (cts is null)
             return;
 
-        await _autoClearCts.CancelAsync();
-        _autoClearCts.Dispose();
         _autoClearCts = null;
+        await cts.CancelAsync();
+        cts.Dispose();
     }
 
     private async Task NotifySubscriberAsync()
