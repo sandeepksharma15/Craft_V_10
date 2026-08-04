@@ -196,7 +196,6 @@ After making these changes:
 
 ```razor
 @page "/master/public-holidays"
-@using GccPT.Shared.Models.Masters
 
 <CraftDataGrid TEntity="PublicHoliday"
                HttpService="@PublicHolidayHttpService"

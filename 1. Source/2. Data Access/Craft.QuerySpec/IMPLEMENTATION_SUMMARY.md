@@ -144,7 +144,6 @@ services.AddQuerySpec(options =>
   - `Craft.Testing\TestClasses\BaseRepositoryTests.cs`
   - `Craft.Testing\TestClasses\BaseEntityControllerTests.cs`
   - `Craft.QuerySpec.Tests\Services\RepositoryTests.cs`
-  - `GccPT.Api.Tests\Fixtures\DatabaseFixture.cs`
 
 #### Changes:
 - ✅ Updated repository constructors to include QueryOptions
