@@ -19,9 +19,25 @@ public static class DbContextFeatureExtensions
     /// <summary>
     /// Adds soft delete functionality to the DbContext.
     /// Automatically converts hard deletes to soft deletes for entities implementing ISoftDelete.
+    /// Applies global query filters and configures filtered indexes for soft-deleted entities.
     /// </summary>
     public static DbContextFeatureCollection AddSoftDelete(this DbContextFeatureCollection features) 
         => features.AddFeature<SoftDeleteFeature>();
+
+    /// <summary>
+    /// Adds soft delete functionality to the DbContext with custom configuration.
+    /// Automatically converts hard deletes to soft deletes for entities implementing ISoftDelete.
+    /// Applies global query filters and configures filtered indexes for soft-deleted entities.
+    /// </summary>
+    /// <param name="features">The feature collection.</param>
+    /// <param name="configureAction">Action to configure soft delete options.</param>
+    public static DbContextFeatureCollection AddSoftDelete(this DbContextFeatureCollection features,
+        Action<SoftDeleteConfiguration> configureAction)
+    {
+        var configuration = new SoftDeleteConfiguration();
+        configureAction?.Invoke(configuration);
+        return features.AddFeature(new SoftDeleteFeature(configuration));
+    }
 
     /// <summary>
     /// Adds multi-tenancy functionality to the DbContext.
