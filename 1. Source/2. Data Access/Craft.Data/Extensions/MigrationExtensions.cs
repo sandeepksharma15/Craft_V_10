@@ -13,82 +13,159 @@ public static class MigrationExtensions
 {
     /// <summary>
     /// Applies pending migrations and runs custom seeders for the specified DbContext.
+    /// Includes automatic retry logic for containerized/Aspire scenarios where the database may not be immediately available.
     /// </summary>
     /// <typeparam name="TContext">The DbContext type to migrate.</typeparam>
     /// <param name="app">The web application.</param>
     /// <param name="migrationTimeout">Optional timeout for migration operations (default: 10 minutes).</param>
+    /// <param name="maxRetries">Maximum number of retry attempts if database is unavailable (default: 5).</param>
+    /// <param name="retryDelay">Delay between retry attempts (default: 2 seconds).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The web application for chaining.</returns>
     public static async Task<WebApplication> MigrateDatabaseAsync<TContext>(this WebApplication app,
-        TimeSpan? migrationTimeout = null, CancellationToken cancellationToken = default) where TContext : DbContext
+        TimeSpan? migrationTimeout = null, int maxRetries = 5, TimeSpan? retryDelay = null, CancellationToken cancellationToken = default) where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(app);
 
         migrationTimeout ??= TimeSpan.FromMinutes(10);
+        retryDelay ??= TimeSpan.FromSeconds(2);
 
-        using var scope = app.Services.CreateScope();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<TContext>>();
+        var logger = app.Services.GetRequiredService<ILogger<TContext>>();
+        logger.LogInformation("Starting database migration for {ContextType}", typeof(TContext).Name);
 
-        try
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
-            logger.LogInformation("Starting database migration for {ContextType}", typeof(TContext).Name);
-
-            // Apply migrations
-            var context = scope.ServiceProvider.GetRequiredService<TContext>();
-
-            // Set command timeout for migrations
-            var previousTimeout = context.Database.GetCommandTimeout();
-            context.Database.SetCommandTimeout(migrationTimeout.Value);
-
+            IServiceScope? scope = null;
             try
             {
-                var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken);
-                var pendingCount = pendingMigrations.Count();
+                scope = app.Services.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<TContext>();
 
-                if (pendingCount > 0)
+                logger.LogDebug("Migration attempt {Attempt}/{MaxRetries} for {ContextType}", attempt, maxRetries, typeof(TContext).Name);
+
+                // Check if database is accessible before attempting migration
+                if (!await context.Database.CanConnectAsync(cancellationToken))
                 {
-                    logger.LogInformation("Applying {MigrationCount} pending migrations for {ContextType} with timeout of {Timeout} minutes",
-                        pendingCount, typeof(TContext).Name, migrationTimeout.Value.TotalMinutes);
+                    logger.LogWarning("Cannot connect to database for {ContextType}, retrying in {Delay}s (attempt {Attempt}/{MaxRetries})",
+                        typeof(TContext).Name, retryDelay.Value.TotalSeconds, attempt, maxRetries);
 
-                    await context.Database.MigrateAsync(cancellationToken);
+                    if (attempt < maxRetries)
+                        await Task.Delay(retryDelay.Value, cancellationToken);
 
-                    logger.LogInformation("Successfully applied migrations for {ContextType}", typeof(TContext).Name);
+                    continue;
+                }
+
+                // Set command timeout for migrations
+                var previousTimeout = context.Database.GetCommandTimeout();
+                context.Database.SetCommandTimeout(migrationTimeout.Value);
+
+                try
+                {
+                    var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken);
+                    var pendingCount = pendingMigrations.Count();
+
+                    if (pendingCount > 0)
+                    {
+                        logger.LogInformation("Applying {MigrationCount} pending migrations for {ContextType} with timeout of {Timeout} minutes",
+                            pendingCount, typeof(TContext).Name, migrationTimeout.Value.TotalMinutes);
+
+                        await context.Database.MigrateAsync(cancellationToken);
+
+                        logger.LogInformation("Successfully applied migrations for {ContextType}", typeof(TContext).Name);
+                    }
+                    else
+                    {
+                        logger.LogInformation("No pending migrations for {ContextType}", typeof(TContext).Name);
+                    }
+                }
+                finally
+                {
+                    // Restore previous timeout
+                    context.Database.SetCommandTimeout(previousTimeout);
+                }
+
+                // Run custom seeders
+                var seederRunner = scope.ServiceProvider.GetService<CustomSeederRunner>();
+
+                if (seederRunner != null)
+                {
+                    logger.LogInformation("Running custom seeders for {ContextType}", typeof(TContext).Name);
+                    await seederRunner.RunSeedersAsync(cancellationToken);
+                    logger.LogInformation("Custom seeders completed successfully for {ContextType}", typeof(TContext).Name);
                 }
                 else
                 {
-                    logger.LogInformation("No pending migrations for {ContextType}", typeof(TContext).Name);
+                    logger.LogDebug("No custom seeder runner registered for {ContextType}", typeof(TContext).Name);
                 }
+
+                return app; // Success - return immediately
+            }
+            catch (Npgsql.NpgsqlException ex)
+            {
+                LogPostgreSqlError(logger, ex, typeof(TContext).Name, attempt, maxRetries);
+
+                if (attempt < maxRetries)
+                    await Task.Delay(retryDelay.Value, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                LogGeneralMigrationError(logger, ex, typeof(TContext).Name, attempt, maxRetries);
+
+                if (attempt < maxRetries)
+                    await Task.Delay(retryDelay.Value, cancellationToken);
             }
             finally
             {
-                // Restore previous timeout
-                context.Database.SetCommandTimeout(previousTimeout);
-            }
-
-            // Run custom seeders
-            var seederRunner = scope.ServiceProvider.GetService<CustomSeederRunner>();
-
-            if (seederRunner != null)
-            {
-                logger.LogInformation("Running custom seeders");
-                await seederRunner.RunSeedersAsync(cancellationToken);
-                logger.LogInformation("Custom seeders completed successfully");
-            }
-            else
-            {
-                logger.LogDebug("No custom seeder runner registered");
+                scope?.Dispose();
             }
         }
-        catch (Exception ex)
+
+        // All retries exhausted
+        LogMigrationFailure(logger, typeof(TContext).Name, maxRetries);
+        throw new InvalidOperationException(
+            $"Database migration failed for {typeof(TContext).Name} after {maxRetries} attempts. See logs for details.");
+    }
+
+    private static void LogPostgreSqlError(ILogger logger, Npgsql.NpgsqlException ex, string contextName, int attempt, int maxRetries)
+    {
+        if (attempt < maxRetries)
         {
-            logger.LogError(
-                ex,
-                "Error occurred while migrating database for {ContextType}",
-                typeof(TContext).Name);
-            throw;
+            logger.LogWarning("PostgreSQL error on migration attempt {Attempt}/{MaxRetries} for {ContextType}: {Code} - {Message}",
+                attempt, maxRetries, contextName, ex.SqlState ?? "N/A", ex.Message);
         }
+        else
+        {
+            logger.LogError(ex, "PostgreSQL migration failed for {ContextType} after {MaxRetries} attempts", contextName, maxRetries);
+            logger.LogError("PostgreSQL Error Code: {Code}, Message: {Message}", ex.SqlState, ex.Message);
+        }
+    }
 
-        return app;
+    private static void LogGeneralMigrationError(ILogger logger, Exception ex, string contextName, int attempt, int maxRetries)
+    {
+        if (attempt < maxRetries)
+        {
+            logger.LogWarning(ex, "Migration attempt {Attempt}/{MaxRetries} failed for {ContextType}", attempt, maxRetries, contextName);
+        }
+        else
+        {
+            logger.LogError(ex, "Migration failed for {ContextType} after {MaxRetries} attempts", contextName, maxRetries);
+            logger.LogError("Error Type: {Type}, Message: {Message}", ex.GetType().Name, ex.Message);
+
+            if (ex.InnerException != null)
+                logger.LogError("Inner Error: {Message}", ex.InnerException.Message);
+        }
+    }
+
+    private static void LogMigrationFailure(ILogger logger, string contextName, int maxRetries)
+    {
+        logger.LogCritical("=== DATABASE MIGRATION FAILED FOR {ContextType} ===", contextName);
+        logger.LogCritical("The application cannot start because database migrations failed after {MaxRetries} attempts", maxRetries);
+        logger.LogCritical("Troubleshooting steps:");
+        logger.LogCritical("1. Verify database container is running (Docker: 'docker ps', Podman: 'podman ps')");
+        logger.LogCritical("2. Check connection string configuration in appsettings.json or Aspire AppHost");
+        logger.LogCritical("3. Review Aspire dashboard for service health and logs");
+        logger.LogCritical("4. Verify database credentials and permissions");
+        logger.LogCritical("5. Check database logs for connection/authentication errors");
     }
 
     /// <summary>
