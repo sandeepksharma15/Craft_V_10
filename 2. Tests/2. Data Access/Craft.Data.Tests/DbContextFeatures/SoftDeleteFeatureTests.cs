@@ -261,15 +261,14 @@ using (var contextWith = new TestDbContext(options, configWithFiltering))
     [InlineData(DatabaseProvider.PostgreSql, "\"IsDeleted\" = false")]
     [InlineData(DatabaseProvider.MySql, "`IsDeleted` = 0")]
     [InlineData(DatabaseProvider.Sqlite, "\"IsDeleted\" = 0")]
-    public void GetFilterExpression_Should_Return_Provider_Specific_Syntax(
-        DatabaseProvider provider, string expectedFilter)
+    public void GetFilterExpression_Should_Return_Provider_Specific_Syntax(DatabaseProvider provider, string expectedFilter)
     {
         // Arrange
-        var config = new SoftDeleteConfiguration
-        {
-            DatabaseProvider = provider
-        };
-        var feature = new SoftDeleteFeature(config);
+        //var config = new SoftDeleteConfiguration
+        //{
+        //    DatabaseProvider = provider
+        //};
+        //var feature = new SoftDeleteFeature(config);
 
         // Act - Use reflection to call the private GetFilterExpression method
         var method = typeof(SoftDeleteFeature).GetMethod("GetFilterExpression",

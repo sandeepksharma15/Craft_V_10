@@ -1,5 +1,6 @@
 using Craft.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Craft.Data.DbContextFeatures;
 
@@ -74,8 +75,7 @@ public class SoftDeleteFeature : IDbContextFeature
     /// Applies soft delete filters to all unique indexes for the specified entity type.
     /// This allows reusing unique values (like names, emails, codes) after soft deletion.
     /// </summary>
-    private void ApplySoftDeleteFiltersToUniqueIndexes(ModelBuilder modelBuilder,
-        Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, DatabaseProvider provider)
+    private void ApplySoftDeleteFiltersToUniqueIndexes(ModelBuilder modelBuilder, IMutableEntityType entityType, DatabaseProvider provider)
     {
         var filterExpression = GetFilterExpression(provider);
         var uniqueIndexes = entityType.GetIndexes()
