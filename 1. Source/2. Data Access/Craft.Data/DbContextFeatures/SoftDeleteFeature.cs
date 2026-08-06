@@ -65,9 +65,7 @@ public class SoftDeleteFeature : IDbContextFeature
 
             // Apply soft delete filters to all unique indexes
             if (_configuration.ApplyFiltersToUniqueIndexes)
-            {
-                ApplySoftDeleteFiltersToUniqueIndexes(modelBuilder, entityType, provider);
-            }
+                ApplySoftDeleteFiltersToUniqueIndexes(entityType, provider);
         }
     }
 
@@ -75,9 +73,10 @@ public class SoftDeleteFeature : IDbContextFeature
     /// Applies soft delete filters to all unique indexes for the specified entity type.
     /// This allows reusing unique values (like names, emails, codes) after soft deletion.
     /// </summary>
-    private void ApplySoftDeleteFiltersToUniqueIndexes(ModelBuilder modelBuilder, IMutableEntityType entityType, DatabaseProvider provider)
+    private static void ApplySoftDeleteFiltersToUniqueIndexes(IMutableEntityType entityType, DatabaseProvider provider)
     {
         var filterExpression = GetFilterExpression(provider);
+
         var uniqueIndexes = entityType.GetIndexes()
             .Where(i => i.IsUnique)
             .ToList();

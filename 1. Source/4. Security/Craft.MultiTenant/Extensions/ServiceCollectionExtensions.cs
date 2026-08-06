@@ -16,15 +16,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => (ITenantContextAccessor)sp.GetRequiredService<ITenantContextAccessor<T>>());
 
         // Register TenantContext<T> - returns null if not available (e.g., during migrations)
-        services.AddScoped(sp =>
-            sp.GetRequiredService<ITenantContextAccessor<T>>().TenantContext);
+        services.AddScoped(typeof(ITenantContext<T>), sp =>
+            sp.GetRequiredService<ITenantContextAccessor<T>>().TenantContext!);
 
         // Register concrete tenant type T - returns null if not available (e.g., during migrations)
-        services.AddScoped(sp =>
-            sp.GetRequiredService<ITenantContextAccessor<T>>().TenantContext?.Tenant);
+        services.AddScoped(typeof(T), sp =>
+            sp.GetRequiredService<ITenantContextAccessor<T>>().TenantContext?.Tenant!);
 
         // Register ITenant interface - returns null if concrete type is null
-        services.AddScoped<ITenant>(sp => sp.GetService<T>());
+        services.AddScoped(typeof(ITenant), sp => sp.GetService<T>()!);
 
         services.AddScoped<ICurrentTenant, CurrentTenant>();
         services.AddScoped<ICurrentTenant<KeyType>, CurrentTenant>();
