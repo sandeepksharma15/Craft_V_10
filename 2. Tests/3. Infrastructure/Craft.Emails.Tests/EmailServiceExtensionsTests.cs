@@ -1,4 +1,6 @@
 using Craft.Emails;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -105,6 +107,24 @@ public class EmailServiceExtensionsTests
 
         // Assert
         Assert.IsType<TestEmailQueue>(queue);
+    }
+
+    [Fact]
+    public void AddEmailApi_RegistersEmailController()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddEmailApi();
+
+        var serviceProvider = services.BuildServiceProvider();
+        var applicationPartManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
+        var controllerFeature = new ControllerFeature();
+        applicationPartManager.PopulateFeature(controllerFeature);
+
+        // Assert
+        Assert.Contains(controllerFeature.Controllers, controller => controller.AsType() == typeof(EmailController));
     }
 
     private class TestEmailProvider : IEmailProvider

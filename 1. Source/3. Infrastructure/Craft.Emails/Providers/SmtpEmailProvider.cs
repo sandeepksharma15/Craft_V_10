@@ -41,17 +41,11 @@ public class SmtpEmailProvider : IEmailProvider
             using var smtp = new SmtpClient();
             smtp.Timeout = _options.Smtp!.TimeoutSeconds * 1000;
 
-            await smtp.ConnectAsync(
-                _options.Smtp.Host!,
-                _options.Smtp.Port,
-                _options.Smtp.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None,
-                cancellationToken);
+            await smtp.ConnectAsync(_options.Smtp.Host!, _options.Smtp.Port,
+                _options.Smtp.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None, cancellationToken);
 
-            if (!string.IsNullOrWhiteSpace(_options.Smtp.UserName) &&
-                !string.IsNullOrWhiteSpace(_options.Smtp.Password))
-            {
+            if (!string.IsNullOrWhiteSpace(_options.Smtp.UserName) && !string.IsNullOrWhiteSpace(_options.Smtp.Password))
                 await smtp.AuthenticateAsync(_options.Smtp.UserName, _options.Smtp.Password, cancellationToken);
-            }
 
             var response = await smtp.SendAsync(email, cancellationToken);
             await smtp.DisconnectAsync(true, cancellationToken);

@@ -14,12 +14,8 @@ public class MailService : IMailService
     private readonly EmailOptions _options;
     private readonly ILogger<MailService> _logger;
 
-    public MailService(
-        IEmailProviderFactory providerFactory,
-        IEmailTemplateRenderer templateRenderer,
-        IEmailQueue emailQueue,
-        IOptions<EmailOptions> options,
-        ILogger<MailService> logger)
+    public MailService(IEmailProviderFactory providerFactory, IEmailTemplateRenderer templateRenderer,
+        IEmailQueue emailQueue, IOptions<EmailOptions> options, ILogger<MailService> logger)
     {
         _providerFactory = providerFactory;
         _templateRenderer = templateRenderer;
@@ -41,11 +37,8 @@ public class MailService : IMailService
         return await SendWithRetryAsync(provider, request, cancellationToken);
     }
 
-    public async Task<string> QueueAsync(
-        MailRequest request,
-        EmailPriority priority = EmailPriority.Normal,
-        DateTimeOffset? scheduledFor = null,
-        CancellationToken cancellationToken = default)
+    public async Task<string> QueueAsync(MailRequest request, EmailPriority priority = EmailPriority.Normal,
+        DateTimeOffset? scheduledFor = null, CancellationToken cancellationToken = default)
     {
         var queuedEmail = new QueuedEmail
         {
@@ -66,30 +59,18 @@ public class MailService : IMailService
         return queuedEmail.Id;
     }
 
-    public async Task<EmailResult> SendTemplateAsync<T>(
-        List<string> to,
-        string subject,
-        string templateName,
-        T model,
+    public async Task<EmailResult> SendTemplateAsync<T>(List<string> to, string subject, string templateName, T model,
         CancellationToken cancellationToken = default)
     {
         var body = await _templateRenderer.RenderAsync(templateName, model, cancellationToken);
 
-        var request = new MailRequest(
-            to: to,
-            subject: subject,
-            body: body);
+        var request = new MailRequest(to: to, subject: subject, body: body);
 
         return await SendAsync(request, cancellationToken);
     }
 
-    public async Task<string> QueueTemplateAsync<T>(
-        List<string> to,
-        string subject,
-        string templateName,
-        T model,
-        EmailPriority priority = EmailPriority.Normal,
-        DateTimeOffset? scheduledFor = null,
+    public async Task<string> QueueTemplateAsync<T>(List<string> to, string subject, string templateName, T model,
+        EmailPriority priority = EmailPriority.Normal, DateTimeOffset? scheduledFor = null,
         CancellationToken cancellationToken = default)
     {
         var body = await _templateRenderer.RenderAsync(templateName, model, cancellationToken);
@@ -102,9 +83,7 @@ public class MailService : IMailService
         return await QueueAsync(request, priority, scheduledFor, cancellationToken);
     }
 
-    public async Task<string> PreviewTemplateAsync<T>(
-        string templateName,
-        T model,
+    public async Task<string> PreviewTemplateAsync<T>(string templateName, T model,
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Generating preview for template '{TemplateName}'", templateName);
@@ -116,9 +95,7 @@ public class MailService : IMailService
         return _emailQueue.GetByIdAsync(emailId, cancellationToken);
     }
 
-    private async Task<EmailResult> SendWithRetryAsync(
-        IEmailProvider provider,
-        MailRequest request,
+    private async Task<EmailResult> SendWithRetryAsync(IEmailProvider provider, MailRequest request,
         CancellationToken cancellationToken)
     {
         var maxAttempts = _options.MaxRetryAttempts + 1;
@@ -133,27 +110,16 @@ public class MailService : IMailService
                 if (lastResult.IsSuccess)
                 {
                     if (attempt > 1)
-                        _logger.LogInformation(
-                            "Email sent successfully on attempt {Attempt} of {MaxAttempts}",
-                            attempt,
-                            maxAttempts);
+                        _logger.LogInformation("Email sent successfully on attempt {Attempt} of {MaxAttempts}", attempt, maxAttempts);
 
                     return lastResult;
                 }
 
-                _logger.LogWarning(
-                    "Email send failed on attempt {Attempt} of {MaxAttempts}: {Error}",
-                    attempt,
-                    maxAttempts,
-                    lastResult.ErrorMessage);
+                _logger.LogWarning("Email send failed on attempt {Attempt} of {MaxAttempts}: {Error}", attempt, maxAttempts, lastResult.ErrorMessage);
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    "Exception on email send attempt {Attempt} of {MaxAttempts}",
-                    attempt,
-                    maxAttempts);
+                _logger.LogError(ex, "Exception on email send attempt {Attempt} of {MaxAttempts}", attempt, maxAttempts);
 
                 lastResult = EmailResult.Failure(ex.Message, ex);
             }
@@ -166,9 +132,7 @@ public class MailService : IMailService
             }
         }
 
-        _logger.LogError(
-            "Email failed permanently after {MaxAttempts} attempts",
-            maxAttempts);
+        _logger.LogError("Email failed permanently after {MaxAttempts} attempts", maxAttempts);
 
         return lastResult ?? EmailResult.Failure("Email send failed");
     }

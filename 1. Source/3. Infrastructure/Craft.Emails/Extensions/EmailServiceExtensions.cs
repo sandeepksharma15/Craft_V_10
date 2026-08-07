@@ -1,4 +1,5 @@
 using Craft.Emails;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -12,6 +13,21 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class EmailServiceExtensions
 {
     /// <summary>
+    /// Adds the library-provided email API controller to MVC.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddEmailApi(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.AddControllers()
+            .ConfigureApplicationPartManager(manager => AddEmailControllerFeatureProvider(manager));
+
+        return services;
+    }
+
+    /// <summary>
     /// Adds email services to the service collection with configuration from appsettings.
     /// </summary>
     /// <param name="services">The service collection.</param>
@@ -22,9 +38,7 @@ public static class EmailServiceExtensions
     /// builder.Services.AddEmailServices(builder.Configuration);
     /// </code>
     /// </example>
-    public static IServiceCollection AddEmailServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
         return services.AddEmailServices(configuration.GetSection(EmailOptions.SectionName));
     }
@@ -35,9 +49,7 @@ public static class EmailServiceExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configurationSection">The configuration section containing EmailOptions.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddEmailServices(
-        this IServiceCollection services,
-        IConfigurationSection configurationSection)
+    public static IServiceCollection AddEmailServices(this IServiceCollection services, IConfigurationSection configurationSection)
     {
         services.AddOptions<EmailOptions>()
             .Bind(configurationSection)
@@ -57,6 +69,7 @@ public static class EmailServiceExtensions
         services.TryAddScoped<IMailService, MailService>();
 
         var options = configurationSection.Get<EmailOptions>();
+
         if (options?.EnableQueue == true)
             services.AddHostedService<EmailQueueProcessor>();
 
@@ -83,9 +96,7 @@ public static class EmailServiceExtensions
     /// });
     /// </code>
     /// </example>
-    public static IServiceCollection AddEmailServices(
-        this IServiceCollection services,
-        Action<EmailOptions> configureOptions)
+    public static IServiceCollection AddEmailServices(this IServiceCollection services, Action<EmailOptions> configureOptions)
     {
         services.AddOptions<EmailOptions>()
             .Configure(configureOptions)
@@ -158,5 +169,15 @@ public static class EmailServiceExtensions
     {
         services.Replace(ServiceDescriptor.Singleton<IEmailTemplateRenderer, TRenderer>());
         return services;
+    }
+
+    private static void AddEmailControllerFeatureProvider(ApplicationPartManager manager)
+    {
+        ArgumentNullException.ThrowIfNull(manager);
+
+        if (manager.FeatureProviders.OfType<EmailControllerFeatureProvider>().Any())
+            return;
+
+        manager.FeatureProviders.Add(new EmailControllerFeatureProvider());
     }
 }
