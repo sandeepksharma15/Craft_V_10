@@ -1,7 +1,9 @@
 ﻿@namespace Craft.AppComponents.Security
+
 @using Craft.UiBuilders.Components
 @using Craft.Security
 @using MudBlazor
+
 @typeparam TUser where TUser : class, ICraftUser, new()
 
 <CraftGrid TEntity="TUser" HttpService="@HttpService" InitialPageSize="10" SwitchBreakpoint="Breakpoint.Xs" ShowCardViewOnSmallScreens="true"
