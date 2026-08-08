@@ -9,9 +9,7 @@ namespace Craft.Security;
 /// </summary>
 public class BearerTokenHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {
-    protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         // Capture token synchronously to avoid HttpContext disposal issues in async operations
         string? token = null;
