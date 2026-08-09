@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Suppress buggy MvcAnalyzer (ASP0023/ASP0026) that throws ArgumentException on SyntaxTree not part of compilation -->
-    <NoWarn>$(NoWarn);ASP0023;ASP0026</NoWarn>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Suppress buggy MvcAnalyzer (ASP0023/ASP0026) that throws ArgumentException on SyntaxTree not part of compilation -->
+		<NoWarn>$(NoWarn);ASP0023;ASP0026</NoWarn>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.10" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.10" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\1. Source\5. Web\Craft.Controllers\Craft.Controllers.csproj" />
-    <ProjectReference Include="..\..\1. Source\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
-    <ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Repositories\Craft.Repositories.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\1. Source\5. Web\Craft.Controllers\Craft.Controllers.csproj" />
+		<ProjectReference Include="..\..\1. Source\4. Security\Craft.MultiTenant\Craft.MultiTenant.csproj" />
+		<ProjectReference Include="..\..\1. Source\2. Data Access\Craft.Repositories\Craft.Repositories.csproj" />
+	</ItemGroup>
 
 </Project>

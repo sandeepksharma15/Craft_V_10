@@ -75,8 +75,8 @@ public static class ApiVersioningExtensions
     {
         services.AddApiVersioning(options =>
         {
-            // Default API version is 1.0
-            options.DefaultApiVersion = new ApiVersion(1, 0);
+            // Default API version is 1.1
+            options.DefaultApiVersion = new ApiVersion(1, 1);
             
             // Assume default version when client doesn't specify
             options.AssumeDefaultVersionWhenUnspecified = true;

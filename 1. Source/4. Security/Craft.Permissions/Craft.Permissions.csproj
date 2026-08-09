@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MudBlazor" Version="9.7.0">
+		<PackageReference Include="MudBlazor" Version="9.8.0">
 		  <TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
 	</ItemGroup>
