@@ -9,9 +9,12 @@ namespace Craft.AppComponents.Security;
 /// so auth flows can send real emails without redefining the controller or repository.
 /// </summary>
 /// <typeparam name="TUser">The application user type.</typeparam>
-internal sealed class NoOpEmailSender<TUser> : IEmailSender<TUser>
+internal sealed class NoOpEmailSender<TUser> : IAuthEmailSender<TUser>
     where TUser : class
 {
+    /// <inheritdoc />
+    public bool IsEnabled => false;
+
     /// <inheritdoc />
     public Task SendConfirmationLinkAsync(TUser user, string email, string confirmationLink)
         => Task.CompletedTask;
@@ -22,5 +25,9 @@ internal sealed class NoOpEmailSender<TUser> : IEmailSender<TUser>
 
     /// <inheritdoc />
     public Task SendPasswordResetLinkAsync(TUser user, string email, string resetLink)
+        => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public Task SendWelcomeEmailAsync(TUser user, string email)
         => Task.CompletedTask;
 }

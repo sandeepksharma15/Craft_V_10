@@ -15,6 +15,7 @@ public partial class RegisterUser<TUser> : ComponentBase
     where TUser : class, ICreateUserRequest, new()
 {
     [Inject] private IAuthHttpService<TUser> AuthService { get; set; } = null!;
+    [Inject] private NavigationManager Nav { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
 
     /// <summary>
@@ -53,6 +54,12 @@ public partial class RegisterUser<TUser> : ComponentBase
     /// </summary>
     [Parameter] public string LoginHref { get; set; } = "/login";
 
+    /// <summary>
+    /// Relative path to the client page that handles e-mail confirmation callbacks.
+    /// Defaults to <c>"/confirm-email"</c>.
+    /// </summary>
+    [Parameter] public string ConfirmationHref { get; set; } = "/confirm-email";
+
     private readonly RegisterFormModel _model = new();
     private bool _isProcessing;
     private bool _showPassword;
@@ -69,11 +76,13 @@ public partial class RegisterUser<TUser> : ComponentBase
                 ? CreateRequest(_model)
                 : BuildDefaultRequest();
 
+            request.ClientURI = BuildClientUri(ConfirmationHref);
+
             var result = await AuthService.RegisterAsync(request);
 
             if (result.IsSuccess)
             {
-                Snackbar.Add("Account created successfully. Please sign in.", Severity.Success);
+                Snackbar.Add(result.Value?.UserMessage ?? "Account created successfully. Please sign in.", Severity.Success);
                 await OnSuccess.InvokeAsync();
             }
             else
@@ -98,11 +107,18 @@ public partial class RegisterUser<TUser> : ComponentBase
     /// </summary>
     private TUser BuildDefaultRequest() => new()
     {
+        ClientURI = BuildClientUri(ConfirmationHref),
         FirstName = _model.FirstName,
         LastName = _model.LastName,
         Email = _model.Email,
         Password = _model.Password
     };
+
+    private string BuildClientUri(string href)
+    {
+        var relativePath = href.StartsWith('/') ? href : $"/{href}";
+        return Nav.BaseUri.TrimEnd('/') + relativePath;
+    }
 
     private void TogglePasswordVisibility()
     {

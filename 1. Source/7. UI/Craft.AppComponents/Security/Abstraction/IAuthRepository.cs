@@ -14,14 +14,17 @@ public interface IAuthRepository : IBaseRepository<RefreshToken, KeyType>
     /// <summary>Revokes the caller's access token and removes all stored refresh tokens for the user.</summary>
     Task LogoutAsync(string? jwtToken, string? userId, CancellationToken cancellationToken = default);
 
-    /// <summary>Registers a new user account and returns the new user's ID.</summary>
-    Task<string> RegisterUserAsync(ICreateUserRequest request, CancellationToken cancellationToken = default);
+    /// <summary>Registers a new user account and returns the user-facing outcome of the registration flow.</summary>
+    Task<AuthFlowResponse> RegisterUserAsync(ICreateUserRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>Confirms a user's e-mail address using the token issued during registration.</summary>
+    Task<AuthFlowResponse> ConfirmEmailAsync(IEmailConfirmationRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>Changes the password for an authenticated user.</summary>
     Task ChangePasswordAsync(IPasswordChangeRequest request, CancellationToken cancellationToken = default);
 
-    /// <summary>Initiates a forgot-password flow by sending a reset link to the user's e-mail.</summary>
-    Task ForgotPasswordAsync(IPasswordForgotRequest request, CancellationToken cancellationToken = default);
+    /// <summary>Initiates a forgot-password flow and returns the user-facing outcome of that flow.</summary>
+    Task<AuthFlowResponse> ForgotPasswordAsync(IPasswordForgotRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>Resets a user's password using the token issued by a forgot-password flow.</summary>
     Task ResetPasswordAsync(IPasswordResetRequest request, CancellationToken cancellationToken = default);

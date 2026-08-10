@@ -38,7 +38,14 @@ public interface IAuthHttpService<in TUserVM> where TUserVM : class
     /// </summary>
     /// <param name="model">The user view-model containing registration data.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<ServiceResult> RegisterAsync(TUserVM model, CancellationToken ct = default);
+    Task<ServiceResult<AuthFlowResponse>> RegisterAsync(TUserVM model, CancellationToken ct = default);
+
+    /// <summary>
+    /// Confirms a user's email address using the token issued during registration.
+    /// </summary>
+    /// <param name="model">The user's e-mail address and confirmation token.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<ServiceResult<AuthFlowResponse>> ConfirmEmailAsync(EmailConfirmationRequest model, CancellationToken ct = default);
 
     /// <summary>
     /// Changes the password for the currently authenticated user.
@@ -52,7 +59,7 @@ public interface IAuthHttpService<in TUserVM> where TUserVM : class
     /// </summary>
     /// <param name="model">The user's e-mail and the client callback URI.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<ServiceResult> ForgotPasswordAsync(PasswordForgotRequest model, CancellationToken ct = default);
+    Task<ServiceResult<AuthFlowResponse>> ForgotPasswordAsync(PasswordForgotRequest model, CancellationToken ct = default);
 
     /// <summary>
     /// Resets a user's password using the token issued by a forgot-password request.

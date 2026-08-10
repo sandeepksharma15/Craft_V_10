@@ -10,7 +10,8 @@ namespace Craft.AppComponents.Security;
 
 /// <summary>
 /// Reusable, overridable API controller that handles all standard authentication endpoints:
-/// login, token refresh, logout, registration, password change, forgot-password, and password reset.
+/// login, token refresh, logout, registration, email confirmation, password change,
+/// forgot-password, and password reset.
 /// </summary>
 /// <remarks>
 /// Derive from this class to produce a ready-to-use auth controller.
@@ -131,12 +132,12 @@ public abstract class AuthControllerBase : ControllerBase
     /// </param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     /// <returns>
-    /// <see cref="CreatedAtActionResult"/> pointing to this action on success;
+    /// A user-facing auth flow response on success;
     /// <see cref="BadRequestResult"/> on failure.
     /// </returns>
     [AllowAnonymous]
     [HttpPost("register")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AuthFlowResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(List<string>), StatusCodes.Status400BadRequest)]
     public virtual async Task<IActionResult> RegisterUserAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken = default)
     {
@@ -144,15 +145,47 @@ public abstract class AuthControllerBase : ControllerBase
 
         try
         {
-            var userId = await _authRepository.RegisterUserAsync(request, cancellationToken);
+            var response = await _authRepository.RegisterUserAsync(request, cancellationToken);
 
-            _logger.LogInformation("[AuthController] New user registered: {Email} (Id={UserId})", request.Email, userId);
+            _logger.LogInformation("[AuthController] New user registered: {Email}", request.Email);
 
-            return StatusCode(StatusCodes.Status201Created);
+            return StatusCode(StatusCodes.Status201Created, response);
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning("[AuthController] Registration rejected for {Email}: {Message}", request.Email, ex.Message);
+            return BadRequest(new List<string> { ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Confirms a user's email address using the token issued during registration.
+    /// </summary>
+    /// <param name="request">The user's e-mail address and confirmation token.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <returns>
+    /// A user-facing auth flow response on success;
+    /// <see cref="BadRequestResult"/> when the token is invalid or expired.
+    /// </returns>
+    [AllowAnonymous]
+    [HttpPost("confirm-email")]
+    [ProducesResponseType(typeof(AuthFlowResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<string>), StatusCodes.Status400BadRequest)]
+    public virtual async Task<IActionResult> ConfirmEmailAsync([FromBody] EmailConfirmationRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        try
+        {
+            var response = await _authRepository.ConfirmEmailAsync(request, cancellationToken);
+
+            _logger.LogInformation("[AuthController] Email confirmed for {Email}", request.Email);
+
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("[AuthController] Email confirmation failed for {Email}: {Message}", request.Email, ex.Message);
             return BadRequest(new List<string> { ex.Message });
         }
     }
@@ -198,27 +231,32 @@ public abstract class AuthControllerBase : ControllerBase
     /// A <see cref="PasswordForgotRequest"/> containing the user's e-mail and the client callback URI.
     /// </param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
-    /// <returns><see cref="NoContentResult"/> on success.</returns>
+    /// <returns>A user-facing auth flow response on success.</returns>
     [AllowAnonymous]
     [HttpPost("forgot-password")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(AuthFlowResponse), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> ForgotPasswordAsync([FromBody] PasswordForgotRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         try
         {
-            await _authRepository.ForgotPasswordAsync(request, cancellationToken);
+            var response = await _authRepository.ForgotPasswordAsync(request, cancellationToken);
 
-            _logger.LogInformation("[AuthController] Password reset e-mail dispatched for {Email}", request.Email);
+            _logger.LogInformation("[AuthController] Forgot-password flow completed for {Email}", request.Email);
+
+            return Ok(response);
         }
         catch (Exception ex)
         {
             // Never reveal whether the e-mail exists or whether sending failed.
             _logger.LogError(ex, "[AuthController] Forgot-password failed silently for {Email}", request.Email);
-        }
 
-        return NoContent();
+            return Ok(new AuthFlowResponse
+            {
+                UserMessage = "If an account exists for that email address, your request has been received."
+            });
+        }
     }
 
     /// <summary>

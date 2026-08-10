@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Craft.AppComponents.Tests.Security;
 
 /// <summary>
-/// Unit tests for <see cref="AuthHttpService{TUserVM}"/> covering all four HTTP endpoints.
+/// Unit tests for <see cref="AuthHttpService{TUserVM}"/> covering the standard authentication HTTP endpoints.
 /// Uses a stub <see cref="HttpMessageHandler"/> to avoid real network calls.
 /// </summary>
 public class AuthHttpServiceTests
@@ -32,6 +32,9 @@ public class AuthHttpServiceTests
 
     private static HttpMessageHandler NoContentHandler()
         => new StubHttpHandler(HttpStatusCode.NoContent, string.Empty);
+
+    private static HttpMessageHandler CreatedJsonHandler<T>(T body)
+        => new StubHttpHandler(HttpStatusCode.Created, JsonSerializer.Serialize(body));
 
     private static HttpMessageHandler ErrorHandler(HttpStatusCode code, string body = "error")
         => new StubHttpHandler(code, body);
@@ -155,10 +158,16 @@ public class AuthHttpServiceTests
     // ── RegisterAsync ────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task RegisterAsync_ReturnsSuccess_WhenApiRespondsWithNoContent()
+    public async Task RegisterAsync_ReturnsSuccess_WhenApiRespondsWithAuthFlowResponse()
     {
         // Arrange
-        var service = CreateService(NoContentHandler());
+        var service = CreateService(CreatedJsonHandler(new AuthFlowResponse
+        {
+            EmailSenderEnabled = true,
+            ConfirmationEmailSent = true,
+            WelcomeEmailSent = true,
+            UserMessage = "Check your email to confirm your account."
+        }));
         var model = new TestUserVM { Email = "new@example.com" };
 
         // Act
@@ -166,6 +175,8 @@ public class AuthHttpServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
+        Assert.Equal("Check your email to confirm your account.", result.Value?.UserMessage);
+        Assert.True(result.Value?.ConfirmationEmailSent);
     }
 
     [Fact]
@@ -181,6 +192,50 @@ public class AuthHttpServiceTests
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ReturnsSuccess_WhenApiRespondsWithAuthFlowResponse()
+    {
+        // Arrange
+        var service = CreateService(OkJsonHandler(new AuthFlowResponse
+        {
+            ConfirmationEmailSent = true,
+            UserMessage = "Your email address has been confirmed successfully."
+        }));
+        var request = new EmailConfirmationRequest { Email = "user@example.com", Token = "confirm-token" };
+
+        // Act
+        var result = await service.ConfirmEmailAsync(request);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Your email address has been confirmed successfully.", result.Value?.UserMessage);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ReturnsFailure_WhenApiRespondsWithBadRequest()
+    {
+        // Arrange
+        var service = CreateService(ErrorHandler(HttpStatusCode.BadRequest));
+        var request = new EmailConfirmationRequest { Email = "user@example.com", Token = "bad-token" };
+
+        // Act
+        var result = await service.ConfirmEmailAsync(request);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ThrowsArgumentNullException_WhenModelIsNull()
+    {
+        // Arrange
+        var service = CreateService(OkJsonHandler(new AuthFlowResponse()));
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.ConfirmEmailAsync(null!));
     }
 
     [Fact]

@@ -145,15 +145,19 @@ public class AuthControllerBaseTests
     public async Task RegisterUserAsync_ReturnsCreated_WhenRegistrationSucceeds()
     {
         // Arrange
-        var request = new CreateUserRequest { Email = "new@example.com", Password = "P@ssw0rd", FirstName = "New", LastName = "User" };
-        _repoMock.Setup(r => r.RegisterUserAsync(request, It.IsAny<CancellationToken>())).ReturnsAsync("100");
+        var request = new CreateUserRequest { ClientURI = "https://app/confirm-email", Email = "new@example.com", Password = "P@ssw0rd", FirstName = "New", LastName = "User" };
+        _repoMock.Setup(r => r.RegisterUserAsync(request, It.IsAny<CancellationToken>())).ReturnsAsync(new AuthFlowResponse
+        {
+            UserMessage = "Account created successfully. Please sign in."
+        });
 
         // Act
         var result = await _controller.RegisterUserAsync(request);
 
         // Assert
-        var statusResult = Assert.IsType<StatusCodeResult>(result);
+        var statusResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(StatusCodes.Status201Created, statusResult.StatusCode);
+        Assert.IsType<AuthFlowResponse>(statusResult.Value);
     }
 
     [Fact]
@@ -161,6 +165,51 @@ public class AuthControllerBaseTests
     {
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => _controller.RegisterUserAsync(null!));
+    }
+
+    // ── ConfirmEmailAsync ────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ReturnsOk_WhenConfirmationSucceeds()
+    {
+        // Arrange
+        var request = new EmailConfirmationRequest { Email = "user@example.com", Token = "confirm-token" };
+        _repoMock.Setup(r => r.ConfirmEmailAsync(request, It.IsAny<CancellationToken>())).ReturnsAsync(new AuthFlowResponse
+        {
+            ConfirmationEmailSent = true,
+            UserMessage = "Your email address has been confirmed successfully."
+        });
+
+        // Act
+        var result = await _controller.ConfirmEmailAsync(request);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.IsType<AuthFlowResponse>(okResult.Value);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ReturnsBadRequest_WhenRepositoryThrows()
+    {
+        // Arrange
+        var request = new EmailConfirmationRequest { Email = "user@example.com", Token = "bad-token" };
+        _repoMock.Setup(r => r.ConfirmEmailAsync(request, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("This email confirmation link is invalid or has expired."));
+
+        // Act
+        var result = await _controller.ConfirmEmailAsync(request);
+
+        // Assert
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        var errors = Assert.IsType<List<string>>(badRequest.Value);
+        Assert.Contains("This email confirmation link is invalid or has expired.", errors);
+    }
+
+    [Fact]
+    public async Task ConfirmEmailAsync_ThrowsArgumentNullException_WhenRequestIsNull()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _controller.ConfirmEmailAsync(null!));
     }
 
     // ── ChangePasswordAsync ──────────────────────────────────────────────────────
@@ -206,17 +255,23 @@ public class AuthControllerBaseTests
     // ── ForgotPasswordAsync ──────────────────────────────────────────────────────
 
     [Fact]
-    public async Task ForgotPasswordAsync_ReturnsNoContent_WhenEmailDispatched()
+    public async Task ForgotPasswordAsync_ReturnsOk_WhenEmailFlowCompletes()
     {
         // Arrange
         var request = new PasswordForgotRequest { Email = "user@example.com", ClientURI = "https://app/reset" };
-        _repoMock.Setup(r => r.ForgotPasswordAsync(request, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _repoMock.Setup(r => r.ForgotPasswordAsync(request, It.IsAny<CancellationToken>())).ReturnsAsync(new AuthFlowResponse
+        {
+            EmailSenderEnabled = true,
+            PasswordResetEmailRequested = true,
+            UserMessage = "If an account exists for that email address, a password reset link has been sent."
+        });
 
         // Act
         var result = await _controller.ForgotPasswordAsync(request);
 
         // Assert
-        Assert.IsType<NoContentResult>(result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.IsType<AuthFlowResponse>(okResult.Value);
     }
 
     [Fact]
@@ -227,9 +282,9 @@ public class AuthControllerBaseTests
     }
 
     [Fact]
-    public async Task ForgotPasswordAsync_ReturnsNoContent_WhenSenderThrows()
+    public async Task ForgotPasswordAsync_ReturnsOk_WhenSenderThrows()
     {
-        // Arrange — simulates SMTP failure; response must still be 204 to avoid e-mail enumeration.
+        // Arrange — simulates SMTP failure; response must still avoid e-mail enumeration.
         var request = new PasswordForgotRequest { Email = "user@example.com", ClientURI = "https://app/reset" };
         _repoMock.Setup(r => r.ForgotPasswordAsync(request, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("SMTP unavailable."));
@@ -238,7 +293,8 @@ public class AuthControllerBaseTests
         var result = await _controller.ForgotPasswordAsync(request);
 
         // Assert
-        Assert.IsType<NoContentResult>(result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.IsType<AuthFlowResponse>(okResult.Value);
     }
 
     // ── ResetPasswordAsync ───────────────────────────────────────────────────────

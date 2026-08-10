@@ -17,10 +17,10 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     private readonly UserManager<TUser> _userManager;
     private readonly SignInManager<TUser> _signInManager;
     private readonly ITokenManager _tokenManager;
-    private readonly IEmailSender<TUser> _emailSender;
+    private readonly IAuthEmailSender<TUser> _emailSender;
 
     public AuthRepository(IDbContext dbContext, ILoggerFactory loggerFactory, UserManager<TUser> userManager,
-        SignInManager<TUser> signInManager, ITokenManager tokenManager, IEmailSender<TUser> emailSender)
+        SignInManager<TUser> signInManager, ITokenManager tokenManager, IAuthEmailSender<TUser> emailSender)
         : base(dbContext, loggerFactory.CreateLogger<BaseRepository<RefreshToken, KeyType>>())
     {
         _authLogger = loggerFactory.CreateLogger<AuthRepository<TUser>>();
@@ -149,7 +149,7 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     }
 
     /// <inheritdoc />
-    public async Task<string> RegisterUserAsync(ICreateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthFlowResponse> RegisterUserAsync(ICreateUserRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -194,7 +194,47 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
 
         _authLogger.LogInformation("[AuthRepository] New user registered: {Email} (Id={UserId})", request.Email, user.Id);
 
-        return user.Id.ToString()!;
+        return await BuildRegistrationResponseAsync(user, request);
+    }
+
+    /// <inheritdoc />
+    public async Task<AuthFlowResponse> ConfirmEmailAsync(IEmailConfirmationRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var user = await _userManager.FindByEmailAsync(request.Email!)
+            ?? throw new InvalidOperationException("We couldn't find an account for that email address.");
+
+        if (user.IsDeleted)
+            throw new InvalidOperationException("This account is no longer available.");
+
+        if (user.EmailConfirmed)
+        {
+            _authLogger.LogInformation("[AuthRepository] Email already confirmed for {Email}", request.Email);
+
+            return new AuthFlowResponse
+            {
+                ConfirmationEmailSent = true,
+                UserMessage = "Your email address is already confirmed. You can sign in now."
+            };
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, request.Token!);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            _authLogger.LogWarning("[AuthRepository] Email confirmation failed for {Email}: {Errors}", request.Email, errors);
+            throw new InvalidOperationException("This email confirmation link is invalid or has expired. Please register again or request a new confirmation email.");
+        }
+
+        _authLogger.LogInformation("[AuthRepository] Email confirmed successfully for {Email}", request.Email);
+
+        return new AuthFlowResponse
+        {
+            ConfirmationEmailSent = true,
+            UserMessage = "Your email address has been confirmed successfully. You can sign in now."
+        };
     }
 
     /// <inheritdoc />
@@ -217,7 +257,7 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
     }
 
     /// <inheritdoc />
-    public async Task ForgotPasswordAsync(IPasswordForgotRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthFlowResponse> ForgotPasswordAsync(IPasswordForgotRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -227,15 +267,93 @@ internal class AuthRepository<TUser> : BaseRepository<RefreshToken, KeyType>, IA
         {
             // Do not reveal whether the user exists
             _authLogger.LogDebug("[AuthRepository] Forgot-password request for unknown email {Email}", request.Email);
-            return;
+            return CreateForgotPasswordResponse();
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var resetLink = $"{request.ClientURI}?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(request.Email!)}";
 
-        await _emailSender.SendPasswordResetLinkAsync(user, request.Email!, resetLink);
+        if (_emailSender.IsEnabled)
+        {
+            await _emailSender.SendPasswordResetLinkAsync(user, request.Email!, resetLink);
+            _authLogger.LogInformation("[AuthRepository] Password reset link sent to {Email}", request.Email);
+        }
+        else
+        {
+            _authLogger.LogInformation("[AuthRepository] Password reset email flow skipped because no real sender is configured for {Email}", request.Email);
+        }
 
-        _authLogger.LogInformation("[AuthRepository] Password reset link sent to {Email}", request.Email);
+        return CreateForgotPasswordResponse();
+    }
+
+    private async Task<AuthFlowResponse> BuildRegistrationResponseAsync(TUser user, ICreateUserRequest request)
+    {
+        if (!_emailSender.IsEnabled)
+        {
+            return new AuthFlowResponse
+            {
+                UserMessage = "Account created successfully. Please sign in."
+            };
+        }
+
+        if (string.IsNullOrWhiteSpace(request.ClientURI))
+        {
+            _authLogger.LogWarning("[AuthRepository] Registration email flow enabled but ClientURI was not provided for {Email}", request.Email);
+
+            return new AuthFlowResponse
+            {
+                EmailSenderEnabled = true,
+                UserMessage = "Account created successfully. Please sign in."
+            };
+        }
+
+        try
+        {
+            var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = $"{request.ClientURI}?token={Uri.EscapeDataString(confirmationToken)}&email={Uri.EscapeDataString(request.Email!)}";
+
+            await _emailSender.SendConfirmationLinkAsync(user, request.Email!, confirmationLink);
+            await _emailSender.SendWelcomeEmailAsync(user, request.Email!);
+
+            _authLogger.LogInformation("[AuthRepository] Registration emails queued for {Email}", request.Email);
+
+            return new AuthFlowResponse
+            {
+                EmailSenderEnabled = true,
+                ConfirmationEmailSent = true,
+                WelcomeEmailSent = true,
+                UserMessage = "Account created successfully. Please check your email to confirm your account and review the welcome message."
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _authLogger.LogError(ex, "[AuthRepository] Registration emails failed for {Email}", request.Email);
+
+            return new AuthFlowResponse
+            {
+                EmailSenderEnabled = true,
+                UserMessage = "Account created successfully. Please sign in."
+            };
+        }
+    }
+
+    private AuthFlowResponse CreateForgotPasswordResponse()
+    {
+        return _emailSender.IsEnabled
+            ? new AuthFlowResponse
+            {
+                EmailSenderEnabled = true,
+                PasswordResetEmailRequested = true,
+                UserMessage = "If an account exists for that email address, a password reset link has been sent. Check your spam folder if it doesn't arrive."
+            }
+            : new AuthFlowResponse
+            {
+                UserMessage = "If an account exists for that email address, your request has been received."
+            };
     }
 
     /// <inheritdoc />

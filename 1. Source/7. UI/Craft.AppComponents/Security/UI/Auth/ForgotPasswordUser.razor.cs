@@ -49,6 +49,8 @@ public partial class ForgotPasswordUser<TUser> : ComponentBase
 
     private readonly ForgotPasswordFormModel _model = new();
     private bool _isProcessing;
+    private bool _showEmailSuccessState;
+    private string _successMessage = string.Empty;
     private bool _submitted;
 
     private async Task HandleForgotPasswordAsync()
@@ -69,6 +71,8 @@ public partial class ForgotPasswordUser<TUser> : ComponentBase
 
             if (result.IsSuccess)
             {
+                _successMessage = result.Value?.UserMessage ?? "If an account exists for that email address, your request has been received.";
+                _showEmailSuccessState = result.Value?.PasswordResetEmailRequested == true;
                 _submitted = true;
                 await OnSuccess.InvokeAsync();
             }

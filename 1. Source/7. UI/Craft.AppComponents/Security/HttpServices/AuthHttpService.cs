@@ -64,18 +64,35 @@ public class AuthHttpService<TUserVM>(Uri apiURL, HttpClient httpClient, ILogger
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult> RegisterAsync(TUserVM model, CancellationToken ct = default)
+    public async Task<ServiceResult<AuthFlowResponse>> RegisterAsync(TUserVM model, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(model);
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("[AuthHttpService] Method: [\"RegisterAsync\"]");
 
-        var result = await SendAndParseNoContentAsync(
+        var result = await SendAndParseAsync(
             token => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/register"), model, cancellationToken: token),
+            (content, token) => content.ReadFromJsonAsync<AuthFlowResponse>(cancellationToken: token),
             ct).ConfigureAwait(false);
 
-        return ToNonGeneric(result);
+        return ToRequired(result);
+    }
+
+    /// <inheritdoc />
+    public async Task<ServiceResult<AuthFlowResponse>> ConfirmEmailAsync(EmailConfirmationRequest model, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("[AuthHttpService] Method: [\"ConfirmEmailAsync\"] Email: [{Email}]", model.Email);
+
+        var result = await SendAndParseAsync(
+            token => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/confirm-email"), model, cancellationToken: token),
+            (content, token) => content.ReadFromJsonAsync<AuthFlowResponse>(cancellationToken: token),
+            ct).ConfigureAwait(false);
+
+        return ToRequired(result);
     }
 
     /// <inheritdoc />
@@ -94,18 +111,19 @@ public class AuthHttpService<TUserVM>(Uri apiURL, HttpClient httpClient, ILogger
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult> ForgotPasswordAsync(PasswordForgotRequest model, CancellationToken ct = default)
+    public async Task<ServiceResult<AuthFlowResponse>> ForgotPasswordAsync(PasswordForgotRequest model, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(model);
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("[AuthHttpService] Method: [\"ForgotPasswordAsync\"]");
 
-        var result = await SendAndParseNoContentAsync(
+        var result = await SendAndParseAsync(
             token => _httpClient.PostAsJsonAsync(new Uri($"{_apiURL}/forgot-password"), model, cancellationToken: token),
+            (content, token) => content.ReadFromJsonAsync<AuthFlowResponse>(cancellationToken: token),
             ct).ConfigureAwait(false);
 
-        return ToNonGeneric(result);
+        return ToRequired(result);
     }
 
     /// <inheritdoc />

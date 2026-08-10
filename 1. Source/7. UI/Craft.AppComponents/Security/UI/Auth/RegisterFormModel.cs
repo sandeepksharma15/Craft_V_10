@@ -10,6 +10,9 @@ namespace Craft.AppComponents.Security;
 /// </summary>
 public sealed class RegisterFormModel : ICreateUserRequest
 {
+    /// <summary>Gets or sets the client confirmation callback URI.</summary>
+    public string? ClientURI { get; set; }
+
     /// <summary>Gets or sets the user's first name.</summary>
     [StringLength(50, ErrorMessage = "First Name cannot exceed 50 characters.")]
     [Display(Name = "First Name")]

@@ -27,10 +27,12 @@ public sealed class AuthApiBuilder<TUser>
     /// <typeparam name="TEmailSender">The email sender implementation to use for auth flows.</typeparam>
     /// <returns>The builder for further auth-specific customization.</returns>
     public AuthApiBuilder<TUser> WithEmailSender<TEmailSender>()
-        where TEmailSender : class, IEmailSender<TUser>
+        where TEmailSender : class, IAuthEmailSender<TUser>
     {
         _services.RemoveAll<IEmailSender<TUser>>();
-        _services.AddScoped<IEmailSender<TUser>, TEmailSender>();
+        _services.RemoveAll<IAuthEmailSender<TUser>>();
+        _services.AddScoped<IAuthEmailSender<TUser>, TEmailSender>();
+        _services.AddScoped<IEmailSender<TUser>>(sp => sp.GetRequiredService<IAuthEmailSender<TUser>>());
 
         return this;
     }

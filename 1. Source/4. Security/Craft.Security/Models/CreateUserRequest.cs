@@ -6,6 +6,10 @@ namespace Craft.Security;
 public class CreateUserRequest : ICreateUserRequest
 {
     [Required]
+    [Url]
+    public string? ClientURI { get; set; }
+
+    [Required]
     [DataType(DataType.EmailAddress)]
     public string? Email { get; set; }
 

@@ -40,11 +40,14 @@ public class SecurityServiceCollectionExtensionsTests
     }
 
     // Custom email sender used to verify fluent replacement of the fallback sender
-    private sealed class CustomEmailSender : IEmailSender<TestAppUser>
+    private sealed class CustomEmailSender : IAuthEmailSender<TestAppUser>
     {
+        public bool IsEnabled => true;
+
         public Task SendConfirmationLinkAsync(TestAppUser user, string email, string confirmationLink) => Task.CompletedTask;
         public Task SendPasswordResetCodeAsync(TestAppUser user, string email, string resetCode) => Task.CompletedTask;
         public Task SendPasswordResetLinkAsync(TestAppUser user, string email, string resetLink) => Task.CompletedTask;
+        public Task SendWelcomeEmailAsync(TestAppUser user, string email) => Task.CompletedTask;
     }
 
     // ── AddAuthApi ──────────────────────────────────────────────────────────────
@@ -104,7 +107,14 @@ public class SecurityServiceCollectionExtensionsTests
             .ToList();
 
         Assert.Single(registrations);
-        Assert.Equal(typeof(CustomEmailSender), registrations[0].ImplementationType);
+        Assert.NotNull(registrations[0].ImplementationFactory);
+
+        var authEmailRegistrations = services
+            .Where(sd => sd.ServiceType == typeof(IAuthEmailSender<TestAppUser>))
+            .ToList();
+
+        Assert.Single(authEmailRegistrations);
+        Assert.Equal(typeof(CustomEmailSender), authEmailRegistrations[0].ImplementationType);
     }
 
     // ── AddSecurityApi ──────────────────────────────────────────────────────────

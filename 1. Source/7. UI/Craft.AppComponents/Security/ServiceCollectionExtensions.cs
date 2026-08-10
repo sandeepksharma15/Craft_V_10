@@ -36,7 +36,8 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddScoped<IAuthRepository, AuthRepository<TUser>>();
-        services.TryAddScoped<IEmailSender<TUser>, NoOpEmailSender<TUser>>();
+        services.TryAddScoped<IAuthEmailSender<TUser>, NoOpEmailSender<TUser>>();
+        services.TryAddScoped<IEmailSender<TUser>>(sp => sp.GetRequiredService<IAuthEmailSender<TUser>>());
 
         services.AddControllers()
             .ConfigureApplicationPartManager(apm =>
