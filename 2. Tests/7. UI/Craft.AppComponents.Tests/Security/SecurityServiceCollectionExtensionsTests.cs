@@ -39,7 +39,7 @@ public class SecurityServiceCollectionExtensionsTests
         public KeyType Id { get; set; }
     }
 
-    // Custom email sender used to verify the TryAdd behaviour
+    // Custom email sender used to verify fluent replacement of the fallback sender
     private sealed class CustomEmailSender : IEmailSender<TestAppUser>
     {
         public Task SendConfirmationLinkAsync(TestAppUser user, string email, string confirmationLink) => Task.CompletedTask;
@@ -63,6 +63,19 @@ public class SecurityServiceCollectionExtensionsTests
     }
 
     [Fact]
+    public void AddAuthApi_ReturnsAuthApiBuilder()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        var builder = services.AddAuthApi<TestAppUser>();
+
+        // Assert
+        Assert.NotNull(builder);
+    }
+
+    [Fact]
     public void AddAuthApi_RegistersNoOpEmailSenderAsFallback()
     {
         // Arrange
@@ -76,16 +89,16 @@ public class SecurityServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddAuthApi_DoesNotOverrideExistingEmailSender()
+    public void AddAuthApi_WithEmailSender_ReplacesFallbackEmailSender()
     {
-        // Arrange – register a custom sender first
+        // Arrange
         var services = new ServiceCollection();
-        services.AddScoped<IEmailSender<TestAppUser>, CustomEmailSender>();
 
-        // Act – TryAdd inside AddAuthApi should be a no-op
-        services.AddAuthApi<TestAppUser>();
+        // Act
+        services.AddAuthApi<TestAppUser>()
+            .WithEmailSender<CustomEmailSender>();
 
-        // Assert – only the explicitly registered CustomEmailSender remains
+        // Assert
         var registrations = services
             .Where(sd => sd.ServiceType == typeof(IEmailSender<TestAppUser>))
             .ToList();

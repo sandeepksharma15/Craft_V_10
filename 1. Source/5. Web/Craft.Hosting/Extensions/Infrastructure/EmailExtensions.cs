@@ -33,9 +33,7 @@ public static class EmailExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configurationSection">The configuration section containing EmailOptions.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddEmailServices(
-        this IServiceCollection services,
-        IConfigurationSection configurationSection)
+    public static IServiceCollection AddEmailServices(this IServiceCollection services, IConfigurationSection configurationSection)
     {
         services.AddOptions<EmailOptions>()
             .Bind(configurationSection)
@@ -81,9 +79,7 @@ public static class EmailExtensions
     /// });
     /// </code>
     /// </example>
-    public static IServiceCollection AddEmailServices(
-        this IServiceCollection services,
-        Action<EmailOptions> configureOptions)
+    public static IServiceCollection AddEmailServices(this IServiceCollection services, Action<EmailOptions> configureOptions)
     {
         services.AddOptions<EmailOptions>()
             .Configure(configureOptions)

@@ -5,9 +5,8 @@ namespace Craft.AppComponents.Security;
 /// <summary>
 /// Default no-op email sender registered when the host application does not supply its own
 /// <see cref="IEmailSender{TUser}"/> implementation.
-/// Replace it by registering a concrete <see cref="IEmailSender{TUser}"/> <em>before</em>
-/// calling <c>AddAuthApi&lt;TUser&gt;()</c> — the <c>TryAdd</c> registration used here
-/// means an existing registration always wins.
+/// Replace it by calling <c>AddAuthApi&lt;TUser&gt;().WithEmailSender&lt;TEmailSender&gt;()</c>
+/// so auth flows can send real emails without redefining the controller or repository.
 /// </summary>
 /// <typeparam name="TUser">The application user type.</typeparam>
 internal sealed class NoOpEmailSender<TUser> : IEmailSender<TUser>

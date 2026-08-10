@@ -60,8 +60,7 @@ public static class SecurityExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configure">Optional callback to register <see cref="PermissionDefinition"/> entries via <see cref="PermissionBuilder"/>.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddPermissionsApi<TUser>(this IServiceCollection services,
-        Action<PermissionBuilder>? configure = null)
+    public static IServiceCollection AddPermissionsApi<TUser>(this IServiceCollection services, Action<PermissionBuilder>? configure = null)
         where TUser : IdentityUser<KeyType>
     {
         var builder = services.AddCraftPermissions<TUser>();
@@ -79,9 +78,7 @@ public static class SecurityExtensions
     /// <param name="permissionsApiBaseUrl">Base URL of the permissions API (e.g. <c>new Uri("https://myapi")</c>).</param>
     /// <param name="configure">Optional callback to register <see cref="PermissionDefinition"/> entries via <see cref="PermissionBuilder"/>.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddPermissionsUi(this IServiceCollection services,
-        Uri permissionsApiBaseUrl,
-        Action<PermissionBuilder>? configure = null)
+    public static IServiceCollection AddPermissionsUi(this IServiceCollection services, Uri permissionsApiBaseUrl, Action<PermissionBuilder>? configure = null)
     {
         var builder = services.AddCraftPermissionsUi(permissionsApiBaseUrl);
         configure?.Invoke(builder);

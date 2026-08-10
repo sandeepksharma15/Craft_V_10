@@ -19,18 +19,22 @@ public static class ServiceCollectionExtensions
     /// not need to define a concrete <c>AuthController</c> class.
     /// All four standard endpoints (<c>login</c>, <c>refresh</c>, <c>logout</c>, <c>register</c>)
     /// are served from <see cref="AuthControllerBase{TUser,TKey}"/> at <c>api/auth</c>.
+    /// A no-op <see cref="IEmailSender{TUser}"/> is registered by default and can be replaced
+    /// fluently via <see cref="AuthApiBuilder{TUser}.WithEmailSender{TEmailSender}()"/>.
     /// </summary>
     /// <typeparam name="TUser">The application user entity type.</typeparam>
     /// <param name="services">The service collection.</param>
-    /// <returns>The service collection for chaining.</returns>
+    /// <returns>An auth API builder for optional auth-specific customization.</returns>
     /// <remarks>
     /// Do <b>not</b> call this method when the host application supplies its own class that
     /// derives from <see cref="AuthControllerBase{TUser,TKey}"/> — doing so would register two
     /// controllers on the same <c>api/auth</c> route and cause an MVC startup error.
     /// </remarks>
-    public static IServiceCollection AddAuthApi<TUser>(this IServiceCollection services)
+    public static AuthApiBuilder<TUser> AddAuthApi<TUser>(this IServiceCollection services)
         where TUser : CraftUser<KeyType>, new()
     {
+        ArgumentNullException.ThrowIfNull(services);
+
         services.AddScoped<IAuthRepository, AuthRepository<TUser>>();
         services.TryAddScoped<IEmailSender<TUser>, NoOpEmailSender<TUser>>();
 
@@ -38,7 +42,7 @@ public static class ServiceCollectionExtensions
             .ConfigureApplicationPartManager(apm =>
                 apm.FeatureProviders.Add(new AuthControllerFeatureProvider<TUser>()));
 
-        return services;
+        return new AuthApiBuilder<TUser>(services);
     }
 
     /// <summary>
