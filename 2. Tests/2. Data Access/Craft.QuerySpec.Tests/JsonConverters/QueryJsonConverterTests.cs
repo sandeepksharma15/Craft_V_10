@@ -172,6 +172,50 @@ public class QueryJsonConverterTests
     }
 
     [Fact]
+    public void SerializeDeserialize_QueryWithCapturedValueFilter_PreservesRoundTrip()
+    {
+        // Arrange
+        var companyName = "Contoso";
+        var query = new Query<Company>();
+        query.EntityFilterBuilder!.Add(c => c.Name == companyName);
+
+        // Act
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
+
+        // Assert
+        Assert.NotNull(deserialized);
+        var filter = Assert.Single(deserialized.EntityFilterBuilder!.EntityFilterList);
+        Assert.NotNull(filter.Metadata);
+        Assert.Equal(nameof(Company.Name), filter.Metadata!.Name);
+        Assert.Equal(companyName, filter.Metadata.Value);
+        Assert.True(filter.Matches(new Company { Name = companyName }));
+        Assert.False(filter.Matches(new Company { Name = "Fabrikam" }));
+    }
+
+    [Fact]
+    public void SerializeDeserialize_QueryWithStringMethodFilter_PreservesRoundTrip()
+    {
+        // Arrange
+        const string term = "oso";
+        var query = new Query<Company>();
+        query.EntityFilterBuilder!.Add(c => c.Name!.Contains(term));
+
+        // Act
+        var json = JsonSerializer.Serialize(query, CompanyOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<Company>>(json, CompanyOptions);
+
+        // Assert
+        Assert.NotNull(deserialized);
+        var filter = Assert.Single(deserialized.EntityFilterBuilder!.EntityFilterList);
+        Assert.NotNull(filter.Metadata);
+        Assert.Equal(ComparisonType.Contains, filter.Metadata!.Comparison);
+        Assert.Equal(term, filter.Metadata.Value);
+        Assert.True(filter.Matches(new Company { Name = "Contoso" }));
+        Assert.False(filter.Matches(new Company { Name = "Fabrikam" }));
+    }
+
+    [Fact]
     public void Deserialize_InvalidJson_ThrowsJsonException()
     {
         // Arrange

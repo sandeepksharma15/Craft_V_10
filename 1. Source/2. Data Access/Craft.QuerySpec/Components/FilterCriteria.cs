@@ -111,9 +111,9 @@ public sealed record FilterCriteria
     {
         ArgumentNullException.ThrowIfNull(whereExpr, nameof(whereExpr));
 
-        return IsValidExpression(whereExpr)
-            ? ParseExpression(whereExpr)
-            : throw new ArgumentException("Invalid expression format. Only simple binary expressions are supported.", nameof(whereExpr));
+        return TryParseExpression(whereExpr, out var criteria)
+            ? criteria
+            : throw new ArgumentException("Invalid expression format. Only common transport-safe expressions are supported.", nameof(whereExpr));
     }
 
     /// <summary>
@@ -122,30 +122,139 @@ public sealed record FilterCriteria
     public Expression<Func<T, bool>> GetExpression<T>()
         => ExpressionBuilder.CreateWhereExpression<T>(this);
 
-    private static bool IsValidExpression<T>(Expression<Func<T, bool>> expression)
+    private static bool TryParseExpression<T>(Expression<Func<T, bool>> expression, out FilterCriteria criteria)
     {
-        return expression.Body is BinaryExpression binary &&
-            binary.Left is MemberExpression left &&
-            binary.Right is ConstantExpression &&
-            left.Member is MemberInfo _;
+        ArgumentNullException.ThrowIfNull(expression);
+
+        if (TryParseBinaryExpression(expression.Body, out criteria))
+            return true;
+
+        if (TryParseStringMethodExpression(expression.Body, out criteria))
+            return true;
+
+        if (TryParseBooleanMemberExpression(expression.Body, out criteria))
+            return true;
+
+        criteria = null!;
+        return false;
     }
 
     private static FilterCriteria ParseExpression<T>(Expression<Func<T, bool>> expression)
     {
-        if (expression.Body is not BinaryExpression binaryExpression)
-            throw new ArgumentException("Expression body must be a binary expression.", nameof(expression));
+        return TryParseExpression(expression, out var criteria)
+            ? criteria
+            : throw new ArgumentException("Invalid expression format. Only common transport-safe expressions are supported.", nameof(expression));
+    }
 
-        if (binaryExpression.Left is not MemberExpression leftExpression)
-            throw new ArgumentException("Left side of expression must be a property.", nameof(expression));
+    private static bool TryParseBinaryExpression(Expression expression, out FilterCriteria criteria)
+    {
+        criteria = null!;
 
-        if (binaryExpression.Right is not ConstantExpression rightExpression)
-            throw new ArgumentException("Right side of expression must be a constant.", nameof(expression));
+        if (expression is not BinaryExpression binaryExpression)
+            return false;
 
-        var dataType = leftExpression.Type;
-        var comparedValue = rightExpression.Value;
-        var propertyName = leftExpression.Member.Name;
+        if (TryGetMemberExpression(binaryExpression.Left, out var leftExpression) &&
+            TryEvaluateValue(binaryExpression.Right, out var rightValue))
+        {
+            criteria = CreateFilterCriteria(leftExpression, rightValue, GetComparisonType(binaryExpression.NodeType));
+            return true;
+        }
 
-        var comparisonOperator = binaryExpression.NodeType switch
+        if (TryGetMemberExpression(binaryExpression.Right, out var rightMemberExpression) &&
+            TryEvaluateValue(binaryExpression.Left, out var leftValue))
+        {
+            criteria = CreateFilterCriteria(rightMemberExpression, leftValue, GetComparisonType(InvertBinaryOperator(binaryExpression.NodeType)));
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryParseStringMethodExpression(Expression expression, out FilterCriteria criteria)
+    {
+        criteria = null!;
+
+        if (expression is not MethodCallExpression methodCallExpression ||
+            methodCallExpression.Object is null ||
+            methodCallExpression.Arguments.Count != 1 ||
+            !TryGetMemberExpression(methodCallExpression.Object, out var memberExpression) ||
+            memberExpression.Type != typeof(string) ||
+            !TryEvaluateValue(methodCallExpression.Arguments[0], out var argumentValue))
+            return false;
+
+        var comparison = methodCallExpression.Method.Name switch
+        {
+            nameof(string.Contains) => ComparisonType.Contains,
+            nameof(string.StartsWith) => ComparisonType.StartsWith,
+            nameof(string.EndsWith) => ComparisonType.EndsWith,
+            _ => throw new ArgumentException($"Method '{methodCallExpression.Method.Name}' is not supported for transport-safe filter metadata.", nameof(expression)),
+        };
+
+        criteria = CreateFilterCriteria(memberExpression, argumentValue, comparison);
+        return true;
+    }
+
+    private static bool TryParseBooleanMemberExpression(Expression expression, out FilterCriteria criteria)
+    {
+        criteria = null!;
+
+        if (TryGetMemberExpression(expression, out var memberExpression) && IsBooleanType(memberExpression.Type))
+        {
+            criteria = CreateFilterCriteria(memberExpression, true, ComparisonType.EqualTo);
+            return true;
+        }
+
+        if (expression is UnaryExpression { NodeType: ExpressionType.Not } unaryExpression &&
+            TryGetMemberExpression(unaryExpression.Operand, out memberExpression) &&
+            IsBooleanType(memberExpression.Type))
+        {
+            criteria = CreateFilterCriteria(memberExpression, false, ComparisonType.EqualTo);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static FilterCriteria CreateFilterCriteria(MemberExpression memberExpression, object? comparedValue, ComparisonType comparisonType)
+    {
+        ArgumentNullException.ThrowIfNull(memberExpression);
+
+        var dataType = memberExpression.Type;
+
+        if (Nullable.GetUnderlyingType(dataType) is { } underlyingType)
+            dataType = underlyingType;
+
+        if (dataType.IsEnum)
+        {
+            dataType = typeof(int);
+
+            if (comparedValue is not null)
+                comparedValue = Convert.ToInt32(comparedValue);
+        }
+
+        return new FilterCriteria(dataType, GetMemberPath(memberExpression), comparedValue, comparisonType);
+    }
+
+    private static string GetMemberPath(MemberExpression memberExpression)
+    {
+        ArgumentNullException.ThrowIfNull(memberExpression);
+
+        var memberNames = new Stack<string>();
+        Expression? currentExpression = memberExpression;
+
+        while (currentExpression is MemberExpression currentMemberExpression)
+        {
+            memberNames.Push(currentMemberExpression.Member.Name);
+            currentExpression = StripConvert(currentMemberExpression.Expression);
+        }
+
+        return currentExpression is ParameterExpression
+            ? string.Join('.', memberNames)
+            : throw new ArgumentException("Expression must target an entity member.", nameof(memberExpression));
+    }
+
+    private static ComparisonType GetComparisonType(ExpressionType expressionType)
+        => expressionType switch
         {
             ExpressionType.Equal => ComparisonType.EqualTo,
             ExpressionType.NotEqual => ComparisonType.NotEqualTo,
@@ -153,10 +262,93 @@ public sealed record FilterCriteria
             ExpressionType.LessThan => ComparisonType.LessThan,
             ExpressionType.GreaterThanOrEqual => ComparisonType.GreaterThanOrEqualTo,
             ExpressionType.LessThanOrEqual => ComparisonType.LessThanOrEqualTo,
-            _ => throw new ArgumentException($"Comparison operator '{binaryExpression.NodeType}' not supported.", nameof(expression)),
+            _ => throw new ArgumentException($"Comparison operator '{expressionType}' not supported.", nameof(expressionType)),
         };
 
-        return new FilterCriteria(dataType, propertyName, comparedValue, comparisonOperator);
+    private static ExpressionType InvertBinaryOperator(ExpressionType expressionType)
+        => expressionType switch
+        {
+            ExpressionType.Equal => ExpressionType.Equal,
+            ExpressionType.NotEqual => ExpressionType.NotEqual,
+            ExpressionType.GreaterThan => ExpressionType.LessThan,
+            ExpressionType.GreaterThanOrEqual => ExpressionType.LessThanOrEqual,
+            ExpressionType.LessThan => ExpressionType.GreaterThan,
+            ExpressionType.LessThanOrEqual => ExpressionType.GreaterThanOrEqual,
+            _ => throw new ArgumentException($"Comparison operator '{expressionType}' not supported.", nameof(expressionType)),
+        };
+
+    private static bool TryGetMemberExpression(Expression expression, out MemberExpression memberExpression)
+    {
+        var strippedExpression = StripConvert(expression);
+        memberExpression = strippedExpression as MemberExpression ?? null!;
+
+        if (memberExpression is null)
+            return false;
+
+        var currentExpression = StripConvert(memberExpression.Expression);
+
+        while (currentExpression is MemberExpression currentMemberExpression)
+            currentExpression = StripConvert(currentMemberExpression.Expression);
+
+        return currentExpression is ParameterExpression;
+    }
+
+    private static bool TryEvaluateValue(Expression expression, out object? value)
+    {
+        var strippedExpression = StripConvert(expression);
+
+        if (ContainsParameterReference(strippedExpression))
+        {
+            value = null;
+            return false;
+        }
+
+        try
+        {
+            var boxedExpression = Expression.Convert(strippedExpression, typeof(object));
+            value = Expression.Lambda<Func<object?>>(boxedExpression).Compile().Invoke();
+            return true;
+        }
+        catch (Exception)
+        {
+            value = null;
+            return false;
+        }
+    }
+
+    private static Expression StripConvert(Expression? expression)
+    {
+        while (expression is UnaryExpression unaryExpression &&
+               (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        {
+            expression = unaryExpression.Operand;
+        }
+
+        return expression ?? throw new ArgumentNullException(nameof(expression));
+    }
+
+    private static bool ContainsParameterReference(Expression expression)
+    {
+        var visitor = new ParameterReferenceVisitor();
+        visitor.Visit(expression);
+        return visitor.ContainsParameterReference;
+    }
+
+    private static bool IsBooleanType(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        return type == typeof(bool) || type == typeof(bool?);
+    }
+
+    private sealed class ParameterReferenceVisitor : ExpressionVisitor
+    {
+        public bool ContainsParameterReference { get; private set; }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            ContainsParameterReference = true;
+            return base.VisitParameter(node);
+        }
     }
 }
 

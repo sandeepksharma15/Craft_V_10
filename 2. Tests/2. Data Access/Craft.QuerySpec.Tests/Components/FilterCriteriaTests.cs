@@ -189,6 +189,73 @@ public class FilterCriteriaTests
     }
 
     [Fact]
+    public void GetFilterInfo_WhereExpr_ParsesCapturedValue()
+    {
+        // Arrange
+        var minimumAge = 21;
+        Expression<Func<TestEntity, bool>> expr = x => x.Age >= minimumAge;
+
+        // Act
+        var criteria = FilterCriteria.GetFilterInfo(expr);
+
+        // Assert
+        Assert.Equal(nameof(TestEntity.Age), criteria.Name);
+        Assert.Equal(typeof(int), criteria.PropertyType);
+        Assert.Equal(minimumAge, criteria.Value);
+        Assert.Equal(ComparisonType.GreaterThanOrEqualTo, criteria.Comparison);
+    }
+
+    [Fact]
+    public void GetFilterInfo_WhereExpr_ParsesCapturedEnumValue()
+    {
+        // Arrange
+        var selectedValue = TestEnum.Two;
+        Expression<Func<TestEntity, bool>> expr = x => x.EnumProp == selectedValue;
+
+        // Act
+        var criteria = FilterCriteria.GetFilterInfo(expr);
+
+        // Assert
+        Assert.Equal(nameof(TestEntity.EnumProp), criteria.Name);
+        Assert.Equal(typeof(int), criteria.PropertyType);
+        Assert.Equal((int)selectedValue, criteria.Value);
+        Assert.Equal(ComparisonType.EqualTo, criteria.Comparison);
+    }
+
+    [Fact]
+    public void GetFilterInfo_WhereExpr_ParsesStringMethodCall()
+    {
+        // Arrange
+        const string term = "oh";
+        Expression<Func<TestEntity, bool>> expr = x => x.Name.Contains(term);
+
+        // Act
+        var criteria = FilterCriteria.GetFilterInfo(expr);
+
+        // Assert
+        Assert.Equal(nameof(TestEntity.Name), criteria.Name);
+        Assert.Equal(typeof(string), criteria.PropertyType);
+        Assert.Equal(term, criteria.Value);
+        Assert.Equal(ComparisonType.Contains, criteria.Comparison);
+    }
+
+    [Fact]
+    public void GetFilterInfo_WhereExpr_ParsesBooleanMemberAccess()
+    {
+        // Arrange
+        Expression<Func<TestEntity, bool>> expr = x => x.IsActive;
+
+        // Act
+        var criteria = FilterCriteria.GetFilterInfo(expr);
+
+        // Assert
+        Assert.Equal(nameof(TestEntity.IsActive), criteria.Name);
+        Assert.Equal(typeof(bool), criteria.PropertyType);
+        Assert.Equal(true, criteria.Value);
+        Assert.Equal(ComparisonType.EqualTo, criteria.Comparison);
+    }
+
+    [Fact]
     public void GetFilterInfo_WhereExpr_ThrowsIfUnsupportedOperator()
     {
         // Arrange
@@ -207,9 +274,9 @@ public class FilterCriteriaTests
     [Fact]
     public void GetFilterInfo_WhereExpr_ThrowsIfNotBinary()
     {
-        Expression<Func<TestEntity, bool>> expr = x => true;
+        Expression<Func<TestEntity, bool>> expr = _ => true;
         var ex = Assert.Throws<ArgumentException>(() => FilterCriteria.GetFilterInfo(expr));
-        Assert.Contains("binary expression", ex.Message);
+        Assert.Contains("transport-safe expressions", ex.Message);
     }
 
     #endregion

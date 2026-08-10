@@ -96,6 +96,25 @@ public class EntityFilterBuilderJsonConverterTests
     }
 
     [Fact]
+    public void SerializeDeserialize_RoundTrip_PreservesCapturedValueMetadata()
+    {
+        var builder = new EntityFilterBuilder<TestEntity>();
+        var minimumAge = 18;
+        builder.Add(x => x.Age >= minimumAge);
+        var options = GetOptions<TestEntity>();
+
+        var json = JsonSerializer.Serialize(builder, options);
+        var deserialized = JsonSerializer.Deserialize<EntityFilterBuilder<TestEntity>>(json, options);
+
+        Assert.NotNull(deserialized);
+        var criteria = Assert.Single(deserialized.EntityFilterList);
+        Assert.NotNull(criteria.Metadata);
+        Assert.Equal(nameof(TestEntity.Age), criteria.Metadata!.Name);
+        Assert.Equal(minimumAge, criteria.Metadata.Value);
+        Assert.Equal(ComparisonType.GreaterThanOrEqualTo, criteria.Metadata.Comparison);
+    }
+
+    [Fact]
     public void Write_NullWriter_ThrowsArgumentNullException()
     {
         var converter = new EntityFilterBuilderJsonConverter<TestEntity>();

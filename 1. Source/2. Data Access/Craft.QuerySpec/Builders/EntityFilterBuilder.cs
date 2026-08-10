@@ -41,7 +41,15 @@ public class EntityFilterBuilder<T> where T : class
         if (expression.CanReduce)
             expression = (Expression<Func<T, bool>>)expression.ReduceAndCheck();
 
-        EntityFilterList.Add(new EntityFilterCriteria<T>(expression));
+        try
+        {
+            var filterCriteria = FilterCriteria.GetFilterInfo(expression);
+            EntityFilterList.Add(new EntityFilterCriteria<T>(expression, filterCriteria));
+        }
+        catch (ArgumentException)
+        {
+            EntityFilterList.Add(new EntityFilterCriteria<T>(expression));
+        }
 
         return this;
     }

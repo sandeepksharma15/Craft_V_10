@@ -33,6 +33,36 @@ public class EntityFilterBuilderTests
     }
 
     [Fact]
+    public void Add_ByExpression_WithCapturedValue_AttachesMetadata()
+    {
+        var builder = new EntityFilterBuilder<TestEntity>();
+        var minimumAge = 18;
+
+        builder.Add(x => x.Age > minimumAge);
+
+        var criteria = Assert.Single(builder.EntityFilterList);
+        Assert.NotNull(criteria.Metadata);
+        Assert.Equal(nameof(TestEntity.Age), criteria.Metadata!.Name);
+        Assert.Equal(minimumAge, criteria.Metadata.Value);
+        Assert.Equal(ComparisonType.GreaterThan, criteria.Metadata.Comparison);
+    }
+
+    [Fact]
+    public void Add_ByExpression_WithStringMethod_AttachesMetadata()
+    {
+        var builder = new EntityFilterBuilder<TestEntity>();
+        const string term = "oh";
+
+        builder.Add(x => x.Name.Contains(term));
+
+        var criteria = Assert.Single(builder.EntityFilterList);
+        Assert.NotNull(criteria.Metadata);
+        Assert.Equal(nameof(TestEntity.Name), criteria.Metadata!.Name);
+        Assert.Equal(term, criteria.Metadata.Value);
+        Assert.Equal(ComparisonType.Contains, criteria.Metadata.Comparison);
+    }
+
+    [Fact]
     public void Add_ByExpression_ThrowsOnNull()
     {
         var builder = new EntityFilterBuilder<TestEntity>();
