@@ -36,14 +36,6 @@ public abstract record ValueObject : DomainObject, IEquatable<ValueObject>
             .Aggregate(17, (current, component) =>
                 current * 31 + (component?.GetHashCode() ?? 0));
     }
-
-    /// <summary>
-    /// Creates a copy of this value object.
-    /// Override in derived classes if deep copying is needed.
-    /// </summary>
-    /// <returns>A copy of this value object.</returns>
-    public virtual ValueObject GetCopy()
-        => (ValueObject)MemberwiseClone();
 }
 
 /// <summary> 
@@ -58,7 +50,7 @@ public abstract record SingleValueObject<TValue> : ValueObject, IComparable<Sing
     /// <summary>
     /// Gets the underlying value.
     /// </summary>
-    public TValue Value { get; protected init; }
+    public TValue Value { get; private init; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SingleValueObject{TValue}"/> class.

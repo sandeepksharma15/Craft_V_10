@@ -18,14 +18,12 @@ public interface IStringValueObject<TSelf> where TSelf : StringValueObject<TSelf
 public abstract record StringValueObject<TSelf> : SingleValueObject<string>, IParsable<TSelf>
     where TSelf : StringValueObject<TSelf>, IStringValueObject<TSelf>
 {
-    protected StringValueObject(string value)
-        : base(string.Empty)
+    protected StringValueObject(string value) : base(string.Empty)
     {
-        string normalized = Normalize(NotEmpty(value, nameof(value)));
-
-        Ensure(ValidationExpression.IsMatch(normalized), ValidationMessage);
-
-        Value = normalized;
+        // Avoid mutating it after the base constructor has run
+        //string normalized = Normalize(NotEmpty(value, nameof(value)));
+        //Ensure(ValidationExpression.IsMatch(normalized), ValidationMessage);
+        //Value = normalized;
     }
 
     /// <summary>
@@ -43,6 +41,19 @@ public abstract record StringValueObject<TSelf> : SingleValueObject<string>, IPa
     /// </summary>
     protected virtual string Normalize(string value)
         => value;
+
+    private static string ValidateAndNormalize(string value) 
+    { 
+        value = NotEmpty(value, nameof(value)); 
+        return value; 
+    }
+
+    protected string NormalizeAndValidate(string value) 
+    { 
+        var normalized = Normalize(value); 
+        Ensure(ValidationExpression.IsMatch(normalized), ValidationMessage); 
+        return normalized; 
+    }
 
     /// <summary>
     /// Parses the supplied value.
