@@ -4,7 +4,7 @@ public class ValueObjectTests
 {
     #region Test Implementations
 
-    private sealed class Money : ValueObject
+    private sealed record Money : ValueObject
     {
         public decimal Amount { get; }
         public string Currency { get; }
@@ -22,7 +22,7 @@ public class ValueObjectTests
         }
     }
 
-    private sealed class Address : ValueObject
+    private sealed record Address : ValueObject
     {
         public string Street { get; }
         public string City { get; }
@@ -43,7 +43,7 @@ public class ValueObjectTests
         }
     }
 
-    private sealed class EmptyValueObject : ValueObject
+    private sealed record EmptyValueObject : ValueObject
     {
         protected override IEnumerable<object?> GetEqualityComponents()
         {
@@ -339,7 +339,7 @@ public class SingleValueObjectTests
 {
     #region Test Implementations
 
-    private sealed class Email : SingleValueObject<string>
+    private sealed record Email : SingleValueObject<string>
     {
         public Email(string value) : base(value)
         {
@@ -348,7 +348,7 @@ public class SingleValueObjectTests
         }
     }
 
-    private sealed class Age : SingleValueObject<int>
+    private sealed record Age : SingleValueObject<int>
     {
         public Age(int value) : base(value)
         {
@@ -357,7 +357,7 @@ public class SingleValueObjectTests
         }
     }
 
-    private sealed class Temperature : SingleValueObject<double>
+    private sealed record Temperature : SingleValueObject<double>
     {
         public Temperature(double value) : base(value) { }
     }
