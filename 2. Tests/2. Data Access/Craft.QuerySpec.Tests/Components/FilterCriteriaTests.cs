@@ -293,5 +293,17 @@ public class FilterCriteriaTests
         Assert.False(compiled(new TestEntity { Age = 15 }));
     }
 
+    [Fact]
+    public void InstanceGetExpression_WithEnumMetadata_RebuildsValidExpression()
+    {
+        var criteria = new FilterCriteria(typeof(int), nameof(TestEntity.EnumProp), (int)TestEnum.Two, ComparisonType.EqualTo);
+
+        var expr = criteria.GetExpression<TestEntity>();
+        var compiled = expr.Compile();
+
+        Assert.True(compiled(new TestEntity { EnumProp = TestEnum.Two }));
+        Assert.False(compiled(new TestEntity { EnumProp = TestEnum.One }));
+    }
+
     #endregion
 }

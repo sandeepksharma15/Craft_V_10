@@ -130,9 +130,24 @@ public static class ExpressionBuilder
     // Creates the body of the filter expression for non-string types.
     private static Expression CreateNonStringExpressionBody(MemberExpression leftExpression, object? value, ComparisonType comparison)
     {
-        var typedValue = value == null ? null : Convert.ChangeType(value, leftExpression.Type);
+        var targetType = Nullable.GetUnderlyingType(leftExpression.Type) ?? leftExpression.Type;
 
-        var rightExpression = Expression.Constant(typedValue, leftExpression.Type);
+        object? typedValue;
+
+        if (value is null)
+            typedValue = null;
+        else if (targetType.IsEnum)
+            typedValue = value.GetType().IsEnum
+                ? value
+                : Enum.ToObject(targetType, value);
+        else
+            typedValue = Convert.ChangeType(value, targetType);
+
+        Expression rightExpression = typedValue is null
+            ? Expression.Constant(null, leftExpression.Type)
+            : leftExpression.Type == targetType
+                ? Expression.Constant(typedValue, leftExpression.Type)
+                : Expression.Convert(Expression.Constant(typedValue, targetType), leftExpression.Type);
 
         return comparison switch
         {

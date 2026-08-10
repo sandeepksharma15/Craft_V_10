@@ -65,28 +65,28 @@ public partial class AuditLog : ComponentBase
     {
         // Apply table filter
         if (!string.IsNullOrWhiteSpace(_filterTable))
-            query.Where(a => a.TableName == _filterTable);
+            query.Where(a => a.TableName!, _filterTable);
 
         // Apply user filter
         if (_filterUserId.HasValue && _filterUserId.Value != default)
-            query.Where(a => a.UserId == _filterUserId.Value);
+            query.Where(a => a.UserId, _filterUserId.Value);
 
         // Apply change type filter
         if (_filterChangeType.HasValue)
-            query.Where(a => a.ChangeType == _filterChangeType.Value);
+            query.Where(a => a.ChangeType, _filterChangeType.Value);
 
         // Apply date range filter (inclusive of end date)
         if (_filterStartDate.HasValue)
         {
             var startDate = _filterStartDate.Value.Date;
-            query.Where(a => a.DateTimeUTC >= startDate);
+            query.Where(a => a.DateTimeUTC, startDate, ComparisonType.GreaterThanOrEqualTo);
         }
 
         if (_filterEndDate.HasValue)
         {
             // Make end date inclusive by adding one day and using less than
             var endDate = _filterEndDate.Value.Date.AddDays(1);
-            query.Where(a => a.DateTimeUTC < endDate);
+            query.Where(a => a.DateTimeUTC, endDate, ComparisonType.LessThan);
         }
 
         // Default sort: most recent first

@@ -5,10 +5,23 @@ namespace Craft.QuerySpec.Tests.Converters;
 
 public class QueryJsonConverterTests
 {
+    private enum TestEnum
+    {
+        None = 0,
+        One = 1,
+        Two = 2
+    }
+
+    private sealed class EnumEntity
+    {
+        public TestEnum EnumProp { get; set; }
+    }
+
     // Cache and reuse JsonSerializerOptions instances for each test type
     private static readonly JsonSerializerOptions CompanyOptions = CreateCompanyOptions();
     private static readonly JsonSerializerOptions CompanyCompanyOptions = CreateCompanyCompanyOptions();
     private static readonly JsonSerializerOptions CompanyCompanyNameOptions = CreateCompanyCompanyNameOptions();
+    private static readonly JsonSerializerOptions EnumEntityOptions = CreateEnumEntityOptions();
 
     private static JsonSerializerOptions CreateCompanyOptions()
     {
@@ -28,6 +41,13 @@ public class QueryJsonConverterTests
     {
         var options = new JsonSerializerOptions();
         options.Converters.Add(new QueryJsonConverter<Company, CompanyName>());
+        return options;
+    }
+
+    private static JsonSerializerOptions CreateEnumEntityOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new QueryJsonConverter<EnumEntity>());
         return options;
     }
 
@@ -213,6 +233,28 @@ public class QueryJsonConverterTests
         Assert.Equal(term, filter.Metadata.Value);
         Assert.True(filter.Matches(new Company { Name = "Contoso" }));
         Assert.False(filter.Matches(new Company { Name = "Fabrikam" }));
+    }
+
+    [Fact]
+    public void SerializeDeserialize_QueryWithEnumFilter_PreservesRoundTrip()
+    {
+        // Arrange
+        var selectedValue = TestEnum.Two;
+        var query = new Query<EnumEntity>();
+        query.EntityFilterBuilder!.Add(x => x.EnumProp == selectedValue);
+
+        // Act
+        var json = JsonSerializer.Serialize(query, EnumEntityOptions);
+        var deserialized = JsonSerializer.Deserialize<Query<EnumEntity>>(json, EnumEntityOptions);
+
+        // Assert
+        Assert.NotNull(deserialized);
+        var filter = Assert.Single(deserialized.EntityFilterBuilder!.EntityFilterList);
+        Assert.NotNull(filter.Metadata);
+        Assert.Equal(nameof(EnumEntity.EnumProp), filter.Metadata!.Name);
+        Assert.Equal((int)selectedValue, filter.Metadata.Value);
+        Assert.True(filter.Matches(new EnumEntity { EnumProp = TestEnum.Two }));
+        Assert.False(filter.Matches(new EnumEntity { EnumProp = TestEnum.One }));
     }
 
     [Fact]
