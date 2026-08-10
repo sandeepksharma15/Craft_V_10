@@ -5,7 +5,7 @@ namespace Craft.Domain;
 /// Value objects are immutable objects that are defined by their attributes 
 /// rather than identity. 
 /// </summary>
-public abstract record ValueObject : DomainObject, IEquatable<ValueObject>
+public abstract class ValueObject : DomainObject, IEquatable<ValueObject>
 {
     /// <summary>
     /// Gets the components used for equality comparison.
@@ -44,7 +44,7 @@ public abstract record ValueObject : DomainObject, IEquatable<ValueObject>
 /// <typeparam name="TValue"> 
 /// The underlying primitive type. 
 /// </typeparam>
-public abstract record SingleValueObject<TValue> : ValueObject, IComparable<SingleValueObject<TValue>>
+public abstract class SingleValueObject<TValue> : ValueObject, IComparable<SingleValueObject<TValue>>
     where TValue : IComparable<TValue>
 {
     /// <summary>

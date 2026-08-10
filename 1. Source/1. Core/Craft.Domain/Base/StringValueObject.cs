@@ -15,7 +15,7 @@ public interface IStringValueObject<TSelf> where TSelf : StringValueObject<TSelf
 /// Base type for immutable string-based value objects.
 /// Provides normalization, validation, parsing and common conversions.
 /// </summary>
-public abstract record StringValueObject<TSelf> : SingleValueObject<string>, IParsable<TSelf>
+public abstract class StringValueObject<TSelf> : SingleValueObject<string>, IParsable<TSelf>
     where TSelf : StringValueObject<TSelf>, IStringValueObject<TSelf>
 {
     protected StringValueObject(string value) : base(string.Empty)

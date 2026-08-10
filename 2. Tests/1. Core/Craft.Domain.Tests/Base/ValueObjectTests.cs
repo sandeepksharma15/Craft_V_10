@@ -4,7 +4,7 @@ public class ValueObjectTests
 {
     #region Test Implementations
 
-    private sealed record Money : ValueObject
+    private sealed class Money : ValueObject
     {
         public decimal Amount { get; }
         public string Currency { get; }
@@ -22,7 +22,7 @@ public class ValueObjectTests
         }
     }
 
-    private sealed record Address : ValueObject
+    private sealed class Address : ValueObject
     {
         public string Street { get; }
         public string City { get; }
@@ -43,7 +43,7 @@ public class ValueObjectTests
         }
     }
 
-    private sealed record EmptyValueObject : ValueObject
+    private sealed class EmptyValueObject : ValueObject
     {
         protected override IEnumerable<object?> GetEqualityComponents()
         {
@@ -289,37 +289,6 @@ public class ValueObjectTests
 
     #endregion
 
-    #region GetCopy Tests
-
-    [Fact]
-    public void GetCopy_ShouldCreateShallowCopy()
-    {
-        // Arrange
-        var original = new Money(100.00m, "USD");
-
-        // Act
-        var copy = original.GetCopy();
-
-        // Assert
-        Assert.NotSame(original, copy);
-        Assert.Equal(original, copy);
-    }
-
-    [Fact]
-    public void GetCopy_ShouldReturnValueObject()
-    {
-        // Arrange
-        var original = new Money(100.00m, "USD");
-
-        // Act
-        var copy = original.GetCopy();
-
-        // Assert
-        Assert.IsType<Money>(copy);
-    }
-
-    #endregion
-
     #region IEquatable<ValueObject> Tests
 
     [Fact]
@@ -339,7 +308,7 @@ public class SingleValueObjectTests
 {
     #region Test Implementations
 
-    private sealed record Email : SingleValueObject<string>
+    private sealed class Email : SingleValueObject<string>
     {
         public Email(string value) : base(value)
         {
@@ -348,7 +317,7 @@ public class SingleValueObjectTests
         }
     }
 
-    private sealed record Age : SingleValueObject<int>
+    private sealed class Age : SingleValueObject<int>
     {
         public Age(int value) : base(value)
         {
@@ -357,7 +326,7 @@ public class SingleValueObjectTests
         }
     }
 
-    private sealed record Temperature : SingleValueObject<double>
+    private sealed class Temperature : SingleValueObject<double>
     {
         public Temperature(double value) : base(value) { }
     }

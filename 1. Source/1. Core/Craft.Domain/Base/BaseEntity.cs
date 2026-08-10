@@ -26,7 +26,7 @@ public abstract class BaseEntity : BaseEntity<KeyType>, IEntity, IModel
 /// Implements entity identity, equality, concurrency control, and soft deletion.
 /// </summary>
 /// <typeparam name="TKey">The type of the entity identifier.</typeparam>
-public abstract class BaseEntity<TKey> : IEntity<TKey>, IHasConcurrency, ISoftDelete, IModel<TKey>, IEquatable<BaseEntity<TKey>>, DomainObject
+public abstract class BaseEntity<TKey> : DomainObject, IEntity<TKey>, IHasConcurrency, ISoftDelete, IModel<TKey>, IEquatable<BaseEntity<TKey>> 
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="BaseEntity{TKey}"/> class.

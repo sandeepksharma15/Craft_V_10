@@ -5,7 +5,7 @@
 /// Provides common guard helpers used across entities, value objects,
 /// aggregates, domain events, and other domain abstractions.
 /// </summary>
-public abstract record DomainObject
+public abstract class DomainObject
 {
     /// <summary>
     /// Ensures that the supplied condition is true.

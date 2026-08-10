@@ -5,7 +5,7 @@ namespace Craft.Domain;
 /// <summary>
 /// Base class for immutable numeric value objects.
 /// </summary>
-public abstract record NumericValueObject<TValue, TSelf> : SingleValueObject<TValue>
+public abstract class NumericValueObject<TValue, TSelf> : SingleValueObject<TValue>
     where TValue : struct, INumber<TValue>
     where TSelf : NumericValueObject<TValue, TSelf>
 {
