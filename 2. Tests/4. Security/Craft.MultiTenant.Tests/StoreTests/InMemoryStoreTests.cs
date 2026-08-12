@@ -123,7 +123,7 @@ public class InMemoryStoreTests : TenantStoreTestBase
     [InlineData(1, null)]
     [InlineData(0, "")]
     [InlineData(1L, null)]
-    public void ThrowIfMissingIdOrIdentifierInOptionsTenants(long id, string? identifier)
+    public void ThrowIfMissingIdOrIdentifierInOptionsTenants(KeyType id, string? identifier)
     {
         var services = new ServiceCollection();
         services.AddOptions().Configure<InMemoryStoreOptions<Tenant>>(options =>

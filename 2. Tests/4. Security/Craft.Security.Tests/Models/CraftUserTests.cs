@@ -131,7 +131,7 @@ public class CraftUserTests
         };
 
         // Assert
-        Assert.Equal(123, user.Id);
+        Assert.Equal((KeyType)123, user.Id);
         Assert.Equal("testuser", user.UserName);
         Assert.Equal("test@example.com", user.Email);
     }

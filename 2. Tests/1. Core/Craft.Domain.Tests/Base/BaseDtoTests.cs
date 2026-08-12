@@ -9,7 +9,7 @@ public class BaseDtoTests
     public void BaseDto_Id_ShouldSetAndGet()
     {
         // Arrange
-        const int testId = 1;
+        const KeyType testId = 1;
         var dto = new TestDto { Id = testId };
 
         // Assert
@@ -37,7 +37,7 @@ public class BaseDtoTests
         var id = dto.Id;
 
         // Assert
-        Assert.Equal(0, id);
+        Assert.Equal(default, id);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class BaseDtoTests
     {
         // Arrange
         var dto = new TestDto();
-        const int expectedId = 42;
+        const KeyType expectedId = 42;
 
         // Act
         dto.Id = expectedId;

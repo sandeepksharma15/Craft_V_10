@@ -51,7 +51,7 @@ public class RemoteApiStore<T> : ITenantStore<T> where T : class, ITenant, IEnti
 
     #region CRUD Members Not Implemented
 
-    public Task<T?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default)
+    public Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

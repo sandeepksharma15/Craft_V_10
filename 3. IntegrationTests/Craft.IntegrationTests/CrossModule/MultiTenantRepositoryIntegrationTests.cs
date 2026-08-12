@@ -105,16 +105,16 @@ public class MultiTenantRepositoryIntegrationTests : IAsyncLifetime
         });
 
         // Assert - Both created with correct tenant IDs
-        Assert.Equal(1, tenant1Product.TenantId);
-        Assert.Equal(2, tenant2Product.TenantId);
+        Assert.Equal((KeyType)1, tenant1Product.TenantId);
+        Assert.Equal((KeyType)2, tenant2Product.TenantId);
 
         // Query each tenant's data
         var tenant1Data = await _dbContext.Products
-            .Where(p => p.TenantId == 1 && p.Name == "Tenant 1 Product")
+            .Where(p => p.TenantId == (KeyType)1 && p.Name == "Tenant 1 Product")
             .FirstOrDefaultAsync();
 
         var tenant2Data = await _dbContext.Products
-            .Where(p => p.TenantId == 2 && p.Name == "Tenant 2 Product")
+            .Where(p => p.TenantId == (KeyType)2 && p.Name == "Tenant 2 Product")
             .FirstOrDefaultAsync();
 
         Assert.NotNull(tenant1Data);
@@ -366,7 +366,7 @@ public class MultiTenantRepositoryIntegrationTests : IAsyncLifetime
         // Assert
         Assert.Single(tenant1Expensive);
         Assert.Equal("Combo T1 Expensive", tenant1Expensive[0].Name);
-        Assert.Equal(1, tenant1Expensive[0].TenantId);
+        Assert.Equal((KeyType)1, tenant1Expensive[0].TenantId);
     }
 
     #endregion

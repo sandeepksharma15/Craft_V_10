@@ -68,7 +68,7 @@ public abstract class TenantStoreTestBase
     {
         var store = CreateTestStore();
 
-        Assert.Null(store.GetAsync(-1).Result);
+        Assert.Null(store.GetAsync((KeyType)(0)).Result);
     }
 
     public virtual void UpdateTenantInStore()

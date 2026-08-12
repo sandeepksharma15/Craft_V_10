@@ -25,12 +25,12 @@ public class CurrentTenantTests
         var currentTenant = new CurrentTenant(mockAccessor.Object);
 
         // Act & Assert
-        Assert.Equal(1, currentTenant.Id);
+        Assert.Equal((KeyType)1, currentTenant.Id);
         Assert.Equal("test-tenant", currentTenant.Identifier);
         Assert.Equal("Test Tenant", currentTenant.Name);
         Assert.True(currentTenant.IsAvailable);
         Assert.True(currentTenant.IsActive);
-        Assert.Equal(1, currentTenant.GetId());
+        Assert.Equal((KeyType)1, currentTenant.GetId());
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class CurrentTenantTests
         var currentTenant = new CurrentTenant(mockAccessor.Object);
 
         // Act & Assert
-        Assert.Equal(2, currentTenant.Id);
+        Assert.Equal((KeyType)2, currentTenant.Id);
         Assert.Equal("inactive-tenant", currentTenant.Identifier);
         Assert.Equal("Inactive Tenant", currentTenant.Name);
         Assert.True(currentTenant.IsAvailable);

@@ -106,10 +106,10 @@ public class QueryFilterExtensionTests
 
         // With filter: only non-deleted for ISoftDelete types, unchanged for NoSoftDeleteEntity
         Assert.Single(companiesWithFilter);
-        Assert.Equal(1, companiesWithFilter[0].Id);
+        Assert.Equal((KeyType)1, companiesWithFilter[0].Id);
 
         Assert.Single(countriesWithFilter);
-        Assert.Equal(10, countriesWithFilter[0].Id);
+        Assert.Equal((KeyType)10, countriesWithFilter[0].Id);
 
         Assert.Equal(2, nosoftWithFilter.Count);
     }
@@ -218,7 +218,7 @@ public class QueryFilterExtensionTests
         // Assert
         Assert.Single(onlyActive);
         Assert.Equal(2, withDeleted?.Count);
-        Assert.Equal(2, withDeleted?[1].Id);
+        Assert.Equal((KeyType)2, withDeleted?[1].Id);
     }
 
     // 10) AddGlobalTenantFilter applies and filters by current tenant
@@ -246,7 +246,7 @@ public class QueryFilterExtensionTests
 
         // Assert: Only tenant 1 visible, and one named tenant filter applied
         Assert.Equal(2, visible.Count);
-        Assert.All(visible, v => Assert.Equal(1, v.TenantId));
+        Assert.All(visible, v => Assert.Equal((KeyType)1, v.TenantId));
         Assert.Single(filters);
         Assert.Contains(filters, f => f.Key == QueryFilterExtension.TenantFilterName);
     }
@@ -302,11 +302,11 @@ public class QueryFilterExtensionTests
 
         // Assert: With filters -> only tenant 1 and not deleted
         Assert.Single(withFilters);
-        Assert.Equal(1, withFilters[0].Id);
+        Assert.Equal((KeyType)1, withFilters[0].Id);
 
         // All ignored -> all 4
         Assert.Equal(4, allIgnored?.Count);
-        Assert.Equal(4, allIgnored?[^1].Id);
+        Assert.Equal((KeyType)4, allIgnored?[^1].Id);
     }
 
     // 13) Include* helpers throw on null query

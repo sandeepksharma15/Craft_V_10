@@ -54,7 +54,7 @@ public class KeyTypeTests
         const KeyType id = value;
 
         // Assert
-        Assert.Equal(1, id);
+        Assert.Equal((KeyType)1, id);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class KeyTypeTests
         const KeyType id = value;
 
         // Assert
-        Assert.Equal(1, id);
+        Assert.Equal((KeyType)1, id);
     }
 
     [Fact]
@@ -77,36 +77,23 @@ public class KeyTypeTests
         const string value = "1";
 
         // Act
-        KeyType id = long.Parse(value);
+        KeyType id = (KeyType)long.Parse(value);
 
         // Assert
-        Assert.Equal(1, id);
-    }
-
-    [Fact]
-    public void KeyType_ImplicitConversionToInt_ShouldReturnIdValueAsInt()
-    {
-        // Arrange
-        const int id = 1;
-
-        // Act
-        const int value = id;
-
-        // Assert
-        Assert.Equal(1, value);
+        Assert.Equal((KeyType)1, id);
     }
 
     [Fact]
     public void KeyType_ImplicitConversionToLong_ShouldReturnIdValue()
     {
         // Arrange
-        const int id = 1;
+        const KeyType id = 1;
 
         // Act
-        const long value = id;
+        const ulong value = id;
 
         // Assert
-        Assert.Equal(1, value);
+        Assert.Equal((KeyType)1, value);
     }
 
     [Fact]
@@ -119,7 +106,7 @@ public class KeyTypeTests
         var result = KeyType.Parse(value);
 
         // Assert
-        Assert.Equal(1, result);
+        Assert.Equal((KeyType)1, result);
     }
 
     [Fact]
@@ -133,7 +120,7 @@ public class KeyTypeTests
 
         // Assert
         Assert.False(success);
-        Assert.Equal(0, result);
+        Assert.Equal((KeyType)0, result);
     }
 
     [Fact]
@@ -147,7 +134,7 @@ public class KeyTypeTests
 
         // Assert
         Assert.True(success);
-        Assert.Equal(1, result);
+        Assert.Equal((KeyType)1, result);
     }
 
     [Fact]

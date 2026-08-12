@@ -281,13 +281,13 @@ public class BuilderTests
         Assert.IsType<ConfigurationStore<Tenant>>(store);
 
         var tc = await store.GetByIdentifierAsync("initech");
-        Assert.Equal(1, tc?.Id);
+        Assert.Equal((KeyType)1, tc?.Id);
         Assert.Equal("initech", tc?.Identifier);
         Assert.Equal("Initech", tc?.Name);
         Assert.Equal("Datasource=sample.db", tc?.ConnectionString);
 
         tc = await store.GetByIdentifierAsync("lol");
-        Assert.Equal(2, tc?.Id);
+        Assert.Equal((KeyType)2, tc?.Id);
         Assert.Equal("lol", tc?.Identifier);
         Assert.Equal("LOL", tc?.Name);
         Assert.Equal("Datasource=lol.db", tc?.ConnectionString);
@@ -312,13 +312,13 @@ public class BuilderTests
         Assert.IsType<ConfigurationStore<Tenant>>(store);
 
         var tc = await store.GetByIdentifierAsync("initech");
-        Assert.Equal(1, tc?.Id);
+        Assert.Equal((KeyType)1, tc?.Id);
         Assert.Equal("initech", tc?.Identifier);
         Assert.Equal("Initech", tc?.Name);
         Assert.Equal("Datasource=sample.db", tc?.ConnectionString);
 
         tc = await store.GetByIdentifierAsync("lol");
-        Assert.Equal(2, tc?.Id);
+        Assert.Equal((KeyType)2, tc?.Id);
         Assert.Equal("lol", tc?.Identifier);
         Assert.Equal("LOL", tc?.Name);
         Assert.Equal("Datasource=lol.db", tc?.ConnectionString);
@@ -349,7 +349,7 @@ public class BuilderTests
         Assert.IsType<InMemoryStore<Tenant>>(store);
 
         var tc = await store.GetByIdentifierAsync("lol");
-        Assert.Equal(1, tc?.Id);
+        Assert.Equal((KeyType)1, tc?.Id);
         Assert.Equal("lol", tc?.Identifier);
         Assert.Equal("LOL", tc?.Name);
         Assert.Equal("Datasource=lol.db", tc?.ConnectionString);
@@ -470,7 +470,7 @@ public class BuilderTests
     private class DummyTenantRepository : ITenantStore<Tenant>
     {
         public Task<IReadOnlyList<Tenant>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Tenant>>([]);
-        public Task<Tenant?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
+        public Task<Tenant?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
         public Task<long> GetCountAsync(CancellationToken cancellationToken = default) => Task.FromResult(0L);
 
         public Task<Tenant?> AddAsync(Tenant entity, bool autoSave = true, CancellationToken cancellationToken = default) => Task.FromResult<Tenant?>(null);
@@ -514,7 +514,7 @@ public class BuilderTests
             throw new NotImplementedException();
         }
 
-        public Task<T?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default)
+        public Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

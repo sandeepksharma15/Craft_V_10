@@ -347,6 +347,6 @@ public class AggregateRootBaseTests
         var aggregateRoot = new DefaultAggregateRoot(23);
 
         // Assert
-        Assert.Equal(23, aggregateRoot.Id);
+        Assert.Equal((KeyType)23, aggregateRoot.Id);
     }
 }

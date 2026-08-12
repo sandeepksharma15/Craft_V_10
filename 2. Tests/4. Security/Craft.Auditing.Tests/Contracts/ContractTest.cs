@@ -62,7 +62,7 @@ public class ContractTest
         Assert.Equal(default, audit.GetUserId());
 
         // Act & Assert
-        var userId = 1;
+        KeyType userId = 1;
         audit.SetUserId(userId);
 
         Assert.True(audit.IsUserIdSet());

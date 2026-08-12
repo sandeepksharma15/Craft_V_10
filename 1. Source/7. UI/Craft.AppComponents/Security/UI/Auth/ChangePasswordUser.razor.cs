@@ -50,14 +50,14 @@ public partial class ChangePasswordUser<TUser> : ComponentBase
     private bool _showNewPassword;
     private InputType _newPasswordInputType = InputType.Password;
     private string _newPasswordIcon = Icons.Material.Filled.VisibilityOff;
-    private long _userId;
+    private KeyType _userId;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var claim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        long.TryParse(claim, out _userId);
+        KeyType.TryParse(claim, out _userId);
     }
 
     private async Task HandleChangePasswordAsync()

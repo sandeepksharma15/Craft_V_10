@@ -133,9 +133,9 @@ public class DataTransferObjectTests
         var model = new ProductModel { Id = 44 };
 
         // Assert
-        Assert.Equal(42, dto.Id);
-        Assert.Equal(43, vm.Id);
-        Assert.Equal(44, model.Id);
+        Assert.Equal((KeyType)42, dto.Id);
+        Assert.Equal((KeyType)43, vm.Id);
+        Assert.Equal((KeyType)44, model.Id);
     }
 
     [Fact]
@@ -219,7 +219,7 @@ public class DataTransferObjectTests
     public void GenericMethod_CanConstrainToIDataTransferObject()
     {
         // Arrange
-        static T CloneDto<T>(T source) where T : IDataTransferObject<long>, new()
+        static T CloneDto<T>(T source) where T : IDataTransferObject<KeyType>, new()
         {
             return new T
             {

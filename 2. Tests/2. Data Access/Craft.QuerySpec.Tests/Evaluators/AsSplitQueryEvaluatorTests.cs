@@ -94,7 +94,7 @@ public class AsSplitQueryEvaluatorTests
 
         // Assert
         Assert.Single(result);
-        Assert.Equal(99, result.First().Id);
+        Assert.Equal((KeyType)99, result.First().Id);
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class AsSplitQueryEvaluatorTests
 
         // Assert
         Assert.Equal(2, result.Count());
-        Assert.All(result, c => Assert.Equal(1, c.Id));
+        Assert.All(result, c => Assert.Equal((KeyType)1, c.Id));
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class AsSplitQueryEvaluatorTests
         // Act & Assert
         var result = evaluator.GetQuery(countryQueryable, query);
         Assert.Single(result);
-        Assert.Equal(5, result.First().Id);
+        Assert.Equal((KeyType)5, result.First().Id);
     }
 
     [Fact]

@@ -18,12 +18,12 @@ public class TenantDbContextFactoryTests
     // Mock implementation of lightweight ICurrentTenant
     private sealed class TestCurrentTenant : ICurrentTenant
     {
-        public long Id { get; set; }
+        public KeyType Id { get; set; }
         public string? Identifier { get; set; }
         public string? Name { get; set; }
         public bool IsAvailable { get; set; } = true;
         public bool IsActive { get; set; } = true;
-        public long GetId() => Id;
+        public KeyType GetId() => Id;
     }
 
     // Dummy DbContext that accepts configured options so we can inspect them

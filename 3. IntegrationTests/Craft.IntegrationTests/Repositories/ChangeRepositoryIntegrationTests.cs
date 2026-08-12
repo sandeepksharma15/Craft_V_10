@@ -190,7 +190,7 @@ public class ChangeRepositoryIntegrationTests : IAsyncLifetime
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1, result.Id);
+        Assert.Equal((KeyType)1, result.Id);
         Assert.Equal("Laptop", result.Name);
     }
 

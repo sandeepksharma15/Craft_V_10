@@ -65,7 +65,7 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
         Assert.All(results, p =>
         {
             Assert.True(p.Price > 100m);
-            Assert.Equal(1, p.CategoryId);
+            Assert.Equal((KeyType)1, p.CategoryId);
         });
     }
 
@@ -224,7 +224,7 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
         Assert.True(results.Count <= 3);
         Assert.All(results, p =>
         {
-            Assert.Equal(1, p.TenantId);
+            Assert.Equal((KeyType)1, p.TenantId);
             Assert.True(p.Price >= 50m);
         });
 
@@ -344,7 +344,7 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1, result.CategoryId);
+        Assert.Equal((KeyType)1, result.CategoryId);
     }
 
     #endregion
@@ -471,7 +471,7 @@ public class QuerySpecIntegrationTests : IAsyncLifetime
         var searchTerm = "phone";
         var minPrice = 100m;
         var maxPrice = 700m;
-        var categoryId = 1;
+        KeyType categoryId = 1;
 
         var query = new Query<Product>();
         query.Where(p => p.CategoryId == categoryId);

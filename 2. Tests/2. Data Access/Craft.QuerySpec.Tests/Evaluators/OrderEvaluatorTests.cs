@@ -59,8 +59,8 @@ public class OrderEvaluatorTests
 
         // Assert
         Assert.Equal(2, result?.Count());
-        Assert.Equal(2, result?.First().Id);
-        Assert.Equal(1, result?.Last().Id);
+        Assert.Equal((KeyType)2, result?.First().Id);
+        Assert.Equal((KeyType)1, result?.Last().Id);
     }
 
     [Fact]
@@ -82,9 +82,9 @@ public class OrderEvaluatorTests
 
         // Assert
         Assert.Equal(3, result?.Count);
-        Assert.Equal(2, result?[0].Id); // A, 2
-        Assert.Equal(3, result?[1].Id); // A, 3
-        Assert.Equal(1, result?[2].Id); // B, 1
+        Assert.Equal((KeyType)2, result?[0].Id); // A, 2
+        Assert.Equal((KeyType)3, result?[1].Id); // A, 3
+        Assert.Equal((KeyType)1, result?[2].Id); // B, 1
     }
 
     [Fact]
@@ -106,9 +106,9 @@ public class OrderEvaluatorTests
 
         // Assert
         Assert.Equal(3, result?.Count);
-        Assert.Equal(3, result?[0].Id); // A, 3
-        Assert.Equal(2, result?[1].Id); // A, 2
-        Assert.Equal(1, result?[2].Id); // B, 1
+        Assert.Equal((KeyType)3, result?[0].Id); // A, 3
+        Assert.Equal((KeyType)2, result?[1].Id); // A, 2
+        Assert.Equal((KeyType)1, result?[2].Id); // B, 1
     }
 
     [Fact]

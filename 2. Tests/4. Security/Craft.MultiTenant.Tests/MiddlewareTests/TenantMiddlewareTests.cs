@@ -52,7 +52,7 @@ public class TenantMiddlewareTests
 
         var mw = new TenantMiddleware(_ =>
         {
-            Assert.Equal(1, context?.Object.RequestServices.GetService<ITenant>()?.Id);
+            Assert.Equal((KeyType)1, context?.Object.RequestServices.GetService<ITenant>()?.Id);
             return Task.CompletedTask;
         });
 

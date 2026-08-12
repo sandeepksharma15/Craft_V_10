@@ -26,7 +26,7 @@ public class HasUserTests
         IHasUser hasUser = (ConcreteHasUser)new() { UserId = 123 };
 
         var actualId = hasUser.GetUserId();
-        Assert.Equal(123, actualId);
+        Assert.Equal((KeyType)123, actualId);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class HasUserTests
         hasUser.SetUserId(456);
 
         // Assert
-        Assert.Equal(456, instance.UserId);
+        Assert.Equal((KeyType)456, instance.UserId);
     }
 
     [Fact]

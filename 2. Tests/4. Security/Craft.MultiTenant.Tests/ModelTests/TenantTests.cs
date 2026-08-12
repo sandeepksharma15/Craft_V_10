@@ -97,7 +97,7 @@ public class TenantTests
     {
         var tenant = new Tenant(1, "Test", "connection", "test-id");
         
-        Assert.Equal(1, tenant.Id);
+        Assert.Equal((KeyType)1, tenant.Id);
         Assert.Equal("Test", tenant.Name);
         Assert.Equal("connection", tenant.ConnectionString);
         Assert.Equal("test-id", tenant.Identifier);
@@ -121,7 +121,7 @@ public class TenantTests
     {
         var tenant = new Tenant(1, "Test", "test-id", "logo.png", TenantType.Host);
         
-        Assert.Equal(1, tenant.Id);
+        Assert.Equal((KeyType)1, tenant.Id);
         Assert.Equal("Test", tenant.Name);
         Assert.Equal("test-id", tenant.Identifier);
         Assert.Equal("logo.png", tenant.LogoUri);

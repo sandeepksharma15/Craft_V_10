@@ -88,7 +88,7 @@ public class DbStore<TStoreDbContext, T>(TStoreDbContext dbContext) : ITenantSto
             .ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<T?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default)
+    public virtual async Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         return await _dbContext
             .Tenants

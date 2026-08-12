@@ -27,7 +27,7 @@ public static class StoreSeed
         for (var i = 1; i <= 50; i++)
             stores.Add(new Store()
             {
-                Id = i,
+                Id = (KeyType)i,
                 Name = $"Store {i}",
                 City = $"City {i}",
                 CompanyId = 1,
@@ -36,7 +36,7 @@ public static class StoreSeed
         for (var i = 51; i <= 100; i++)
             stores.Add(new Store()
             {
-                Id = i,
+                Id = (KeyType)i,
                 Name = $"Store {i}",
                 City = $"City {i}",
                 CompanyId = 2,

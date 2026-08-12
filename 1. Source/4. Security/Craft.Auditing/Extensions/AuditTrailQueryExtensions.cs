@@ -2,7 +2,7 @@ namespace Craft.Auditing;
 
 public static class AuditTrailQueryExtensions
 {
-    public static IQueryable<AuditTrail> ForEntity<TEntity>(this IQueryable<AuditTrail> query, long entityId)
+    public static IQueryable<AuditTrail> ForEntity<TEntity>(this IQueryable<AuditTrail> query, KeyType entityId)
         where TEntity : class
     {
         ArgumentNullException.ThrowIfNull(query);

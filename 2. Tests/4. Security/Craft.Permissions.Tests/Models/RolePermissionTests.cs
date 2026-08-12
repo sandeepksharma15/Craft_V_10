@@ -21,7 +21,7 @@ public class RolePermissionTests
             PermissionCode = 1001
         };
 
-        Assert.Equal(42L, rp.RoleId);
+        Assert.Equal((KeyType)42, rp.RoleId);
         Assert.Equal(1001, rp.PermissionCode);
     }
 }

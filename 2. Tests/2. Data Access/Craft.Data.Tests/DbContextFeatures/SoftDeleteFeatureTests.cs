@@ -58,7 +58,7 @@ public class SoftDeleteFeatureTests
 
         // Assert
         Assert.Single(results);
-        Assert.Equal(1, results[0].Id);
+        Assert.Equal((KeyType)1, results[0].Id);
     }
 
     [Fact]

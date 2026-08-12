@@ -9,8 +9,7 @@ public class KeyTypeExtensionsTests
     public void ToHashKey_And_ToKeyType_RoundTrip_Works_For_PositiveValue()
     {
         // Arrange
-        long original = 123456789;
-        KeyType keyType = original;
+        KeyType keyType = 123456789;
 
         // Act
         string hash = keyType.ToHashKey();
@@ -26,8 +25,7 @@ public class KeyTypeExtensionsTests
     public void ToHashKey_And_ToKeyType_RoundTrip_Works_For_Zero()
     {
         // Arrange
-        long original = 0;
-        KeyType keyType = original;
+        KeyType keyType = 0;
 
         // Act
         string hash = keyType.ToHashKey();
@@ -37,17 +35,6 @@ public class KeyTypeExtensionsTests
         Assert.NotNull(hash);
         Assert.NotEmpty(hash);
         Assert.Equal(keyType, decoded);
-    }
-
-    [Fact]
-    public void ToHashKey_With_NegativeValue_ThrowsException()
-    {
-        // Arrange
-        long original = -987654321;
-        KeyType keyType = original;
-
-        // Assert
-        Assert.Throws<ArgumentException>(() => keyType.ToHashKey());
     }
 
     [Fact]
@@ -76,8 +63,7 @@ public class KeyTypeExtensionsTests
         // Arrange
         var options = new HashKeyOptions();
         var hashKeys = new HashKeys(options);
-        long original = 42;
-        KeyType keyType = original;
+        KeyType keyType = 42;
 
         // Act
         string hash = keyType.ToHashKey(hashKeys);
@@ -87,19 +73,6 @@ public class KeyTypeExtensionsTests
         Assert.NotNull(hash);
         Assert.NotEmpty(hash);
         Assert.Equal(keyType, decoded);
-    }
-
-    [Fact]
-    public void ToHashKey_With_IHashKeys_NegativeValue_ThrowsException()
-    {
-        // Arrange
-        var options = new HashKeyOptions();
-        var hashKeys = new HashKeys(options);
-        long original = -1;
-        KeyType keyType = original;
-
-        // Assert
-        Assert.Throws<ArgumentException>(() => keyType.ToHashKey(hashKeys));
     }
 
     [Fact]
@@ -133,8 +106,7 @@ public class KeyTypeExtensionsTests
         var services = new ServiceCollection();
         services.AddHashKeys();
         var provider = services.BuildServiceProvider();
-        long original = 123;
-        KeyType keyType = original;
+        KeyType keyType = 123;
 
         // Act
         string hash = keyType.ToHashKey(provider);
@@ -144,20 +116,6 @@ public class KeyTypeExtensionsTests
         Assert.NotNull(hash);
         Assert.NotEmpty(hash);
         Assert.Equal(keyType, decoded);
-    }
-
-    [Fact]
-    public void ToHashKey_With_IServiceProvider_NegativeValue_ThrowsException()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        services.AddHashKeys();
-        var provider = services.BuildServiceProvider();
-        long original = -2;
-        KeyType keyType = original;
-
-        // Assert
-        Assert.Throws<ArgumentException>(() => keyType.ToHashKey(provider));
     }
 
     [Fact]
@@ -225,7 +183,7 @@ public class KeyTypeExtensionsTests
     [InlineData(long.MaxValue)]
     [InlineData(1000000)]
     [InlineData(999)]
-    public void ToHashKey_And_ToKeyType_RoundTrip_Works_For_LargeValues(long value)
+    public void ToHashKey_And_ToKeyType_RoundTrip_Works_For_LargeValues(KeyType value)
     {
         // Arrange
         KeyType keyType = value;
@@ -305,7 +263,7 @@ public class KeyTypeExtensionsTests
     [InlineData(1)]
     [InlineData(99)]
     [InlineData(999)]
-    public void ToHashKey_MinimumHashLength_IsRespected(long value)
+    public void ToHashKey_MinimumHashLength_IsRespected(KeyType value)
     {
         // Arrange
         var options = new HashKeyOptions { MinHashLength = 10 };

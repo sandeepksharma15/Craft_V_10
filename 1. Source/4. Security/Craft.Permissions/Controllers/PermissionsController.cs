@@ -45,7 +45,7 @@ public class PermissionsController<TUser>(
         // We use the user's claims to find role IDs; fall back to name-based lookup
         var roleIds = User.Claims
             .Where(c => c.Type == "roleId")
-            .Select(c => { _ = long.TryParse(c.Value, out var id); return id; })
+            .Select(c => { _ = KeyType.TryParse(c.Value, out var id); return id; })
             .Where(id => id != 0)
             .Distinct()
             .ToList();

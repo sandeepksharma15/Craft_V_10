@@ -104,7 +104,7 @@ public class WhereEvaluatorTests
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(2, result[0].Id);
+        Assert.Equal((KeyType)2, result[0].Id);
         Assert.Equal("Company 2", result[0].Name);
     }
 }

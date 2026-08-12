@@ -195,7 +195,7 @@ public class BaseEntityTests
     {
         // Arrange
         var entity = new MockEntity(1);
-        const int expectedId = 1;
+        const KeyType expectedId = 1;
 
         // Act
         // entity.Id = expectedId;
@@ -302,12 +302,12 @@ public class BaseEntityTests
         public MockEntity()
         { }
 
-        public MockEntity(int id) : base(id)
+        public MockEntity(KeyType id) : base(id)
         {
         }
     }
 
-    private class MockTenantEntity(long id, long tenantId) : BaseEntity(id), IHasTenant
+    private class MockTenantEntity(KeyType id, KeyType tenantId) : BaseEntity(id), IHasTenant
     {
         public KeyType TenantId { get; set; } = tenantId;
 

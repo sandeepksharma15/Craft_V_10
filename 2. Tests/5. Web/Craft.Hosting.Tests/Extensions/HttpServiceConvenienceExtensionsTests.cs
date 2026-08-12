@@ -236,16 +236,16 @@ public class HttpServiceConvenienceExtensionsTests
 
     private class TestEntity : IEntity, IModel
     {
-        public long Id { get; set; }
+        public KeyType Id { get; set; }
     }
 
     private class TestView : IModel
     {
-        public long Id { get; set; }
+        public KeyType Id { get; set; }
     }
 
     private class TestDto : IModel
     {
-        public long Id { get; set; }
+        public KeyType Id { get; set; }
     }
 }

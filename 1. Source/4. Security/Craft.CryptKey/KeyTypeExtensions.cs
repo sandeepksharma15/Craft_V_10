@@ -13,7 +13,7 @@ public static class KeyTypeExtensions
         var options = Activator.CreateInstance<HashKeyOptions>();
         var hashKeys = (HashKeys)Activator.CreateInstance(typeof(HashKeys), options)!;
 
-        return hashKeys!.EncodeLong(keyType);
+        return hashKeys!.EncodeLong((long)keyType);
     }
 
     public static KeyType ToKeyType(this string hashKey)
@@ -24,7 +24,7 @@ public static class KeyTypeExtensions
         var options = Activator.CreateInstance<HashKeyOptions>();
         var hashKeys = (HashKeys)Activator.CreateInstance(typeof(HashKeys), options)!;
 
-        return hashKeys!.DecodeLong(hashKey)[0];
+        return (KeyType)hashKeys!.DecodeLong(hashKey)[0];
     }
 
     // New overloads using DI-registered IHashKeys
@@ -32,12 +32,12 @@ public static class KeyTypeExtensions
     {
         return typeof(KeyType).IsIntegral() && keyType < 0
             ? throw new ArgumentException("KeyType cannot be negative")
-            : hashKeys.EncodeLong(keyType);
+            : hashKeys.EncodeLong((long)keyType);
     }
 
     public static KeyType ToKeyType(this string hashKey, IHashKeys hashKeys)
     {
-        return hashKey.IsNullOrWhiteSpace() ? throw new ArgumentException("HashKey cannot be null or empty") : hashKeys.DecodeLong(hashKey)[0];
+        return hashKey.IsNullOrWhiteSpace() ? throw new ArgumentException("HashKey cannot be null or empty") : (KeyType)hashKeys.DecodeLong(hashKey)[0];
     }
 
     // Optional: Overloads using IServiceProvider for convenience

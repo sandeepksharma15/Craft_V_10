@@ -30,7 +30,7 @@ public class HasIdTests
 
         // Act & Assert
         KeyType actualId = instance.GetId();
-        Assert.Equal(456, actualId);
+        Assert.Equal((KeyType)456, actualId);
 
     }
 
@@ -44,7 +44,7 @@ public class HasIdTests
         instance.SetId(789);
 
         // Assert
-        Assert.Equal(789, instance.Id);
+        Assert.Equal((KeyType)789, instance.Id);
     }
 
     [Fact]

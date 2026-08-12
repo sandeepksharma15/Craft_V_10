@@ -21,8 +21,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Act
         var dbContext = await repo.GetDbContextAsync();
@@ -36,8 +36,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Act
         var dbSet = await repo.GetDbSetAsync();
@@ -51,8 +51,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Act
         var result = repo.SaveChanges();
@@ -66,8 +66,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Act
         var result = await repo.SaveChangesAsync();
@@ -81,8 +81,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
         var company = new Company { Name = "Test Company", CountryId = 1L };
 
         // Act
@@ -99,8 +99,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
         var company = new Company { Name = "Test Company Async", CountryId = 1L };
 
         // Act
@@ -117,8 +117,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
         var company = new Company { Name = "Test Company Async CT", CountryId = 1L };
 
         // Act
@@ -134,8 +134,8 @@ public class BaseRepositoryTests
     {
         // Arrange & Act
         using var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Assert
         Assert.NotNull(repo);
@@ -146,8 +146,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Act
         context.Dispose();
@@ -161,8 +161,8 @@ public class BaseRepositoryTests
     {
         // Arrange
         var context = new TestDbContext(options);
-        var logger = new TestLogger<BaseRepository<Company, long>>();
-        var repo = new BaseRepository<Company, long>(context, logger);
+        var logger = new TestLogger<BaseRepository<Company, KeyType>>();
+        var repo = new BaseRepository<Company, KeyType>(context, logger);
 
         // Act
         context.Dispose();

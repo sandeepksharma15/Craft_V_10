@@ -275,7 +275,7 @@ public class AuditTrailQueryExtensionsTests
     {
         // Arrange
         using var context = CreateContext();
-        var userId = 1L;
+        KeyType userId = 1L;
         var audit1 = new AuditTrail 
         { 
             TableName = "Products", 

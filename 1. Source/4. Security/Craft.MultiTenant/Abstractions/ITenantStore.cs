@@ -4,7 +4,7 @@ namespace Craft.MultiTenant;
 
 public interface ITenantStore<T> where T : class, ITenant, IEntity, new()
 {
-    Task<T?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default);
+    Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<T>> GetAllAsync(bool includeDetails = false, CancellationToken cancellationToken = default);
     Task<long> GetCountAsync(CancellationToken cancellationToken = default);
 

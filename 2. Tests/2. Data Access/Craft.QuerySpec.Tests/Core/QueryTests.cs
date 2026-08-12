@@ -234,7 +234,7 @@ public class QueryTests
 
         // Assert
         Assert.Single(result);
-        Assert.Equal(1, result.First().Id);
+        Assert.Equal((KeyType)1, result.First().Id);
     }
 
     [Fact]

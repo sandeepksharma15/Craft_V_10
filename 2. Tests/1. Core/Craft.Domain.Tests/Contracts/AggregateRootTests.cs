@@ -92,7 +92,7 @@ public class AggregateRootTests
         var order = new Order { Id = 42 };
 
         // Assert
-        Assert.Equal(42, order.Id);
+        Assert.Equal((KeyType)42, order.Id);
     }
 
     [Fact]

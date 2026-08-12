@@ -29,7 +29,7 @@ public class HasTenantTests
 
         // Act & Assert
         var actualId = castInstance.GetTenantId();
-        Assert.Equal(123, actualId);
+        Assert.Equal((KeyType)123, actualId);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class HasTenantTests
         castInstance.SetTenantId(456);
 
         // Assert
-        Assert.Equal(456, instance.TenantId);
+        Assert.Equal((KeyType)456, instance.TenantId);
     }
 
     [Fact]

@@ -71,7 +71,7 @@ public class ReadRepositoryTests
 
         // Assert
         Assert.NotNull(entity);
-        Assert.Equal(CountrySeed.COUNTRY_ID_1, entity.Id);
+        Assert.Equal((KeyType)CountrySeed.COUNTRY_ID_1, entity.Id);
         Assert.Equal(CountrySeed.COUNTRY_NAME_1, entity.Name);
     }
 

@@ -101,7 +101,7 @@ public class TenantContextAccessorTests
         
         var results = await Task.WhenAll(task1, task2);
         
-        Assert.Equal(1, results[0]);
-        Assert.Equal(2, results[1]);
+        Assert.Equal((KeyType)1, results[0]);
+        Assert.Equal((KeyType)2, results[1]);
     }
 }

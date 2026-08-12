@@ -1,1 +1,1 @@
-﻿global using KeyType = long;
+﻿global using KeyType = ulong;

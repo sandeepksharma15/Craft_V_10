@@ -12,7 +12,7 @@ public class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         services.AddLogging();
 
-        services.AddCraftPermissions<IdentityUser<long>>();
+        services.AddCraftPermissions<IdentityUser<KeyType>>();
 
         var provider = services.BuildServiceProvider();
         var registry1 = provider.GetRequiredService<IPermissionDefinitionRegistry>();
@@ -27,7 +27,7 @@ public class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         services.AddLogging();
 
-        services.AddCraftPermissions<IdentityUser<long>>();
+        services.AddCraftPermissions<IdentityUser<KeyType>>();
 
         var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IRolePermissionRepository));
         Assert.NotNull(descriptor);
@@ -40,7 +40,7 @@ public class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         services.AddLogging();
 
-        services.AddCraftPermissions<IdentityUser<long>>();
+        services.AddCraftPermissions<IdentityUser<KeyType>>();
 
         var descriptor = services.FirstOrDefault(d =>
             d.ServiceType == typeof(IHostedService) &&
@@ -106,7 +106,7 @@ public class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         services.AddLogging();
 
-        services.AddCraftPermissions<IdentityUser<long>>()
+        services.AddCraftPermissions<IdentityUser<KeyType>>()
             .RegisterPermissions(
                 new PermissionDefinition(1001, "Permission A", "Group1"),
                 new PermissionDefinition(1001, "Duplicate A", "Group1"));

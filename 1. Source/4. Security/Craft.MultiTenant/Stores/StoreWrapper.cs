@@ -70,7 +70,7 @@ public class StoreWrapper<T> : ITenantStore<T> where T : class, ITenant, IEntity
         return result;
     }
 
-    public async Task<T?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default)
+    public async Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         T? result = null;
 

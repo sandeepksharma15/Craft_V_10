@@ -101,7 +101,7 @@ public class AuditTrailTests
     {
         // Arrange
         var entityEntry = CreateEntityEntry(EntityState.Added);
-        var userId = 123L;
+        KeyType userId = 123L;
 
         // Act
         var auditLog = AuditTrail.Create(entityEntry, userId);
@@ -125,7 +125,7 @@ public class AuditTrailTests
     {
         // Arrange
         var entityEntry = CreateEntityEntry(EntityState.Added);
-        var userId = 456L;
+        KeyType userId = 456L;
 
         // Act
         var auditLog = await AuditTrail.CreateAsync(entityEntry, userId);
@@ -418,7 +418,7 @@ public class AuditTrailTests
     {
         // Arrange
         var entityEntry = CreateEntityEntry(EntityState.Added);
-        var userId = 789L;
+        KeyType userId = 789L;
 
         // Act
         var auditLog = new AuditTrail(entityEntry, userId);

@@ -20,7 +20,8 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
 
         _tenantMap = new ConcurrentDictionary<string, T>(stringComparer);
 
-        long nextId = 1;
+        KeyType nextId = 1;
+
         foreach (var tenant in _options.Tenants)
         {
             if (tenant.Id == default)
@@ -63,7 +64,7 @@ public class InMemoryStore<T> : ITenantStore<T> where T : class, ITenant, IEntit
         return await Task.FromResult(_tenantMap.Select(x => x.Value).ToList());
     }
 
-    public async Task<T?> GetAsync(long id, bool includeDetails = false, CancellationToken cancellationToken = default)
+    public async Task<T?> GetAsync(KeyType id, bool includeDetails = false, CancellationToken cancellationToken = default)
     {
         var result = _tenantMap.Values.SingleOrDefault(ti => ti.Id == id);
         return await Task.FromResult(result);

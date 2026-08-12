@@ -17,7 +17,7 @@ public class BaseVmTests
     public void BaseVm_Id_ShouldSetAndGet()
     {
         // Arrange
-        const int testId = 1;
+        const KeyType testId = 1;
         var vm = new TestVm { Id = testId };
 
         // Assert
@@ -73,7 +73,7 @@ public class BaseVmTests
         var id = Vm.Id;
 
         // Assert
-        Assert.Equal(0, id);
+        Assert.Equal(default, id);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class BaseVmTests
     {
         // Arrange
         var Vm = new TestVm();
-        const int expectedId = 1;
+        const KeyType expectedId = 1;
 
         // Act
         Vm.Id = expectedId;

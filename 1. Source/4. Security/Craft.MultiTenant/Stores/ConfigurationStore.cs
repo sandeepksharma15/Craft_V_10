@@ -48,7 +48,7 @@ public class ConfigurationStore<T> : ITenantStore<T> where T : class, ITenant, I
 
             T newTenant = new()
             {
-                Id = long.Parse(values?.Id!),
+                Id = KeyType.Parse(values?.Id!),
                 Identifier = values?.Identifier!,
                 Name = values?.Name!,
                 ConnectionString = values?.ConnectionString!
