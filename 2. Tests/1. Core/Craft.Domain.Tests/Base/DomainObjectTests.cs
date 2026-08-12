@@ -8,14 +8,13 @@ public class DomainObjectTests
 
     private sealed class TestDomainObject : DomainObject
     {
-        public void InvokeEnsure(bool condition, string message)
+        public static void InvokeEnsure(bool condition, string message)
             => Ensure(condition, message);
 
-        public string InvokeNotEmpty(string? value, string paramName)
+        public static string InvokeNotEmpty(string? value, string paramName)
             => NotEmpty(value, paramName);
 
-        public T InvokeNotNull<T>(T? value, string paramName)
-            where T : class
+        public static T InvokeNotNull<T>(T? value, string paramName) where T : class
             => NotNull(value, paramName);
     }
 
@@ -28,7 +27,7 @@ public class DomainObjectTests
         var sut = new TestDomainObject();
 
         // Act
-        var exception = Record.Exception(() => sut.InvokeEnsure(condition: true, "failure"));
+        var exception = Record.Exception(() => TestDomainObject.InvokeEnsure(condition: true, "failure"));
 
         // Assert
         Assert.Null(exception);
@@ -41,7 +40,7 @@ public class DomainObjectTests
         var sut = new TestDomainObject();
 
         // Act
-        var exception = Assert.Throws<ArgumentException>(() => sut.InvokeEnsure(condition: false, "failure"));
+        var exception = Assert.Throws<ArgumentException>(() => TestDomainObject.InvokeEnsure(condition: false, "failure"));
 
         // Assert
         Assert.Equal("failure", exception.Message);
@@ -51,10 +50,8 @@ public class DomainObjectTests
     public void NotEmpty_Should_ReturnTrimmedValue_WhenValueHasWhitespace()
     {
         // Arrange
-        var sut = new TestDomainObject();
-
         // Act
-        var result = sut.InvokeNotEmpty("  value  ", "value");
+        var result = TestDomainObject.InvokeNotEmpty("  value  ", "value");
 
         // Assert
         Assert.Equal("value", result);
@@ -67,7 +64,7 @@ public class DomainObjectTests
         var sut = new TestDomainObject();
 
         // Act
-        var exception = Assert.Throws<ArgumentException>(() => sut.InvokeNotEmpty("   ", "value"));
+        var exception = Assert.Throws<ArgumentException>(() => TestDomainObject.InvokeNotEmpty("   ", "value"));
 
         // Assert
         Assert.Equal("value", exception.ParamName);
@@ -77,11 +74,10 @@ public class DomainObjectTests
     public void NotNull_Should_ReturnReference_WhenValueIsNotNull()
     {
         // Arrange
-        var sut = new TestDomainObject();
         var value = new object();
 
         // Act
-        var result = sut.InvokeNotNull(value, nameof(value));
+        var result = TestDomainObject.InvokeNotNull(value, nameof(value));
 
         // Assert
         Assert.Same(value, result);
@@ -94,7 +90,7 @@ public class DomainObjectTests
         var sut = new TestDomainObject();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => sut.InvokeNotNull<object>(null, "value"));
+        var exception = Assert.Throws<ArgumentNullException>(() => TestDomainObject.InvokeNotNull<object>(null, "value"));
 
         // Assert
         Assert.Equal("value", exception.ParamName);
