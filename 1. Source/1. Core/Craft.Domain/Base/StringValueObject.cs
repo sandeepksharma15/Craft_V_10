@@ -18,14 +18,7 @@ public interface IStringValueObject<TSelf> where TSelf : StringValueObject<TSelf
 public abstract class StringValueObject<TSelf> : SingleValueObject<string>, IParsable<TSelf>
     where TSelf : StringValueObject<TSelf>, IStringValueObject<TSelf>
 {
-    protected StringValueObject(string value) : base(value)
-    {
-        // Avoid mutating it after the base constructor has run
-        //string normalized = Normalize(NotEmpty(value, nameof(value)));
-        //Ensure(ValidationExpression.IsMatch(normalized), ValidationMessage);
-        //Value = normalized;
-        //Value = value;
-    }
+    protected StringValueObject(string value) : base(value) { }
 
     /// <summary>
     /// Regular expression used to validate the value.
@@ -42,12 +35,6 @@ public abstract class StringValueObject<TSelf> : SingleValueObject<string>, IPar
     /// </summary>
     protected virtual string Normalize(string value)
         => value;
-
-    private static string ValidateAndNormalize(string value) 
-    { 
-        value = NotEmpty(value, nameof(value)); 
-        return value; 
-    }
 
     protected string NormalizeAndValidate(string value) 
     { 
