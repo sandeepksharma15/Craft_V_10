@@ -9,8 +9,7 @@ public abstract class NumericValueObject<TValue, TSelf> : SingleValueObject<TVal
     where TValue : struct, INumber<TValue>
     where TSelf : NumericValueObject<TValue, TSelf>
 {
-    protected NumericValueObject(TValue value)
-        : base(value)
+    protected NumericValueObject(TValue value) : base(value)
     {
         Ensure(IsValid(value), ValidationMessage);
     }
@@ -28,7 +27,7 @@ public abstract class NumericValueObject<TValue, TSelf> : SingleValueObject<TVal
         => "Invalid numeric value.";
 
     public override string ToString()
-        => Value.ToString();
+        => Value.ToString()!;
 
     public static implicit operator TValue(NumericValueObject<TValue, TSelf> value)
         => value.Value;

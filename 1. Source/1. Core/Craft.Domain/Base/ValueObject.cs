@@ -8,6 +8,24 @@ namespace Craft.Domain;
 public abstract class ValueObject : DomainObject, IEquatable<ValueObject>
 {
     /// <summary>
+    /// Determines whether two value objects are equal by comparing their equality components.
+    /// </summary>
+    /// <param name="left">The first value object to compare.</param>
+    /// <param name="right">The second value object to compare.</param>
+    /// <returns><see langword="true"/> when both value objects are equal; otherwise, <see langword="false"/>.</returns>
+    public static bool operator ==(ValueObject? left, ValueObject? right)
+        => Equals(left, right);
+
+    /// <summary>
+    /// Determines whether two value objects are not equal by comparing their equality components.
+    /// </summary>
+    /// <param name="left">The first value object to compare.</param>
+    /// <param name="right">The second value object to compare.</param>
+    /// <returns><see langword="true"/> when the value objects are not equal; otherwise, <see langword="false"/>.</returns>
+    public static bool operator !=(ValueObject? left, ValueObject? right)
+        => !Equals(left, right);
+
+    /// <summary>
     /// Gets the components used for equality comparison.
     /// Override this method to specify which properties define equality.
     /// </summary>
@@ -35,6 +53,11 @@ public abstract class ValueObject : DomainObject, IEquatable<ValueObject>
         return GetEqualityComponents()
             .Aggregate(17, (current, component) =>
                 current * 31 + (component?.GetHashCode() ?? 0));
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as ValueObject);
     }
 }
 
