@@ -446,7 +446,7 @@ public class Product : BaseEntity
     public string Name { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public string? Description { get; set; }
-    public long? CategoryId { get; set; }
+    public KeyType CategoryId { get; set; }
     public Category? Category { get; set; }
 }
 

@@ -271,7 +271,7 @@ public class EntityHelperTests
         var keyType = typeof(TestEntity).GetEntityKeyType();
 
         // Assert
-        Assert.Equal(typeof(long), keyType);
+        Assert.Equal(typeof(KeyType), keyType);
     }
 }
 

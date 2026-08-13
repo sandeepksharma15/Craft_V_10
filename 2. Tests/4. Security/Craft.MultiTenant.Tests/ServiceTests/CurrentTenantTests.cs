@@ -107,14 +107,14 @@ public class CurrentTenantTests
         var mockAccessor = new Mock<ITenantContextAccessor>();
         mockAccessor.Setup(x => x.TenantContext).Returns(tenantContext);
 
-        var currentTenant = new CurrentTenant<long>(mockAccessor.Object);
+        var currentTenant = new CurrentTenant<KeyType>(mockAccessor.Object);
 
         // Act & Assert
-        Assert.Equal(100L, currentTenant.Id);
+        Assert.Equal((KeyType)100, currentTenant.Id);
         Assert.Equal("generic-tenant", currentTenant.Identifier);
         Assert.Equal("Generic Tenant", currentTenant.Name);
         Assert.True(currentTenant.IsAvailable);
         Assert.True(currentTenant.IsActive);
-        Assert.Equal(100L, currentTenant.GetId());
+        Assert.Equal((KeyType)100, currentTenant.GetId());
     }
 }

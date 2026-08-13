@@ -39,8 +39,8 @@ public class DataTransferObjectTests
         var dto = new ProductDto();
 
         // Assert
-        Assert.IsType<IDataTransferObject>(dto, exactMatch: false);
-        Assert.IsType<IDataTransferObject<long>>(dto, exactMatch: false);
+        Assert.IsAssignableFrom<IDataTransferObject>(dto);
+        Assert.IsAssignableFrom<IDataTransferObject<KeyType>>(dto);
     }
 
     [Fact]
@@ -50,8 +50,8 @@ public class DataTransferObjectTests
         var vm = new ProductVm();
 
         // Assert
-        Assert.IsType<IDataTransferObject>(vm, exactMatch: false);
-        Assert.IsType<IDataTransferObject<long>>(vm, exactMatch: false);
+        Assert.IsAssignableFrom<IDataTransferObject>(vm);
+        Assert.IsAssignableFrom<IDataTransferObject<KeyType>>(vm);
     }
 
     [Fact]
@@ -61,8 +61,8 @@ public class DataTransferObjectTests
         var model = new ProductModel();
 
         // Assert
-        Assert.IsType<IDataTransferObject>(model, exactMatch: false);
-        Assert.IsType<IDataTransferObject<long>>(model, exactMatch: false);
+        Assert.IsAssignableFrom<IDataTransferObject>(model);
+        Assert.IsAssignableFrom<IDataTransferObject<KeyType>>(model);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class DataTransferObjectTests
         var dto = new ProductDtoWithGuid();
 
         // Assert
-        Assert.IsType<IDataTransferObject<Guid>>(dto, exactMatch: false);
+        Assert.IsAssignableFrom<IDataTransferObject<Guid>>(dto);
     }
 
     #endregion
@@ -86,8 +86,8 @@ public class DataTransferObjectTests
         var dto = new ProductDto();
 
         // Assert
-        Assert.IsType<IModel>(dto, exactMatch: false);
-        Assert.IsType<IModel<long>>(dto, exactMatch: false);
+        Assert.IsAssignableFrom<IModel>(dto);
+        Assert.IsAssignableFrom<IModel<KeyType>>(dto);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class DataTransferObjectTests
         var dto = new ProductDto();
 
         // Assert
-        Assert.IsType<IHasConcurrency>(dto, exactMatch: false);
+        Assert.IsAssignableFrom<IHasConcurrency>(dto);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class DataTransferObjectTests
         var dto = new ProductDto();
 
         // Assert
-        Assert.IsType<ISoftDelete>(dto, exactMatch: false);
+        Assert.IsAssignableFrom<ISoftDelete>(dto);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class DataTransferObjectTests
         var dto = new ProductDto();
 
         // Assert - IDataTransferObject inherits from IModel<TKey> which inherits from IHasId<TKey>
-        Assert.IsType<IHasId<long>>(dto, exactMatch: false);
+        Assert.IsAssignableFrom<IHasId<KeyType>>(dto);
     }
 
     #endregion

@@ -51,7 +51,7 @@ public class ExpressionToStringConverterTests
         // Arrange
         var expr = Expression.GreaterThan(
             Expression.Property(CompanyParam, nameof(Company.CountryId)),
-            Expression.Constant(10L) // Use long to match CountryId type
+            Expression.Constant((KeyType)10) // Use KeyType to match CountryId type
         );
 
         // Act
@@ -67,7 +67,7 @@ public class ExpressionToStringConverterTests
         // Arrange
         var expr = Expression.LessThanOrEqual(
             Expression.Property(StoreParam, nameof(Store.CompanyId)),
-            Expression.Constant(5L)
+            Expression.Constant((KeyType)5)
         );
 
         // Act

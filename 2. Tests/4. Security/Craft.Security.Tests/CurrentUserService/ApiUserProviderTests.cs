@@ -234,11 +234,11 @@ public class ApiUserProviderTests
 
         // Act
         using var scope = provider.CreateScope();
-        var currentUser = scope.ServiceProvider.GetService<ICurrentUser<long>>();
+        var currentUser = scope.ServiceProvider.GetService<ICurrentUser<KeyType>>();
 
         // Assert
         Assert.NotNull(currentUser);
-        Assert.IsType<CurrentUser<long>>(currentUser);
+        Assert.IsType<CurrentUser<KeyType>>(currentUser);
     }
 
     [Fact]

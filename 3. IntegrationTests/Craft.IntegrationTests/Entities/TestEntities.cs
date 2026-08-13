@@ -13,7 +13,7 @@ public class Product : BaseEntity, IHasTenant
     public decimal Price { get; set; }
     public string? Description { get; set; }
 
-    public KeyType? CategoryId { get; set; }
+    public KeyType CategoryId { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
     public Category? Category { get; set; }
