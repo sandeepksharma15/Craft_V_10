@@ -1,1 +1,1 @@
-global using KeyType = ulong;
+global using KeyType = long;

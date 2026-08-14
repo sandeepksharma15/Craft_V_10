@@ -3,6 +3,6 @@ global using Craft.Core;
 global using Craft.Domain;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-global using KeyType = ulong;
+global using KeyType = long;
 
 

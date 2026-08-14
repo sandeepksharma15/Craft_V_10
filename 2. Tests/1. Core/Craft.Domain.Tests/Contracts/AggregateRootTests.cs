@@ -31,8 +31,8 @@ public class AggregateRootTests
         var order = new Order { Id = 1, CustomerName = "Test" };
 
         // Assert
-        Assert.IsAssignableFrom<IEntity>(order);
-        Assert.IsAssignableFrom<IEntity<KeyType>>(order);
+        Assert.IsType<IEntity>(order, exactMatch: false);
+        Assert.IsType<IEntity<KeyType>>(order, exactMatch: false);
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class AggregateRootTests
         var order = new OrderWithGenericKey { Id = Guid.NewGuid(), CustomerName = "Test" };
 
         // Assert
-        Assert.IsAssignableFrom<IEntity<Guid>>(order);
-        Assert.IsAssignableFrom<IAggregateRoot<Guid>>(order);
+        Assert.IsType<IEntity<Guid>>(order, exactMatch: false);
+        Assert.IsType<IAggregateRoot<Guid>>(order, exactMatch: false);
     }
 
     #endregion
@@ -58,7 +58,7 @@ public class AggregateRootTests
         var regularEntity = new RegularEntity { Id = 1 };
 
         // Assert
-        Assert.IsAssignableFrom<IAggregateRoot>(aggregateRoot);
+        Assert.IsType<IAggregateRoot>(aggregateRoot, exactMatch: false);
         Assert.False((IEntity)regularEntity is IAggregateRoot);
     }
 

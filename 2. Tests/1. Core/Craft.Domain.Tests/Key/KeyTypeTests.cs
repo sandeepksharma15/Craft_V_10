@@ -90,7 +90,7 @@ public class KeyTypeTests
         const KeyType id = 1;
 
         // Act
-        const ulong value = id;
+        const long value = id;
 
         // Assert
         Assert.Equal((KeyType)1, value);

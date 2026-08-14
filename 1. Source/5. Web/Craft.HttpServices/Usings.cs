@@ -1,3 +1,3 @@
-global using KeyType = ulong;
+global using KeyType = long;
 using Craft.Core;
 

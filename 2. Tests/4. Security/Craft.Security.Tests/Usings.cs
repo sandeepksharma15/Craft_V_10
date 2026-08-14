@@ -1,2 +1,2 @@
 global using Xunit;
-global using KeyType = ulong;
+global using KeyType = long;

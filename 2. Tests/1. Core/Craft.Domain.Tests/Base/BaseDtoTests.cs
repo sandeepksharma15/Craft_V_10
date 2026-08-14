@@ -60,7 +60,7 @@ public class BaseDtoTests
     {
         // Arrange
         var dto = new TestGenericDto();
-        const long expectedId = 999L;
+        const KeyType expectedId = 999L;
 
         // Act
         dto.Id = expectedId;
@@ -77,7 +77,7 @@ public class BaseDtoTests
         var dto = new TestDto();
 
         // Act & Assert
-        Assert.IsAssignableFrom<IModel>(dto);
+        Assert.IsType<IModel>(dto, exactMatch: false);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class BaseDtoTests
         var dto = new TestGenericDto();
 
         // Act & Assert
-        Assert.IsAssignableFrom<IModel<long>>(dto);
+        Assert.IsType<IModel<KeyType>>(dto, exactMatch: false);
     }
 
     [Fact]
