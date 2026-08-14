@@ -104,8 +104,6 @@ public class BaseIdentityDbContextConstructorTests
         // Assert
         Assert.NotNull(context.Users);
         Assert.NotNull(context.Roles);
-        Assert.NotNull(context.LoginHistories);
-        Assert.NotNull(context.RefreshTokens);
     }
 
     [Fact]

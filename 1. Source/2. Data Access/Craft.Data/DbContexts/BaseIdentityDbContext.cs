@@ -60,16 +60,6 @@ public abstract class BaseIdentityDbContext<TContext, TUser, TRole, TKey> : Iden
     protected DbContextFeatureCollection Features { get; } = [];
 
     /// <summary>
-    /// LoginHistory DbSet for tracking user login activity.
-    /// </summary>
-    public DbSet<LoginHistory<TKey>> LoginHistories { get; set; } = null!;
-
-    /// <summary>
-    /// RefreshToken DbSet for JWT token refresh management.
-    /// </summary>
-    public DbSet<RefreshToken<TKey>> RefreshTokens { get; set; } = null!;
-
-    /// <summary>
     /// Configure provider-specific conventions. Sealed to ensure UTC DateTime conversion
     /// and feature-based conventions are always applied.
     /// </summary>
