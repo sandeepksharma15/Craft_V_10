@@ -122,6 +122,7 @@ public static class MigrationExtensions
 
         // All retries exhausted
         LogMigrationFailure(logger, typeof(TContext).Name, maxRetries);
+
         throw new InvalidOperationException(
             $"Database migration failed for {typeof(TContext).Name} after {maxRetries} attempts. See logs for details.");
     }
