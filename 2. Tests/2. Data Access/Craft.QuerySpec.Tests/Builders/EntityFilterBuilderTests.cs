@@ -27,9 +27,9 @@ public class EntityFilterBuilderTests
         var builder = new EntityFilterBuilder<TestEntity>();
         Expression<Func<TestEntity, bool>> expr = x => x.Age > 18;
         var result = builder.Add(expr);
-        Assert.Single(builder.EntityFilterList);
+        var item = Assert.Single(builder.EntityFilterList);
         Assert.Equal(builder, result);
-        Assert.Equal(expr.ToString(), builder.EntityFilterList[0].Filter.ToString());
+        Assert.Equal(expr.ToString(), item.Filter.ToString());
     }
 
     [Fact]
@@ -285,8 +285,8 @@ public class EntityFilterBuilderTests
         // Expression that can be reduced: (x => (x.Age > 18))
         Expression<Func<TestEntity, bool>> expr = x => (x.Age > 18);
         builder.Add(expr);
-        Assert.Single(builder.EntityFilterList);
-        Assert.Equal(expr.ToString(), builder.EntityFilterList[0].Filter.ToString());
+        var item = Assert.Single(builder.EntityFilterList);
+        Assert.Equal(expr.ToString(), item.Filter.ToString());
     }
 
     [Fact]

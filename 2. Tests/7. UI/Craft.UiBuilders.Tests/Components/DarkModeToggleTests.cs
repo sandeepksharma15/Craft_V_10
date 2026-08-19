@@ -275,8 +275,8 @@ public class DarkModeToggleTests : ComponentTestBase
 
         // Assert
         Assert.NotNull(parameters);
-        Assert.Single(parameters);
-        Assert.Equal(typeof(bool), parameters[0].ParameterType);
+        var item = Assert.Single(parameters);
+        Assert.Equal(typeof(bool), item.ParameterType);
     }
 
     [Fact]

@@ -93,8 +93,8 @@ public class AsSplitQueryEvaluatorTests
         var result = evaluator.GetQuery(singleQueryable, query);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal((KeyType)99, result.First().Id);
+        var item = Assert.Single(result);
+        Assert.Equal((KeyType)99, item.Id);
     }
 
     [Fact]
@@ -129,8 +129,8 @@ public class AsSplitQueryEvaluatorTests
 
         // Act & Assert
         var result = evaluator.GetQuery(countryQueryable, query);
-        Assert.Single(result);
-        Assert.Equal((KeyType)5, result.First().Id);
+        var item = Assert.Single(result);
+        Assert.Equal((KeyType)5, item.Id);
     }
 
     [Fact]

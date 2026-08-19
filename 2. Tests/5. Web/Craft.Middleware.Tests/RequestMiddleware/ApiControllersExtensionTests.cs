@@ -69,12 +69,12 @@ public class ApiControllersExtensionTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<UnprocessableEntityObjectResult>(result);
-        
-        var objectResult = (UnprocessableEntityObjectResult)result;
-        Assert.IsType<ValidationProblemDetails>(objectResult.Value);
-        
-        var problemDetails = (ValidationProblemDetails)objectResult.Value;
+        var typed = Assert.IsType<UnprocessableEntityObjectResult>(result);
+
+        var objectResult = typed;
+        var typed_2 = Assert.IsType<ValidationProblemDetails>(objectResult.Value);
+
+        var problemDetails = typed_2;
         Assert.Equal(422, problemDetails.Status);
         Assert.Contains("Email", problemDetails.Errors.Keys);
     }

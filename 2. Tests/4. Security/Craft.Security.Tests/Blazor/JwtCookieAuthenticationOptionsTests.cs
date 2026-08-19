@@ -58,8 +58,8 @@ public class JwtCookieAuthenticationOptionsTests
         var results = options.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains(nameof(JwtCookieAuthenticationOptions.CookieName), results[0].MemberNames);
+        var item = Assert.Single(results);
+        Assert.Contains(nameof(JwtCookieAuthenticationOptions.CookieName), item.MemberNames);
     }
 
     [Fact]
@@ -77,8 +77,8 @@ public class JwtCookieAuthenticationOptionsTests
         var results = options.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains(nameof(JwtCookieAuthenticationOptions.ExpireTimeSpan), results[0].MemberNames);
+        var item = Assert.Single(results);
+        Assert.Contains(nameof(JwtCookieAuthenticationOptions.ExpireTimeSpan), item.MemberNames);
     }
 
     [Fact]

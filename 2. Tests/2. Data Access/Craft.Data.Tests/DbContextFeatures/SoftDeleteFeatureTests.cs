@@ -57,8 +57,8 @@ public class SoftDeleteFeatureTests
         var results = context.TestEntities.ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Equal((KeyType)1, results[0].Id);
+        var item = Assert.Single(results);
+        Assert.Equal((KeyType)1, item.Id);
     }
 
     [Fact]

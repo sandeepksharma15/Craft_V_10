@@ -366,8 +366,8 @@ public class HttpReadServiceTests
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
-        Assert.Single(result.Value.Items);
-        Assert.Equal(1, result.Value.Items.First().Id);
+        var item = Assert.Single(result.Value.Items);
+        Assert.Equal(1, item.Id);
         Assert.Equal(10, result.Value.TotalCount);
     }
 

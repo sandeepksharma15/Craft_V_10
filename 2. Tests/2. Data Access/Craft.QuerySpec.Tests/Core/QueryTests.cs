@@ -233,8 +233,8 @@ public class QueryTests
         var result = query.PostProcessingAction(companies);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal((KeyType)1, result.First().Id);
+        var item = Assert.Single(result);
+        Assert.Equal((KeyType)1, item.Id);
     }
 
     [Fact]

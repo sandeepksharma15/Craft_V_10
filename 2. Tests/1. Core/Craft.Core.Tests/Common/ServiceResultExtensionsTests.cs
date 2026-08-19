@@ -284,8 +284,8 @@ public class ServiceResultExtensionsTests
         var combined = results.CombineErrors();
 
         // Assert
-        Assert.Single(combined);
-        Assert.Equal("Duplicate error", combined[0]);
+        var item = Assert.Single(combined);
+        Assert.Equal("Duplicate error", item);
     }
 
     #endregion

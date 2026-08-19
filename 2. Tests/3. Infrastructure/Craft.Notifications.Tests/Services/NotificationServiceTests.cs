@@ -242,8 +242,8 @@ public class NotificationServiceTests
         var notifications = await notificationService.GetUserNotificationsAsync(userId, includeRead: false);
 
         // Assert
-        Assert.Single(notifications);
-        Assert.False(notifications[0].IsRead);
+        var item = Assert.Single(notifications);
+        Assert.False(item.IsRead);
     }
 
     [Fact]

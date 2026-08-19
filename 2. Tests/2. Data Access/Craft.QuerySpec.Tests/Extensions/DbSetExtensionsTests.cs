@@ -49,8 +49,8 @@ public class DbSetExtensionsTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal(CompanySeed.COMPANY_NAME_1, result[0].Name);
+        var item = Assert.Single(result);
+        Assert.Equal(CompanySeed.COMPANY_NAME_1, item.Name);
     }
 
     [Fact]
@@ -108,8 +108,8 @@ public class DbSetExtensionsTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal(CompanySeed.COMPANY_NAME_1, result[0].Name);
+        var item = Assert.Single(result);
+        Assert.Equal(CompanySeed.COMPANY_NAME_1, item.Name);
     }
 
     [Fact]
@@ -156,8 +156,8 @@ public class DbSetExtensionsTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal(CompanySeed.COMPANY_NAME_1, result[0].Name);
+        var item = Assert.Single(result);
+        Assert.Equal(CompanySeed.COMPANY_NAME_1, item.Name);
     }
 
     [Fact]
@@ -199,8 +199,8 @@ public class DbSetExtensionsTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal(CompanySeed.COMPANY_NAME_1, result[0].Name);
+        var item = Assert.Single(result);
+        Assert.Equal(CompanySeed.COMPANY_NAME_1, item.Name);
     }
 
     [Fact]

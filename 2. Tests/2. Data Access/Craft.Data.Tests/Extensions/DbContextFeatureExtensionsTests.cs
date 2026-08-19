@@ -35,8 +35,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<AuditTrailFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<AuditTrailFeature>(item);
     }
 
     [Fact]
@@ -50,8 +50,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<SoftDeleteFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<SoftDeleteFeature>(item);
     }
 
     [Fact]
@@ -66,8 +66,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<MultiTenancyFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<MultiTenancyFeature>(item);
     }
 
     [Fact]
@@ -81,8 +81,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<ConcurrencyFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<ConcurrencyFeature>(item);
     }
 
     [Fact]
@@ -96,8 +96,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<VersionTrackingFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<VersionTrackingFeature>(item);
     }
 
     [Fact]
@@ -127,8 +127,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<IdentityFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<IdentityFeature>(item);
     }
 
     [Fact]
@@ -142,8 +142,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<IdentityFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<IdentityFeature>(item);
     }
 
     [Fact]
@@ -264,8 +264,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<RefreshTokensFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<RefreshTokensFeature>(item);
     }
 
     [Fact]
@@ -279,8 +279,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<RefreshTokensFeature<KeyType>>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<RefreshTokensFeature<KeyType>>(item);
     }
 
     [Fact]
@@ -294,8 +294,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<LoginHistoryFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<LoginHistoryFeature>(item);
     }
 
     [Fact]
@@ -309,8 +309,8 @@ public class DbContextFeatureExtensionsTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<LoginHistoryFeature<KeyType>>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<LoginHistoryFeature<KeyType>>(item);
     }
 
     [Fact]

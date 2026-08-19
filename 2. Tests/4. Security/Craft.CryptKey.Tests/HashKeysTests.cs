@@ -66,8 +66,8 @@ public class HashKeysTests
 
         // Assert
         Assert.NotNull(decoded);
-        Assert.Single(decoded);
-        Assert.Equal(original, decoded[0]);
+        var item = Assert.Single(decoded);
+        Assert.Equal(original, item);
     }
 
     [Theory]

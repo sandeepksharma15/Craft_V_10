@@ -29,8 +29,8 @@ public class AuditTrailQueryExtensionsTests
         var result = context.AuditTrails.ForEntity<TestEntity>(1).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(audit1.Id, result[0].Id);
+        var item = Assert.Single(result);
+        Assert.Equal(audit1.Id, item.Id);
     }
 
     [Fact]
@@ -127,8 +127,8 @@ public class AuditTrailQueryExtensionsTests
         var result = context.AuditTrails.PendingArchival().ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(audit1.Id, result[0].Id);
+        var item = Assert.Single(result);
+        Assert.Equal(audit1.Id, item.Id);
     }
 
     [Fact]
@@ -310,8 +310,8 @@ public class AuditTrailQueryExtensionsTests
             .ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(audit1.Id, result[0].Id);
+        var item = Assert.Single(result);
+        Assert.Equal(audit1.Id, item.Id);
     }
 
     private class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options), IAuditTrailDbContext

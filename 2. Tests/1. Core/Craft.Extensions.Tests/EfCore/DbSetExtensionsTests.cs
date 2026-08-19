@@ -35,8 +35,8 @@ public class DbSetExtensionsTests
 
         // Assert: Verify that the result is not null and has the expected properties
         Assert.NotNull(result);
-        Assert.Single(result.Parameters);
-        Assert.Equal("e", result.Parameters[0].Name);
+        var item = Assert.Single(result.Parameters);
+        Assert.Equal("e", item.Name);
         Assert.Equal(ExpressionType.MemberAccess, result.Body.NodeType);
     }
 
@@ -199,8 +199,8 @@ public class DbSetExtensionsTests
         var filtered = query?.ApplyQueryFilter(context?.Entities!).ToList();
 
         // Assert: Verify that only active entities are returned
-        Assert.Single(filtered!);
-        Assert.True(filtered?.Count == 1 && filtered[0].IsActive);
+        var item = Assert.Single(filtered!);
+        Assert.True(filtered?.Count == 1 && item.IsActive);
     }
 
 

@@ -35,8 +35,8 @@ public class DbContextFeatureCollectionTests
 
         // Assert
         Assert.Same(collection, result);
-        Assert.Single(collection);
-        Assert.IsType<TestFeature>(collection[0]);
+        var item = Assert.Single(collection);
+        Assert.IsType<TestFeature>(item);
     }
 
     [Fact]

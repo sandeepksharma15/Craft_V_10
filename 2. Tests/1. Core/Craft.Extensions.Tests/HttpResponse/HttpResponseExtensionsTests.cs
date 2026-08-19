@@ -41,8 +41,8 @@ public class HttpResponseExtensionsTests
         var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(errorText, result[0]);
+        var item = Assert.Single(result);
+        Assert.Equal(errorText, item);
     }
 
     [Fact]
@@ -60,8 +60,8 @@ public class HttpResponseExtensionsTests
         var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal($"HTTP 404: Not Found", result[0]);
+        var item = Assert.Single(result);
+        Assert.Equal($"HTTP 404: Not Found", item);
     }
 
     [Fact]
@@ -79,8 +79,8 @@ public class HttpResponseExtensionsTests
         var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal($"HTTP 500: Server Error", result[0]);
+        var item = Assert.Single(result);
+        Assert.Equal($"HTTP 500: Server Error", item);
     }
 
     [Fact]
@@ -98,8 +98,8 @@ public class HttpResponseExtensionsTests
         var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal($"HTTP 400: Bad Request", result[0]);
+        var item = Assert.Single(result);
+        Assert.Equal($"HTTP 400: Bad Request", item);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class HttpResponseExtensionsTests
         var result = await response.TryReadErrors(cancellationToken);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal("{ not valid json }", result[0]);
+        var item = Assert.Single(result);
+        Assert.Equal("{ not valid json }", item);
     }
 }

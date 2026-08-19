@@ -111,8 +111,8 @@ public class RefreshTokensFeatureTests
         var results = context.RefreshTokens.ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Equal("active", results[0].Token);
+        var item = Assert.Single(results);
+        Assert.Equal("active", item.Token);
     }
 
     [Fact]

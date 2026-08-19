@@ -212,8 +212,8 @@ public class QuerySelectBuilderJsonConverterTests
         // Assert
         Assert.NotNull(querySelectBuilder);
         Assert.Equal(1, querySelectBuilder.Count);
-        Assert.Single(querySelectBuilder.SelectDescriptorList);
-        Assert.Contains("x.Name", querySelectBuilder.SelectDescriptorList[0].Assignee?.Body.ToString());
+        var item = Assert.Single(querySelectBuilder.SelectDescriptorList);
+        Assert.Contains("x.Name", item.Assignee?.Body.ToString());
         Assert.Contains("x.Name", querySelectBuilder.SelectDescriptorList[0].Assignor?.Body.ToString());
     }
 

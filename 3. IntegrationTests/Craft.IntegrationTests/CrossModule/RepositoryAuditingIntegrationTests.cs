@@ -62,8 +62,8 @@ public class RepositoryAuditingIntegrationTests : IAsyncLifetime
             .Where(a => a.TableName == "Customer" && a.ChangeType == EntityChangeType.Created)
             .ToListAsync();
 
-        Assert.Single(createAudits);
-        var createAudit = createAudits[0];
+        var item = Assert.Single(createAudits);
+        var createAudit = item;
         Assert.Contains("Audited Customer", createAudit.NewValues!);
         Assert.Contains("audited@example.com", createAudit.NewValues!);
 
@@ -80,8 +80,8 @@ public class RepositoryAuditingIntegrationTests : IAsyncLifetime
             .Where(a => a.TableName == "Customer" && a.ChangeType == EntityChangeType.Updated)
             .ToListAsync();
 
-        Assert.Single(updateAudits);
-        var updateAudit = updateAudits[0];
+        var item_2 = Assert.Single(updateAudits);
+        var updateAudit = item_2;
         Assert.Contains("Audited Customer", updateAudit.OldValues!);
         Assert.Contains("Updated Audited Customer", updateAudit.NewValues!);
 

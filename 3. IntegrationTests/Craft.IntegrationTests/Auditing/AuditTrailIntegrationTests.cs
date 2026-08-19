@@ -43,8 +43,8 @@ public class AuditTrailIntegrationTests : IDisposable
             .Where(a => a.TableName == "Product")
             .ToListAsync();
 
-        Assert.Single(audits);
-        var audit = audits[0];
+        var item = Assert.Single(audits);
+        var audit = item;
         Assert.Equal(EntityChangeType.Created, audit.ChangeType);
         Assert.NotNull(audit.NewValues);
         Assert.Null(audit.OldValues);
@@ -69,8 +69,8 @@ public class AuditTrailIntegrationTests : IDisposable
             .Where(a => a.TableName == "Product" && a.ChangeType == EntityChangeType.Updated)
             .ToListAsync();
 
-        Assert.Single(audits);
-        var audit = audits[0];
+        var item = Assert.Single(audits);
+        var audit = item;
         Assert.Contains("Original", audit.OldValues!);
         Assert.Contains("Updated", audit.NewValues!);
 
@@ -97,8 +97,8 @@ public class AuditTrailIntegrationTests : IDisposable
             .Where(a => a.TableName == "Product" && a.ChangeType == EntityChangeType.Deleted)
             .ToListAsync();
 
-        Assert.Single(audits);
-        var audit = audits[0];
+        var item = Assert.Single(audits);
+        var audit = item;
         Assert.NotNull(audit.OldValues);
         Assert.Contains("To Delete", audit.OldValues);
     }
@@ -144,8 +144,8 @@ public class AuditTrailIntegrationTests : IDisposable
             .Where(a => a.TableName == "User")
             .ToListAsync();
 
-        Assert.Single(audits);
-        var audit = audits[0];
+        var item = Assert.Single(audits);
+        var audit = item;
         Assert.NotNull(audit.NewValues);
         Assert.DoesNotContain("PasswordHash", audit.NewValues);
         Assert.Contains("Email", audit.NewValues);
@@ -176,8 +176,8 @@ public class AuditTrailIntegrationTests : IDisposable
             .Where(a => a.TableName == "Product")
             .ToListAsync();
 
-        Assert.Single(audits);
-        var audit = audits[0];
+        var item = Assert.Single(audits);
+        var audit = item;
         Assert.NotNull(audit.NewValues);
         Assert.Contains("Category_Navigation", audit.NewValues);
     }
@@ -291,8 +291,8 @@ public class AuditTrailIntegrationTests : IDisposable
             .ToListAsync();
 
         // Assert
-        Assert.Single(pending);
-        Assert.True(pending[0].ShouldBeArchived());
+        var item = Assert.Single(pending);
+        Assert.True(item.ShouldBeArchived());
     }
 
     [Fact]

@@ -364,8 +364,8 @@ public class MultiTenantRepositoryIntegrationTests : IAsyncLifetime
             .ToListAsync();
 
         // Assert
-        Assert.Single(tenant1Expensive);
-        Assert.Equal("Combo T1 Expensive", tenant1Expensive[0].Name);
+        var item = Assert.Single(tenant1Expensive);
+        Assert.Equal("Combo T1 Expensive", item.Name);
         Assert.Equal((KeyType)1, tenant1Expensive[0].TenantId);
     }
 

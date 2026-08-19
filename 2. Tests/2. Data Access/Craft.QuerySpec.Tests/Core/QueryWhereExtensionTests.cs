@@ -30,8 +30,8 @@ public class QueryWhereExtensionTests
         // Assert
         Assert.NotNull(result);
         Assert.NotNull(filtered);
-        Assert.Single(filtered);
-        Assert.Equal("Company 2", filtered[0].Name);
+        var item = Assert.Single(filtered);
+        Assert.Equal("Company 2", item.Name);
     }
 
     [Fact]
@@ -90,8 +90,8 @@ public class QueryWhereExtensionTests
         // Assert
         Assert.NotNull(result);
         Assert.NotNull(filtered);
-        Assert.Single(filtered);
-        Assert.Equal("Company 2", filtered[0].Name);
+        var item = Assert.Single(filtered);
+        Assert.Equal("Company 2", item.Name);
     }
 
     [Fact]
@@ -180,8 +180,8 @@ public class QueryWhereExtensionTests
         // Assert
         Assert.NotNull(result);
         Assert.NotNull(filtered);
-        Assert.Single(filtered);
-        Assert.Equal("Company 1", filtered[0].Name);
+        var item = Assert.Single(filtered);
+        Assert.Equal("Company 1", item.Name);
     }
 
     [Fact]

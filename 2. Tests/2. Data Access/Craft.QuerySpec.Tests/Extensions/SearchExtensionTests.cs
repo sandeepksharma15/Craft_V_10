@@ -59,8 +59,8 @@ public class SearchExtensionTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal("Company 2", result[0].Name);
+        var item = Assert.Single(result);
+        Assert.Equal("Company 2", item.Name);
     }
 
     [Fact]

@@ -196,8 +196,8 @@ public class SqlLikeSearchCriteriaBuilderTests
         builder.Add(x => x.Name!, "search1", 1);
         builder.Add(x => x.Name!, "search2", 2);
         builder.Remove(x => x.Name!);
-        Assert.Single(builder.SqlLikeSearchCriteriaList);
-        Assert.Equal("search2", builder.SqlLikeSearchCriteriaList[0].SearchString);
+        var item = Assert.Single(builder.SqlLikeSearchCriteriaList);
+        Assert.Equal("search2", item.SearchString);
     }
 
     [Fact]
@@ -259,8 +259,8 @@ public class SqlLikeSearchCriteriaBuilderTests
         builder.Remove(x => x.Name!);
 
         // Assert
-        Assert.Single(builder.SqlLikeSearchCriteriaList);
-        Assert.Equal(2, builder.SqlLikeSearchCriteriaList[0].SearchGroup);
+        var item = Assert.Single(builder.SqlLikeSearchCriteriaList);
+        Assert.Equal(2, item.SearchGroup);
     }
 
     [Fact]

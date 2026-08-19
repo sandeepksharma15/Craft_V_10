@@ -43,8 +43,8 @@ public class PaginationEvaluatorTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal("Company 1", result.First().Name);
+        var item = Assert.Single(result);
+        Assert.Equal("Company 1", item.Name);
     }
 
     [Fact]
@@ -59,8 +59,8 @@ public class PaginationEvaluatorTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal("Company 2", result.First().Name);
+        var item = Assert.Single(result);
+        Assert.Equal("Company 2", item.Name);
     }
 
     [Fact]
@@ -144,8 +144,8 @@ public class PaginationEvaluatorTests
         var result = evaluator.GetQuery(_companies, query);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal("Company 2", result.First().Name);
+        var item = Assert.Single(result);
+        Assert.Equal("Company 2", item.Name);
     }
 
     [Fact]

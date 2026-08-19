@@ -48,8 +48,8 @@ public class IHashKeysTests
 
         // Assert
         Assert.NotNull(decoded);
-        Assert.Single(decoded);
-        Assert.Equal(original, decoded[0]);
+        var item = Assert.Single(decoded);
+        Assert.Equal(original, item);
     }
 
     [Fact]
@@ -115,8 +115,8 @@ public class IHashKeysTests
 
         // Assert
         Assert.NotNull(decoded);
-        Assert.Single(decoded);
-        Assert.Equal(original, decoded[0]);
+        var item = Assert.Single(decoded);
+        Assert.Equal(original, item);
     }
 
     [Fact]

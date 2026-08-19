@@ -105,11 +105,11 @@ public class QueryFilterExtensionTests
         Assert.Equal(2, nosoftNoFilter.Count);
 
         // With filter: only non-deleted for ISoftDelete types, unchanged for NoSoftDeleteEntity
-        Assert.Single(companiesWithFilter);
-        Assert.Equal((KeyType)1, companiesWithFilter[0].Id);
+        var item = Assert.Single(companiesWithFilter);
+        Assert.Equal((KeyType)1, item.Id);
 
-        Assert.Single(countriesWithFilter);
-        Assert.Equal((KeyType)10, countriesWithFilter[0].Id);
+        var item_2 = Assert.Single(countriesWithFilter);
+        Assert.Equal((KeyType)10, item_2.Id);
 
         Assert.Equal(2, nosoftWithFilter.Count);
     }
@@ -301,8 +301,8 @@ public class QueryFilterExtensionTests
         var allIgnored = ctx.TenantSoftDeleteEntities!.AsNoTracking().IncludeAllTenantsAndSoftDelete()?.OrderBy(x => x.Id).ToList();
 
         // Assert: With filters -> only tenant 1 and not deleted
-        Assert.Single(withFilters);
-        Assert.Equal((KeyType)1, withFilters[0].Id);
+        var item = Assert.Single(withFilters);
+        Assert.Equal((KeyType)1, item.Id);
 
         // All ignored -> all 4
         Assert.Equal(4, allIgnored?.Count);

@@ -28,8 +28,8 @@ public class WhereEvaluatorTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal("Company 1", result[0].Name);
+        var item = Assert.Single(result);
+        Assert.Equal("Company 1", item.Name);
     }
 
     [Fact]
@@ -103,8 +103,8 @@ public class WhereEvaluatorTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Equal((KeyType)2, result[0].Id);
+        var item = Assert.Single(result);
+        Assert.Equal((KeyType)2, item.Id);
         Assert.Equal("Company 2", result[0].Name);
     }
 }

@@ -105,8 +105,8 @@ public class NavigationPropertyDiscoveryTests
 
         // Assert
         Assert.NotNull(properties);
-        Assert.Single(properties);
-        Assert.Equal("Related", properties[0].Name);
+        var item = Assert.Single(properties);
+        Assert.Equal("Related", item.Name);
         Assert.Equal(typeof(RelatedEntity), properties[0].PropertyType);
     }
 
@@ -402,8 +402,8 @@ public class NavigationPropertyDiscoveryTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<Country>(result);
-        Assert.Equal("USA", ((Country)result).Name);
+        var typed = Assert.IsType<Country>(result);
+        Assert.Equal("USA", (typed).Name);
     }
 
     [Fact]

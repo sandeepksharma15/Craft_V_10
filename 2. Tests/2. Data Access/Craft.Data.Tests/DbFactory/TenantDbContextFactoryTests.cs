@@ -141,8 +141,8 @@ public class TenantDbContextFactoryTests
 
         // Assert
         Assert.NotNull(ctx);
-        Assert.Single(calls);
-        var call = calls[0];
+        var item = Assert.Single(calls);
+        var call = item;
         Assert.Equal("SHARED_CS", call.cs);
         Assert.Same(dbOptions, call.opts);
         providerMock.Verify(p => p.Configure(It.IsAny<DbContextOptionsBuilder>(), "SHARED_CS", dbOptions), Times.Once);
@@ -161,8 +161,8 @@ public class TenantDbContextFactoryTests
         _ = sut.CreateDbContext();
 
         // Assert
-        Assert.Single(calls);
-        Assert.Equal("DEFAULT_SHARED", calls[0].cs); // Should ignore tenant specific when disabled
+        var item = Assert.Single(calls);
+        Assert.Equal("DEFAULT_SHARED", item.cs); // Should ignore tenant specific when disabled
     }
 
     #endregion
@@ -197,8 +197,8 @@ public class TenantDbContextFactoryTests
         _ = sut.CreateDbContext();
 
         // Assert
-        Assert.Single(calls);
-        Assert.Equal("TENANT_CS", calls[0].cs);
+        var item = Assert.Single(calls);
+        Assert.Equal("TENANT_CS", item.cs);
         providerMock.Verify(p => p.CanHandle("npgsql"), Times.AtLeastOnce);
     }
 
@@ -215,8 +215,8 @@ public class TenantDbContextFactoryTests
         _ = sut.CreateDbContext();
 
         // Assert
-        Assert.Single(calls);
-        Assert.Equal("TENANT_CS", calls[0].cs);
+        var item = Assert.Single(calls);
+        Assert.Equal("TENANT_CS", item.cs);
         providerMock.Verify(p => p.CanHandle("mssql"), Times.AtLeastOnce);
     }
 
@@ -237,8 +237,8 @@ public class TenantDbContextFactoryTests
         _ = sut.CreateDbContext();
 
         // Assert
-        Assert.Single(calls);
-        Assert.Equal("TENANT_CS", calls[0].cs);
+        var item = Assert.Single(calls);
+        Assert.Equal("TENANT_CS", item.cs);
     }
 
     [Fact]
@@ -254,8 +254,8 @@ public class TenantDbContextFactoryTests
         _ = sut.CreateDbContext();
 
         // Assert
-        Assert.Single(calls);
-        Assert.Equal("SHARED_CS", calls[0].cs);
+        var item = Assert.Single(calls);
+        Assert.Equal("SHARED_CS", item.cs);
     }
 
     #endregion

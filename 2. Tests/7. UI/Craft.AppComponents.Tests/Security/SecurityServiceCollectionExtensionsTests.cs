@@ -106,15 +106,15 @@ public class SecurityServiceCollectionExtensionsTests
             .Where(sd => sd.ServiceType == typeof(IEmailSender<TestAppUser>))
             .ToList();
 
-        Assert.Single(registrations);
-        Assert.NotNull(registrations[0].ImplementationFactory);
+        var item = Assert.Single(registrations);
+        Assert.NotNull(item.ImplementationFactory);
 
         var authEmailRegistrations = services
             .Where(sd => sd.ServiceType == typeof(IAuthEmailSender<TestAppUser>))
             .ToList();
 
-        Assert.Single(authEmailRegistrations);
-        Assert.Equal(typeof(CustomEmailSender), authEmailRegistrations[0].ImplementationType);
+        var item_2 = Assert.Single(authEmailRegistrations);
+        Assert.Equal(typeof(CustomEmailSender), item_2.ImplementationType);
     }
 
     // ── AddSecurityApi ──────────────────────────────────────────────────────────

@@ -46,8 +46,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("No Key defined in JwtSettings config", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("No Key defined in JwtSettings config", item.ErrorMessage);
     }
 
     [Fact]
@@ -69,8 +69,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("No Key defined in JwtSettings config", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("No Key defined in JwtSettings config", item.ErrorMessage);
     }
 
     [Fact]
@@ -92,8 +92,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("No ValidIssuer defined in JwtSettings config", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("No ValidIssuer defined in JwtSettings config", item.ErrorMessage);
     }
 
     [Fact]
@@ -115,8 +115,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("No ValidAudiences defined in JwtSettings config", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("No ValidAudiences defined in JwtSettings config", item.ErrorMessage);
     }
 
     [Fact]
@@ -138,8 +138,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("No ValidAudiences defined in JwtSettings config", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("No ValidAudiences defined in JwtSettings config", item.ErrorMessage);
     }
 
     [Fact]
@@ -161,8 +161,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("TokenExpirationInMinutes must be greater than 0", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("TokenExpirationInMinutes must be greater than 0", item.ErrorMessage);
     }
 
     [Fact]
@@ -184,8 +184,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("TokenExpirationInMinutes must be greater than 0", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("TokenExpirationInMinutes must be greater than 0", item.ErrorMessage);
     }
 
     [Fact]
@@ -207,8 +207,8 @@ public class JwtSettingsTests
         var results = settings.Validate(context).ToList();
 
         // Assert
-        Assert.Single(results);
-        Assert.Contains("RefreshTokenExpirationInDays must be greater than 0", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("RefreshTokenExpirationInDays must be greater than 0", item.ErrorMessage);
     }
 
     [Fact]

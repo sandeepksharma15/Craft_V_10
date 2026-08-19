@@ -101,8 +101,8 @@ public class AuditTrailFeatureTests
             .Select(e => e.Entity)
             .ToList();
 
-        Assert.Single(auditTrails);
-        Assert.Equal(userId, auditTrails[0].UserId);
+        var item = Assert.Single(auditTrails);
+        Assert.Equal(userId, item.UserId);
         Assert.Equal(EntityChangeType.Created, auditTrails[0].ChangeType);
     }
 
@@ -134,8 +134,8 @@ public class AuditTrailFeatureTests
             .Select(e => e.Entity)
             .ToList();
 
-        Assert.Single(auditTrails);
-        Assert.Equal(userId, auditTrails[0].UserId);
+        var item = Assert.Single(auditTrails);
+        Assert.Equal(userId, item.UserId);
         Assert.Equal(EntityChangeType.Updated, auditTrails[0].ChangeType);
     }
 
@@ -166,8 +166,8 @@ public class AuditTrailFeatureTests
             .Select(e => e.Entity)
             .ToList();
 
-        Assert.Single(auditTrails);
-        Assert.Equal(userId, auditTrails[0].UserId);
+        var item = Assert.Single(auditTrails);
+        Assert.Equal(userId, item.UserId);
         Assert.Equal(EntityChangeType.Deleted, auditTrails[0].ChangeType);
     }
 

@@ -58,8 +58,8 @@ public class CorsSettingsTests
         var isValid = Validator.TryValidateObject(settings, context, results, true);
 
         Assert.False(isValid);
-        Assert.Single(results);
-        Assert.Contains("At least one CORS origin must be configured", results[0].ErrorMessage);
+        var item = Assert.Single(results);
+        Assert.Contains("At least one CORS origin must be configured", item.ErrorMessage);
         Assert.Contains(nameof(CorsSettings.Angular), results[0].MemberNames);
         Assert.Contains(nameof(CorsSettings.Blazor), results[0].MemberNames);
         Assert.Contains(nameof(CorsSettings.React), results[0].MemberNames);

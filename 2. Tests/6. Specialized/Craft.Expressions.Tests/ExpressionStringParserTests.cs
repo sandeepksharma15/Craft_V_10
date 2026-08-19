@@ -192,8 +192,8 @@ public class ExpressionStringParserTests
         // Assert
         var method = Assert.IsType<MethodCallAstNode>(ast);
         Assert.Equal("ToLower", method.MethodName);
-        Assert.IsType<MemberAstNode>(method.Target);
-        var target = (MemberAstNode)method.Target;
+        var typed = Assert.IsType<MemberAstNode>(method.Target);
+        var target = typed;
         Assert.Equal(new[] { "Company", "Name" }, target.MemberPath);
     }
 

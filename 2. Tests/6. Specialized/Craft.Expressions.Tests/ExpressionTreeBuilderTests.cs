@@ -26,8 +26,8 @@ public class ExpressionTreeBuilderTests
         var expr = Builder.Build(node, Param);
 
         // Assert
-        Assert.IsAssignableFrom<MemberExpression>(expr);
-        Assert.Equal("Name", ((MemberExpression)expr).Member.Name);
+        var typed = Assert.IsAssignableFrom<MemberExpression>(expr);
+        Assert.Equal("Name", (typed).Member.Name);
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public class ExpressionTreeBuilderTests
         var expr = Builder.Build(node, Param);
 
         // Assert
-        Assert.IsAssignableFrom<MemberExpression>(expr);
-        Assert.Equal("Name", ((MemberExpression)expr).Member.Name);
+        var typed = Assert.IsAssignableFrom<MemberExpression>(expr);
+        Assert.Equal("Name", (typed).Member.Name);
     }
 
     [Fact]
@@ -130,8 +130,8 @@ public class ExpressionTreeBuilderTests
         var expr = Builder.Build(node, Param);
 
         // Assert
-        Assert.IsType<UnaryExpression>(expr);
-        Assert.Equal(ExpressionType.Not, ((UnaryExpression)expr).NodeType);
+        var typed = Assert.IsType<UnaryExpression>(expr);
+        Assert.Equal(ExpressionType.Not, (typed).NodeType);
     }
 
     [Fact]
@@ -157,8 +157,8 @@ public class ExpressionTreeBuilderTests
         var expr = Builder.Build(node, Param);
 
         // Assert
-        Assert.IsAssignableFrom<MethodCallExpression>(expr);
-        Assert.Equal("Contains", ((MethodCallExpression)expr).Method.Name);
+        var typed = Assert.IsAssignableFrom<MethodCallExpression>(expr);
+        Assert.Equal("Contains", (typed).Method.Name);
     }
 
     [Fact]
@@ -174,8 +174,8 @@ public class ExpressionTreeBuilderTests
         var expr = Builder.Build(node, Param);
 
         // Assert
-        Assert.IsAssignableFrom<MethodCallExpression>(expr);
-        Assert.Equal("Replace", ((MethodCallExpression)expr).Method.Name);
+        var typed = Assert.IsAssignableFrom<MethodCallExpression>(expr);
+        Assert.Equal("Replace", (typed).Method.Name);
     }
 
     [Fact]
@@ -190,8 +190,8 @@ public class ExpressionTreeBuilderTests
         var expr = Builder.Build(node, Param);
 
         // Assert
-        Assert.IsAssignableFrom<MethodCallExpression>(expr);
-        Assert.Equal("ToLower", ((MethodCallExpression)expr).Method.Name);
+        var typed = Assert.IsAssignableFrom<MethodCallExpression>(expr);
+        Assert.Equal("ToLower", (typed).Method.Name);
     }
 
     [Fact]
