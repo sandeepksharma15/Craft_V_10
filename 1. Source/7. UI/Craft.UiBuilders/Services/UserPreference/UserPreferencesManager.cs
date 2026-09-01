@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+﻿using System.Security.Cryptography;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.UiBuilders.Services.UserPreference;
@@ -34,6 +35,23 @@ public class UserPreferencesManager(ProtectedLocalStorage protectedLocalStorage,
                 return result.Value;
 
             _logger.LogDebug("No existing user preferences found, returning defaults");
+            return new UserPreferences();
+        }
+        catch (CryptographicException ex)
+        {
+            // Data Protection keys have changed or data is corrupted - clear the storage
+            _logger.LogWarning(ex, "User preferences data is invalid (likely due to key rotation). Clearing corrupted data and returning defaults");
+
+            try
+            {
+                await _protectedLocalStorage.DeleteAsync(UserPreferencesKey);
+                _logger.LogDebug("Corrupted user preferences data cleared from storage");
+            }
+            catch (Exception deleteEx)
+            {
+                _logger.LogWarning(deleteEx, "Failed to clear corrupted preference data from storage");
+            }
+
             return new UserPreferences();
         }
         catch (Exception ex)
