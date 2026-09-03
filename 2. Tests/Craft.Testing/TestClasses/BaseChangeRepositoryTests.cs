@@ -310,6 +310,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         // Arrange
         var repository = GetChangeRepository();
         var entities = CreateValidEntities(5);
+        const int expectedAddedEntities = 5;
 
         // Act
         foreach (var entity in entities)
@@ -318,7 +319,11 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         var changeCount = await Fixture.DbContext.SaveChangesAsync();
 
         // Assert
-        Assert.Equal(5, changeCount);
+        Assert.True(changeCount >= expectedAddedEntities);
+
+        Fixture.DbContext.ChangeTracker.Clear();
+        var persistedCount = await repository.GetCountAsync();
+        Assert.Equal(expectedAddedEntities, persistedCount);
     }
 
     #endregion
