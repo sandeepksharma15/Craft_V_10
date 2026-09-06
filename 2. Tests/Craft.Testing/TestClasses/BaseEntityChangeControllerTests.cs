@@ -4,9 +4,7 @@ using Craft.Domain;
 using Craft.Repositories;
 using Craft.Testing.Abstractions;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.Testing.TestClasses;
@@ -59,21 +57,18 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
     /// Creates an instance of the change controller to be tested.
     /// Override this if you need custom controller initialization.
     /// </summary>
-    protected virtual new EntityChangeController<TEntity, TDto, TKey> CreateController()
+    protected override EntityChangeController<TEntity, TDto, TKey> CreateController()
     {
-        var repository = CreateChangeRepository();
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<EntityChangeController<TEntity, TDto, TKey>>>();
-        var databaseErrorHandler = Fixture.ServiceProvider
-            .GetRequiredService<IDatabaseErrorHandler>();
+        return GetTestController();
+    }
 
-        var controller = new TestEntityChangeController<TEntity, TDto, TKey>(repository, logger, databaseErrorHandler)
-        {
-            // Set up HttpContext for the controller
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
-
-        return controller;
+    /// <summary>
+    /// Creates an instance of the change repository to be tested.
+    /// Override this if you need custom repository initialization.
+    /// </summary>
+    protected override IChangeRepository<TEntity, TKey> CreateRepository()
+    {
+        return GetTestRepository();
     }
 
     /// <summary>
@@ -82,10 +77,23 @@ public abstract class BaseEntityChangeControllerTests<TEntity, TDto, TKey, TFixt
     /// </summary>
     protected virtual IChangeRepository<TEntity, TKey> CreateChangeRepository()
     {
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<ChangeRepository<TEntity, TKey>>>();
+        return GetTestRepository();
+    }
 
-        return new ChangeRepository<TEntity, TKey>(Fixture.DbContext, logger);
+    /// <summary>
+    /// Creates a typed change controller instance for testing.
+    /// </summary>
+    protected virtual EntityChangeController<TEntity, TDto, TKey> GetTestController()
+    {
+        return GetTestController<TestEntityChangeController<TEntity, TDto, TKey>>(CreateChangeRepository());
+    }
+
+    /// <summary>
+    /// Creates a typed change repository instance for testing.
+    /// </summary>
+    protected virtual IChangeRepository<TEntity, TKey> GetTestRepository()
+    {
+        return GetTestRepository<IChangeRepository<TEntity, TKey>, ChangeRepository<TEntity, TKey>, TEntity>();
     }
 
     /// <summary>

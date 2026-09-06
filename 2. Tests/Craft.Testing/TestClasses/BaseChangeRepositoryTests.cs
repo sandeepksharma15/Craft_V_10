@@ -2,8 +2,6 @@ using Craft.Domain;
 using Craft.Repositories;
 using Craft.Testing.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Craft.Testing.TestClasses;
 
@@ -22,7 +20,7 @@ namespace Craft.Testing.TestClasses;
 /// public class ProductRepositoryTests : BaseChangeRepositoryTests&lt;Product, int, DatabaseFixture&gt;
 /// {
 ///     public ProductRepositoryTests(DatabaseFixture fixture) : base(fixture) { }
-///     
+///
 ///     protected override Product CreateValidEntity()
 ///     {
 ///         return new Product { Name = "Test Product", Price = 99.99m };
@@ -50,37 +48,23 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
     /// </summary>
     protected override IReadRepository<TEntity, TKey> CreateRepository()
     {
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<ChangeRepository<TEntity, TKey>>>();
-        return new ChangeRepository<TEntity, TKey>(Fixture.DbContext, logger);
+        return GetTestRepository();
     }
 
     /// <summary>
     /// Helper method to get the repository as IChangeRepository.
     /// </summary>
-    protected IChangeRepository<TEntity, TKey> GetChangeRepository() => (IChangeRepository<TEntity, TKey>)CreateRepository();
+    protected IChangeRepository<TEntity, TKey> GetChangeRepository() => GetTestRepository();
+
+    /// <summary>
+    /// Creates a typed change repository instance for testing.
+    /// </summary>
+    protected virtual IChangeRepository<TEntity, TKey> GetTestRepository()
+    {
+        return GetTestRepository<IChangeRepository<TEntity, TKey>, ChangeRepository<TEntity, TKey>, TEntity>();
+    }
 
     #region AddAsync Tests
-
-    [Fact]
-    public virtual async Task AddAsync_ValidEntity_AddsToDatabase()
-    {
-        // Arrange
-        var repository = GetChangeRepository();
-        var entity = CreateValidEntity();
-
-        // Act
-        var addedEntity = await repository.AddAsync(entity, autoSave: true);
-
-        // Assert
-        Assert.NotNull(addedEntity);
-        Assert.NotNull(addedEntity.Id);
-
-        Fixture.DbContext.ChangeTracker.Clear();
-        var retrieved = await repository.GetAsync(addedEntity.Id);
-        Assert.NotNull(retrieved);
-        Assert.Equal(addedEntity.Id, retrieved.Id);
-    }
 
     [Fact]
     public virtual async Task AddAsync_MultipleEntities_AddsAllToDatabase()
@@ -102,6 +86,26 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         Fixture.DbContext.ChangeTracker.Clear();
         var count = await repository.GetCountAsync();
         Assert.Equal(3, count);
+    }
+
+    [Fact]
+    public virtual async Task AddAsync_ValidEntity_AddsToDatabase()
+    {
+        // Arrange
+        var repository = GetChangeRepository();
+        var entity = CreateValidEntity();
+
+        // Act
+        var addedEntity = await repository.AddAsync(entity, autoSave: true);
+
+        // Assert
+        Assert.NotNull(addedEntity);
+        Assert.NotNull(addedEntity.Id);
+
+        Fixture.DbContext.ChangeTracker.Clear();
+        var retrieved = await repository.GetAsync(addedEntity.Id);
+        Assert.NotNull(retrieved);
+        Assert.Equal(addedEntity.Id, retrieved.Id);
     }
 
     [Fact]
@@ -145,7 +149,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         Assert.Equal(5, count);
     }
 
-    #endregion
+    #endregion AddAsync Tests
 
     #region UpdateAsync Tests
 
@@ -222,7 +226,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         Assert.All(allEntities, e => Assert.StartsWith("Updated", GetEntityName(e)));
     }
 
-    #endregion
+    #endregion UpdateAsync Tests
 
     #region DeleteAsync Tests (Soft Delete)
 
@@ -300,7 +304,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         Assert.Equal(0, count); // All should be soft deleted and excluded
     }
 
-    #endregion
+    #endregion DeleteAsync Tests (Soft Delete)
 
     #region SaveChangesAsync Tests
 
@@ -326,7 +330,7 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
         Assert.Equal(expectedAddedEntities, persistedCount);
     }
 
-    #endregion
+    #endregion SaveChangesAsync Tests
 
     #region Helper Methods
 
@@ -352,5 +356,5 @@ public abstract class BaseChangeRepositoryTests<TEntity, TKey, TFixture> : BaseR
             nameProperty.SetValue(entity, name);
     }
 
-    #endregion
+    #endregion Helper Methods
 }

@@ -2,9 +2,6 @@ using Craft.Domain;
 using Craft.QuerySpec;
 using Craft.Repositories;
 using Craft.Testing.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Craft.Testing.TestClasses;
 
@@ -51,20 +48,21 @@ public abstract class BaseRepositoryTests<TEntity, TKey, TFixture> : BaseChangeR
     /// </summary>
     protected override IReadRepository<TEntity, TKey> CreateRepository()
     {
-        // Create Repository from Craft.QuerySpec
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<Repository<TEntity, TKey>>>();
-
-        var queryOptions = Fixture.ServiceProvider
-            .GetRequiredService<IOptions<QueryOptions>>();
-
-        return new Repository<TEntity, TKey>(Fixture.DbContext, logger, queryOptions);
+        return GetTestRepository();
     }
 
     /// <summary>
     /// Helper method to get the repository as IRepository (QuerySpec).
     /// </summary>
-    protected IRepository<TEntity, TKey> GetFullRepository() => (IRepository<TEntity, TKey>)CreateRepository();
+    protected IRepository<TEntity, TKey> GetFullRepository() => GetTestRepository();
+
+    /// <summary>
+    /// Creates a typed repository instance for testing.
+    /// </summary>
+    protected override IRepository<TEntity, TKey> GetTestRepository()
+    {
+        return GetTestRepository<IRepository<TEntity, TKey>, Repository<TEntity, TKey>, TEntity>();
+    }
 
     /// <summary>
     /// Creates a simple query for testing.

@@ -4,7 +4,6 @@ using Craft.Repositories;
 using Craft.Repositories.Services;
 using Craft.Testing.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Craft.Testing.TestClasses;
 
@@ -23,7 +22,7 @@ namespace Craft.Testing.TestClasses;
 /// public class ProductRepositoryTests : BaseReadRepositoryTests&lt;Product, int, DatabaseFixture&gt;
 /// {
 ///     public ProductRepositoryTests(DatabaseFixture fixture) : base(fixture) { }
-///     
+///
 ///     protected override Product CreateValidEntity()
 ///     {
 ///         return new Product { Name = "Test Product" };
@@ -31,7 +30,7 @@ namespace Craft.Testing.TestClasses;
 /// }
 /// </code>
 /// </remarks>
-public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncLifetime 
+public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncLifetime
     where TEntity : class, IEntity<TKey>, new()
     where TFixture : class, IRepositoryTestFixture
 {
@@ -51,12 +50,43 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     /// Default implementation creates a ReadRepository using the fixture's DbContext.
     /// Override this method if you need custom repository initialization.
     /// </summary>
+    //protected virtual IReadRepository<TEntity, TKey> CreateRepository()
+    //{
+    //    var logger = Fixture.ServiceProvider
+    //        .GetRequiredService<ILogger<ReadRepository<TEntity, TKey>>>();
+
+    //    return new ReadRepository<TEntity, TKey>(Fixture.DbContext, logger);
+    //}
+
+    /// <summary>
+    /// Helper method to clear the database before each test.
+    /// Default implementation calls the fixture's ResetDatabaseAsync method.
+    /// Override this method if you need custom cleanup logic.
+    /// </summary>
+    protected virtual async Task ClearDatabaseAsync() => await Fixture.ResetDatabaseAsync();
+
+    /// <summary>
+    /// Creates an instance of the repository to be tested.
+    /// Default implementation creates a ReadRepository using the fixture's DbContext.
+    /// Override this method if you need custom repository initialization.
+    /// </summary>
     protected virtual IReadRepository<TEntity, TKey> CreateRepository()
     {
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<ReadRepository<TEntity, TKey>>>();
+        return GetTestRepository<IReadRepository<TEntity, TKey>, ReadRepository<TEntity, TKey>, TEntity>();
+    }
 
-        return new ReadRepository<TEntity, TKey>(Fixture.DbContext, logger);
+    /// <summary>
+    /// Creates multiple valid entity instances for testing.
+    /// Override this method to customize batch entity creation.
+    /// </summary>
+    protected virtual List<TEntity> CreateValidEntities(int count)
+    {
+        var entities = new List<TEntity>();
+
+        for (int i = 0; i < count; i++)
+            entities.Add(CreateValidEntity());  // Now uses the overridden method
+
+        return entities;
     }
 
     /// <summary>
@@ -88,17 +118,19 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     }
 
     /// <summary>
-    /// Creates multiple valid entity instances for testing.
-    /// Override this method to customize batch entity creation.
+    /// Creates a repository instance for testing using the fixture service provider.
+    /// This allows derived repositories to resolve additional constructor dependencies automatically.
     /// </summary>
-    protected virtual List<TEntity> CreateValidEntities(int count)
+    /// <typeparam name="TInterface">The repository interface type.</typeparam>
+    /// <typeparam name="TRepository">The concrete repository type.</typeparam>
+    /// <typeparam name="TTestEntity">The entity type handled by the repository.</typeparam>
+    /// <returns>The constructed repository instance.</returns>
+    protected virtual TRepository GetTestRepository<TInterface, TRepository, TTestEntity>()
+        where TInterface : class, IReadRepository<TTestEntity, TKey>
+        where TRepository : ReadRepository<TTestEntity, TKey>, TInterface
+        where TTestEntity : class, IEntity<TKey>, new()
     {
-        var entities = new List<TEntity>();
-
-        for (int i = 0; i < count; i++)
-            entities.Add(CreateValidEntity());  // Now uses the overridden method
-
-        return entities;
+        return ActivatorUtilities.CreateInstance<TRepository>(Fixture.ServiceProvider, Fixture.DbContext);
     }
 
     /// <summary>
@@ -119,21 +151,14 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     }
 
     /// <summary>
-    /// Helper method to clear the database before each test.
-    /// Default implementation calls the fixture's ResetDatabaseAsync method.
-    /// Override this method if you need custom cleanup logic.
+    /// Called after each test - clears the database to clean up.
     /// </summary>
-    protected virtual async Task ClearDatabaseAsync() => await Fixture.ResetDatabaseAsync();
+    public virtual async ValueTask DisposeAsync() => await ClearDatabaseAsync();
 
     /// <summary>
     /// Called before each test - clears the database to ensure test isolation.
     /// </summary>
     public virtual async ValueTask InitializeAsync() => await ClearDatabaseAsync();
-
-    /// <summary>
-    /// Called after each test - clears the database to clean up.
-    /// </summary>
-    public virtual async ValueTask DisposeAsync() => await ClearDatabaseAsync();
 
     #region GetAsync Tests
 
@@ -184,7 +209,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         Assert.Equal(entity.Id, result.Id);
     }
 
-    #endregion
+    #endregion GetAsync Tests
 
     #region GetAllAsync Tests
 
@@ -241,11 +266,11 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(3);
-        
+
         // Mark one entity as deleted if it implements ISoftDelete
         if (entities[0] is ISoftDelete softDeleteEntity)
             softDeleteEntity.IsDeleted = true;
-        
+
         await SeedDatabaseAsync([.. entities]);
 
         // Act
@@ -253,7 +278,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
 
         // Assert
         Assert.NotNull(result);
-        
+
         // If entity supports soft delete, should exclude the deleted one
         if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
             Assert.Equal(entities.Count - 1, result.Count);
@@ -261,7 +286,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
             Assert.Equal(entities.Count, result.Count);
     }
 
-    #endregion
+    #endregion GetAllAsync Tests
 
     #region GetCountAsync Tests
 
@@ -300,14 +325,14 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         // Arrange
         var repository = CreateRepository();
         var entities = CreateValidEntities(5);
-        
+
         // Mark two entities as deleted if they implement ISoftDelete
         if (entities[0] is ISoftDelete softDelete1 && entities[1] is ISoftDelete softDelete2)
         {
             softDelete1.IsDeleted = true;
             softDelete2.IsDeleted = true;
         }
-        
+
         await SeedDatabaseAsync([.. entities]);
 
         // Act
@@ -321,9 +346,28 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
             Assert.Equal(entities.Count, count);
     }
 
-    #endregion
+    #endregion GetCountAsync Tests
 
     #region GetPagedListAsync Tests
+
+    [Fact]
+    public virtual async Task GetPagedListAsync_EmptyDatabase_ReturnsEmptyPage()
+    {
+        // Arrange
+        var repository = CreateRepository();
+        await ClearDatabaseAsync();
+
+        // Act
+        var result = await repository.GetPagedListAsync(currentPage: 1, pageSize: 10);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.CurrentPage);
+        Assert.Equal(10, result.PageSize);
+        Assert.Equal(0, result.TotalCount);
+        Assert.Equal(0, result.TotalPages);
+        Assert.Empty(result.Items);
+    }
 
     [Fact]
     public virtual async Task GetPagedListAsync_FirstPage_ReturnsCorrectEntities()
@@ -366,25 +410,6 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
     }
 
     [Fact]
-    public virtual async Task GetPagedListAsync_EmptyDatabase_ReturnsEmptyPage()
-    {
-        // Arrange
-        var repository = CreateRepository();
-        await ClearDatabaseAsync();
-
-        // Act
-        var result = await repository.GetPagedListAsync(currentPage: 1, pageSize: 10);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(1, result.CurrentPage);
-        Assert.Equal(10, result.PageSize);
-        Assert.Equal(0, result.TotalCount);
-        Assert.Equal(0, result.TotalPages);
-        Assert.Empty(result.Items);
-    }
-
-    [Fact]
     public virtual async Task GetPagedListAsync_WithIncludeDetails_ReturnsPageWithDetails()
     {
         // Arrange
@@ -401,7 +426,7 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         Assert.Equal(5, result.Items.Count());
     }
 
-    #endregion
+    #endregion GetPagedListAsync Tests
 
     #region Helper Methods
 
@@ -423,5 +448,5 @@ public abstract class BaseReadRepositoryTests<TEntity, TKey, TFixture> : IAsyncL
         throw new NotSupportedException($"GetNonExistingId not implemented for type {typeof(TKey).Name}. Please override this method in your test class.");
     }
 
-    #endregion
+    #endregion Helper Methods
 }

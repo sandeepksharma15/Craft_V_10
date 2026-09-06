@@ -8,10 +8,7 @@ using Craft.QuerySpec.Services;
 using Craft.Repositories;
 using Craft.Testing.Abstractions;
 using Mapster;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.Testing.TestClasses;
@@ -56,22 +53,17 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
     /// Creates an instance of the full controller to be tested.
     /// Override this to provide custom EntityController implementation.
     /// </summary>
-    protected virtual new EntityController<TEntity, TDto, TKey> CreateController()
+    protected override EntityController<TEntity, TDto, TKey> CreateController()
     {
-        var repository = CreateFullRepository();
+        return GetTestController();
+    }
 
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<EntityController<TEntity, TDto, TKey>>>();
-        var databaseErrorHandler = Fixture.ServiceProvider
-            .GetRequiredService<IDatabaseErrorHandler>();
-
-        var controller = new TestEntityController<TEntity, TDto, TKey>(repository, logger, databaseErrorHandler)
-        {
-            // Set up HttpContext for the controller
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
-
-        return controller;
+    /// <summary>
+    /// Creates an instance of the full repository (with Query support) to be tested.
+    /// </summary>
+    protected override IRepository<TEntity, TKey> CreateRepository()
+    {
+        return GetTestRepository();
     }
 
     /// <summary>
@@ -79,13 +71,23 @@ public abstract class BaseEntityControllerTests<TEntity, TDto, TKey, TFixture> :
     /// </summary>
     protected virtual IRepository<TEntity, TKey> CreateFullRepository()
     {
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<Repository<TEntity, TKey>>>();
+        return GetTestRepository();
+    }
 
-        var queryOptions = Fixture.ServiceProvider
-            .GetRequiredService<IOptions<QueryOptions>>();
+    /// <summary>
+    /// Creates a typed full controller instance for testing.
+    /// </summary>
+    protected override EntityController<TEntity, TDto, TKey> GetTestController()
+    {
+        return GetTestController<TestEntityController<TEntity, TDto, TKey>>(CreateFullRepository());
+    }
 
-        return new Repository<TEntity, TKey>(Fixture.DbContext, logger, queryOptions);
+    /// <summary>
+    /// Creates a typed full repository instance for testing.
+    /// </summary>
+    protected override IRepository<TEntity, TKey> GetTestRepository()
+    {
+        return GetTestRepository<IRepository<TEntity, TKey>, Repository<TEntity, TKey>, TEntity>();
     }
 
     /// <summary>

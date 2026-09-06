@@ -59,17 +59,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     /// </summary>
     protected virtual EntityReadController<TEntity, TDto, TKey> CreateController()
     {
-        var repository = CreateRepository();
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<EntityReadController<TEntity, TDto, TKey>>>();
-
-        var controller = new EntityReadController<TEntity, TDto, TKey>(repository, logger)
-        {
-            // Set up HttpContext for the controller
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
-
-        return controller;
+        return GetTestController<EntityReadController<TEntity, TDto, TKey>>(CreateRepository());
     }
 
     /// <summary>
@@ -79,10 +69,30 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     /// </summary>
     protected virtual IReadRepository<TEntity, TKey> CreateRepository()
     {
-        var logger = Fixture.ServiceProvider
-            .GetRequiredService<ILogger<ReadRepository<TEntity, TKey>>>();
+        return GetTestRepository<IReadRepository<TEntity, TKey>, ReadRepository<TEntity, TKey>, TEntity>();
+    }
 
-        return new ReadRepository<TEntity, TKey>(Fixture.DbContext, logger);
+    /// <summary>
+    /// Creates a typed controller instance for testing.
+    /// </summary>
+    protected virtual TController GetTestController<TController>(IReadRepository<TEntity, TKey> repository)
+        where TController : EntityReadController<TEntity, TDto, TKey>
+    {
+        var controller = ActivatorUtilities.CreateInstance<TController>(Fixture.ServiceProvider, repository);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        return controller;
+    }
+
+    /// <summary>
+    /// Creates a typed repository instance for testing.
+    /// </summary>
+    protected virtual TRepository GetTestRepository<TInterface, TRepository, TTestEntity>()
+        where TInterface : class, IReadRepository<TTestEntity, TKey>
+        where TRepository : ReadRepository<TTestEntity, TKey>, TInterface
+        where TTestEntity : class, IEntity<TKey>, new()
+    {
+        return ActivatorUtilities.CreateInstance<TRepository>(Fixture.ServiceProvider, Fixture.DbContext);
     }
 
     /// <summary>
