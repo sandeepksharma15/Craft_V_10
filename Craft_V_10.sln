@@ -20,15 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. IntegrationTests", "3. I
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Source", "1. Source", "{F45B8FEA-3870-4DCF-9F58-BB5446263858}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. Docs", "5. Docs", "{FDDE2AEC-845D-400D-A91D-8F19C52BA33F}"
-	ProjectSection(SolutionItems) = preProject
-		5. Docs\ARCHITECTURE_DIAGRAM.md = 5. Docs\ARCHITECTURE_DIAGRAM.md
-		5. Docs\Executive Summary.txt = 5. Docs\Executive Summary.txt
-		5. Docs\QUICK_REFERENCE.md = 5. Docs\QUICK_REFERENCE.md
-		5. Docs\REFACTORING_SUMMARY.md = 5. Docs\REFACTORING_SUMMARY.md
-		5. Docs\SOLUTION_REVIEW_REPORT.md = 5. Docs\SOLUTION_REVIEW_REPORT.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Core", "1. Core", "{3894E8F2-1474-4BDA-8281-004FDBFC0DE1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Data Access", "2. Data Access", "{01DC98D6-9E8F-4E4A-BC2F-51D08854A58F}"
