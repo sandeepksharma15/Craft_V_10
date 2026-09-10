@@ -80,30 +80,26 @@ public class CountdownTimerTests
     public void Stop_PreventsFurtherTicks()
     {
         using var timer = new CountdownTimer(1, 10);
-        using var tickDetected = new ManualResetEventSlim(false);
         int tickCount = 0;
 
         timer.OnTick += _ =>
         {
             Interlocked.Increment(ref tickCount);
-            tickDetected.Set();
         };
 
         timer.Start();
 
-        // Wait for at least one tick to occur
-        Assert.True(tickDetected.Wait(TimeSpan.FromMilliseconds(500)), "Timer should tick at least once");
+        Assert.True(
+            SpinWait.SpinUntil(() => Volatile.Read(ref tickCount) > 0, TimeSpan.FromSeconds(2)),
+            "Timer should tick at least once");
 
         timer.Stop();
 
-        // Allow brief time for any in-flight tick to complete
-        Thread.Sleep(50);
-        int afterStop = tickCount;
+        int afterStop = Volatile.Read(ref tickCount);
 
-        // Wait longer to verify no new ticks occur
-        Thread.Sleep(300);
-
-        Assert.Equal(afterStop, tickCount); // No new ticks after stop
+        Assert.False(
+            SpinWait.SpinUntil(() => Volatile.Read(ref tickCount) > afterStop, TimeSpan.FromMilliseconds(300)),
+            "No new ticks should occur after stop");
     }
 
     [Fact]

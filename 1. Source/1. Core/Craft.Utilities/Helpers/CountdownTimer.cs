@@ -78,7 +78,7 @@ public class CountdownTimer : IDisposable
 
         lock (_lock)
         {
-            if (_disposed) return;
+            if (_disposed || !_running) return;
 
             _currentTick++;
             tick = _currentTick;
@@ -115,11 +115,14 @@ public class CountdownTimer : IDisposable
         {
             lock (_lock)
             {
+                _disposed = true;
                 _timer?.Stop();
                 _timer?.Dispose();
                 _timer = null;
                 _running = false;
             }
+
+            return;
         }
 
         _disposed = true;
