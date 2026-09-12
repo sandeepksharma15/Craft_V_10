@@ -7,7 +7,6 @@ using Craft.Testing.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Craft.Testing.TestClasses;
 
@@ -27,7 +26,7 @@ namespace Craft.Testing.TestClasses;
 /// public class BorderOrgControllerTests : BaseEntityReadControllerTests&lt;BorderOrg, BorderOrgDto, KeyType, DatabaseFixture&gt;
 /// {
 ///     public BorderOrgControllerTests(DatabaseFixture fixture) : base(fixture) { }
-///     
+///
 ///     protected override BorderOrg CreateValidEntity()
 ///     {
 ///         return new BorderOrg { Name = "Test", Code = "TEST" };
@@ -53,6 +52,12 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     protected BaseEntityReadControllerTests(TFixture fixture) => Fixture = fixture;
 
     /// <summary>
+    /// Helper method to clear the database before each test.
+    /// Default implementation calls the fixture's ResetDatabaseAsync method.
+    /// </summary>
+    protected virtual async Task ClearDatabaseAsync() => await Fixture.ResetDatabaseAsync();
+
+    /// <summary>
     /// Creates an instance of the controller to be tested.
     /// Default implementation creates an EntityReadController.
     /// Override this if you need custom controller initialization.
@@ -71,6 +76,26 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     {
         return GetTestRepository<IReadRepository<TEntity, TKey>, ReadRepository<TEntity, TKey>, TEntity>();
     }
+
+    /// <summary>
+    /// Creates multiple valid entity instances for testing.
+    /// Default implementation uses CreateValidEntity() multiple times.
+    /// </summary>
+    protected virtual List<TEntity> CreateValidEntities(int count)
+    {
+        var entities = new List<TEntity>();
+
+        for (int i = 0; i < count; i++)
+            entities.Add(CreateValidEntity());
+
+        return entities;
+    }
+
+    /// <summary>
+    /// Creates a valid entity instance for testing.
+    /// Derived classes must implement this to provide entity-specific creation logic.
+    /// </summary>
+    protected abstract TEntity CreateValidEntity();
 
     /// <summary>
     /// Creates a typed controller instance for testing.
@@ -96,26 +121,6 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     }
 
     /// <summary>
-    /// Creates a valid entity instance for testing.
-    /// Derived classes must implement this to provide entity-specific creation logic.
-    /// </summary>
-    protected abstract TEntity CreateValidEntity();
-
-    /// <summary>
-    /// Creates multiple valid entity instances for testing.
-    /// Default implementation uses CreateValidEntity() multiple times.
-    /// </summary>
-    protected virtual List<TEntity> CreateValidEntities(int count)
-    {
-        var entities = new List<TEntity>();
-
-        for (int i = 0; i < count; i++)
-            entities.Add(CreateValidEntity());
-
-        return entities;
-    }
-
-    /// <summary>
     /// Helper method to seed the database with test entities.
     /// Default implementation adds entities to DbContext and saves changes.
     /// </summary>
@@ -129,21 +134,25 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         Fixture.DbContext.ChangeTracker.Clear();
     }
 
-    /// <summary>
-    /// Helper method to clear the database before each test.
-    /// Default implementation calls the fixture's ResetDatabaseAsync method.
-    /// </summary>
-    protected virtual async Task ClearDatabaseAsync() => await Fixture.ResetDatabaseAsync();
+    protected virtual async Task SeedDatabaseAsync<T>(T entity) where T : class, IEntity<TKey>, new()
+    {
+        if (entity == null)
+            return;
 
-    /// <summary>
-    /// Called before each test - clears the database to ensure test isolation.
-    /// </summary>
-    public virtual async ValueTask InitializeAsync() => await ClearDatabaseAsync();
+        Fixture.DbContext.Set<T>().Add(entity);
+        await Fixture.DbContext.SaveChangesAsync();
+        Fixture.DbContext.ChangeTracker.Clear();
+    }
 
     /// <summary>
     /// Called after each test - clears the database to clean up.
     /// </summary>
     public virtual async ValueTask DisposeAsync() => await ClearDatabaseAsync();
+
+    /// <summary>
+    /// Called before each test - clears the database to ensure test isolation.
+    /// </summary>
+    public virtual async ValueTask InitializeAsync() => await ClearDatabaseAsync();
 
     #region GetAsync Tests
 
@@ -203,7 +212,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         Assert.Equal(entity.Id, returnedEntity.Id);
     }
 
-    #endregion
+    #endregion GetAsync Tests
 
     #region GetAllAsync Tests
 
@@ -257,7 +266,7 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         Assert.Equal(3, returnedEntities.Count);
     }
 
-    #endregion
+    #endregion GetAllAsync Tests
 
     #region GetCountAsync Tests
 
@@ -294,9 +303,28 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         Assert.Equal(7, count);
     }
 
-    #endregion
+    #endregion GetCountAsync Tests
 
     #region GetPagedListAsync Tests
+
+    [Fact]
+    public virtual async Task GetPagedListAsync_EmptyDatabase_ReturnsOkWithEmptyPage()
+    {
+        // Arrange
+        var controller = CreateController();
+        await ClearDatabaseAsync();
+
+        // Act
+        var result = await controller.GetPagedListAsync(page: 1, pageSize: 10, includeDetails: false);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var pageResponse = Assert.IsType<PageResponse<TEntity>>(okResult.Value);
+        Assert.Equal(1, pageResponse.CurrentPage);
+        Assert.Equal(10, pageResponse.PageSize);
+        Assert.Equal(0, pageResponse.TotalCount);
+        Assert.Empty(pageResponse.Items);
+    }
 
     [Fact]
     public virtual async Task GetPagedListAsync_FirstPage_ReturnsOkWithCorrectEntities()
@@ -339,25 +367,6 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
     }
 
     [Fact]
-    public virtual async Task GetPagedListAsync_EmptyDatabase_ReturnsOkWithEmptyPage()
-    {
-        // Arrange
-        var controller = CreateController();
-        await ClearDatabaseAsync();
-
-        // Act
-        var result = await controller.GetPagedListAsync(page: 1, pageSize: 10, includeDetails: false);
-
-        // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var pageResponse = Assert.IsType<PageResponse<TEntity>>(okResult.Value);
-        Assert.Equal(1, pageResponse.CurrentPage);
-        Assert.Equal(10, pageResponse.PageSize);
-        Assert.Equal(0, pageResponse.TotalCount);
-        Assert.Empty(pageResponse.Items);
-    }
-
-    [Fact]
     public virtual async Task GetPagedListAsync_WithIncludeDetails_ReturnsOkWithPageData()
     {
         // Arrange
@@ -377,5 +386,5 @@ public abstract class BaseEntityReadControllerTests<TEntity, TDto, TKey, TFixtur
         Assert.Equal(5, pageResponse.Items.Count());
     }
 
-    #endregion
+    #endregion GetPagedListAsync Tests
 }
