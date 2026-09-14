@@ -249,10 +249,7 @@ public sealed class CustomValidator : ComponentBase, IDisposable
     /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <exception cref="ArgumentNullException">Thrown when serviceResult is null.</exception>
     /// <exception cref="ObjectDisposedException">Thrown when the component has been disposed.</exception>
-    public async Task DisplayErrorsAsync<T>(
-        ServiceResult<T> serviceResult,
-        HttpResponseMessage? responseMessage = null,
-        CancellationToken cancellationToken = default)
+    public async Task DisplayErrorsAsync<T>(ServiceResult<T> serviceResult, HttpResponseMessage? responseMessage = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(serviceResult);
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -305,10 +302,10 @@ public sealed class CustomValidator : ComponentBase, IDisposable
         _disposed = true;
     }
 
-    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs args) 
+    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs args)
         => _messageStore?.Clear();
 
-    private void OnFieldChanged(object? sender, FieldChangedEventArgs args) 
+    private void OnFieldChanged(object? sender, FieldChangedEventArgs args)
         => _messageStore?.Clear(args.FieldIdentifier);
 
     private void AddFormLevelError(string message)
