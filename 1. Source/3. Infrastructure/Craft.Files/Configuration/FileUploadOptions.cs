@@ -68,27 +68,8 @@ public class FileUploadOptions
     /// <summary>
     /// Upload type-specific configurations
     /// </summary>
-    public Dictionary<string, UploadTypeOptions> UploadTypes { get; set; } = new()
-    {
-        ["Image"] = new UploadTypeOptions
-        {
-            MaxSizeMB = 5,
-            AllowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"],
-            Folder = @"Images\Assets"
-        },
-        ["ProfilePicture"] = new UploadTypeOptions
-        {
-            MaxSizeMB = 2,
-            AllowedExtensions = [".jpg", ".jpeg", ".png"],
-            Folder = @"Images\ProfilePictures"
-        },
-        ["Document"] = new UploadTypeOptions
-        {
-            MaxSizeMB = 10,
-            AllowedExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"],
-            Folder = "Documents"
-        }
-    };
+    public Dictionary<string, UploadTypeOptions> UploadTypes { get; set; }
+        = new(StringComparer.OrdinalIgnoreCase);
 }
 
 /// <summary>
@@ -107,7 +88,7 @@ public class UploadTypeOptions
     /// </summary>
     [Required]
     [MinLength(1)]
-    public List<string> AllowedExtensions { get; set; } = [];
+    public List<string> AllowedExtensions { get; set; } = [".*"];
 
     /// <summary>
     /// Subfolder path for this upload type

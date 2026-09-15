@@ -19,8 +19,7 @@ public class LocalFileStorageProvider : IFileStorageProvider
         _logger = logger;
     }
 
-    public async Task<string> UploadAsync(Stream stream, string fileName, string folderPath,
-        CancellationToken cancellationToken = default)
+    public async Task<string> UploadAsync(Stream stream, string fileName, string folderPath, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);

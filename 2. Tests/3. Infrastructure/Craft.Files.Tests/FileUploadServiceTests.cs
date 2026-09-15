@@ -7,6 +7,9 @@ namespace Craft.Files.Tests;
 
 public class FileUploadServiceTests
 {
+    private const string DocumentUploadType = "document";
+    private const string ImageUploadType = "image";
+
     private readonly Mock<IFileStorageProvider> _storageProviderMock;
     private readonly Mock<ILogger<FileUploadService>> _loggerMock;
     private readonly FileUploadOptions _options;
@@ -17,14 +20,25 @@ public class FileUploadServiceTests
         _storageProviderMock = new Mock<IFileStorageProvider>();
         _loggerMock = new Mock<ILogger<FileUploadService>>();
         _options = new FileUploadOptions();
-        
+
+        _options.UploadTypes[DocumentUploadType] = new UploadTypeOptions
+        {
+            MaxSizeMB = 10,
+            AllowedExtensions = [".txt", ".pdf"],
+            Folder = "Documents"
+        };
+
+        _options.UploadTypes[ImageUploadType] = new UploadTypeOptions
+        {
+            MaxSizeMB = 10,
+            AllowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"],
+            Folder = Path.Combine("Images", "Assets")
+        };
+
         var optionsMock = new Mock<IOptions<FileUploadOptions>>();
         optionsMock.Setup(x => x.Value).Returns(_options);
 
-        _service = new FileUploadService(
-            optionsMock.Object,
-            _storageProviderMock.Object,
-            _loggerMock.Object);
+        _service = new FileUploadService(optionsMock.Object, _storageProviderMock.Object, _loggerMock.Object);
     }
 
     [Fact]
@@ -33,7 +47,7 @@ public class FileUploadServiceTests
         // Arrange
         var fileData = "Test file content"u8.ToArray();
         var fileName = "test.txt";
-        var uploadType = UploadType.Document;
+        var uploadType = DocumentUploadType;
 
         _storageProviderMock
             .Setup(x => x.UploadAsync(It.IsAny<Stream>(), fileName, It.IsAny<string>(), default))
@@ -57,7 +71,7 @@ public class FileUploadServiceTests
         // Arrange
         var fileData = "Test file content"u8.ToArray();
         var fileName = "test.pdf";
-        var uploadType = UploadType.Document;
+        var uploadType = DocumentUploadType;
 
         await using var stream = new MemoryStream(fileData);
 
@@ -79,7 +93,7 @@ public class FileUploadServiceTests
         // Arrange
         var fileData = "Test file content"u8.ToArray();
         var fileName = "test.exe";
-        var uploadType = UploadType.Document;
+        var uploadType = DocumentUploadType;
 
         // Act
         var result = await _service.UploadAsync(fileData, fileName, uploadType);
@@ -95,7 +109,7 @@ public class FileUploadServiceTests
         // Arrange
         var largeFileData = new byte[11 * 1024 * 1024];
         var fileName = "large.pdf";
-        var uploadType = UploadType.Document;
+        var uploadType = DocumentUploadType;
 
         // Act
         var result = await _service.UploadAsync(largeFileData, fileName, uploadType);
@@ -110,7 +124,7 @@ public class FileUploadServiceTests
     {
         // Arrange & Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _service.UploadAsync((byte[])null!, "test.txt", UploadType.Document));
+            _service.UploadAsync((byte[])null!, "test.txt", "document"));
     }
 
     [Fact]
@@ -121,7 +135,7 @@ public class FileUploadServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            _service.UploadAsync(fileData, "", UploadType.Document));
+            _service.UploadAsync(fileData, "", "document"));
     }
 
     [Fact]
@@ -130,7 +144,7 @@ public class FileUploadServiceTests
         // Arrange
         var fileContent = "Browser file content"u8.ToArray();
         var mockBrowserFile = new Mock<IBrowserFile>();
-        
+
         mockBrowserFile.Setup(x => x.Name).Returns("browser.jpg");
         mockBrowserFile.Setup(x => x.Size).Returns(fileContent.Length);
         mockBrowserFile.Setup(x => x.ContentType).Returns("image/jpeg");
@@ -142,7 +156,7 @@ public class FileUploadServiceTests
             .ReturnsAsync(@"Images\Assets\browser.jpg");
 
         // Act
-        var result = await _service.UploadBrowserFileAsync(mockBrowserFile.Object, UploadType.Image);
+        var result = await _service.UploadBrowserFileAsync(mockBrowserFile.Object, ImageUploadType);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -155,10 +169,10 @@ public class FileUploadServiceTests
         // Arrange
         var mockBrowserFile = new Mock<IBrowserFile>();
         mockBrowserFile.Setup(x => x.Name).Returns("large.jpg");
-        mockBrowserFile.Setup(x => x.Size).Returns(10 * 1024 * 1024);
+        mockBrowserFile.Setup(x => x.Size).Returns(11 * 1024 * 1024);
 
         // Act
-        var result = await _service.UploadBrowserFileAsync(mockBrowserFile.Object, UploadType.Image);
+        var result = await _service.UploadBrowserFileAsync(mockBrowserFile.Object, ImageUploadType);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -171,7 +185,7 @@ public class FileUploadServiceTests
         // Arrange
         var fileContent = new byte[1024 * 100];
         var mockBrowserFile = new Mock<IBrowserFile>();
-        
+
         mockBrowserFile.Setup(x => x.Name).Returns("progress.jpg");
         mockBrowserFile.Setup(x => x.Size).Returns(fileContent.Length);
         mockBrowserFile.Setup(x => x.ContentType).Returns("image/jpeg");
@@ -187,7 +201,7 @@ public class FileUploadServiceTests
         // Act
         var result = await _service.UploadBrowserFileAsync(
             mockBrowserFile.Object,
-            UploadType.Image,
+            ImageUploadType,
             progressValues.Add);
 
         // Assert
@@ -224,7 +238,7 @@ public class FileUploadServiceTests
             .ReturnsAsync(@"Tenants\acme\Images\Assets\test.jpg");
 
         // Act
-        var result = await service.UploadAsync(fileData, fileName, UploadType.Image);
+        var result = await service.UploadAsync(fileData, fileName, ImageUploadType);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -255,7 +269,7 @@ public class FileUploadServiceTests
             .ReturnsAsync(@"Images\Assets\test.jpg");
 
         // Act
-        var result = await service.UploadAsync(fileData, fileName, UploadType.Image);
+        var result = await service.UploadAsync(fileData, fileName, ImageUploadType);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -290,7 +304,7 @@ public class FileUploadServiceTests
             .ReturnsAsync("Documents/test.pdf");
 
         // Act
-        var result = await service.UploadAsync(fileData, fileName, UploadType.Document);
+        var result = await service.UploadAsync(fileData, fileName, DocumentUploadType);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -323,7 +337,7 @@ public class FileUploadServiceTests
         var fileName = "virus.pdf";
 
         // Act
-        var result = await service.UploadAsync(fileData, fileName, UploadType.Document);
+        var result = await service.UploadAsync(fileData, fileName, DocumentUploadType);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -359,7 +373,7 @@ public class FileUploadServiceTests
             .ReturnsAsync("Documents/test.pdf");
 
         // Act
-        var result = await service.UploadAsync(fileData, fileName, UploadType.Document);
+        var result = await service.UploadAsync(fileData, fileName, DocumentUploadType);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -389,7 +403,7 @@ public class FileUploadServiceTests
         // Arrange
         var relativePath = "Documents/test.pdf";
         var fullPath = "C:/Files/Documents/test.pdf";
-        
+
         _storageProviderMock
             .Setup(x => x.GetFullPath(relativePath))
             .Returns(fullPath);

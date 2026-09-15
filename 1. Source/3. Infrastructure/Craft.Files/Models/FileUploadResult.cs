@@ -80,6 +80,11 @@ public class FileMetadata
     public required long SizeInBytes { get; init; }
 
     /// <summary>
+    /// SHA-256 hash of the file.
+    /// </summary>
+    public string? Sha256 { get; init; }
+
+    /// <summary>
     /// Content type / MIME type.
     /// </summary>
     public string? ContentType { get; init; }
@@ -87,7 +92,7 @@ public class FileMetadata
     /// <summary>
     /// Upload type.
     /// </summary>
-    public required UploadType UploadType { get; init; }
+    public required string UploadType { get; init; }
 
     /// <summary>
     /// Tenant identifier (if multi-tenancy is enabled).

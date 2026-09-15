@@ -33,7 +33,7 @@ public class FileUploadService : IFileUploadService
         _currentUser = currentUser;
     }
 
-    public async Task<FileUploadResult> UploadAsync(byte[] data, string fileName, UploadType uploadType,
+    public async Task<FileUploadResult> UploadAsync(byte[] data, string fileName, string uploadType,
         string? contentType = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(data);
@@ -43,7 +43,7 @@ public class FileUploadService : IFileUploadService
         return await UploadAsync(stream, fileName, uploadType, contentType, cancellationToken);
     }
 
-    public async Task<FileUploadResult> UploadAsync(Stream stream, string fileName, UploadType uploadType,
+    public async Task<FileUploadResult> UploadAsync(Stream stream, string fileName, string uploadType,
         string? contentType = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -142,7 +142,7 @@ public class FileUploadService : IFileUploadService
         }
     }
 
-    public async Task<FileUploadResult> UploadBrowserFileAsync(IBrowserFile browserFile, UploadType uploadType,
+    public async Task<FileUploadResult> UploadBrowserFileAsync(IBrowserFile browserFile, string uploadType,
         Action<int>? progressCallback = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(browserFile);
@@ -191,7 +191,7 @@ public class FileUploadService : IFileUploadService
     public Task<bool> FileExistsAsync(string filePath, CancellationToken cancellationToken = default)
         => _storageProvider.ExistsAsync(filePath, cancellationToken);
 
-    private (bool IsValid, string? ErrorMessage) ValidateFile(Stream stream, string fileName, UploadType uploadType)
+    private (bool IsValid, string? ErrorMessage) ValidateFile(Stream stream, string fileName, string uploadType)
     {
         var typeOptions = GetUploadTypeOptions(uploadType);
 
@@ -211,7 +211,7 @@ public class FileUploadService : IFileUploadService
         return (true, null);
     }
 
-    private string GetFolderPath(UploadType uploadType)
+    private string GetFolderPath(string uploadType)
     {
         var typeOptions = GetUploadTypeOptions(uploadType);
         var folderPath = typeOptions.Folder;
@@ -225,9 +225,9 @@ public class FileUploadService : IFileUploadService
         return folderPath;
     }
 
-    private UploadTypeOptions GetUploadTypeOptions(UploadType uploadType)
+    private UploadTypeOptions GetUploadTypeOptions(string uploadType)
     {
-        var uploadTypeName = uploadType.ToString();
+        var uploadTypeName = uploadType;
 
         if (_options.UploadTypes.TryGetValue(uploadTypeName, out var typeOptions))
             return typeOptions;
@@ -238,7 +238,7 @@ public class FileUploadService : IFileUploadService
         {
             MaxSizeMB = _options.DefaultMaxSizeMB,
             AllowedExtensions = [".*"],
-            Folder = uploadType.GetDescription()
+            Folder = uploadType
         };
     }
 
@@ -254,8 +254,9 @@ public class FileUploadService : IFileUploadService
             return null;
 
         var tenantType = _tenant.GetType();
-        
+
         var identifierProp = tenantType.GetProperty("Identifier");
+
         if (identifierProp != null)
         {
             var identifier = identifierProp.GetValue(_tenant) as string;

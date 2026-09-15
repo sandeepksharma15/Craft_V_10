@@ -1,0 +1,107 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+@namespace Craft.UiBuilders.Components
+
+<MudStack Style="width:100%;">
+
+    @if (MultipleFiles)
+    {
+        <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                       @ref="_files"
+                       OnFilesChanged="OnInputFileChanged"
+                       AppendMultipleFiles
+                       Hidden="false"
+                       Accept="@AcceptedFileExtensions"
+                       InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                       tabindex="-1"
+                       @ondrop="ClearDragClass"
+                       @ondragenter="SetDragClass"
+                       @ondragleave="ClearDragClass"
+                       @ondragend="ClearDragClass">
+
+            <CustomContent>
+                <MudPaper Height="@Height" Outlined="true" Class="@_dragClass">
+
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                        @DropZoneText
+                    </MudText>
+
+                    @foreach (var file in _browserFiles)
+                    {
+                        <MudChip T="string" Color="Color.Info" Text="@file.Name" Variant="Variant.Outlined"
+                                 OnClose="Closed" Class="z-20" @onclick:stopPropagation />
+                    }
+
+                </MudPaper>
+            </CustomContent>
+
+        </MudFileUpload>
+    }
+    else
+    {
+        <MudFileUpload T="IBrowserFile"
+                       @ref="_file"
+                       OnFilesChanged="OnInputFileChanged"
+                       Hidden="false"
+                       Accept="@AcceptedFileExtensions"
+                       InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                       tabindex="-1"
+                       @ondrop="ClearDragClass"
+                       @ondragenter="SetDragClass"
+                       @ondragleave="ClearDragClass"
+                       @ondragend="ClearDragClass">
+
+            <CustomContent>
+                <MudPaper Height="@Height"
+                          Outlined="true"
+                          Class="@_dragClass">
+
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                        @DropZoneText
+                    </MudText>
+
+                    @if (_browserFiles.Count > 0)
+                    {
+                        <MudChip T="string" Color="Color.Info" Text="@(_browserFiles [0].Name)" Variant="Variant.Outlined"
+                                 OnClose="Closed" Class="z-20" @onclick:stopPropagation />
+                    }
+
+                </MudPaper>
+            </CustomContent>
+        </MudFileUpload>
+    }
+
+    <MudToolBar Gutters="false" Class="relative d-flex gap-2 flex-wrap">
+
+        <MudButton Color="Color.Primary"
+                   OnClick="OpenFilePickerAsync"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.FolderOpen">
+            @PickText
+        </MudButton>
+
+        <MudButton Color="Color.Primary"
+                   Disabled="@(!_browserFiles.Any() || _isUploading)"
+                   OnClick="UploadFilesAsync"
+                   Variant="Variant.Filled">
+            @UploadText
+        </MudButton>
+
+        <MudButton Color="Color.Error"
+                   Disabled="@(!_browserFiles.Any() || _isUploading)"
+                   OnClick="ClearAsync"
+                   Variant="Variant.Filled">
+            @ClearText
+        </MudButton>
+
+    </MudToolBar>
+
+    @if (_isUploading)
+    {
+        <MudProgressLinear Value="@_uploadProgress" Class="mt-2" />
+        <MudText Typo="Typo.caption">
+            Uploading... @_uploadProgress%
+        </MudText>
+    }
+</MudStack>
