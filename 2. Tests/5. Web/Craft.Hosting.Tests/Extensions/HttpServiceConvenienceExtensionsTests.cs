@@ -92,6 +92,44 @@ public class HttpServiceConvenienceExtensionsTests
     }
 
     [Fact]
+    public void AddCustomHttpServiceForBlazor_RegistersDedicatedInterface()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        // Act
+        services.AddCustomHttpServiceForBlazor<TestEntity, TestView, TestDto, ITestEntityHttpService, TestEntityHttpService>(
+            sp => new HttpClient(),
+            "http://localhost",
+            "/api/test");
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Assert
+        Assert.NotNull(serviceProvider.GetService<ITestEntityHttpService>());
+        Assert.NotNull(serviceProvider.GetService<IHttpService<TestEntity, TestView, TestDto, KeyType>>());
+        Assert.NotNull(serviceProvider.GetService<IHttpService<TestEntity>>());
+    }
+
+    [Fact]
+    public void AddCustomHttpServiceForBlazor_ReturnsSameServiceCollection()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        // Act
+        var result = services.AddCustomHttpServiceForBlazor<TestEntity, TestView, TestDto, ITestEntityHttpService, TestEntityHttpService>(
+            sp => new HttpClient(),
+            "http://localhost",
+            "/api/test");
+
+        // Assert
+        Assert.Same(services, result);
+    }
+
+    [Fact]
     public void AddHttpServiceForApi_RegistersKeyTypeInterface()
     {
         // Arrange
@@ -247,5 +285,17 @@ public class HttpServiceConvenienceExtensionsTests
     private class TestDto : IModel
     {
         public KeyType Id { get; set; }
+    }
+
+    private interface ITestEntityHttpService
+    {
+    }
+
+    private class TestEntityHttpService : HttpService<TestEntity, TestView, TestDto, KeyType>, ITestEntityHttpService
+    {
+        public TestEntityHttpService(Uri apiURL, HttpClient httpClient, ILogger<HttpService<TestEntity, TestView, TestDto, KeyType>> logger)
+            : base(apiURL, httpClient, logger)
+        {
+        }
     }
 }

@@ -1,3 +1,5 @@
+using Craft.QuerySpec;
+
 namespace Craft.Hosting.Extensions;
 
 /// <summary>
@@ -76,6 +78,40 @@ public static class HttpServiceConvenienceExtensions
                 baseAddress, apiPath, registerPrimaryInterface: false, registerWithKeyType: true,
                 registerSimplified: true),
 
+            _ => throw new ArgumentException($"Unsupported service lifetime: {lifetime}", nameof(lifetime))
+        };
+    }
+
+    /// <summary>
+    /// Registers a custom HttpService implementation and its dedicated interface with optimized interface registration for Blazor web applications.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <typeparam name="TView">The view model type.</typeparam>
+    /// <typeparam name="TDto">The data transfer object type.</typeparam>
+    /// <typeparam name="TInterface">The dedicated custom service interface.</typeparam>
+    /// <typeparam name="TService">The custom service implementation type.</typeparam>
+    /// <param name="services">The service collection.</param>
+    /// <param name="httpClientFactory">Factory function to get the HttpClient instance.</param>
+    /// <param name="baseAddress">The base address for the API.</param>
+    /// <param name="apiPath">The API path.</param>
+    /// <param name="lifetime">The service lifetime (default: Transient).</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddCustomHttpServiceForBlazor<T, TView, TDto, TInterface, TService>(this IServiceCollection services,
+        Func<IServiceProvider, HttpClient> httpClientFactory, string baseAddress, string apiPath,
+        ServiceLifetime lifetime = ServiceLifetime.Transient)
+        where T : class, IEntity, IModel, new()
+        where TView : class, IModel, new()
+        where TDto : class, IModel, new()
+        where TInterface : class
+        where TService : Craft.QuerySpec.HttpService<T, TView, TDto, KeyType>, TInterface
+    {
+        services = services.AddCustomHttpServiceForBlazor<T, TView, TDto, TService>(httpClientFactory, baseAddress, apiPath, lifetime);
+
+        return lifetime switch
+        {
+            ServiceLifetime.Transient => services.AddTransient<TInterface>(provider => provider.GetRequiredService<TService>()),
+            ServiceLifetime.Scoped => services.AddScoped<TInterface>(provider => provider.GetRequiredService<TService>()),
+            ServiceLifetime.Singleton => services.AddSingleton<TInterface>(provider => provider.GetRequiredService<TService>()),
             _ => throw new ArgumentException($"Unsupported service lifetime: {lifetime}", nameof(lifetime))
         };
     }
