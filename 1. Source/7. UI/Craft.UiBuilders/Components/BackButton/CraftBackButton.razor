@@ -1,5 +1,4 @@
-﻿@using System.ComponentModel.DataAnnotations
-@using Craft.UiBuilders.Extensions
+﻿@using Craft.UiBuilders.Extensions
 @using Microsoft.JSInterop
 
 @namespace Craft.UiBuilders.Components
@@ -23,7 +22,7 @@
     [Inject] public required NavigationManager NavigationManager { get; set; }
     [Inject] public required IJSRuntime JSRuntime { get; set; }
 
-    private async Task HandleGoBack()
+    private async Task HandleGoBack ()
     {
         if (!string.IsNullOrWhiteSpace(ReturnUrl))
         {
