@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -63,6 +64,37 @@ public class FileUploadServiceTests
         Assert.Equal(fileName, result.Metadata.FileName);
         Assert.Equal(".txt", result.Metadata.Extension);
         Assert.Equal(fileData.Length, result.Metadata.SizeInBytes);
+    }
+
+    [Fact]
+    public async Task UploadAsync_ShouldCalculateSha256()
+    {
+        var content = "AetherHub CAP test content"u8.ToArray();
+        var fileName = "test.cap";
+        const string uploadType = "CapPackage";
+
+        _options.UploadTypes[uploadType] = new UploadTypeOptions
+        {
+            MaxSizeMB = 10,
+            AllowedExtensions = [".cap"],
+            Folder = "CapPackages"
+        };
+
+        _storageProviderMock
+            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), fileName, It.IsAny<string>(), default))
+            .ReturnsAsync("CapPackages/test.cap");
+
+        await using var stream = new MemoryStream(content);
+
+        var result = await _service.UploadAsync(stream, fileName, uploadType);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Metadata);
+
+        var expected = Convert.ToHexString(SHA256.HashData(content));
+
+        Assert.Equal(expected, result.Metadata!.Sha256);
+        Assert.Equal(content.Length, result.Metadata!.SizeInBytes);
     }
 
     [Fact]

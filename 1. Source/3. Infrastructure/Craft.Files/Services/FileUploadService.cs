@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -73,6 +74,12 @@ public class FileUploadService : IFileUploadService
             var fileId = Guid.NewGuid().ToString();
 
             stream.Position = 0;
+
+            var hash = await SHA256.HashDataAsync(stream, cancellationToken);
+            var sha256 = Convert.ToHexString(hash);
+
+            stream.Position = 0;
+
             var filePath = await _storageProvider.UploadAsync(stream, fileName, folderPath, cancellationToken);
 
             var metadata = new FileMetadata
@@ -82,6 +89,7 @@ public class FileUploadService : IFileUploadService
                 SizeInBytes = stream.Length,
                 ContentType = contentType,
                 UploadType = uploadType,
+                Sha256 = sha256,
                 TenantId = _options.EnableMultiTenancy ? GetTenantId() : null,
                 UploadedBy = GetCurrentUserId(),
                 UploadedAt = DateTimeOffset.UtcNow,
@@ -98,12 +106,8 @@ public class FileUploadService : IFileUploadService
 
                 if (thumbnailFullPath != null)
                 {
-                    thumbnailPath = await _thumbnailGenerator.GenerateAsync(
-                        stream,
-                        thumbnailFullPath,
-                        _options.ThumbnailWidth,
-                        _options.ThumbnailHeight,
-                        cancellationToken);
+                    thumbnailPath = await _thumbnailGenerator.GenerateAsync(stream, thumbnailFullPath,
+                        _options.ThumbnailWidth, _options.ThumbnailHeight, cancellationToken);
                 }
 
                 metadata = new FileMetadata
@@ -111,6 +115,7 @@ public class FileUploadService : IFileUploadService
                     FileName = metadata.FileName,
                     Extension = metadata.Extension,
                     SizeInBytes = metadata.SizeInBytes,
+                    Sha256 = metadata.Sha256,
                     ContentType = metadata.ContentType,
                     UploadType = metadata.UploadType,
                     TenantId = metadata.TenantId,
