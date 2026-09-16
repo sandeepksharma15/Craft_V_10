@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Components.Forms
+﻿@using Craft.UiBuilders.Generic
+@using Microsoft.AspNetCore.Components.Forms
 @using MudBlazor
 
 @namespace Craft.UiBuilders.Components
@@ -81,12 +82,14 @@
             @PickText
         </MudButton>
 
-        <MudButton Color="Color.Primary"
-                   Disabled="@(!_browserFiles.Any() || _isUploading)"
-                   OnClick="UploadFilesAsync"
-                   Variant="Variant.Filled">
-            @UploadText
-        </MudButton>
+        <Show When="!SelectionOnly">
+            <MudButton Color="Color.Primary"
+                       Disabled="@(!_browserFiles.Any() || _isUploading)"
+                       OnClick="UploadFilesAsync"
+                       Variant="Variant.Filled">
+                @UploadText
+            </MudButton>
+        </Show>
 
         <MudButton Color="Color.Error"
                    Disabled="@(!_browserFiles.Any() || _isUploading)"
