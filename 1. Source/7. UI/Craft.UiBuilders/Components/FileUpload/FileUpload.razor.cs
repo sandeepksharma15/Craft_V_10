@@ -9,12 +9,12 @@ public partial class FileUpload
 {
     #region Public Properties
 
+    [Inject] public required IFileUploadService FileUploadService { get; set; }
+    [Inject] public required ISnackbar Snackbar { get; set; }
+
     [Parameter] public string AcceptedFileExtensions { get; set; } = ".*";
     [Parameter] public string ClearText { get; set; } = "Clear";
-
     [Parameter] public string DropZoneText { get; set; } = "Drag and drop a file here, or click to select.";
-
-    [Inject] public IFileUploadService FileUploadService { get; set; }
     [Parameter] public string Height { get; set; } = "250px";
     [Parameter] public long? MaxFileSizeInBytes { get; set; }
     [Parameter] public bool MultipleFiles { get; set; }
@@ -23,7 +23,6 @@ public partial class FileUpload
     [Parameter] public EventCallback<List<IBrowserFile>> OnUploadFiles { get; set; }
     [Parameter] public string PickText { get; set; } = "Pick";
     [Parameter] public bool SelectionOnly { get; set; }
-    [Inject] public ISnackbar Snackbar { get; set; }
     [Parameter] public string UploadText { get; set; } = "Upload";
     [Parameter] public string UploadType { get; set; } = "General";
 
