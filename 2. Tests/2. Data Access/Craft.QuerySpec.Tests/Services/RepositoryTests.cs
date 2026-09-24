@@ -337,6 +337,28 @@ public class RepositoryTests
     }
 
     [Fact]
+    public async Task GetCountAsync_AppliesSearchCriteria()
+    {
+        // Arrange
+        await using var context = new TestDbContext(CreateOptions());
+        context.Database.EnsureCreated();
+
+        var repo = CreateRepository(context);
+
+        IQuery<Country> query = new Query<Country>();
+        query.Search(x => x.Name!, "%1");
+
+        // Act
+        var results = await repo.GetAllAsync(query);
+        var count = await repo.GetCountAsync(query);
+
+        // Assert
+        Assert.Single(results);
+        Assert.Equal((long)results.Count, count);
+        Assert.Equal("Country 1", results[0].Name);
+    }
+
+    [Fact]
     public async Task GetCountAsync_ThrowsArgumentNullException_WhenQueryIsNull()
     {
         // Arrange

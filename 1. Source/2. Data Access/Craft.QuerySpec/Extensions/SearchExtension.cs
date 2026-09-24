@@ -17,6 +17,18 @@ public static class SearchExtension
             .GetMethod(nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)])
         ?? throw new TargetException("The EF.Functions.Like not found");
 
+    private static readonly MethodInfo StringContainsMethodInfo = typeof(string)
+            .GetMethod(nameof(string.Contains), [typeof(string)])
+        ?? throw new TargetException("The string.Contains method not found");
+
+    private static readonly MethodInfo StringStartsWithMethodInfo = typeof(string)
+            .GetMethod(nameof(string.StartsWith), [typeof(string)])
+        ?? throw new TargetException("The string.StartsWith method not found");
+
+    private static readonly MethodInfo StringEndsWithMethodInfo = typeof(string)
+            .GetMethod(nameof(string.EndsWith), [typeof(string)])
+        ?? throw new TargetException("The string.EndsWith method not found");
+
     /// <summary>
     /// Filters <paramref name="source"/> by applying an 'SQL LIKE' operation to it.
     /// </summary>
@@ -59,12 +71,7 @@ public static class SearchExtension
 
                 var searchExpression = StringValueObjectSearch.GetSearchExpression(propertySelector.Body);
 
-                var likeExpression = Expression.Call(
-                    null,
-                    LikeMethodInfo,
-                    Functions,
-                    searchExpression,
-                    searchTermAsExpression);
+                var likeExpression = BuildPredicate(searchExpression, criteria.SearchString!, searchTermAsExpression);
 
                 groupExpression = groupExpression is null
                     ? likeExpression
@@ -82,6 +89,52 @@ public static class SearchExtension
         return expression is null
             ? source
             : source.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
+    }
+
+    private static Expression BuildPredicate(Expression searchExpression, string searchTerm, Expression searchTermAsExpression)
+    {
+        ArgumentNullException.ThrowIfNull(searchExpression);
+        ArgumentException.ThrowIfNullOrWhiteSpace(searchTerm);
+        ArgumentNullException.ThrowIfNull(searchTermAsExpression);
+
+        if (TryBuildSimpleLikePredicate(searchExpression, searchTerm, out var predicate))
+            return predicate;
+
+        return Expression.Call(
+            null,
+            LikeMethodInfo,
+            Functions,
+            searchExpression,
+            searchTermAsExpression);
+    }
+
+    private static bool TryBuildSimpleLikePredicate(Expression searchExpression, string searchTerm, out Expression predicate)
+    {
+        predicate = null!;
+
+        if (searchExpression.Type != typeof(string) || searchTerm.Contains('_', StringComparison.Ordinal))
+            return false;
+
+        var startsWithWildcard = searchTerm.StartsWith('%');
+        var endsWithWildcard = searchTerm.EndsWith('%');
+        var value = searchTerm.Trim('%');
+
+        if (searchTerm.Length != value.Length + (startsWithWildcard ? 1 : 0) + (endsWithWildcard ? 1 : 0))
+            return false;
+
+        var constant = Expression.Constant(value);
+        var notNullExpression = Expression.NotEqual(searchExpression, Expression.Constant(null, typeof(string)));
+
+        Expression comparison = (startsWithWildcard, endsWithWildcard) switch
+        {
+            (true, true) => Expression.Call(searchExpression, StringContainsMethodInfo, constant),
+            (true, false) => Expression.Call(searchExpression, StringEndsWithMethodInfo, constant),
+            (false, true) => Expression.Call(searchExpression, StringStartsWithMethodInfo, constant),
+            (false, false) => Expression.Equal(searchExpression, constant)
+        };
+
+        predicate = Expression.AndAlso(notNullExpression, comparison);
+        return true;
     }
 }
 

@@ -16,6 +16,12 @@ namespace Craft.QuerySpec;
 /// <typeparam name="TKey">Entity key type.</typeparam>
 public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
+    private static readonly IEvaluator CountEvaluator = new QueryEvaluator([
+        WhereEvaluator.Instance,
+        SearchEvaluator.Instance,
+        IgnoreQueryFiltersEvaluator.Instance,
+    ]);
+
     private readonly QueryOptions _queryOptions;
     private readonly IQueryMetrics? _queryMetrics;
 
@@ -135,9 +141,9 @@ public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKe
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
-        // Only apply WhereEvaluator for count - skip pagination evaluators to avoid warnings
+        // Apply the same filtering semantics as list queries while still skipping order/paging for count.
         return await _dbSet
-            .WithQuery(query, WhereEvaluator.Instance)
+            .WithQuery(query, CountEvaluator)
             .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
     }
