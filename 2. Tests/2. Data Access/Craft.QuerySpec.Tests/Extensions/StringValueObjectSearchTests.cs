@@ -36,6 +36,37 @@ public class StringValueObjectSearchTests
     }
 
     [Fact]
+    public async Task Search_DifferentGroups_AreCombinedWithAnd()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var context = new TestDbContext(options);
+        await context.Database.EnsureCreatedAsync();
+
+        context.Entities.AddRange(
+            new TestEntity { Code = new TestCode("123456"), Name = "Alpha" },
+            new TestEntity { Code = new TestCode("123999"), Name = "Beta" });
+
+        await context.SaveChangesAsync();
+
+        var query = new Query<TestEntity>();
+        query.Search(x => x.Code, "%123%", searchGroup: 1);
+        query.Search(x => x.Name, "%Alpha%", searchGroup: 2);
+
+        var result = await SearchEvaluator.Instance
+            .GetQuery(context.Entities, query)
+            .ToListAsync();
+
+        var entity = Assert.Single(result);
+        Assert.Equal("Alpha", entity.Name);
+    }
+
+    [Fact]
     public async Task Search_StringProperty_RemainsSupported()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");
