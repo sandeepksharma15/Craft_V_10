@@ -44,12 +44,38 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
     /// </summary>
     public virtual IQueryable<T> GetQuery<T>(IQueryable<T> queryable, IQuery<T>? query)
         where T : class
+        => GetQueryCore(queryable, query, null);
+
+    /// <summary>
+    /// Applies all evaluators and supplies EF Core model metadata to evaluators that can use it.
+    /// </summary>
+    public virtual IQueryable<T> GetQuery<T>(
+        IQueryable<T> queryable,
+        IQuery<T>? query,
+        QueryEvaluationContext context)
+        where T : class
     {
+        ArgumentNullException.ThrowIfNull(context);
+        return GetQueryCore(queryable, query, context);
+    }
+
+    private IQueryable<T> GetQueryCore<T>(
+        IQueryable<T> queryable,
+        IQuery<T>? query,
+        QueryEvaluationContext? context)
+        where T : class
+    {
+        ArgumentNullException.ThrowIfNull(queryable);
+
         if (query is null)
             return queryable;
 
         foreach (var evaluator in Evaluators)
-            queryable = evaluator.GetQuery(queryable, query) ?? queryable;
+        {
+            queryable = context is not null && evaluator is IContextualEvaluator contextualEvaluator
+                ? contextualEvaluator.GetQuery(queryable, query, context) ?? queryable
+                : evaluator.GetQuery(queryable, query) ?? queryable;
+        }
 
         return queryable;
     }
@@ -58,6 +84,17 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
     /// Applies all evaluators and selection logic to the queryable based on the provided query specification.
     /// </summary>
     public IQueryable<TResult> GetQuery<T, TResult>(IQueryable<T> queryable, IQuery<T, TResult>? query)
+        where T : class
+        where TResult : class
+        => GetQuery(queryable, query, null);
+
+    /// <summary>
+    /// Applies all evaluators and selection logic while supplying EF Core model metadata.
+    /// </summary>
+    public IQueryable<TResult> GetQuery<T, TResult>(
+        IQueryable<T> queryable,
+        IQuery<T, TResult>? query,
+        QueryEvaluationContext? context)
         where T : class
         where TResult : class
     {
@@ -72,8 +109,9 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
         if (hasSelect && hasSelectMany)
             throw new InvalidOperationException("Cannot define both Select and SelectMany in query");
 
-        // Apply all evaluators except selection
-        var filtered = GetQuery(queryable, (IQuery<T>)query) ?? queryable;
+        var filtered = context is null
+            ? GetQuery(queryable, (IQuery<T>)query)
+            : GetQuery(queryable, (IQuery<T>)query, context);
 
         if (hasSelect)
         {
@@ -83,7 +121,7 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
                 ? throw new InvalidOperationException("QuerySelectBuilder is not defined")
                 : filtered.Select(selector);
         }
-        
+
         if (hasSelectMany)
             return filtered.SelectMany(query.SelectorMany!);
 
@@ -91,4 +129,3 @@ public class QueryEvaluator : IEvaluator, ISelectEvaluator
             "Internal error: No selection strategy determined. This indicates a bug in QueryEvaluator.");
     }
 }
-
