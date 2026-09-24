@@ -1,10 +1,7 @@
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.QuerySpec;
 
@@ -14,37 +11,33 @@ namespace Craft.QuerySpec;
 /// </summary>
 public static class StringValueObjectSearch
 {
-    private static readonly ConcurrentDictionary<Type, byte> SearchableTypes = new();
-
-    private static readonly MethodInfo AsStringMethod = typeof(StringValueObjectSearch)
-        .GetMethod(nameof(AsString), BindingFlags.Public | BindingFlags.Static)
-        ?? throw new InvalidOperationException($"Unable to locate {nameof(AsString)}.");
-
     /// <summary>
-    /// Registers the EF Core translator used by QuerySpec string-backed scalar searches.
-    /// Call this on the service collection used to configure the DbContext.
+    /// Registers a string-backed scalar model type for server-side QuerySpec searches.
+    /// The marker method lives on a closed generic type, but is itself non-generic,
+    /// which EF Core supports as a DbFunction mapping.
     /// </summary>
-    public static IServiceCollection AddQuerySpecStringValueObjectSearch(this IServiceCollection services)
+    public static ModelBuilder EnableStringSearch<TValue>(this ModelBuilder modelBuilder)
     {
-        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(modelBuilder);
 
-        services.AddSingleton<IMethodCallTranslatorPlugin, StringValueObjectMethodCallTranslatorPlugin>();
-        return services;
+        var method = StringValueObjectSearch<TValue>.AsStringMethod;
+
+        modelBuilder.HasDbFunction(method)
+            .HasTranslation(arguments =>
+            {
+                var argument = arguments[0];
+
+                // The mapped property carries its value converter/type mapping. Expose the
+                // provider representation as string so EF's normal LIKE translation can use it.
+                return new SqlUnaryExpression(
+                    ExpressionType.Convert,
+                    argument,
+                    typeof(string),
+                    argument.TypeMapping);
+            });
+
+        return modelBuilder;
     }
-
-    /// <summary>
-    /// Marks a scalar model type as searchable through its string provider representation.
-    /// This does not change the EF model or database schema.
-    /// </summary>
-    public static void EnableStringSearch<TValue>()
-        => SearchableTypes.TryAdd(typeof(TValue), 0);
-
-    /// <summary>
-    /// Marker used only inside translated LINQ queries.
-    /// </summary>
-    public static string AsString<TValue>(TValue value)
-        => throw new InvalidOperationException(
-            $"{nameof(AsString)} may only be used inside an EF Core query.");
 
     internal static Expression GetSearchExpression(Expression expression)
     {
@@ -53,15 +46,15 @@ public static class StringValueObjectSearch
         if (expression.Type == typeof(string))
             return expression;
 
-        var method = AsStringMethod.MakeGenericMethod(expression.Type);
+        var markerType = typeof(StringValueObjectSearch<>).MakeGenericType(expression.Type);
+        var method = markerType.GetMethod(
+            nameof(StringValueObjectSearch<int>.AsString),
+            BindingFlags.Public | BindingFlags.Static)
+            ?? throw new InvalidOperationException(
+                $"Unable to locate string-search marker for '{expression.Type}'.");
+
         return Expression.Call(method, expression);
     }
-
-    internal static bool IsSearchable(Type type) => SearchableTypes.ContainsKey(type);
-
-    internal static bool IsAsStringMethod(MethodInfo method)
-        => method.IsGenericMethod &&
-           method.GetGenericMethodDefinition() == AsStringMethod;
 
     private static Expression UnwrapConvert(Expression expression)
     {
@@ -77,31 +70,21 @@ public static class StringValueObjectSearch
     }
 }
 
-internal sealed class StringValueObjectMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
+/// <summary>
+/// Per-value-type marker. AsString is deliberately non-generic: EF Core does not allow
+/// generic methods to be registered as DbFunctions, while a method on a closed generic
+/// declaring type is a concrete MethodInfo.
+/// </summary>
+public static class StringValueObjectSearch<TValue>
 {
-    public StringValueObjectMethodCallTranslatorPlugin()
-        => Translators = [new StringValueObjectMethodCallTranslator()];
+    internal static readonly MethodInfo AsStringMethod =
+        typeof(StringValueObjectSearch<TValue>).GetMethod(
+            nameof(AsString),
+            BindingFlags.Public | BindingFlags.Static)
+        ?? throw new InvalidOperationException(
+            $"Unable to locate {nameof(AsString)} for '{typeof(TValue)}'.");
 
-    public IEnumerable<IMethodCallTranslator> Translators { get; }
-}
-
-internal sealed class StringValueObjectMethodCallTranslator : IMethodCallTranslator
-{
-    public SqlExpression? Translate(
-        SqlExpression? instance,
-        MethodInfo method,
-        IReadOnlyList<SqlExpression> arguments,
-        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (!StringValueObjectSearch.IsAsStringMethod(method) || arguments.Count != 1)
-            return null;
-
-        var modelType = method.GetGenericArguments()[0];
-
-        if (!StringValueObjectSearch.IsSearchable(modelType))
-            throw new InvalidOperationException(
-                $"Type '{modelType.Name}' has not been enabled for QuerySpec string search.");
-
-        return arguments[0];
-    }
+    public static string AsString(TValue value)
+        => throw new InvalidOperationException(
+            $"{nameof(AsString)} may only be used inside an EF Core query.");
 }
