@@ -51,11 +51,13 @@ public static class SearchExtension
             // Create a closure
             var searchTermAsExpression = ((Expression<Func<string>>)(() => criteria!.SearchString)).Body;
 
+            var searchExpression = StringValueObjectSearch.GetSearchExpression(propertySelector.Body);
+
             var likeExpression = Expression.Call(
                                     null,
                                     LikeMethodInfo,
                                     Functions,
-                                    propertySelector.Body,
+                                    searchExpression,
                                     searchTermAsExpression);
 
             expr = expr == null ? likeExpression : Expression.OrElse(expr, likeExpression);
