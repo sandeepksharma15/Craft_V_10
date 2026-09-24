@@ -34,36 +34,54 @@ public static class SearchExtension
     {
         if (criterias is null) return source;
 
-        Expression? expr = null;
-
+        Expression? expression = null;
         var parameter = Expression.Parameter(typeof(T), "x");
 
-        foreach (var criteria in criterias)
+        foreach (var group in criterias
+                     .Where(criteria => criteria is not null &&
+                                        criteria.SearchItem is not null &&
+                                        !string.IsNullOrEmpty(criteria.SearchString))
+                     .GroupBy(criteria => criteria.SearchGroup)
+                     .OrderBy(group => group.Key))
         {
-            if (criteria is null || criteria.SearchItem is null || string.IsNullOrEmpty(criteria.SearchString))
-                continue;
+            Expression? groupExpression = null;
 
-            var propertySelector = ParameterReplacerVisitor.Replace(criteria?.SearchItem!,
-                criteria?.SearchItem?.Parameters[0]!, parameter) as LambdaExpression;
+            foreach (var criteria in group)
+            {
+                var propertySelector = ParameterReplacerVisitor.Replace(
+                    criteria.SearchItem!,
+                    criteria.SearchItem!.Parameters[0],
+                    parameter) as LambdaExpression
+                    ?? throw new InvalidExpressionException();
 
-            _ = propertySelector ?? throw new InvalidExpressionException();
+                var searchTermAsExpression =
+                    ((Expression<Func<string>>)(() => criteria.SearchString!)).Body;
 
-            // Create a closure
-            var searchTermAsExpression = ((Expression<Func<string>>)(() => criteria!.SearchString)).Body;
+                var searchExpression = StringValueObjectSearch.GetSearchExpression(propertySelector.Body);
 
-            var likeExpression = Expression.Call(
-                                    null,
-                                    LikeMethodInfo,
-                                    Functions,
-                                    propertySelector.Body,
-                                    searchTermAsExpression);
+                var likeExpression = Expression.Call(
+                    null,
+                    LikeMethodInfo,
+                    Functions,
+                    searchExpression,
+                    searchTermAsExpression);
 
-            expr = expr == null ? likeExpression : Expression.OrElse(expr, likeExpression);
+                groupExpression = groupExpression is null
+                    ? likeExpression
+                    : Expression.OrElse(groupExpression, likeExpression);
+            }
+
+            if (groupExpression is not null)
+            {
+                expression = expression is null
+                    ? groupExpression
+                    : Expression.AndAlso(expression, groupExpression);
+            }
         }
 
-        return expr == null
+        return expression is null
             ? source
-            : source.Where(Expression.Lambda<Func<T, bool>>(expr, parameter));
+            : source.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
     }
 }
 
