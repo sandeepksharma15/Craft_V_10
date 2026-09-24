@@ -1,35 +1,43 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.QuerySpec;
 
 /// <summary>
-/// Bridges scalar model types that are stored as strings through an EF Core value converter
+/// Bridges scalar model types stored as strings through an EF Core value converter
 /// into QuerySpec's SQL LIKE search pipeline.
 /// </summary>
 public static class StringValueObjectSearch
 {
+    private static readonly ConcurrentDictionary<Type, byte> SearchableTypes = new();
+
     private static readonly MethodInfo AsStringMethod = typeof(StringValueObjectSearch)
         .GetMethod(nameof(AsString), BindingFlags.Public | BindingFlags.Static)
         ?? throw new InvalidOperationException($"Unable to locate {nameof(AsString)}.");
 
     /// <summary>
-    /// Registers a string-backed scalar model type for server-side QuerySpec searches.
-    /// The mapped EF property must use a value converter whose provider CLR type is string.
+    /// Registers the EF Core translator used by QuerySpec string-backed scalar searches.
+    /// Call this on the service collection used to configure the DbContext.
     /// </summary>
-    public static ModelBuilder EnableStringSearch<TValue>(this ModelBuilder modelBuilder)
+    public static IServiceCollection AddQuerySpecStringValueObjectSearch(this IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(modelBuilder);
+        ArgumentNullException.ThrowIfNull(services);
 
-        var method = AsStringMethod.MakeGenericMethod(typeof(TValue));
-
-        modelBuilder.HasDbFunction(method)
-            .HasTranslation(arguments => arguments[0]);
-
-        return modelBuilder;
+        services.AddSingleton<IMethodCallTranslatorPlugin, StringValueObjectMethodCallTranslatorPlugin>();
+        return services;
     }
+
+    /// <summary>
+    /// Marks a scalar model type as searchable through its string provider representation.
+    /// This does not change the EF model or database schema.
+    /// </summary>
+    public static void EnableStringSearch<TValue>()
+        => SearchableTypes.TryAdd(typeof(TValue), 0);
 
     /// <summary>
     /// Marker used only inside translated LINQ queries.
@@ -49,6 +57,12 @@ public static class StringValueObjectSearch
         return Expression.Call(method, expression);
     }
 
+    internal static bool IsSearchable(Type type) => SearchableTypes.ContainsKey(type);
+
+    internal static bool IsAsStringMethod(MethodInfo method)
+        => method.IsGenericMethod &&
+           method.GetGenericMethodDefinition() == AsStringMethod;
+
     private static Expression UnwrapConvert(Expression expression)
     {
         while (expression is UnaryExpression
@@ -60,5 +74,34 @@ public static class StringValueObjectSearch
         }
 
         return expression;
+    }
+}
+
+internal sealed class StringValueObjectMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
+{
+    public StringValueObjectMethodCallTranslatorPlugin()
+        => Translators = [new StringValueObjectMethodCallTranslator()];
+
+    public IEnumerable<IMethodCallTranslator> Translators { get; }
+}
+
+internal sealed class StringValueObjectMethodCallTranslator : IMethodCallTranslator
+{
+    public SqlExpression? Translate(
+        SqlExpression? instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+    {
+        if (!StringValueObjectSearch.IsAsStringMethod(method) || arguments.Count != 1)
+            return null;
+
+        var modelType = method.GetGenericArguments()[0];
+
+        if (!StringValueObjectSearch.IsSearchable(modelType))
+            throw new InvalidOperationException(
+                $"Type '{modelType.Name}' has not been enabled for QuerySpec string search.");
+
+        return arguments[0];
     }
 }
