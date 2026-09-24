@@ -57,7 +57,7 @@ public static class SearchExtension
                 var searchTermAsExpression =
                     ((Expression<Func<string>>)(() => criteria.SearchString!)).Body;
 
-                var searchExpression = StringValueObjectSearch.GetSearchExpression(propertySelector.Body);
+                var searchExpression = GetSearchExpression(propertySelector.Body);
 
                 var likeExpression = Expression.Call(
                     null,
@@ -83,6 +83,23 @@ public static class SearchExtension
             ? source
             : source.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
     }
+
+    private static Expression GetSearchExpression(Expression expression)
+    {
+        while (expression is UnaryExpression
+               {
+                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+               } unary)
+        {
+            expression = unary.Operand;
+        }
+
+        if (expression.Type == typeof(string))
+            return expression;
+
+        throw new NotSupportedException(
+            $"SQL LIKE search requires a string expression. Property type '{expression.Type.Name}' " +
+            "is not directly searchable. Search value objects through an application query/repository " +
+            "that understands their provider representation.");
+    }
 }
-
-
