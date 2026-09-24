@@ -122,8 +122,13 @@ public class ValueObjectSearchEvaluatorTests
         public static explicit operator TestCode(string value) => new(value);
     }
 
-    private sealed class TestCodeConverter()
-        : ValueConverter<TestCode, string>(
-            value => value.Value,
-            value => new TestCode(value));
+    private sealed class TestCodeConverter : ValueConverter<TestCode, string>
+    {
+        public TestCodeConverter()
+            : base(
+                value => value.Value,
+                value => new TestCode(value))
+        {
+        }
+    }
 }
