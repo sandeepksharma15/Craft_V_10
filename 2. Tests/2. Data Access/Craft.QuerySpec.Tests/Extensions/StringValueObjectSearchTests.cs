@@ -1,6 +1,5 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.QuerySpec.Tests.Extensions;
 
@@ -12,13 +11,11 @@ public class StringValueObjectSearchTests
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
 
-        var services = new ServiceCollection();
-        services.AddQuerySpecStringValueObjectSearch();
-        services.AddDbContext<TestDbContext>(options => options.UseSqlite(connection));
+        var options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseSqlite(connection)
+            .Options;
 
-        await using var provider = services.BuildServiceProvider();
-        await using var scope = provider.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        await using var context = new TestDbContext(options);
         await context.Database.EnsureCreatedAsync();
 
         context.Entities.AddRange(
@@ -44,13 +41,11 @@ public class StringValueObjectSearchTests
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
 
-        var services = new ServiceCollection();
-        services.AddQuerySpecStringValueObjectSearch();
-        services.AddDbContext<TestDbContext>(options => options.UseSqlite(connection));
+        var options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseSqlite(connection)
+            .Options;
 
-        await using var provider = services.BuildServiceProvider();
-        await using var scope = provider.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        await using var context = new TestDbContext(options);
         await context.Database.EnsureCreatedAsync();
 
         context.Entities.AddRange(
@@ -77,13 +72,11 @@ public class StringValueObjectSearchTests
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
 
-        var services = new ServiceCollection();
-        services.AddQuerySpecStringValueObjectSearch();
-        services.AddDbContext<TestDbContext>(options => options.UseSqlite(connection));
+        var options = new DbContextOptionsBuilder<TestDbContext>()
+            .UseSqlite(connection)
+            .Options;
 
-        await using var provider = services.BuildServiceProvider();
-        await using var scope = provider.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        await using var context = new TestDbContext(options);
         await context.Database.EnsureCreatedAsync();
 
         context.Entities.AddRange(
@@ -114,7 +107,7 @@ public class StringValueObjectSearchTests
                     value => value.Value,
                     value => new TestCode(value));
 
-            StringValueObjectSearch.EnableStringSearch<TestCode>();
+            modelBuilder.EnableStringSearch<TestCode>();
         }
     }
 
