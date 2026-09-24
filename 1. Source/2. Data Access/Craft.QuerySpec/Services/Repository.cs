@@ -16,12 +16,6 @@ namespace Craft.QuerySpec;
 /// <typeparam name="TKey">Entity key type.</typeparam>
 public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKey> where T : class, IEntity<TKey>, new()
 {
-    private static readonly IEvaluator CountEvaluator = new QueryEvaluator([
-        WhereEvaluator.Instance,
-        SearchEvaluator.Instance,
-        IgnoreQueryFiltersEvaluator.Instance,
-    ]);
-
     private readonly QueryOptions _queryOptions;
     private readonly IQueryMetrics? _queryMetrics;
 
@@ -141,9 +135,9 @@ public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKe
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug($"[Repository] Type: [\"{typeof(T).GetClassName()}\"] Method: [\"GetCountAsync\"]");
 
-        // Apply the same filtering semantics as list queries while still skipping order/paging for count.
+        // Apply filtering only. Ordering, pagination, includes, and projection must not affect the count.
         return await _dbSet
-            .WithQuery(query, CountEvaluator)
+            .WithQuery(query, FilterEvaluator.Instance)
             .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -170,9 +164,9 @@ public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKe
             .ToListSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        // Count total records matching the query (without projection)
+        // Count all records matching Where and Search criteria, without paging.
         var totalCount = await _dbSet
-            .WithQuery(query, WhereEvaluator.Instance)
+            .WithQuery(query, FilterEvaluator.Instance)
             .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -206,7 +200,7 @@ public class Repository<T, TKey> : ChangeRepository<T, TKey>, IRepository<T, TKe
             .ConfigureAwait(false);
 
         var totalCount = await _dbSet
-            .WithQuery(query, WhereEvaluator.Instance)
+            .WithQuery(query, FilterEvaluator.Instance)
             .LongCountSafeAsync(cancellationToken)
             .ConfigureAwait(false);
 

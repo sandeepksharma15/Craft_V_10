@@ -1,9 +1,10 @@
 using Craft.Core;
+using Craft.Extensions.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using Craft.Extensions.Expressions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Craft.QuerySpec;
 
@@ -17,34 +18,25 @@ public static class SearchExtension
             .GetMethod(nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)])
         ?? throw new TargetException("The EF.Functions.Like not found");
 
-    private static readonly MethodInfo StringContainsMethodInfo = typeof(string)
-            .GetMethod(nameof(string.Contains), [typeof(string)])
-        ?? throw new TargetException("The string.Contains method not found");
-
-    private static readonly MethodInfo StringStartsWithMethodInfo = typeof(string)
-            .GetMethod(nameof(string.StartsWith), [typeof(string)])
-        ?? throw new TargetException("The string.StartsWith method not found");
-
-    private static readonly MethodInfo StringEndsWithMethodInfo = typeof(string)
-            .GetMethod(nameof(string.EndsWith), [typeof(string)])
-        ?? throw new TargetException("The string.EndsWith method not found");
-
     /// <summary>
-    /// Filters <paramref name="source"/> by applying an 'SQL LIKE' operation to it.
+    /// Filters <paramref name="source"/> by applying an SQL LIKE operation.
     /// </summary>
-    /// <typeparam name="T">The type being queried against.</typeparam>
-    /// <param name="source">The sequence of <typeparamref name="T"/></param>
-    /// <param name="criterias">
-    /// <list type="bullet">
-    ///     <item>Selector, the property to apply the SQL LIKE against.</item>
-    ///     <item>SearchString, the value to use for the SQL LIKE.</item>
-    /// </list>
-    /// </param>
-    /// <returns></returns>
     public static IQueryable<T>? Search<T>(this IQueryable<T> source, IEnumerable<SqlLikeSearchInfo<T>> criterias)
         where T : class
+        => Search(source, criterias, null);
+
+    /// <summary>
+    /// Filters <paramref name="source"/> by applying an SQL LIKE operation, using EF Core metadata
+    /// to recognise scalar properties whose provider representation is a string.
+    /// </summary>
+    internal static IQueryable<T>? Search<T>(
+        this IQueryable<T> source,
+        IEnumerable<SqlLikeSearchInfo<T>> criterias,
+        IReadOnlyEntityType? entityType)
+        where T : class
     {
-        if (criterias is null) return source;
+        if (criterias is null)
+            return source;
 
         Expression? expression = null;
         var parameter = Expression.Parameter(typeof(T), "x");
@@ -69,9 +61,14 @@ public static class SearchExtension
                 var searchTermAsExpression =
                     ((Expression<Func<string>>)(() => criteria.SearchString!)).Body;
 
-                var searchExpression = StringValueObjectSearch.GetSearchExpression(propertySelector.Body);
+                var searchExpression = GetSearchExpression(propertySelector.Body, entityType);
 
-                var likeExpression = BuildPredicate(searchExpression, criteria.SearchString!, searchTermAsExpression);
+                var likeExpression = Expression.Call(
+                    null,
+                    LikeMethodInfo,
+                    Functions,
+                    searchExpression,
+                    searchTermAsExpression);
 
                 groupExpression = groupExpression is null
                     ? likeExpression
@@ -91,51 +88,116 @@ public static class SearchExtension
             : source.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
     }
 
-    private static Expression BuildPredicate(Expression searchExpression, string searchTerm, Expression searchTermAsExpression)
+    private static Expression GetSearchExpression(
+        Expression expression,
+        IReadOnlyEntityType? entityType)
     {
-        ArgumentNullException.ThrowIfNull(searchExpression);
-        ArgumentException.ThrowIfNullOrWhiteSpace(searchTerm);
-        ArgumentNullException.ThrowIfNull(searchTermAsExpression);
+        expression = UnwrapConvert(expression);
 
-        if (TryBuildSimpleLikePredicate(searchExpression, searchTerm, out var predicate))
-            return predicate;
+        if (expression.Type == typeof(string))
+            return expression;
 
-        return Expression.Call(
-            null,
-            LikeMethodInfo,
-            Functions,
-            searchExpression,
-            searchTermAsExpression);
+        if (entityType is not null &&
+            TryGetMappedProperty(expression, entityType, out var property))
+        {
+            var providerClrType = property.GetTypeMapping().Converter?.ProviderClrType
+                                  ?? property.GetProviderClrType()
+                                  ?? property.ClrType;
+
+            if (providerClrType == typeof(string))
+                return ConvertStringBackedProperty(expression, property);
+        }
+
+        throw new NotSupportedException(
+            $"SQL LIKE search requires a string expression or a mapped property with a string provider type. " +
+            $"Property type '{expression.Type.Name}' is not supported.");
     }
 
-    private static bool TryBuildSimpleLikePredicate(Expression searchExpression, string searchTerm, out Expression predicate)
+    private static Expression ConvertStringBackedProperty(
+        Expression expression,
+        IReadOnlyProperty property)
     {
-        predicate = null!;
+        var modelType = Nullable.GetUnderlyingType(expression.Type) ?? expression.Type;
+        var conversion = FindConversionOperator(modelType, typeof(string));
 
-        if (searchExpression.Type != typeof(string) || searchTerm.Contains('_', StringComparison.Ordinal))
-            return false;
-
-        var startsWithWildcard = searchTerm.StartsWith('%');
-        var endsWithWildcard = searchTerm.EndsWith('%');
-        var value = searchTerm.Trim('%');
-
-        if (searchTerm.Length != value.Length + (startsWithWildcard ? 1 : 0) + (endsWithWildcard ? 1 : 0))
-            return false;
-
-        var constant = Expression.Constant(value);
-        var notNullExpression = Expression.NotEqual(searchExpression, Expression.Constant(null, typeof(string)));
-
-        Expression comparison = (startsWithWildcard, endsWithWildcard) switch
+        if (conversion is null)
         {
-            (true, true) => Expression.Call(searchExpression, StringContainsMethodInfo, constant),
-            (true, false) => Expression.Call(searchExpression, StringEndsWithMethodInfo, constant),
-            (false, true) => Expression.Call(searchExpression, StringStartsWithMethodInfo, constant),
-            (false, false) => Expression.Equal(searchExpression, constant)
-        };
+            throw new NotSupportedException(
+                $"Property '{property.DeclaringType.Name}.{property.Name}' is stored as string, but " +
+                $"'{modelType.Name}' does not expose an implicit or explicit conversion to string that can be " +
+                "represented in the LINQ expression tree.");
+        }
 
-        predicate = Expression.AndAlso(notNullExpression, comparison);
-        return true;
+        if (Nullable.GetUnderlyingType(expression.Type) is null)
+            return Expression.Convert(expression, typeof(string), conversion);
+
+        var hasValue = Expression.Property(expression, nameof(Nullable<int>.HasValue));
+        var value = Expression.Property(expression, nameof(Nullable<int>.Value));
+        var convertedValue = Expression.Convert(value, typeof(string), conversion);
+
+        return Expression.Condition(
+            hasValue,
+            convertedValue,
+            Expression.Constant(null, typeof(string)));
+    }
+
+    private static MethodInfo? FindConversionOperator(Type sourceType, Type targetType)
+    {
+        static bool IsConversion(MethodInfo method, Type source, Type target)
+        {
+            if (method.Name is not ("op_Implicit" or "op_Explicit") ||
+                method.ReturnType != target)
+                return false;
+
+            var parameters = method.GetParameters();
+            return parameters.Length == 1 && parameters[0].ParameterType == source;
+        }
+
+        var sourceConversion = sourceType
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .FirstOrDefault(method => IsConversion(method, sourceType, targetType));
+
+        if (sourceConversion is not null || sourceType == targetType)
+            return sourceConversion;
+
+        return targetType
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .FirstOrDefault(method => IsConversion(method, sourceType, targetType));
+    }
+
+    private static bool TryGetMappedProperty(
+        Expression expression,
+        IReadOnlyEntityType entityType,
+        out IReadOnlyProperty property)
+    {
+        expression = UnwrapConvert(expression);
+
+        if (expression is MemberExpression
+            {
+                Expression: ParameterExpression,
+                Member: PropertyInfo propertyInfo
+            } &&
+            entityType.FindProperty(propertyInfo.Name) is { } mappedProperty)
+        {
+            property = mappedProperty;
+            return true;
+        }
+
+        property = null!;
+        return false;
+    }
+
+    private static Expression UnwrapConvert(Expression expression)
+    {
+        while (expression is UnaryExpression
+               {
+                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked,
+                   Method: null
+               } unary)
+        {
+            expression = unary.Operand;
+        }
+
+        return expression;
     }
 }
-
-
