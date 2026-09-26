@@ -1,10 +1,9 @@
-using Craft.Core;
-using Craft.Extensions.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
+using Craft.Extensions.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Craft.QuerySpec;
 
@@ -113,40 +112,28 @@ public static class SearchExtension
             $"Property type '{expression.Type.Name}' is not supported.");
     }
 
-    private static Expression ConvertStringBackedProperty(
-        Expression expression,
-        IReadOnlyProperty property)
+    private static Expression ConvertStringBackedProperty(Expression expression, IReadOnlyProperty property)
     {
         var modelType = Nullable.GetUnderlyingType(expression.Type) ?? expression.Type;
-        var conversion = FindConversionOperator(modelType, typeof(string));
-
-        if (conversion is null)
-        {
-            throw new NotSupportedException(
-                $"Property '{property.DeclaringType.Name}.{property.Name}' is stored as string, but " +
-                $"'{modelType.Name}' does not expose an implicit or explicit conversion to string that can be " +
-                "represented in the LINQ expression tree.");
-        }
+        var conversion = FindConversionOperator(modelType, typeof(string))
+            ?? throw new NotSupportedException($"Property '{property.DeclaringType.Name}.{property.Name}' is stored as string, but " +
+                $"'{modelType.Name}' does not expose an implicit or explicit conversion to string that can be represented in the LINQ expression tree.");
 
         if (Nullable.GetUnderlyingType(expression.Type) is null)
             return Expression.Convert(expression, typeof(string), conversion);
 
-        var hasValue = Expression.Property(expression, nameof(Nullable<int>.HasValue));
-        var value = Expression.Property(expression, nameof(Nullable<int>.Value));
+        var hasValue = Expression.Property(expression, nameof(Nullable<>.HasValue));
+        var value = Expression.Property(expression, nameof(Nullable<>.Value));
         var convertedValue = Expression.Convert(value, typeof(string), conversion);
 
-        return Expression.Condition(
-            hasValue,
-            convertedValue,
-            Expression.Constant(null, typeof(string)));
+        return Expression.Condition(hasValue, convertedValue, Expression.Constant(null, typeof(string)));
     }
 
     private static MethodInfo? FindConversionOperator(Type sourceType, Type targetType)
     {
         static bool IsConversion(MethodInfo method, Type source, Type target)
         {
-            if (method.Name is not ("op_Implicit" or "op_Explicit") ||
-                method.ReturnType != target)
+            if (method.Name is not ("op_Implicit" or "op_Explicit") || method.ReturnType != target)
                 return false;
 
             var parameters = method.GetParameters();
@@ -190,10 +177,10 @@ public static class SearchExtension
     private static Expression UnwrapConvert(Expression expression)
     {
         while (expression is UnaryExpression
-               {
-                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked,
-                   Method: null
-               } unary)
+            {
+                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked,
+                Method: null
+            } unary)
         {
             expression = unary.Operand;
         }
