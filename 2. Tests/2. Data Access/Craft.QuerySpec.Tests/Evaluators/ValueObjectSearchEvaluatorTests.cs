@@ -16,7 +16,7 @@ public class ValueObjectSearchEvaluatorTests
         Seed(context);
 
         var query = new Query<SearchEntity>();
-        query.Search(x => x.Code, "%0123%");
+        query.Search(x => x.Code, "%01234%");
 
         var translatedQuery = context.Entities.WithQuery(query);
         var sql = translatedQuery.ToQueryString();
