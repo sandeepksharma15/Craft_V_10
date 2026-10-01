@@ -309,4 +309,39 @@ public static class TypeExtensions
         var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
         return underlyingType.IsEnum;
     }
+
+    /// <summary>
+    /// Determines whether a type is a value object that exposes an underlying string value.
+    /// </summary>
+    /// <param name="type">The type to inspect.</param>
+    /// <returns><see langword="true"/> when the type behaves like a string-backed value object; otherwise, <see langword="false"/>.</returns>
+    public static bool IsStringBackedValueObject(this Type? type)
+    {
+        if (type is null) return false;
+
+        var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+
+        if (underlyingType == typeof(string) || underlyingType.IsPrimitive || underlyingType.IsEnum)
+            return false;
+
+        var valueProperty = underlyingType.GetProperty("Value", BindingFlags.Public | BindingFlags.Instance);
+
+        return valueProperty?.PropertyType == typeof(string);
+    }
+
+    /// <summary>
+    /// Gets the effective searchable type for a property.
+    /// </summary>
+    /// <param name="type">The property type.</param>
+    /// <returns>The underlying searchable type.</returns>
+    public static Type GetSearchableType(this Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+
+        var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+
+        return underlyingType.IsStringBackedValueObject()
+            ? typeof(string)
+            : underlyingType;
+    }
 }

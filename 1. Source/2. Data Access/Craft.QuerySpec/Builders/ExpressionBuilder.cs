@@ -9,6 +9,8 @@ namespace Craft.QuerySpec;
 /// </summary>
 public static class ExpressionBuilder
 {
+    private const string ValuePropertyName = "Value";
+
     // Cached MethodInfo references for string operations
     private static readonly MethodInfo _toLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)
         ?? throw new InvalidOperationException("Could not find 'ToLower' method on string.");
@@ -49,10 +51,15 @@ public static class ExpressionBuilder
         if (memberAccess is not MemberExpression leftExpression)
             throw new ArgumentException($"Could not create member expression for property path '{filterInfo.Name}'.");
 
-        Type dataType = filterInfo.PropertyType;
-        object? value = filterInfo.Value;
+        var searchableExpression = GetSearchableExpression(leftExpression, out var nullGuard);
+        Type dataType = searchableExpression.Type.GetSearchableType();
+        object? value = NormalizeFilterValue(filterInfo.PropertyType, filterInfo.Value);
+        var comparison = GetEffectiveComparison(filterInfo.PropertyType, filterInfo.Comparison);
 
-        Expression exprBody = CreateExpressionBody(leftExpression, dataType, value, filterInfo.Comparison);
+        Expression exprBody = CreateExpressionBody(searchableExpression, dataType, value, comparison);
+
+        if (nullGuard is not null)
+            exprBody = Expression.AndAlso(nullGuard, exprBody);
 
         return Expression.Lambda<Func<T, bool>>(exprBody, lambdaParam);
     }
@@ -80,8 +87,14 @@ public static class ExpressionBuilder
 
         MemberExpression memberExpression = Expression.Property(lambdaParam, name);
 
-        var dataType = memberExpression.Type;
-        var exprBody = CreateExpressionBody(memberExpression, dataType, dataValue, comparison);
+        var searchableExpression = GetSearchableExpression(memberExpression, out var nullGuard);
+        var dataType = searchableExpression.Type.GetSearchableType();
+        var value = NormalizeFilterValue(memberExpression.Type, dataValue);
+        var effectiveComparison = GetEffectiveComparison(memberExpression.Type, comparison);
+        var exprBody = CreateExpressionBody(searchableExpression, dataType, value, effectiveComparison);
+
+        if (nullGuard is not null)
+            exprBody = Expression.AndAlso(nullGuard, exprBody);
 
         return Expression.Lambda<Func<T, bool>>(exprBody, lambdaParam);
     }
@@ -120,7 +133,7 @@ public static class ExpressionBuilder
     }
 
     // Creates the body of the filter expression for the given property, type, value, and comparison.
-    private static Expression CreateExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
+    private static Expression CreateExpressionBody(Expression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
         return dataType == typeof(string)
             ? CreateStringExpressionBody(leftExpression, dataType, value, comparison)
@@ -128,7 +141,7 @@ public static class ExpressionBuilder
     }
 
     // Creates the body of the filter expression for non-string types.
-    private static Expression CreateNonStringExpressionBody(MemberExpression leftExpression, object? value, ComparisonType comparison)
+    private static Expression CreateNonStringExpressionBody(Expression leftExpression, object? value, ComparisonType comparison)
     {
         var targetType = Nullable.GetUnderlyingType(leftExpression.Type) ?? leftExpression.Type;
 
@@ -162,7 +175,7 @@ public static class ExpressionBuilder
 
     // Creates the body of the filter expression for string types, using case-insensitive comparison via ToLower().
     // Note: EF Core cannot translate StringComparison overloads, so we use ToLower() which it can translate to SQL.
-    private static Expression CreateStringExpressionBody(MemberExpression leftExpression, Type dataType, object? value, ComparisonType comparison)
+    private static Expression CreateStringExpressionBody(Expression leftExpression, Type dataType, object? value, ComparisonType comparison)
     {
         // Convert both sides to lowercase for case-insensitive comparison
         var leftLower = Expression.Call(leftExpression, _toLowerMethod);
@@ -179,5 +192,42 @@ public static class ExpressionBuilder
             _ => throw new ArgumentException("String type doesn't support this comparison", nameof(comparison)),
         };
     }
+
+    private static Expression GetSearchableExpression(Expression expression, out Expression? nullGuard)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+
+        nullGuard = null;
+
+        var propertyType = expression.Type;
+        var nullableUnderlyingType = Nullable.GetUnderlyingType(propertyType);
+
+        if (nullableUnderlyingType?.IsStringBackedValueObject() == true)
+        {
+            nullGuard = Expression.Property(expression, nameof(Nullable<int>.HasValue));
+            var underlyingValueExpression = Expression.Property(expression, ValuePropertyName);
+            return Expression.Property(underlyingValueExpression, ValuePropertyName);
+        }
+
+        if (!propertyType.IsStringBackedValueObject())
+            return expression;
+
+        return Expression.Property(expression, ValuePropertyName);
+    }
+
+    private static object? NormalizeFilterValue(Type propertyType, object? value)
+    {
+        if (value is null)
+            return null;
+
+        return propertyType.IsStringBackedValueObject()
+            ? value.ToString()
+            : value;
+    }
+
+    private static ComparisonType GetEffectiveComparison(Type propertyType, ComparisonType comparison)
+        => propertyType.IsStringBackedValueObject()
+            ? ComparisonType.Contains
+            : comparison;
 }
 

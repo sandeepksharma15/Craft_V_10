@@ -11,6 +11,8 @@ public class ExpressionBuilderTests
         public double Score { get; set; }
         public DateTime Created { get; set; }
         public bool IsActive { get; set; }
+        public TestCode Code { get; set; }
+        public TestCode? OptionalCode { get; set; }
     }
 
     #region CreateWhereExpression(FilterCriteria) Tests
@@ -49,6 +51,29 @@ public class ExpressionBuilderTests
     {
         var criteria = new FilterCriteria(typeof(string), nameof(TestEntity.Name), "abc", cmp);
         Assert.Throws<ArgumentException>(() => ExpressionBuilder.CreateWhereExpression<TestEntity>(criteria));
+    }
+
+    [Fact]
+    public void CreateWhereExpression_StringBackedValueObject_UsesContainsSemantics()
+    {
+        var criteria = new FilterCriteria(typeof(TestCode), nameof(TestEntity.Code), "123", ComparisonType.EqualTo);
+        var expr = ExpressionBuilder.CreateWhereExpression<TestEntity>(criteria);
+        var compiled = expr.Compile();
+
+        Assert.True(compiled(new TestEntity { Code = new TestCode("ABC123XYZ") }));
+        Assert.False(compiled(new TestEntity { Code = new TestCode("ABCXYZ") }));
+    }
+
+    [Fact]
+    public void CreateWhereExpression_NullableStringBackedValueObject_IgnoresNullsAndUsesContainsSemantics()
+    {
+        var criteria = new FilterCriteria(typeof(TestCode?), nameof(TestEntity.OptionalCode), "999", ComparisonType.EqualTo);
+        var expr = ExpressionBuilder.CreateWhereExpression<TestEntity>(criteria);
+        var compiled = expr.Compile();
+
+        Assert.True(compiled(new TestEntity { OptionalCode = new TestCode("AB999CD") }));
+        Assert.False(compiled(new TestEntity { OptionalCode = new TestCode("ABCDE") }));
+        Assert.False(compiled(new TestEntity { OptionalCode = null }));
     }
 
     [Theory]
@@ -349,6 +374,8 @@ public class ExpressionBuilderTests
         public string Name { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
     }
+
+    private readonly record struct TestCode(string Value);
 
     #endregion
 }
