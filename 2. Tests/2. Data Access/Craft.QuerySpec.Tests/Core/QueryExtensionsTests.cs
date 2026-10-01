@@ -342,6 +342,40 @@ public class QueryExtensionsTests
         Assert.Equal(3, result.Take);
     }
 
+    [Fact]
+    public void ApplyFilterCriteria_StringBackedValueObject_RoutesToSqlLikeSearch()
+    {
+        IQuery<TestEntity> query = new Query<TestEntity>();
+        var filter = new EntityFilterCriteria<TestEntity>(
+            entity => entity.Code.Value.Contains("123"),
+            new FilterCriteria(typeof(TestCode), nameof(TestEntity.Code), "123", ComparisonType.Contains));
+
+        var result = query.ApplyFilterCriteria(filter, searchGroup: 7);
+
+        Assert.NotNull(result);
+        Assert.Empty(result.EntityFilterBuilder?.EntityFilterList ?? []);
+
+        var search = Assert.Single(result.SqlLikeSearchCriteriaBuilder?.SqlLikeSearchCriteriaList ?? []);
+        Assert.Equal(7, search.SearchGroup);
+        Assert.Equal("%123%", search.SearchString);
+    }
+
+    [Fact]
+    public void ApplyFilterCriteria_RegularFilter_RoutesToEntityFilterBuilder()
+    {
+        IQuery<TestEntity> query = new Query<TestEntity>();
+        var filter = new EntityFilterCriteria<TestEntity>(
+            entity => entity.Name.Contains("abc"),
+            new FilterCriteria(typeof(string), nameof(TestEntity.Name), "abc", ComparisonType.Contains));
+
+        var result = query.ApplyFilterCriteria(filter, searchGroup: 3);
+
+        Assert.NotNull(result);
+        var entityFilter = Assert.Single(result.EntityFilterBuilder?.EntityFilterList ?? []);
+        Assert.Same(filter, entityFilter);
+        Assert.Empty(result.SqlLikeSearchCriteriaBuilder?.SqlLikeSearchCriteriaList ?? []);
+    }
+
     private class QueryStubWithoutSortOrderBuilder : IQuery<Company>
     {
         public bool AsNoTracking { get; set; }
@@ -360,4 +394,12 @@ public class QueryExtensionsTests
         public bool IsSatisfiedBy(Company entity) => true;
         public void SetPage(int page, int pageSize) { }
     }
+
+    private sealed class TestEntity
+    {
+        public TestCode Code { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    private readonly record struct TestCode(string Value);
 }
