@@ -1,4 +1,3 @@
-using Craft.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -204,7 +203,7 @@ public static class ExpressionBuilder
 
         if (nullableUnderlyingType?.IsStringBackedValueObject() == true)
         {
-            nullGuard = Expression.Property(expression, nameof(Nullable<int>.HasValue));
+            nullGuard = Expression.Property(expression, nameof(Nullable<>.HasValue));
             var underlyingValueExpression = Expression.Property(expression, ValuePropertyName);
             return Expression.Property(underlyingValueExpression, ValuePropertyName);
         }
