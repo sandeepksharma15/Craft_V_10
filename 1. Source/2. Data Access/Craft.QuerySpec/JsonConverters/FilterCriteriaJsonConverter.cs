@@ -76,8 +76,9 @@ public sealed class FilterCriteriaJsonConverter : JsonConverter<FilterCriteria>
         {
             try
             {
-                // Deserialize value using the actual property type
-                value = JsonSerializer.Deserialize(valueElement.Value.GetRawText(), propertyType, options);
+                value = propertyType.IsStringBackedValueObject()
+                    ? JsonSerializer.Deserialize<string>(valueElement.Value.GetRawText(), options)
+                    : JsonSerializer.Deserialize(valueElement.Value.GetRawText(), propertyType, options);
             }
             catch (JsonException ex)
             {

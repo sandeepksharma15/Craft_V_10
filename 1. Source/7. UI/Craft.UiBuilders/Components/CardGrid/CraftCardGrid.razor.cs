@@ -587,12 +587,11 @@ public partial class CraftCardGrid<TEntity> : ICraftCardGrid<TEntity>
 
     private void ApplyFilters(Query<TEntity> query)
     {
-        if (_filterBuilder.Count == 0 || query.EntityFilterBuilder is null)
+        if (_filterBuilder.Count == 0)
             return;
 
-        // Copy filters from our builder to the query's builder
-        foreach (var filterCriteria in _filterBuilder.EntityFilterList)
-            query.EntityFilterBuilder.Add(filterCriteria);
+        for (var index = 0; index < _filterBuilder.EntityFilterList.Count; index++)
+            query.ApplyFilterCriteria(_filterBuilder.EntityFilterList[index], index + 1);
     }
 
     private void ApplySorting(Query<TEntity> query)

@@ -353,9 +353,9 @@ public class RepositoryTests
         var count = await repo.GetCountAsync(query);
 
         // Assert
-        Assert.Single(results);
+        var item = Assert.Single(results);
         Assert.Equal((long)results.Count, count);
-        Assert.Equal("Country 1", results[0].Name);
+        Assert.Equal("Country 1", item.Name);
     }
 
     [Fact]
@@ -687,9 +687,9 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var repo = CreateRepository(context);
-        var countries = new List<Country> { 
-            new() { Name = "Test" }, 
-            new() { Name = "Test" } 
+        var countries = new List<Country> {
+            new() { Name = "Test" },
+            new() { Name = "Test" }
         };
         context.Countries?.AddRange(countries);
         await context.SaveChangesAsync();
@@ -698,7 +698,7 @@ public class RepositoryTests
         // Act & Assert
         IQuery<Country> query = new Query<Country>();
         query.Where(c => c.Name == "Test");
-        
+
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => repo.GetAsync(query));
         Assert.Equal("Sequence contains more than one matching element.", exception.Message);
@@ -712,9 +712,9 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var repo = CreateRepository(context);
-        var countries = new List<Country> { 
-            new() { Name = "Test" }, 
-            new() { Name = "Test" } 
+        var countries = new List<Country> {
+            new() { Name = "Test" },
+            new() { Name = "Test" }
         };
         context.Countries?.AddRange(countries);
         await context.SaveChangesAsync();
@@ -727,7 +727,7 @@ public class RepositoryTests
                 .Add(c => c.Name!, d => d.Name!)
         };
         query.Where(c => c.Name == "Test");
-        
+
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => repo.GetAsync(query));
         Assert.Equal("Sequence contains more than one matching element.", exception.Message);
@@ -834,9 +834,9 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var repo = CreateRepository(context);
-        var query = new Query<Country, CountryDto> 
-        { 
-            Skip = 0, 
+        var query = new Query<Country, CountryDto>
+        {
+            Skip = 0,
             Take = 10,
             QuerySelectBuilder = new QuerySelectBuilder<Country, CountryDto>()
                 .Add(c => c.Name!, d => d.Name!)
@@ -894,12 +894,12 @@ public class RepositoryTests
         context.Database.EnsureCreated();
 
         var repo = CreateRepository(context);
-        
+
         // Clear any seeded data first
         var existing = await context.Countries!.ToListAsync();
         context.Countries!.RemoveRange(existing);
         await context.SaveChangesAsync();
-        
+
         var countries = Enumerable.Range(1, 1000)
             .Select(i => new Country { Name = $"Country{i}" })
             .ToList();

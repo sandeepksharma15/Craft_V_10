@@ -72,5 +72,37 @@ public static class QueryExtensions
     {
         return query is null || query.SortOrderBuilder is null || query.SortOrderBuilder.OrderDescriptorList.Count == 0;
     }
+
+    /// <summary>
+    /// Applies advanced filter metadata to a query using the appropriate query builder.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="query">The query to update.</param>
+    /// <param name="filterCriteria">The advanced filter criteria to apply.</param>
+    /// <param name="searchGroup">The search group to use when routing string-backed value object filters through SQL-like search.</param>
+    /// <returns>The updated query.</returns>
+    public static IQuery<T>? ApplyFilterCriteria<T>(this IQuery<T> query, EntityFilterCriteria<T> filterCriteria, int searchGroup = 1)
+        where T : class
+    {
+        if (query is null)
+            return null;
+
+        ArgumentNullException.ThrowIfNull(filterCriteria);
+
+        var metadata = filterCriteria.Metadata;
+        if (metadata?.PropertyType.IsStringBackedValueObject() == true)
+        {
+            var searchValue = metadata.Value?.ToString();
+
+            if (string.IsNullOrWhiteSpace(searchValue))
+                return query;
+
+            query.Search(metadata.Name, $"%{searchValue.Trim()}%", searchGroup);
+            return query;
+        }
+
+        query.EntityFilterBuilder?.Add(filterCriteria);
+        return query;
+    }
 }
 

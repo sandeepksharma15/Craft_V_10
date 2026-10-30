@@ -37,6 +37,9 @@ public static class ComparisonTypeExtensions
     {
         var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
+        if (underlyingType.IsStringBackedValueObject())
+            return [ComparisonType.Contains];
+
         if (underlyingType.IsNumeric())
             return [
                 ComparisonType.EqualTo,

@@ -16,15 +16,15 @@ public class ValueObjectSearchEvaluatorTests
         Seed(context);
 
         var query = new Query<SearchEntity>();
-        query.Search(x => x.Code, "%0123%");
+        query.Search(x => x.Code, "%01234%");
 
         var translatedQuery = context.Entities.WithQuery(query);
         var sql = translatedQuery.ToQueryString();
         var results = translatedQuery.ToList();
 
         Assert.Contains("LIKE", sql, StringComparison.OrdinalIgnoreCase);
-        Assert.Single(results);
-        Assert.Equal(1, results[0].Id);
+        var item = Assert.Single(results);
+        Assert.Equal(1, item.Id);
     }
 
     [Fact]
@@ -44,8 +44,8 @@ public class ValueObjectSearchEvaluatorTests
         var results = translatedQuery.ToList();
 
         Assert.Contains("LIKE", sql, StringComparison.OrdinalIgnoreCase);
-        Assert.Single(results);
-        Assert.Equal(1, results[0].Id);
+        var item = Assert.Single(results);
+        Assert.Equal(1, item.Id);
     }
 
     [Fact]
@@ -63,8 +63,8 @@ public class ValueObjectSearchEvaluatorTests
 
         var results = context.Entities.WithQuery(query).ToList();
 
-        Assert.Single(results);
-        Assert.Equal(1, results[0].Id);
+        var item = Assert.Single(results);
+        Assert.Equal(1, item.Id);
     }
 
     private static SearchDbContext CreateContext(SqliteConnection connection)
